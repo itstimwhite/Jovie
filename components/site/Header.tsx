@@ -30,7 +30,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-4">
             <Link href="/" className="flex items-center space-x-2">
-              <Logo size="md" />
+              <Logo size="sm" />
             </Link>
           </div>
 
