@@ -37,11 +37,15 @@ export function AnalyticsCards({ artistId }: AnalyticsCardsProps) {
       if (socialError) throw socialError;
 
       const totalClicks = clickEvents.length;
-      const listenClicks = clickEvents.filter(e => e.link_type === 'listen').length;
-      const socialClicks = clickEvents.filter(e => e.link_type === 'social').length;
+      const listenClicks = clickEvents.filter(
+        (e) => e.link_type === 'listen'
+      ).length;
+      const socialClicks = clickEvents.filter(
+        (e) => e.link_type === 'social'
+      ).length;
 
       const linkBreakdown = [
-        ...socialLinks.map(link => ({
+        ...socialLinks.map((link) => ({
           type: 'social' as const,
           target: link.platform,
           clicks: link.clicks,
@@ -51,8 +55,9 @@ export function AnalyticsCards({ artistId }: AnalyticsCardsProps) {
           target: 'spotify',
           clicks: listenClicks,
         },
-      ].filter(item => item.clicks > 0)
-       .sort((a, b) => b.clicks - a.clicks);
+      ]
+        .filter((item) => item.clicks > 0)
+        .sort((a, b) => b.clicks - a.clicks);
 
       setAnalytics({
         totalClicks,
@@ -140,7 +145,7 @@ export function AnalyticsCards({ artistId }: AnalyticsCardsProps) {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {analytics.linkBreakdown.map((item, index) => (
+              {analytics.linkBreakdown.map((item) => (
                 <div
                   key={`${item.type}-${item.target}`}
                   className="flex items-center justify-between"

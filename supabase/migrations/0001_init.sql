@@ -127,3 +127,13 @@ $$ language plpgsql security definer;
 
 -- Trigger for new user creation
 -- Note: This would typically be set up via Clerk webhooks in production
+
+-- Function to increment clicks on social links
+create or replace function increment_clicks(link_id uuid)
+returns void as $$
+begin
+  update social_links 
+  set clicks = clicks + 1 
+  where id = link_id;
+end;
+$$ language plpgsql security definer;

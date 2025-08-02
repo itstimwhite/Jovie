@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { createServerClient } from '@/lib/supabase';
-import { buildSpotifyArtistUrl, buildSpotifyAlbumUrl } from '@/lib/spotify';
+import { createServerClient } from '@/lib/supabase-server';
+import { buildSpotifyArtistUrl } from '@/lib/spotify';
 import { LISTEN_COOKIE } from '@/constants/app';
 import { Artist, Release } from '@/types/db';
 
@@ -9,14 +9,14 @@ export const runtime = 'edge';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { handle: string } }
+  { params }: { params: Promise<{ handle: string }> }
 ) {
-  const { handle } = params;
-  const cookieStore = cookies();
+  const { handle } = await params;
+  const cookieStore = await cookies();
   const preference = cookieStore.get(LISTEN_COOKIE)?.value;
 
   const supabase = await createServerClient();
-  
+
   const { data: artist, error: artistError } = await supabase
     .from('artists')
     .select('*')
@@ -41,8 +41,8 @@ export async function GET(
       .single();
 
     const releaseData = release as Release | null;
-    const redirectUrl = releaseData 
-      ? releaseData.url 
+    const redirectUrl = releaseData
+      ? releaseData.url
       : buildSpotifyArtistUrl(artistData.spotify_id);
 
     return NextResponse.redirect(redirectUrl);

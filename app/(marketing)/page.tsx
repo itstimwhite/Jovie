@@ -13,13 +13,14 @@ export default function HomePage() {
                 One link. All your music.
               </h1>
               <p className="mx-auto max-w-[700px] text-lg text-gray-500 dark:text-gray-400 md:text-xl">
-                Jovie auto-builds a clean profile that sends fans straight to your music.
+                Jovie auto-builds a clean profile that sends fans straight to
+                your music.
               </p>
             </div>
             <div className="space-x-4">
-              <Button asChild size="lg">
-                <Link href="/sign-in">Login with Spotify</Link>
-              </Button>
+              <Link href="/sign-in">
+                <Button size="lg">Login with Spotify</Button>
+              </Link>
             </div>
           </div>
         </Container>
@@ -43,7 +44,8 @@ export default function HomePage() {
               </div>
               <h3 className="text-xl font-bold">Simple Setup</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                Connect your Spotify account and we'll automatically pull your music and profile.
+                Connect your Spotify account and we&apos;ll automatically pull
+                your music and profile.
               </p>
             </div>
             <div className="space-y-4 text-center">
@@ -62,7 +64,8 @@ export default function HomePage() {
               </div>
               <h3 className="text-xl font-bold">Smart Routing</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                Fans get sent to the right streaming platform based on their device and preferences.
+                Fans get sent to the right streaming platform based on their
+                device and preferences.
               </p>
             </div>
             <div className="space-y-4 text-center">

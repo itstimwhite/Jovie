@@ -39,18 +39,10 @@ export function ProfileLinkCard({ artist }: ProfileLinkCardProps) {
             </p>
           </div>
           <div className="flex space-x-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleCopy}
-            >
+            <Button variant="secondary" size="sm" onClick={handleCopy}>
               {copied ? 'Copied!' : 'Copy'}
             </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleViewProfile}
-            >
+            <Button variant="primary" size="sm" onClick={handleViewProfile}>
               View Profile
             </Button>
           </div>

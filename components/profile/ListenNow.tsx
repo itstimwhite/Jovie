@@ -34,11 +34,7 @@ export function ListenNow({ handle, artistName }: ListenNowProps) {
 
   return (
     <div className="w-full max-w-sm">
-      <Button
-        onClick={handleClick}
-        className="w-full"
-        size="lg"
-      >
+      <Button onClick={handleClick} className="w-full" size="lg">
         Listen Now
       </Button>
     </div>

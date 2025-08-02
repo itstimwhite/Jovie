@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase-server';
 import { detectPlatformFromUA } from '@/lib/utils';
 
 export async function POST(request: NextRequest) {
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createServerClient();
-    
+
     const { data: artist, error: artistError } = await supabase
       .from('artists')
       .select('id')
@@ -23,36 +23,28 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (artistError || !artist) {
-      return NextResponse.json(
-        { error: 'Artist not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Artist not found' }, { status: 404 });
     }
 
     const userAgent = request.headers.get('user-agent');
     const platformDetected = detectPlatformFromUA(userAgent || undefined);
 
-    const { error: clickError } = await supabase
-      .from('click_events')
-      .insert({
-        artist_id: artist.id,
-        link_type: linkType,
-        target,
-        ua: userAgent,
-        platform_detected: platformDetected,
-      });
+    const { error: clickError } = await supabase.from('click_events').insert({
+      artist_id: artist.id,
+      link_type: linkType,
+      target,
+      ua: userAgent,
+      platform_detected: platformDetected,
+    });
 
     if (clickError) {
       console.error('Error inserting click event:', clickError);
     }
 
     if (linkType === 'social' && linkId) {
-      const { error: updateError } = await supabase
-        .from('social_links')
-        .update({
-          clicks: supabase.raw('clicks + 1'),
-        })
-        .eq('id', linkId);
+      const { error: updateError } = await supabase.rpc('increment_clicks', {
+        link_id: linkId,
+      });
 
       if (updateError) {
         console.error('Error updating social link clicks:', updateError);

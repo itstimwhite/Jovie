@@ -1,5 +1,5 @@
 import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwindcss-merge';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -25,14 +25,14 @@ export function extractSpotifyId(url: string): string | null {
     /^spotify:artist:([a-zA-Z0-9]+)$/,
     /^([a-zA-Z0-9]+)$/,
   ];
-  
+
   for (const pattern of patterns) {
     const match = url.match(pattern);
     if (match) {
       return match[1];
     }
   }
-  
+
   return null;
 }
 
@@ -46,13 +46,13 @@ export function formatDate(date: string | Date): string {
 
 export function detectPlatformFromUA(userAgent?: string): string | null {
   if (!userAgent) return null;
-  
+
   const ua = userAgent.toLowerCase();
-  
+
   if (ua.includes('iphone') || ua.includes('ipad')) return 'ios';
   if (ua.includes('android')) return 'android';
   if (ua.includes('macintosh')) return 'macos';
   if (ua.includes('windows')) return 'windows';
-  
+
   return 'web';
 }

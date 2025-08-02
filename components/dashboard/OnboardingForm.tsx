@@ -6,7 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { createBrowserClient } from '@/lib/supabase';
-import { getSpotifyArtist, getArtistLatestRelease, buildSpotifyAlbumUrl } from '@/lib/spotify';
+import {
+  getSpotifyArtist,
+  getArtistLatestRelease,
+  buildSpotifyAlbumUrl,
+} from '@/lib/spotify';
 import { extractSpotifyId, generateHandle } from '@/lib/utils';
 import { Artist } from '@/types/db';
 
@@ -121,7 +125,7 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
             required
             error={error}
           />
-          
+
           <Input
             label="Custom Handle (optional)"
             placeholder="your-artist-name"

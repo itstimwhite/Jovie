@@ -40,7 +40,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
         .single();
 
       if (error) throw error;
-      
+
       onUpdate(data);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
@@ -94,11 +94,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
             </p>
           )}
 
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full"
-          >
+          <Button type="submit" disabled={loading} className="w-full">
             {loading ? 'Saving...' : 'Save Changes'}
           </Button>
         </form>

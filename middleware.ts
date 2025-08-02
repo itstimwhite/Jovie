@@ -1,22 +1,23 @@
-import { authMiddleware } from '@clerk/nextjs';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
-export default authMiddleware({
-  publicRoutes: [
-    '/',
-    '/legal/privacy',
-    '/legal/terms',
-    '/api/track',
-  ],
-  ignoredRoutes: [
-    '/favicon.ico',
-    '/brand/(.*)',
-    '/og/(.*)',
-  ],
-  afterAuth(auth, req) {
-    if (auth.userId && req.nextUrl.pathname === '/') {
-      return Response.redirect(new URL('/dashboard', req.url));
-    }
-  },
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/legal/privacy',
+  '/legal/terms',
+  '/api/track',
+]);
+
+export default clerkMiddleware(async (auth, req) => {
+  const { userId, redirectToSignIn } = await auth();
+
+  if (!isPublicRoute(req) && !userId) {
+    return redirectToSignIn();
+  }
+
+  if (userId && req.nextUrl.pathname === '/') {
+    return NextResponse.redirect(new URL('/dashboard', req.url));
+  }
 });
 
 export const config = {

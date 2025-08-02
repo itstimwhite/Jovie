@@ -30,10 +30,7 @@ export function Header() {
                 }}
               />
             ) : (
-              <Link
-                href="/sign-in"
-                className="btn btn-primary btn-sm"
-              >
+              <Link href="/sign-in" className="btn btn-primary btn-sm">
                 Sign In
               </Link>
             )}

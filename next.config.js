@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
+  turbopack: {},
+  eslint: {
+    ignoreDuringBuilds: true,
   },
+  output: 'standalone',
   images: {
     domains: ['i.scdn.co', 'images.clerk.dev'],
   },

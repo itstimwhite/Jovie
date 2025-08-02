@@ -5,7 +5,7 @@ const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
 async function getSpotifyToken(): Promise<string> {
   const clientId = process.env.SPOTIFY_CLIENT_ID;
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-  
+
   if (!clientId || !clientSecret) {
     throw new Error('Spotify credentials not configured');
   }
@@ -27,9 +27,11 @@ async function getSpotifyToken(): Promise<string> {
   return data.access_token;
 }
 
-export async function getSpotifyArtist(artistId: string): Promise<SpotifyArtist> {
+export async function getSpotifyArtist(
+  artistId: string
+): Promise<SpotifyArtist> {
   const token = await getSpotifyToken();
-  
+
   const response = await fetch(`${SPOTIFY_API_BASE}/artists/${artistId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -43,9 +45,11 @@ export async function getSpotifyArtist(artistId: string): Promise<SpotifyArtist>
   return response.json();
 }
 
-export async function getArtistLatestRelease(artistId: string): Promise<SpotifyAlbum | null> {
+export async function getArtistLatestRelease(
+  artistId: string
+): Promise<SpotifyAlbum | null> {
   const token = await getSpotifyToken();
-  
+
   const response = await fetch(
     `${SPOTIFY_API_BASE}/artists/${artistId}/albums?include_groups=album,single&limit=50&market=US`,
     {
@@ -61,13 +65,15 @@ export async function getArtistLatestRelease(artistId: string): Promise<SpotifyA
 
   const data = await response.json();
   const albums = data.items as SpotifyAlbum[];
-  
+
   if (albums.length === 0) {
     return null;
   }
 
   const sortedAlbums = albums.sort((a, b) => {
-    return new Date(b.release_date).getTime() - new Date(a.release_date).getTime();
+    return (
+      new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
+    );
   });
 
   return sortedAlbums[0];

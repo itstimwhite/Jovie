@@ -17,8 +17,9 @@ Jovie is a Next.js application that integrates with multiple services for authen
 ## Environment Configuration
 
 The project uses environment variables stored in `.env.local` for:
+
 - App URL configuration (jov.ie)
-- Supabase database connection and API keys  
+- Supabase database connection and API keys
 - Clerk authentication keys
 - Spotify OAuth credentials
 - Placeholder variables for analytics and billing (Segment, Stripe, RevenueCat)
@@ -26,6 +27,7 @@ The project uses environment variables stored in `.env.local` for:
 ## Development Setup
 
 This project appears to be a new Next.js application. Standard Next.js development commands would be:
+
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run start` - Start production server
@@ -36,6 +38,7 @@ Note: No package.json exists yet, so these commands are not currently available.
 ## Architecture Notes
 
 Based on the environment configuration, the application is designed to:
+
 - Use Supabase for database operations and backend services
 - Handle user authentication through Clerk
 - Integrate with Spotify's API for music-related features

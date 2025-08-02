@@ -1,4 +1,4 @@
-import { SocialPlatform, DSP } from '@/constants/app';
+import { SocialPlatform } from '@/constants/app';
 
 export interface SpotifyArtist {
   id: string;

@@ -36,29 +36,34 @@ Jovie is a high-conversion link-in-bio service specifically designed for musicia
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/your-org/jovie.git
 cd jovie
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env.local
 # Fill in your actual values
 ```
 
 4. Set up the database:
+
 ```bash
 # Run the Supabase migration
 psql -d your_database_url -f supabase/migrations/0001_init.sql
 ```
 
 5. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -68,17 +73,20 @@ Visit `http://localhost:3000` to see the app in action.
 ### Environment Setup
 
 #### Supabase
+
 1. Create a new Supabase project
 2. Run the migration script in `supabase/migrations/0001_init.sql`
 3. Get your URL and anon key from the project settings
 
 #### Clerk
+
 1. Create a Clerk application
 2. Enable Spotify as a social provider
 3. Configure redirect URLs for your domain
 4. Get your publishable and secret keys
 
 #### Spotify
+
 1. Create a Spotify Developer App
 2. Add your domain to redirect URIs
 3. Get your Client ID and Client Secret
@@ -182,6 +190,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 For support and questions:
+
 - Open an issue on GitHub
 - Check the documentation
 - Contact us at support@jov.ie

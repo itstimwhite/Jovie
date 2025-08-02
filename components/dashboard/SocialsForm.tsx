@@ -83,7 +83,7 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
         .eq('id', linkId);
 
       if (error) throw error;
-      setSocialLinks(socialLinks.filter(link => link.id !== linkId));
+      setSocialLinks(socialLinks.filter((link) => link.id !== linkId));
     } catch (error) {
       console.error('Error deleting social link:', error);
     }
@@ -131,10 +131,7 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
               <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             )}
 
-            <Button
-              type="submit"
-              disabled={loading || !newPlatform || !newUrl}
-            >
+            <Button type="submit" disabled={loading || !newPlatform || !newUrl}>
               {loading ? 'Adding...' : 'Add Link'}
             </Button>
           </form>

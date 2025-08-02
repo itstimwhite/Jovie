@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { createBrowserClient } from '@/lib/supabase';
 import { buildSpotifyArtistUrl } from '@/lib/spotify';
@@ -15,7 +14,6 @@ interface ListenNowFormProps {
 
 export function ListenNowForm({ artist }: ListenNowFormProps) {
   const [releases, setReleases] = useState<Release[]>([]);
-  const [loading, setLoading] = useState(false);
   const supabase = createBrowserClient();
 
   useEffect(() => {
@@ -37,9 +35,10 @@ export function ListenNowForm({ artist }: ListenNowFormProps) {
     }
   };
 
-  const currentListenUrl = releases.length > 0 
-    ? releases[0].url 
-    : buildSpotifyArtistUrl(artist.spotify_id);
+  const currentListenUrl =
+    releases.length > 0
+      ? releases[0].url
+      : buildSpotifyArtistUrl(artist.spotify_id);
 
   return (
     <div className="space-y-6">
@@ -57,8 +56,8 @@ export function ListenNowForm({ artist }: ListenNowFormProps) {
                 {currentListenUrl}
               </p>
               <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
-                {releases.length > 0 
-                  ? `Links to your latest release: "${releases[0].title}"` 
+                {releases.length > 0
+                  ? `Links to your latest release: "${releases[0].title}"`
                   : 'Links to your Spotify artist page'}
               </p>
             </div>
@@ -66,9 +65,15 @@ export function ListenNowForm({ artist }: ListenNowFormProps) {
             <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
               <h4 className="font-medium mb-2">How it works:</h4>
               <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                <li>• We automatically detect your latest release from Spotify</li>
-                <li>• If no recent release is found, we link to your artist page</li>
-                <li>• The link updates automatically when you release new music</li>
+                <li>
+                  • We automatically detect your latest release from Spotify
+                </li>
+                <li>
+                  • If no recent release is found, we link to your artist page
+                </li>
+                <li>
+                  • The link updates automatically when you release new music
+                </li>
               </ul>
             </div>
           </div>
@@ -90,7 +95,9 @@ export function ListenNowForm({ artist }: ListenNowFormProps) {
                   <div>
                     <p className="font-medium">{release.title}</p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {release.release_date ? new Date(release.release_date).toLocaleDateString() : 'No date'}
+                      {release.release_date
+                        ? new Date(release.release_date).toLocaleDateString()
+                        : 'No date'}
                     </p>
                     {index === 0 && (
                       <span className="inline-block mt-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full dark:bg-green-900 dark:text-green-200">

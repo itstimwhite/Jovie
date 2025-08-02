@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase-server';
+
+export const dynamic = 'force-dynamic';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { ListenNow } from '@/components/profile/ListenNow';
 import { SocialBar } from '@/components/profile/SocialBar';
@@ -9,18 +11,19 @@ import { Artist, SocialLink } from '@/types/db';
 import { APP_NAME } from '@/constants/app';
 
 interface ProfilePageProps {
-  params: {
+  params: Promise<{
     handle: string;
-  };
+  }>;
 }
 
 export async function generateMetadata({ params }: ProfilePageProps) {
+  const { handle } = await params;
   const supabase = await createServerClient();
-  
+
   const { data: artist } = await supabase
     .from('artists')
     .select('*')
-    .eq('handle', params.handle)
+    .eq('handle', handle)
     .eq('published', true)
     .single();
 
@@ -42,24 +45,30 @@ export async function generateMetadata({ params }: ProfilePageProps) {
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
+  const { handle } = await params;
   const supabase = await createServerClient();
-  
+
   const [artistResult, socialLinksResult] = await Promise.all([
     supabase
       .from('artists')
       .select('*')
-      .eq('handle', params.handle)
+      .eq('handle', handle)
       .eq('published', true)
       .single(),
     supabase
       .from('social_links')
       .select('*')
-      .eq('artist_id', (await supabase
-        .from('artists')
-        .select('id')
-        .eq('handle', params.handle)
-        .single())?.data?.id)
-      .order('clicks', { ascending: false })
+      .eq(
+        'artist_id',
+        (
+          await supabase
+            .from('artists')
+            .select('id')
+            .eq('handle', handle)
+            .single()
+        )?.data?.id
+      )
+      .order('clicks', { ascending: false }),
   ]);
 
   if (artistResult.error || !artistResult.data) {
@@ -75,7 +84,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         <div className="flex min-h-screen flex-col items-center justify-center py-12">
           <div className="w-full max-w-md space-y-8">
             <ProfileHeader artist={artist} />
-            
+
             <div className="flex justify-center">
               <ListenNow handle={artist.handle} artistName={artist.name} />
             </div>

@@ -121,6 +121,7 @@ We follow conventional commit format:
 - `chore:` - Maintenance tasks
 
 Examples:
+
 - `feat: add social media link management`
 - `fix: resolve profile image loading issue`
 - `docs: update API documentation`
@@ -153,23 +154,28 @@ Examples:
 
 ```markdown
 ## Description
+
 Brief description of the changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] Tests pass locally
 - [ ] Added tests for new functionality
 - [ ] Manual testing completed
 
 ## Screenshots (if applicable)
+
 Add screenshots to help explain your changes
 
 ## Additional Notes
+
 Any additional information about the changes
 ```
 
@@ -217,6 +223,7 @@ For feature requests, please provide:
 ## Recognition
 
 Contributors will be recognized in:
+
 - GitHub contributors list
 - Release notes for significant contributions
 - Project documentation

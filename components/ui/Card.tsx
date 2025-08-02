@@ -27,11 +27,7 @@ Card.displayName = 'Card';
 const CardHeader = forwardRef<HTMLDivElement, CardProps>(
   ({ className, children, ...props }, ref) => {
     return (
-      <div
-        ref={ref}
-        className={cn('mb-4 space-y-1.5', className)}
-        {...props}
-      >
+      <div ref={ref} className={cn('mb-4 space-y-1.5', className)} {...props}>
         {children}
       </div>
     );
@@ -40,30 +36,30 @@ const CardHeader = forwardRef<HTMLDivElement, CardProps>(
 
 CardHeader.displayName = 'CardHeader';
 
-const CardTitle = forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <h3
-        ref={ref}
-        className={cn('text-lg font-semibold leading-none tracking-tight', className)}
-        {...props}
-      >
-        {children}
-      </h3>
-    );
-  }
-);
+const CardTitle = forwardRef<
+  HTMLHeadingElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, children, ...props }, ref) => {
+  return (
+    <h3
+      ref={ref}
+      className={cn(
+        'text-lg font-semibold leading-none tracking-tight',
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </h3>
+  );
+});
 
 CardTitle.displayName = 'CardTitle';
 
 const CardContent = forwardRef<HTMLDivElement, CardProps>(
   ({ className, children, ...props }, ref) => {
     return (
-      <div
-        ref={ref}
-        className={cn('space-y-4', className)}
-        {...props}
-      >
+      <div ref={ref} className={cn('space-y-4', className)} {...props}>
         {children}
       </div>
     );

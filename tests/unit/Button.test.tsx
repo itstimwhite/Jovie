@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/Button';
 describe('Button', () => {
   it('renders correctly', () => {
     render(<Button>Click me</Button>);
-    expect(screen.getByRole('button', { name: 'Click me' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Click me' })
+    ).toBeInTheDocument();
   });
 
   it('applies variant classes', () => {

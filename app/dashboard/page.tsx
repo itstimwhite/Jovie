@@ -40,11 +40,16 @@ export default function DashboardPage() {
       const { data, error } = await supabase
         .from('artists')
         .select('*')
-        .eq('owner_user_id', (await supabase
-          .from('users')
-          .select('id')
-          .eq('clerk_id', user.id)
-          .single())?.data?.id)
+        .eq(
+          'owner_user_id',
+          (
+            await supabase
+              .from('users')
+              .select('id')
+              .eq('clerk_id', user.id)
+              .single()
+          )?.data?.id
+        )
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -87,7 +92,7 @@ export default function DashboardPage() {
               <div className="text-center mb-8">
                 <h1 className="text-3xl font-bold">Welcome to {APP_NAME}</h1>
                 <p className="mt-2 text-gray-600 dark:text-gray-400">
-                  Let's set up your artist profile
+                  Let&apos;s set up your artist profile
                 </p>
               </div>
               <OnboardingForm onSuccess={handleArtistCreated} />
@@ -135,9 +140,7 @@ export default function DashboardPage() {
             {activeTab === 'profile' && (
               <ProfileForm artist={artist} onUpdate={handleArtistUpdated} />
             )}
-            {activeTab === 'social' && (
-              <SocialsForm artistId={artist.id} />
-            )}
+            {activeTab === 'social' && <SocialsForm artistId={artist.id} />}
             {activeTab === 'listen' && (
               <ListenNowForm artist={artist} onUpdate={handleArtistUpdated} />
             )}
