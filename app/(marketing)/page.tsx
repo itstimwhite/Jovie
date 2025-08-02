@@ -50,7 +50,7 @@ export default function HomePage() {
   };
 
   return (
-    <section className="flex h-full w-full items-center justify-center">
+    <section className="flex flex-1 items-center justify-center">
       <Container className="flex flex-col items-center text-center space-y-8">
         <h1 className="text-5xl font-semibold tracking-tight">
           Claim your artist profile
