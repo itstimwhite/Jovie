@@ -1,6 +1,6 @@
-import * as Headless from '@headlessui/react'
-import clsx from 'clsx'
-import type React from 'react'
+import * as Headless from '@headlessui/react';
+import clsx from 'clsx';
+import type React from 'react';
 
 const sizes = {
   xs: 'sm:max-w-xs',
@@ -12,17 +12,18 @@ const sizes = {
   '3xl': 'sm:max-w-3xl',
   '4xl': 'sm:max-w-4xl',
   '5xl': 'sm:max-w-5xl',
-}
+};
 
 export function Dialog({
   size = 'lg',
   className,
   children,
   ...props
-}: { size?: keyof typeof sizes; className?: string; children: React.ReactNode } & Omit<
-  Headless.DialogProps,
-  'as' | 'className'
->) {
+}: {
+  size?: keyof typeof sizes;
+  className?: string;
+  children: React.ReactNode;
+} & Omit<Headless.DialogProps, 'as' | 'className'>) {
   return (
     <Headless.Dialog {...props}>
       <Headless.DialogBackdrop
@@ -46,33 +47,57 @@ export function Dialog({
         </div>
       </div>
     </Headless.Dialog>
-  )
+  );
 }
 
 export function DialogTitle({
   className,
   ...props
-}: { className?: string } & Omit<Headless.DialogTitleProps, 'as' | 'className'>) {
+}: { className?: string } & Omit<
+  Headless.DialogTitleProps,
+  'as' | 'className'
+>) {
   return (
     <Headless.DialogTitle
       {...props}
-      className={clsx(className, 'text-lg/6 font-semibold text-balance text-zinc-950 sm:text-base/6 dark:text-white')}
+      className={clsx(
+        className,
+        'text-lg/6 font-semibold text-balance text-zinc-950 sm:text-base/6 dark:text-white'
+      )}
     />
-  )
+  );
 }
 
 export function DialogDescription({
   className,
   ...props
-}: { className?: string } & Omit<Headless.DescriptionProps<'p'>, 'as' | 'className'>) {
-  return <Headless.Description as="p" {...props} className={clsx(className, 'mt-2 text-pretty text-zinc-600 dark:text-zinc-400')} />
+}: { className?: string } & Omit<
+  Headless.DescriptionProps<'p'>,
+  'as' | 'className'
+>) {
+  return (
+    <Headless.Description
+      as="p"
+      {...props}
+      className={clsx(
+        className,
+        'mt-2 text-pretty text-zinc-600 dark:text-zinc-400'
+      )}
+    />
+  );
 }
 
-export function DialogBody({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
-  return <div {...props} className={clsx(className, 'mt-6')} />
+export function DialogBody({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<'div'>) {
+  return <div {...props} className={clsx(className, 'mt-6')} />;
 }
 
-export function DialogActions({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
+export function DialogActions({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<'div'>) {
   return (
     <div
       {...props}
@@ -81,5 +106,5 @@ export function DialogActions({ className, ...props }: React.ComponentPropsWitho
         'mt-8 flex flex-col-reverse items-center justify-end gap-3 *:w-full sm:flex-row sm:*:w-auto'
       )}
     />
-  )
-} 
+  );
+}

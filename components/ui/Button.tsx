@@ -1,6 +1,6 @@
-import * as Headless from '@headlessui/react'
-import clsx from 'clsx'
-import React, { forwardRef } from 'react'
+import * as Headless from '@headlessui/react';
+import clsx from 'clsx';
+import React, { forwardRef } from 'react';
 
 const styles = {
   base: [
@@ -155,10 +155,11 @@ const styles = {
       '[--btn-icon:var(--color-rose-300)] data-active:[--btn-icon:var(--color-rose-200)] data-hover:[--btn-icon:var(--color-rose-200)]',
     ],
   },
-}
+};
 
 // Legacy interface for backward compatibility
-interface LegacyButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface LegacyButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   children: React.ReactNode;
@@ -172,47 +173,64 @@ type ButtonProps = (
 ) & { className?: string; children: React.ReactNode } & (
     | Omit<Headless.ButtonProps, 'as' | 'className'>
     | Omit<React.ComponentPropsWithoutRef<'a'>, 'className'>
-  )
+  );
 
 export const Button = forwardRef(function Button(
-  { color, outline, plain, className, children, variant, size, ...props }: ButtonProps & Partial<LegacyButtonProps>,
+  {
+    color,
+    outline,
+    plain,
+    className,
+    children,
+    variant,
+    size,
+    ...props
+  }: ButtonProps & Partial<LegacyButtonProps>,
   ref: React.ForwardedRef<HTMLElement>
 ) {
   // Handle legacy props for backward compatibility
   let buttonColor: keyof typeof styles.colors = 'dark/zinc';
-  let isOutline = false;
-  let isPlain = false;
 
-  if (variant === 'primary') {
+  // Use the color prop if provided, otherwise use variant-based colors
+  if (color) {
+    buttonColor = color;
+  } else if (variant === 'primary') {
     buttonColor = 'indigo';
   } else if (variant === 'secondary') {
     buttonColor = 'zinc';
-  } else if (variant === 'ghost') {
-    isPlain = true;
   }
 
-  if (outline) isOutline = true;
-  if (plain) isPlain = true;
-
-  let classes = clsx(
+  const classes = clsx(
     className,
     styles.base,
     // Add size classes for legacy support
     size === 'sm' && 'px-2 py-1 text-sm',
     size === 'lg' && 'px-6 py-3 text-lg',
-    outline ? styles.outline : plain ? styles.plain : clsx(styles.solid, styles.colors[buttonColor])
-  )
+    outline
+      ? styles.outline
+      : plain
+        ? styles.plain
+        : clsx(styles.solid, styles.colors[buttonColor])
+  );
 
   return 'href' in props ? (
-    <a {...props} className={classes} ref={ref as React.ForwardedRef<HTMLAnchorElement>}>
+    <a
+      {...props}
+      className={classes}
+      ref={ref as React.ForwardedRef<HTMLAnchorElement>}
+    >
       <TouchTarget>{children}</TouchTarget>
     </a>
   ) : (
-    <Headless.Button {...props} className={clsx(classes, 'cursor-default')} ref={ref}>
+    <Headless.Button
+      {...props}
+      className={clsx(classes, 'cursor-default')}
+      ref={ref}
+    >
       <TouchTarget>{children}</TouchTarget>
     </Headless.Button>
-  )
-})
+  );
+});
 
 /**
  * Expand the hit area to at least 44×44px on touch devices
@@ -226,5 +244,5 @@ export function TouchTarget({ children }: { children: React.ReactNode }) {
       />
       {children}
     </>
-  )
+  );
 }

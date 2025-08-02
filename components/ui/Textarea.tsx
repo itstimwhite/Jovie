@@ -1,6 +1,6 @@
-import * as Headless from '@headlessui/react'
-import clsx from 'clsx'
-import React, { forwardRef } from 'react'
+import * as Headless from '@headlessui/react';
+import clsx from 'clsx';
+import React, { forwardRef } from 'react';
 
 // Legacy interface for backward compatibility
 interface LegacyTextareaProps
@@ -13,7 +13,7 @@ interface LegacyTextareaProps
 type TextareaProps = {
   className?: string;
   resizable?: boolean;
-} & Omit<Headless.TextareaProps, 'as' | 'className'>
+} & Omit<Headless.TextareaProps, 'as' | 'className'>;
 
 export const Textarea = forwardRef(function Textarea(
   {
@@ -65,11 +65,12 @@ export const Textarea = forwardRef(function Textarea(
           // Resizable
           resizable ? 'resize-y' : 'resize-none',
           // Error state for legacy support
-          error && 'border-red-500 data-hover:border-red-500 dark:border-red-500 dark:data-hover:border-red-500',
+          error &&
+            'border-red-500 data-hover:border-red-500 dark:border-red-500 dark:data-hover:border-red-500',
         ])}
       />
     </span>
-  )
+  );
 
   // If we have label or error, wrap in a container
   if (label || error) {
@@ -85,8 +86,8 @@ export const Textarea = forwardRef(function Textarea(
           <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
         )}
       </div>
-    )
+    );
   }
 
-  return textareaElement
-})
+  return textareaElement;
+});

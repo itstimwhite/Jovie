@@ -1,8 +1,10 @@
-import * as Headless from '@headlessui/react'
-import clsx from 'clsx'
-import React, { forwardRef } from 'react'
+import * as Headless from '@headlessui/react';
+import clsx from 'clsx';
+import React, { forwardRef } from 'react';
 
-export function InputGroup({ children }: React.ComponentPropsWithoutRef<'span'>) {
+export function InputGroup({
+  children,
+}: React.ComponentPropsWithoutRef<'span'>) {
   return (
     <span
       data-slot="control"
@@ -16,11 +18,11 @@ export function InputGroup({ children }: React.ComponentPropsWithoutRef<'span'>)
     >
       {children}
     </span>
-  )
+  );
 }
 
-const dateTypes = ['date', 'datetime-local', 'month', 'time', 'week']
-type DateType = (typeof dateTypes)[number]
+const dateTypes = ['date', 'datetime-local', 'month', 'time', 'week'];
+type DateType = (typeof dateTypes)[number];
 
 // Legacy interface for backward compatibility
 interface LegacyInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -30,17 +32,20 @@ interface LegacyInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 // New interface for Catalyst UI Kit
 type InputProps = {
-  className?: string
-  type?: 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'url' | DateType
-} & Omit<Headless.InputProps, 'as' | 'className'>
+  className?: string;
+  type?:
+    | 'email'
+    | 'number'
+    | 'password'
+    | 'search'
+    | 'tel'
+    | 'text'
+    | 'url'
+    | DateType;
+} & Omit<Headless.InputProps, 'as' | 'className'>;
 
 export const Input = forwardRef(function Input(
-  {
-    className,
-    label,
-    error,
-    ...props
-  }: InputProps & Partial<LegacyInputProps>,
+  { className, label, error, ...props }: InputProps & Partial<LegacyInputProps>,
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
   const inputElement = (
@@ -101,11 +106,12 @@ export const Input = forwardRef(function Input(
           // System icons
           'dark:scheme-dark',
           // Error state for legacy support
-          error && 'border-red-500 data-hover:border-red-500 dark:border-red-500 dark:data-hover:border-red-500',
+          error &&
+            'border-red-500 data-hover:border-red-500 dark:border-red-500 dark:data-hover:border-red-500',
         ])}
       />
     </span>
-  )
+  );
 
   // If we have label or error, wrap in a container
   if (label || error) {
@@ -121,8 +127,8 @@ export const Input = forwardRef(function Input(
           <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
         )}
       </div>
-    )
+    );
   }
 
-  return inputElement
-})
+  return inputElement;
+});
