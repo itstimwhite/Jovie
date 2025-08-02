@@ -1,9 +1,6 @@
-import React from 'react';
 import type { Metadata } from 'next';
-import { ClerkProvider } from '@clerk/nextjs';
-import { ThemeProvider } from 'next-themes';
+import { ClientProviders } from '@/components/providers/ClientProviders';
 import { APP_NAME, APP_URL } from '@/constants/app';
-import { Analytics } from '@/components/Analytics';
 import '@/styles/globals.css';
 
 export const dynamic = 'force-dynamic';
