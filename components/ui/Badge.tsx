@@ -1,8 +1,6 @@
 import * as Headless from '@headlessui/react'
 import clsx from 'clsx'
 import React, { forwardRef } from 'react'
-import { TouchTarget } from './button'
-import { Link } from './link'
 
 const colors = {
   red: 'bg-red-500/15 text-red-700 group-data-hover:bg-red-500/25 dark:bg-red-500/10 dark:text-red-400 dark:group-data-hover:bg-red-500/20',
@@ -57,7 +55,7 @@ export const BadgeButton = forwardRef(function BadgeButton(
     ...props
   }: BadgeProps & { className?: string; children: React.ReactNode } & (
       | Omit<Headless.ButtonProps, 'as' | 'className'>
-      | Omit<React.ComponentPropsWithoutRef<typeof Link>, 'className'>
+      | Omit<React.ComponentPropsWithoutRef<'a'>, 'className'>
     ),
   ref: React.ForwardedRef<HTMLElement>
 ) {
@@ -67,11 +65,11 @@ export const BadgeButton = forwardRef(function BadgeButton(
   )
 
   return 'href' in props ? (
-    <Link {...props} className={classes} ref={ref as React.ForwardedRef<HTMLAnchorElement>}>
+    <a {...props} className={classes} ref={ref as React.ForwardedRef<HTMLAnchorElement>}>
       <TouchTarget>
         <Badge color={color}>{children}</Badge>
       </TouchTarget>
-    </Link>
+    </a>
   ) : (
     <Headless.Button {...props} className={classes} ref={ref}>
       <TouchTarget>
@@ -80,3 +78,18 @@ export const BadgeButton = forwardRef(function BadgeButton(
     </Headless.Button>
   )
 })
+
+/**
+ * Expand the hit area to at least 44×44px on touch devices
+ */
+export function TouchTarget({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <span
+        className="absolute top-1/2 left-1/2 size-[max(100%,2.75rem)] -translate-x-1/2 -translate-y-1/2 pointer-fine:hidden"
+        aria-hidden="true"
+      />
+      {children}
+    </>
+  )
+} 
