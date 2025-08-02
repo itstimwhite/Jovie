@@ -79,6 +79,29 @@ export async function getArtistLatestRelease(
   return sortedAlbums[0];
 }
 
+/**
+ * Search Spotify for artists matching a query string.
+ * Returns up to 10 matching artists.
+ */
+export async function searchSpotifyArtists(
+  query: string
+): Promise<SpotifyArtist[]> {
+  const token = await getSpotifyToken();
+  const uri = new URL(`${SPOTIFY_API_BASE}/search`);
+  uri.searchParams.set('q', query);
+  uri.searchParams.set('type', 'artist');
+  uri.searchParams.set('limit', '10');
+
+  const response = await fetch(uri.toString(), {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    throw new Error('Failed to search artists on Spotify');
+  }
+  const data = await response.json();
+  return (data.artists?.items as SpotifyArtist[]) || [];
+}
+
 export function buildSpotifyArtistUrl(artistId: string): string {
   return `https://open.spotify.com/artist/${artistId}`;
 }
