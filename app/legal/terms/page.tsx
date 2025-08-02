@@ -6,8 +6,6 @@ import { Container } from '@/components/site/Container';
 import { Header } from '@/components/site/Header';
 import { Footer } from '@/components/site/Footer';
 
-export const dynamic = 'force-dynamic';
-
 export const metadata = {
   title: 'Terms of Service',
   description:

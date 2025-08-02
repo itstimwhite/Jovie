@@ -1,7 +1,5 @@
 import { notFound } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase-server';
-
-export const dynamic = 'force-dynamic';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { ListenNow } from '@/components/profile/ListenNow';
 import { SocialBar } from '@/components/profile/SocialBar';

@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
-import { ClerkClientProvider } from '@/components/providers/ClerkClientProvider';
+import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from 'next-themes';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import { Analytics } from '@/components/Analytics';
 import '@/styles/globals.css';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: {
@@ -56,7 +58,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkClientProvider
+    <ClerkProvider
       appearance={{
         variables: {
           colorPrimary: '#111827',
@@ -85,6 +87,6 @@ export default function RootLayout({
           </ThemeProvider>
         </body>
       </html>
-    </ClerkClientProvider>
+    </ClerkProvider>
   );
 }
