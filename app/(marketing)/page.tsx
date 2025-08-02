@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { redirectToSignIn } from '@clerk/nextjs';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/site/Container';
@@ -38,9 +39,15 @@ export default function HomePage() {
 
   const handleClaim = () => {
     if (selected) {
-      window.location.href = `/api/spotify/auth?artistId=${encodeURIComponent(
+      const destination = `/dashboard?artistId=${encodeURIComponent(
         selected.id
       )}`;
+      redirectToSignIn({
+        strategy: 'oauth_spotify',
+        redirectUrl: destination,
+        afterSignInUrl: destination,
+        afterSignUpUrl: destination,
+      });
     }
   };
 
