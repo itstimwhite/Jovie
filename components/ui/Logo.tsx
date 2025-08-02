@@ -17,8 +17,7 @@ export function Logo({ className, size = 'md' }: LogoProps) {
     <svg 
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
-      width="136px" 
-      height="39px"
+      viewBox="0 0 136 39"
       className={cn(
         sizeClasses[size],
         'text-gray-900 dark:text-white',
