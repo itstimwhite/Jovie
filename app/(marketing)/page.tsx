@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/site/Container';
+import Image from 'next/image';
 import type { SpotifyArtist } from '@/types/common';
 
 export const dynamic = 'force-dynamic';
@@ -56,17 +57,31 @@ export default function HomePage() {
           />
           {results.length > 0 && (
             <ul className="w-full max-w-md border rounded-md bg-white">
-              {results.map((artist) => (
-                <li
-                  key={artist.id}
-                  onClick={() => setSelected(artist)}
-                  className={`px-4 py-2 cursor-pointer hover:bg-gray-100 ${
-                    selected?.id === artist.id ? 'bg-gray-200' : ''
-                  }`}
-                >
-                  {artist.name}
-                </li>
-              ))}
+              {results.map((artist) => {
+                const imageUrl = artist.images?.[0]?.url;
+                return (
+                  <li
+                    key={artist.id}
+                    onClick={() => setSelected(artist)}
+                    className={`flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                      selected?.id === artist.id ? 'bg-gray-200' : ''
+                    }`}
+                  >
+                    {imageUrl ? (
+                      <Image
+                        src={imageUrl}
+                        alt={`${artist.name} profile photo`}
+                        width={40}
+                        height={40}
+                        className="w-10 h-10 rounded-full object-cover mr-3"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-gray-200 mr-3" />
+                    )}
+                    <span>{artist.name}</span>
+                  </li>
+                );
+              })}
             </ul>
           )}
           <Button onClick={handleClaim} disabled={!selected} size="lg">
