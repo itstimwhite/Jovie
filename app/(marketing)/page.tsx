@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { Container } from '@/components/site/Container';
 import { Button } from '@/components/ui/Button';
 
+export const dynamic = 'force-dynamic';
+
 export default function HomePage() {
   return (
     <div className="flex flex-col">

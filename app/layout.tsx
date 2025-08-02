@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { ClerkProvider } from '@clerk/nextjs';
+import { ClerkClientProvider } from '@/components/providers/ClerkClientProvider';
 import { ThemeProvider } from 'next-themes';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import { Analytics } from '@/components/Analytics';
@@ -56,7 +56,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider
+    <ClerkClientProvider
       appearance={{
         variables: {
           colorPrimary: '#111827',
@@ -85,6 +85,6 @@ export default function RootLayout({
           </ThemeProvider>
         </body>
       </html>
-    </ClerkProvider>
+    </ClerkClientProvider>
   );
 }
