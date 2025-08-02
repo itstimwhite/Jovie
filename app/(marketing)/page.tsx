@@ -5,7 +5,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { redirectToSignIn } from '@clerk/nextjs';
+import { useClerk } from '@clerk/nextjs';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/site/Container';
@@ -18,6 +18,7 @@ export default function HomePage() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SpotifyArtist[]>([]);
   const [selected, setSelected] = useState<SpotifyArtist | null>(null);
+  const clerk = useClerk();
 
   useEffect(() => {
     if (query.length < 2) {
@@ -38,15 +39,12 @@ export default function HomePage() {
   }, [query]);
 
   const handleClaim = () => {
-    if (selected) {
+    if (selected && clerk) {
       const destination = `/dashboard?artistId=${encodeURIComponent(
         selected.id
       )}`;
-      redirectToSignIn({
-        strategy: 'oauth_spotify',
-        redirectUrl: destination,
-        afterSignInUrl: destination,
-        afterSignUpUrl: destination,
+      clerk.redirectToSignIn({
+        signInFallbackRedirectUrl: destination,
       });
     }
   };
