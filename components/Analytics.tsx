@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { analytics } from '@/lib/analytics';
