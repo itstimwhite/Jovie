@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, afterEach } from 'vitest';
+import { render, screen, cleanup } from '@testing-library/react';
 import { Button } from '@/components/ui/Button';
 
 describe('Button', () => {
+  afterEach(cleanup);
   it('renders correctly', () => {
     render(<Button>Click me</Button>);
     expect(
