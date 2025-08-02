@@ -14,7 +14,7 @@ export async function createAuthenticatedServerClient() {
   // This would be used in server actions/API routes that need auth
   // But we'll import auth there directly to avoid static generation issues
   const { auth } = await import('@clerk/nextjs/server');
-  
+
   try {
     const { getToken } = await auth();
     const token = await getToken({ template: 'supabase' });

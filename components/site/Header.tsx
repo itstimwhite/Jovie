@@ -8,17 +8,14 @@ import { ThemeToggle } from './ThemeToggle';
 import { APP_NAME } from '@/constants/app';
 
 // Dynamic imports to prevent server-side evaluation
-const ClerkAuth = dynamic(
-  () => import('./ClerkAuth'),
-  { 
-    ssr: false, 
-    loading: () => (
-      <Link href="/sign-in" className="btn btn-primary btn-sm">
-        Sign In
-      </Link>
-    )
-  }
-);
+const ClerkAuth = dynamic(() => import('./ClerkAuth'), {
+  ssr: false,
+  loading: () => (
+    <Link href="/sign-in" className="btn btn-primary btn-sm">
+      Sign In
+    </Link>
+  ),
+});
 
 export function Header() {
   const [mounted, setMounted] = useState(false);
