@@ -1,0 +1,152 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { Container } from '@/components/site/Container';
+import { ProfileLinkCard } from '@/components/dashboard/ProfileLinkCard';
+import { OnboardingForm } from '@/components/dashboard/OnboardingForm';
+import { ProfileForm } from '@/components/dashboard/ProfileForm';
+import { SocialsForm } from '@/components/dashboard/SocialsForm';
+import { ListenNowForm } from '@/components/dashboard/ListenNowForm';
+import { AnalyticsCards } from '@/components/dashboard/AnalyticsCards';
+import { createBrowserClient } from '@/lib/supabase';
+import { Artist } from '@/types/db';
+import { APP_NAME } from '@/constants/app';
+
+const tabs = [
+  { id: 'profile', label: 'Profile' },
+  { id: 'social', label: 'Social Links' },
+  { id: 'listen', label: 'Listen Now' },
+  { id: 'analytics', label: 'Analytics' },
+];
+
+export default function DashboardPage() {
+  const { user } = useUser();
+  const [artist, setArtist] = useState<Artist | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('profile');
+  const supabase = createBrowserClient();
+
+  useEffect(() => {
+    if (user) {
+      fetchArtist();
+    }
+  }, [user]);
+
+  const fetchArtist = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('artists')
+        .select('*')
+        .eq('owner_user_id', (await supabase
+          .from('users')
+          .select('id')
+          .eq('clerk_id', user.id)
+          .single())?.data?.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching artist:', error);
+      } else {
+        setArtist(data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleArtistCreated = (newArtist: Artist) => {
+    setArtist(newArtist);
+  };
+
+  const handleArtistUpdated = (updatedArtist: Artist) => {
+    setArtist(updatedArtist);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!artist) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Container>
+          <div className="flex min-h-screen items-center justify-center py-12">
+            <div className="w-full max-w-md">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold">Welcome to {APP_NAME}</h1>
+                <p className="mt-2 text-gray-600 dark:text-gray-400">
+                  Let's set up your artist profile
+                </p>
+              </div>
+              <OnboardingForm onSuccess={handleArtistCreated} />
+            </div>
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Container>
+        <div className="py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <p className="mt-2 text-gray-600 dark:text-gray-400">
+              Manage your {APP_NAME} profile
+            </p>
+          </div>
+
+          <div className="mb-8">
+            <ProfileLinkCard artist={artist} />
+          </div>
+
+          <div className="border-b border-gray-200 dark:border-gray-700">
+            <nav className="-mb-px flex space-x-8">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === tab.id
+                      ? 'border-gray-900 text-gray-900 dark:border-gray-50 dark:text-gray-50'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          <div className="mt-8">
+            {activeTab === 'profile' && (
+              <ProfileForm artist={artist} onUpdate={handleArtistUpdated} />
+            )}
+            {activeTab === 'social' && (
+              <SocialsForm artistId={artist.id} />
+            )}
+            {activeTab === 'listen' && (
+              <ListenNowForm artist={artist} onUpdate={handleArtistUpdated} />
+            )}
+            {activeTab === 'analytics' && (
+              <AnalyticsCards artistId={artist.id} />
+            )}
+          </div>
+        </div>
+      </Container>
+    </div>
+  );
+}
