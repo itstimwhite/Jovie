@@ -45,25 +45,36 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex flex-col items-center py-20">
-      <Container>
-        <h1 className="text-4xl font-bold mb-6">Claim your profile</h1>
-        <div className="flex flex-col items-center space-y-4">
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search your Spotify artist"
-            className="w-full max-w-md"
-          />
+    <section className="flex h-full w-full items-center justify-center">
+      <Container className="flex flex-col items-center text-center space-y-8">
+        <h1 className="text-5xl font-semibold tracking-tight">
+          Claim your artist profile
+        </h1>
+        <div className="flex w-full max-w-md flex-col items-center space-y-4">
+          <div className="relative w-full">
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search Spotify for your artist"
+              className="w-full pr-40"
+            />
+            <Button
+              onClick={handleClaim}
+              disabled={!selected}
+              className="absolute inset-y-0 right-0 h-full rounded-l-none px-6"
+            >
+              Claim
+            </Button>
+          </div>
           {results.length > 0 && (
-            <ul className="w-full max-w-md border rounded-md bg-white">
+            <ul className="w-full border rounded-md bg-white shadow-md">
               {results.map((artist) => {
                 const imageUrl = artist.images?.[0]?.url;
                 return (
                   <li
                     key={artist.id}
                     onClick={() => setSelected(artist)}
-                    className={`flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100 ${
+                    className={`flex cursor-pointer items-center px-4 py-2 hover:bg-gray-100 ${
                       selected?.id === artist.id ? 'bg-gray-200' : ''
                     }`}
                   >
@@ -73,10 +84,10 @@ export default function HomePage() {
                         alt={`${artist.name} profile photo`}
                         width={40}
                         height={40}
-                        className="w-10 h-10 rounded-full object-cover mr-3"
+                        className="mr-3 h-10 w-10 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-gray-200 mr-3" />
+                      <div className="mr-3 h-10 w-10 rounded-full bg-gray-200" />
                     )}
                     <span>{artist.name}</span>
                   </li>
@@ -84,11 +95,8 @@ export default function HomePage() {
               })}
             </ul>
           )}
-          <Button onClick={handleClaim} disabled={!selected} size="lg">
-            Claim your profile
-          </Button>
         </div>
       </Container>
-    </div>
+    </section>
   );
 }
