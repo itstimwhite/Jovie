@@ -1,9 +1,14 @@
-export const dynamic = 'force-dynamic';
+import { ClerkAnalytics } from '@/components/ClerkAnalytics';
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      {children}
+      <ClerkAnalytics />
+    </>
+  );
 }

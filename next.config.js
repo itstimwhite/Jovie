@@ -5,6 +5,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   output: 'standalone',
+  serverExternalPackages: ['@clerk/nextjs'],
   images: {
     domains: ['i.scdn.co', 'images.clerk.dev'],
   },

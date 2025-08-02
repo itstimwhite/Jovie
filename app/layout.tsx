@@ -3,8 +3,6 @@ import { ClientProviders } from '@/components/providers/ClientProviders';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import '@/styles/globals.css';
 
-export const dynamic = 'force-dynamic';
-
 export const metadata: Metadata = {
   title: {
     default: APP_NAME,

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase-server';
+import { createAuthenticatedServerClient } from '@/lib/supabase-server';
 import { detectPlatformFromUA } from '@/lib/utils';
 
 export async function POST(request: NextRequest) {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createServerClient();
+    const supabase = await createAuthenticatedServerClient();
 
     const { data: artist, error: artistError } = await supabase
       .from('artists')
