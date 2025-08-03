@@ -26,7 +26,7 @@ export function HomeHero() {
               className="mr-2 h-2 w-2 rounded-full bg-green-400"
               aria-hidden="true"
             />
-            90-second setup • Free forever
+            Go live in 90 seconds • Free forever
           </div>
 
           {/* Main Headline - Split for visual hierarchy */}
@@ -34,7 +34,9 @@ export function HomeHero() {
             id="hero-headline"
             className="text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl"
           >
-            <span className="block text-white">The fastest link-in-bio</span>
+            <span className="block text-white">
+              Launch your link-in-bio in seconds
+            </span>
             <span className="block bg-linear-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               Built for musicians
             </span>
@@ -45,8 +47,8 @@ export function HomeHero() {
             className="mx-auto max-w-2xl text-xl text-white/80 sm:text-2xl leading-relaxed"
             role="doc-subtitle"
           >
-            One optimized profile loads instantly and converts
-            consistently—while others tweak colors, you gain streams.
+            Give fans one optimized profile that loads instantly and drives
+            streams.
           </p>
         </div>
 

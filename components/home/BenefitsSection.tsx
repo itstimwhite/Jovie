@@ -2,7 +2,7 @@ export function BenefitsSection() {
   const benefits = [
     {
       title: 'Lightning Fast',
-      description: 'Loads 3× faster than customizable pages.',
+      description: 'Get fans to your music 3× faster than customizable pages.',
       icon: (
         <svg
           className="h-6 w-6"
@@ -21,7 +21,7 @@ export function BenefitsSection() {
     },
     {
       title: 'Smart Preferences',
-      description: "Remembers every fan's favorite platform.",
+      description: "Remember each fan's favorite platform.",
       icon: (
         <svg
           className="h-6 w-6"
@@ -40,7 +40,7 @@ export function BenefitsSection() {
     },
     {
       title: 'Zero Distractions',
-      description: 'One design, no detours—pure music discovery.',
+      description: 'Keep fans on your music with one distraction-free design.',
       icon: (
         <svg
           className="h-6 w-6"
