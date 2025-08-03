@@ -59,7 +59,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^9",
     "eslint-config-next": "^15.4.5",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.1.2",
     "husky": "^9.1.7",
     "jsdom": "^23.1.0",
