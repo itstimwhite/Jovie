@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { APP_URL } from '@/constants/app';
 
 interface ListenNowProps {
   handle: string;
@@ -31,19 +30,11 @@ export function ListenNow({ handle, artistName }: ListenNowProps) {
         }),
       });
 
-      window.open(
-        `${APP_URL}/${handle}/listen`,
-        '_blank',
-        'noopener,noreferrer'
-      );
+      window.open(`/${handle}/listen`, '_blank', 'noopener,noreferrer');
     } catch (error) {
       console.error('Failed to track listen click:', error);
       // Still open the link even if tracking fails
-      window.open(
-        `${APP_URL}/${handle}/listen`,
-        '_blank',
-        'noopener,noreferrer'
-      );
+      window.open(`/${handle}/listen`, '_blank', 'noopener,noreferrer');
     } finally {
       setIsLoading(false);
     }

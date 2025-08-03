@@ -6,6 +6,8 @@ const nextConfig = {
   },
   output: 'standalone',
   serverExternalPackages: ['@clerk/nextjs'],
+  // Disable static generation to prevent Clerk context issues during build
+  trailingSlash: false,
   images: {
     remotePatterns: [
       {

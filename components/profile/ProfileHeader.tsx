@@ -36,7 +36,6 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
         >
           <span className="flex items-center justify-center gap-2">
             {artist.name}
-            {artist.is_verified && <VerifiedBadge size="sm" className="ml-1" />}
           </span>
         </h1>
         <p
