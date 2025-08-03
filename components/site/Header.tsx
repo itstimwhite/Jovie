@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { Container } from './Container';
 import { Logo } from '@/components/ui/Logo';
-import { Button } from '@/components/ui/Button';
 
 export function Header() {
   return (
@@ -23,9 +22,12 @@ export function Header() {
             >
               Sign In
             </Link>
-            <Button as="a" href="/sign-up" variant="primary" size="sm">
+            <Link
+              href="/sign-up"
+              className="inline-flex items-center justify-center rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500 px-3 py-1.5 text-sm"
+            >
               Sign Up
-            </Button>
+            </Link>
           </div>
         </div>
       </Container>

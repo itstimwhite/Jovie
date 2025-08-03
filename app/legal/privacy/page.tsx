@@ -1,32 +1,27 @@
-import fs from 'fs';
-import path from 'path';
-import { remark } from 'remark';
-import html from 'remark-html';
-import type { Metadata } from 'next';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Container } from '@/components/site/Container';
-import { Header } from '@/components/site/Header';
-import { Footer } from '@/components/site/Footer';
 
-// Enable SSR for legal pages
-export const dynamic = 'force-static';
+// Legal pages need to be client components due to potential client-side dependencies
+export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy',
-  description:
-    'Jovie Privacy Policy - How we collect, use, and protect your data.',
-};
+export default function PrivacyPage() {
+  const [contentHtml, setContentHtml] = useState<string>('');
 
-export default async function PrivacyPage() {
-  const filePath = path.join(process.cwd(), 'docs', 'privacy.md');
-  const fileContents = fs.readFileSync(filePath, 'utf8');
-
-  const processedContent = await remark().use(html).process(fileContents);
-
-  const contentHtml = processedContent.toString();
+  useEffect(() => {
+    // Fetch the content from an API route
+    fetch('/api/legal/privacy')
+      .then((res) => res.text())
+      .then((html) => setContentHtml(html))
+      .catch((err) => {
+        console.error('Failed to load privacy:', err);
+        setContentHtml('<p>Failed to load privacy policy.</p>');
+      });
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
       <main className="flex-1 py-12">
         <Container>
           <div className="mx-auto max-w-3xl">
@@ -37,7 +32,6 @@ export default async function PrivacyPage() {
           </div>
         </Container>
       </main>
-      <Footer />
     </div>
   );
 }

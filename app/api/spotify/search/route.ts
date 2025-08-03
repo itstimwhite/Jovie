@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchSpotifyArtists } from '@/lib/spotify';
 
+// API routes should be dynamic
+export const dynamic = 'force-dynamic';
+
 // Simple in-memory cache for API responses
 const searchCache = new Map<string, { data: any; timestamp: number }>();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes

@@ -1,5 +1,4 @@
-'use client';
-
+import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/site/Container';
 
@@ -60,14 +59,15 @@ export function HomeHero() {
         {/* Simple CTA */}
         <div className="w-full max-w-2xl space-y-6" role="main">
           <div className="flex justify-center">
-            <Button
-              onClick={() => (window.location.href = '/sign-in')}
-              variant="primary"
-              size="lg"
-              className="px-8 py-4 text-lg font-semibold"
-            >
-              Get Started
-            </Button>
+            <Link href="/sign-in">
+              <Button
+                variant="primary"
+                size="lg"
+                className="px-8 py-4 text-lg font-semibold"
+              >
+                Get Started
+              </Button>
+            </Link>
           </div>
 
           {/* Trust Indicators */}
