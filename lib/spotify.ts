@@ -2,7 +2,15 @@ import { SpotifyArtist, SpotifyAlbum } from '@/types/common';
 
 const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
 
+// Token cache
+let tokenCache: { token: string; expiresAt: number } | null = null;
+
 async function getSpotifyToken(): Promise<string> {
+  // Check if we have a valid cached token
+  if (tokenCache && Date.now() < tokenCache.expiresAt) {
+    return tokenCache.token;
+  }
+
   const clientId = process.env.SPOTIFY_CLIENT_ID;
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
@@ -10,21 +18,33 @@ async function getSpotifyToken(): Promise<string> {
     throw new Error('Spotify credentials not configured');
   }
 
-  const response = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
-    },
-    body: 'grant_type=client_credentials',
-  });
+  try {
+    const response = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+      },
+      body: 'grant_type=client_credentials',
+    });
 
-  if (!response.ok) {
-    throw new Error('Failed to get Spotify token');
+    if (!response.ok) {
+      throw new Error(`Failed to get Spotify token: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Cache the token with expiration (subtract 60 seconds for safety)
+    tokenCache = {
+      token: data.access_token,
+      expiresAt: Date.now() + (data.expires_in - 60) * 1000,
+    };
+
+    return data.access_token;
+  } catch (error) {
+    console.error('Spotify token error:', error);
+    throw new Error('Failed to authenticate with Spotify');
   }
-
-  const data = await response.json();
-  return data.access_token;
 }
 
 export async function getSpotifyArtist(
@@ -39,7 +59,7 @@ export async function getSpotifyArtist(
   });
 
   if (!response.ok) {
-    throw new Error('Failed to fetch artist from Spotify');
+    throw new Error(`Failed to fetch artist from Spotify: ${response.status}`);
   }
 
   return response.json();
@@ -60,7 +80,7 @@ export async function getArtistLatestRelease(
   );
 
   if (!response.ok) {
-    throw new Error('Failed to fetch albums from Spotify');
+    throw new Error(`Failed to fetch albums from Spotify: ${response.status}`);
   }
 
   const data = await response.json();
@@ -92,14 +112,21 @@ export async function searchSpotifyArtists(
   uri.searchParams.set('type', 'artist');
   uri.searchParams.set('limit', '10');
 
-  const response = await fetch(uri.toString(), {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!response.ok) {
+  try {
+    const response = await fetch(uri.toString(), {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Spotify search failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return (data.artists?.items as SpotifyArtist[]) || [];
+  } catch (error) {
+    console.error('Spotify search error:', error);
     throw new Error('Failed to search artists on Spotify');
   }
-  const data = await response.json();
-  return (data.artists?.items as SpotifyArtist[]) || [];
 }
 
 export function buildSpotifyArtistUrl(artistId: string): string {

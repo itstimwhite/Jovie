@@ -34,18 +34,18 @@ export function SocialBar({ handle, artistName, socialLinks }: SocialBarProps) {
     window.open(link.url, '_blank', 'noopener,noreferrer');
   };
 
-  if (socialLinks.length === 0) {
-    return null;
-  }
-
+  // Always render the container to prevent layout shift, but hide if no links
   return (
-    <div className="flex flex-wrap justify-center gap-4">
+    <div
+      className={`flex flex-wrap justify-center gap-4 ${socialLinks.length === 0 ? 'hidden' : ''}`}
+    >
       {socialLinks.map((link) => (
         <button
           key={link.id}
           onClick={() => handleSocialClick(link)}
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
           title={`Follow on ${link.platform}`}
+          aria-label={`Follow ${artistName} on ${link.platform}`}
         >
           <SocialIcon platform={link.platform} />
         </button>
