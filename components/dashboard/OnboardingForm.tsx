@@ -89,7 +89,10 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="name"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Artist Name
         </label>
         <input
@@ -104,7 +107,10 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
       </div>
 
       <div>
-        <label htmlFor="handle" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="handle"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Handle
         </label>
         <div className="mt-1 flex rounded-md shadow-sm">
@@ -115,26 +121,37 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
             type="text"
             id="handle"
             value={formData.handle}
-            onChange={(e) => setFormData({ ...formData, handle: e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '') })}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                handle: e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''),
+              })
+            }
             className="flex-1 min-w-0 block w-full rounded-none rounded-r-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
             placeholder="your-handle"
             required
           />
         </div>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          This will be your unique URL: jov.ie/{formData.handle || 'your-handle'}
+          This will be your unique URL: jov.ie/
+          {formData.handle || 'your-handle'}
         </p>
       </div>
 
       <div>
-        <label htmlFor="tagline" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="tagline"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Tagline
         </label>
         <input
           type="text"
           id="tagline"
           value={formData.tagline}
-          onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, tagline: e.target.value })
+          }
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
           placeholder="A short description of your music"
         />

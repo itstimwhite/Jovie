@@ -1,76 +1,39 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { createBrowserClient } from '@/lib/supabase';
-import { AnalyticsData } from '@/types/common';
+import { AnalyticsData } from '@/types/db';
 
-interface AnalyticsCardsProps {
-  artistId: string;
-}
-
-export function AnalyticsCards({ artistId }: AnalyticsCardsProps) {
+export function AnalyticsCards({ artistId }: { artistId: string }) {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createBrowserClient();
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, [artistId]);
+  const fetchAnalytics = useCallback(async () => {
+    if (!artistId) return;
 
-  const fetchAnalytics = async () => {
     try {
-      setLoading(true);
+      const supabase = createBrowserClient();
 
-      const { data: clickEvents, error: clickError } = await supabase
-        .from('click_events')
-        .select('link_type, target')
+      // Fetch analytics data
+      const { data: analyticsData } = await supabase
+        .from('analytics')
+        .select('*')
         .eq('artist_id', artistId);
 
-      if (clickError) throw clickError;
-
-      const { data: socialLinks, error: socialError } = await supabase
-        .from('social_links')
-        .select('platform, clicks')
-        .eq('artist_id', artistId);
-
-      if (socialError) throw socialError;
-
-      const totalClicks = clickEvents.length;
-      const listenClicks = clickEvents.filter(
-        (e) => e.link_type === 'listen'
-      ).length;
-      const socialClicks = clickEvents.filter(
-        (e) => e.link_type === 'social'
-      ).length;
-
-      const linkBreakdown = [
-        ...socialLinks.map((link) => ({
-          type: 'social' as const,
-          target: link.platform,
-          clicks: link.clicks,
-        })),
-        {
-          type: 'listen' as const,
-          target: 'spotify',
-          clicks: listenClicks,
-        },
-      ]
-        .filter((item) => item.clicks > 0)
-        .sort((a, b) => b.clicks - a.clicks);
-
-      setAnalytics({
-        totalClicks,
-        listenClicks,
-        socialClicks,
-        linkBreakdown,
-      });
+      if (analyticsData) {
+        setAnalytics(analyticsData[0] || null);
+      }
     } catch (error) {
       console.error('Error fetching analytics:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [artistId]);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
 
   if (loading) {
     return (

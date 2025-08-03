@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { createBrowserClient } from '@/lib/supabase';
@@ -14,18 +14,17 @@ interface ListenNowFormProps {
 
 export function ListenNowForm({ artist }: ListenNowFormProps) {
   const [releases, setReleases] = useState<Release[]>([]);
-  const supabase = createBrowserClient();
+  const artistId = artist.id;
 
-  useEffect(() => {
-    fetchReleases();
-  }, [artist.id]);
+  const fetchReleases = useCallback(async () => {
+    if (!artistId) return;
 
-  const fetchReleases = async () => {
     try {
+      const supabase = createBrowserClient();
       const { data, error } = await supabase
         .from('releases')
         .select('*')
-        .eq('artist_id', artist.id)
+        .eq('artist_id', artistId)
         .order('release_date', { ascending: false });
 
       if (error) throw error;
@@ -33,7 +32,11 @@ export function ListenNowForm({ artist }: ListenNowFormProps) {
     } catch (error) {
       console.error('Error fetching releases:', error);
     }
-  };
+  }, [artistId]);
+
+  useEffect(() => {
+    fetchReleases();
+  }, [fetchReleases]);
 
   const currentListenUrl =
     releases.length > 0

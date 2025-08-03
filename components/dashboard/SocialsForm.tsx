@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -20,24 +20,29 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
   const [error, setError] = useState('');
   const supabase = createBrowserClient();
 
-  useEffect(() => {
-    fetchSocialLinks();
-  }, [artistId]);
+  const fetchSocialLinks = useCallback(async () => {
+    if (!artistId) return;
 
-  const fetchSocialLinks = async () => {
     try {
+      const supabase = createBrowserClient();
       const { data, error } = await supabase
         .from('social_links')
         .select('*')
         .eq('artist_id', artistId)
-        .order('clicks', { ascending: false });
+        .order('platform');
 
       if (error) throw error;
       setSocialLinks(data || []);
     } catch (error) {
       console.error('Error fetching social links:', error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [artistId]);
+
+  useEffect(() => {
+    fetchSocialLinks();
+  }, [fetchSocialLinks]);
 
   const handleAddLink = async (e: React.FormEvent) => {
     e.preventDefault();
