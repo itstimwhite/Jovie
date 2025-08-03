@@ -1,8 +1,9 @@
 'use client';
 
+// Dashboard should remain dynamic due to authentication requirements
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { Container } from '@/components/site/Container';
 import { ProfileLinkCard } from '@/components/dashboard/ProfileLinkCard';
@@ -30,13 +31,7 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('profile');
   const supabase = createBrowserClient();
 
-  useEffect(() => {
-    if (user) {
-      fetchArtist();
-    }
-  }, [user]);
-
-  const fetchArtist = async () => {
+  const fetchArtist = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -65,7 +60,13 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, supabase]);
+
+  useEffect(() => {
+    if (user) {
+      fetchArtist();
+    }
+  }, [user, fetchArtist]);
 
   const handleArtistCreated = (newArtist: Artist) => {
     setArtist(newArtist);

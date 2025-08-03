@@ -2,13 +2,15 @@ import fs from 'fs';
 import path from 'path';
 import { remark } from 'remark';
 import html from 'remark-html';
+import type { Metadata } from 'next';
 import { Container } from '@/components/site/Container';
 import { Header } from '@/components/site/Header';
 import { Footer } from '@/components/site/Footer';
 
-export const dynamic = 'force-dynamic';
+// Enable SSR for legal pages
+export const dynamic = 'force-static';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Terms of Service',
   description:
     'Jovie Terms of Service - Rules and guidelines for using our service.',

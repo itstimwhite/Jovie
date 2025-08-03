@@ -5,7 +5,9 @@ import { FeaturedArtists } from '@/components/home/FeaturedArtists';
 import { PreFooterCTA } from '@/components/home/PreFooterCTA';
 import { APP_NAME, APP_URL } from '@/constants/app';
 
-export const dynamic = 'force-dynamic';
+// Enable SSR for homepage
+export const dynamic = 'force-static';
+export const revalidate = 3600; // Revalidate every hour
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = `${APP_NAME} - Link in bio for music artists`;

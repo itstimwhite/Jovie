@@ -4,7 +4,9 @@ import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import Link from 'next/link';
 import { ChevronRightIcon } from '@heroicons/react/24/outline';
 
-export const dynamic = 'force-dynamic';
+// Enable SSR for artists listing page
+export const dynamic = 'force-static';
+export const revalidate = 3600; // Revalidate every hour
 
 export default async function ArtistsPage() {
   const supabase = await createServerClient();
