@@ -20,6 +20,30 @@
   --color-gray-800: #1f2937;
   --color-gray-900: #111827;
 
+  /* Accent palettes */
+  --color-orange-50: oklch(98% 0.016 73.684);
+  --color-orange-400: oklch(75% 0.183 55.934);
+  --color-orange-600: oklch(64.6% 0.222 41.116);
+
+  --color-violet-50: oklch(96.9% 0.016 293.756);
+  --color-violet-100: oklch(94.3% 0.029 294.588);
+  --color-violet-200: oklch(89.4% 0.057 293.283);
+  --color-violet-400: oklch(70.2% 0.183 293.541);
+  --color-violet-500: oklch(60.6% 0.25 292.717);
+  --color-violet-600: oklch(54.1% 0.281 293.009);
+  --color-violet-700: oklch(49.1% 0.27 292.581);
+  --color-violet-900: oklch(38% 0.189 293.745);
+
+  --color-red-25: #fff5f5;
+  --color-red-50: oklch(97.1% 0.013 17.38);
+  --color-red-900: oklch(39.6% 0.141 25.723);
+
+  --color-blue-25: #f5faff;
+  --color-blue-50: oklch(97% 0.014 254.604);
+  --color-blue-500: oklch(62.3% 0.214 259.815);
+  --color-blue-700: oklch(48.8% 0.243 264.376);
+  --color-blue-900: oklch(37.9% 0.146 265.522);
+
   --tracking-tighter: -0.02em;
   --tracking-tight: -0.01em;
   --tracking-normal: 0;
@@ -99,6 +123,17 @@
   :root {
     --background: 255 255 255;
     --foreground: 17 24 39;
+
+    /* Default accent set to violet */
+    --accent-25: var(--color-violet-50);
+    --accent-50: var(--color-violet-50);
+    --accent-100: var(--color-violet-100);
+    --accent-200: var(--color-violet-200);
+    --accent-400: var(--color-violet-400);
+    --accent-500: var(--color-violet-500);
+    --accent-600: var(--color-violet-600);
+    --accent-700: var(--color-violet-700);
+    --accent-900: var(--color-violet-900);
   }
 
   .dark {

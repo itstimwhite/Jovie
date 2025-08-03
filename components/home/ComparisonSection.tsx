@@ -1,25 +1,56 @@
-export function ComparisonSection() {
-  const features = [
-    {
-      feature: 'Customization Options',
-      others: 'Endless customization options',
-      jovie: 'One optimized design',
-      othersNegative: true,
-    },
-    {
-      feature: 'Loading Speed',
-      others: 'Slow loading',
-      jovie: 'Instant loading',
-      othersNegative: true,
-    },
-    {
-      feature: 'Target Audience',
-      others: 'Built for everyone',
-      jovie: 'Built for musicians only',
-      othersNegative: true,
-    },
-  ];
+type Feature = {
+  feature: string;
+  others: string;
+  jovie: string;
+  othersNegative?: boolean;
+};
 
+type Accent = React.CSSProperties;
+
+const defaultFeatures: Feature[] = [
+  {
+    feature: 'Customization Options',
+    others: 'Endless customization options',
+    jovie: 'One optimized design',
+    othersNegative: true,
+  },
+  {
+    feature: 'Loading Speed',
+    others: 'Slow loading',
+    jovie: 'Instant loading',
+    othersNegative: true,
+  },
+  {
+    feature: 'Target Audience',
+    others: 'Built for everyone',
+    jovie: 'Built for musicians only',
+    othersNegative: true,
+  },
+];
+
+const defaultOthersAccent: Accent = {
+  '--accent-25': 'var(--color-red-25)',
+  '--accent-50': 'var(--color-red-50)',
+  '--accent-900': 'var(--color-red-900)',
+};
+
+const defaultJovieAccent: Accent = {
+  '--accent-25': 'var(--color-blue-25)',
+  '--accent-50': 'var(--color-blue-50)',
+  '--accent-500': 'var(--color-blue-500)',
+  '--accent-700': 'var(--color-blue-700)',
+  '--accent-900': 'var(--color-blue-900)',
+};
+
+export function ComparisonSection({
+  features = defaultFeatures,
+  othersAccent = defaultOthersAccent,
+  jovieAccent = defaultJovieAccent,
+}: {
+  features?: Feature[];
+  othersAccent?: Accent;
+  jovieAccent?: Accent;
+}) {
   return (
     <section className="relative bg-gray-50 py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -35,13 +66,21 @@ export function ComparisonSection() {
               <div className="bg-gray-50 px-6 py-4">
                 <h3 className="text-lg font-semibold text-gray-900">Feature</h3>
               </div>
-              <div className="bg-red-50 px-6 py-4">
-                <h3 className="text-lg font-semibold text-red-900">
+              <div
+                style={othersAccent}
+                className="bg-[var(--accent-50)] px-6 py-4"
+              >
+                <h3 className="text-lg font-semibold text-[var(--accent-900)]">
                   Other Platforms
                 </h3>
               </div>
-              <div className="bg-blue-50 px-6 py-4">
-                <h3 className="text-lg font-semibold text-blue-900">Jovie</h3>
+              <div
+                style={jovieAccent}
+                className="bg-[var(--accent-50)] px-6 py-4"
+              >
+                <h3 className="text-lg font-semibold text-[var(--accent-900)]">
+                  Jovie
+                </h3>
               </div>
 
               {/* Features */}
@@ -53,7 +92,8 @@ export function ComparisonSection() {
                     <p className="font-medium text-gray-900">{item.feature}</p>
                   </div>
                   <div
-                    className={`px-6 py-3 ${index % 2 === 0 ? 'bg-red-25' : 'bg-red-50'}`}
+                    style={othersAccent}
+                    className={`px-6 py-3 ${index % 2 === 0 ? 'bg-[var(--accent-25)]' : 'bg-[var(--accent-50)]'}`}
                   >
                     <div className="flex items-center">
                       <svg
@@ -73,11 +113,12 @@ export function ComparisonSection() {
                     </div>
                   </div>
                   <div
-                    className={`px-6 py-3 ${index % 2 === 0 ? 'bg-blue-25' : 'bg-blue-50'}`}
+                    style={jovieAccent}
+                    className={`px-6 py-3 ${index % 2 === 0 ? 'bg-[var(--accent-25)]' : 'bg-[var(--accent-50)]'}`}
                   >
                     <div className="flex items-center">
                       <svg
-                        className="mr-3 h-4 w-4 text-blue-500"
+                        className="mr-3 h-4 w-4 text-[var(--accent-500)]"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -89,7 +130,7 @@ export function ComparisonSection() {
                           d="M5 13l4 4L19 7"
                         />
                       </svg>
-                      <p className="text-blue-700">{item.jovie}</p>
+                      <p className="text-[var(--accent-700)]">{item.jovie}</p>
                     </div>
                   </div>
                 </div>
