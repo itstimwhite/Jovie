@@ -80,40 +80,44 @@ export default function HomePage() {
 
       <section className="relative flex min-h-screen flex-col items-center justify-center px-4 py-16">
         <Container className="flex max-w-4xl flex-col items-center text-center">
-          {/* Hero Section */}
-          <div className="mb-16 space-y-8">
+          {/* Hero Section - Above the fold */}
+          <div className="mb-12 space-y-6">
             {/* Badge */}
             <div className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-sm ring-1 ring-white/20">
               <span className="mr-2 h-2 w-2 rounded-full bg-green-400" />
-              Trusted by 10,000+ artists worldwide
+              Live in under 90 seconds
             </div>
 
             {/* Main Headline */}
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-              <span className="block">Your music.</span>
+              <span className="block">The world&apos;s best</span>
               <span className="block bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                One link.
+                link in bio
               </span>
+              <span className="block">for music artists</span>
             </h1>
 
             {/* Subheadline */}
             <p className="mx-auto max-w-2xl text-xl text-white/80 sm:text-2xl">
-              Claim your artist profile and create a stunning landing page that
-              connects all your music, social media, and merch in one beautiful
-              link.
+              Create a stunning, high-converting landing page that connects all
+              your music, social media, and merch in one beautiful link.
+              <span className="font-semibold text-white">
+                {' '}
+                No design skills needed.
+              </span>
             </p>
 
             {/* Social Proof */}
             <div className="flex items-center justify-center space-x-8 text-sm text-white/60">
               <span>✨ Free forever</span>
               <span>•</span>
-              <span>⚡ Setup in 2 minutes</span>
+              <span>⚡ 90-second setup</span>
               <span>•</span>
-              <span>🎨 Customizable design</span>
+              <span>🎯 High converting</span>
             </div>
           </div>
 
-          {/* Search Section */}
+          {/* Artist Selection - Above the fold */}
           <div className="w-full max-w-2xl space-y-6">
             {/* Search Label */}
             <div className="text-center">
@@ -178,14 +182,14 @@ export default function HomePage() {
             </div>
 
             {/* Trust Indicators */}
-            <div className="mt-12 text-center">
+            <div className="mt-8 text-center">
               <p className="text-sm text-white/50">
                 Secure • Private • No credit card required
               </p>
             </div>
           </div>
 
-          {/* Features Preview */}
+          {/* Features Preview - Below the fold */}
           <div className="mt-24 grid w-full max-w-4xl grid-cols-1 gap-8 sm:grid-cols-3">
             <div className="text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
@@ -207,7 +211,7 @@ export default function HomePage() {
                 Lightning Fast
               </h3>
               <p className="text-sm text-white/70">
-                Get your profile live in under 2 minutes
+                Get your profile live in under 90 seconds
               </p>
             </div>
 
@@ -228,10 +232,10 @@ export default function HomePage() {
                 </svg>
               </div>
               <h3 className="mb-2 text-lg font-semibold text-white">
-                Beautiful Design
+                High Converting
               </h3>
               <p className="text-sm text-white/70">
-                Stunning, mobile-optimized layouts
+                Optimized for maximum engagement and sales
               </p>
             </div>
 
