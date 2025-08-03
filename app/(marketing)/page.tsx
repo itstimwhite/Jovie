@@ -143,10 +143,8 @@ export default function HomePage() {
         </div>
 
         {/* Floating Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-linear-to-br from-indigo-500/20 to-purple-500/20 blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-linear-to-tr from-pink-500/20 to-purple-500/20 blur-3xl" />
-        </div>
+        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-linear-to-br from-indigo-500/20 to-purple-500/20 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-linear-to-tr from-pink-500/20 to-purple-500/20 blur-3xl" />
 
         {/* Hero Section */}
         <HomeHero />
