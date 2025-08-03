@@ -136,42 +136,58 @@ export default function HomePage() {
         }}
       />
 
-      <div className="relative min-h-screen overflow-hidden bg-linear-to-br from-indigo-900 via-purple-900 to-pink-900">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-50">
-          <div className="absolute inset-0 bg-linear-to-br from-white/5 to-transparent" />
-        </div>
+      {/* Linear-inspired design with dark theme and subtle gradients */}
+      <div className="relative min-h-screen bg-[#0D0E12] text-white">
+        {/* Subtle grid background pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
 
-        {/* Floating Elements */}
-        <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-linear-to-br from-indigo-500/20 to-purple-500/20 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-linear-to-tr from-pink-500/20 to-purple-500/20 blur-3xl" />
+        {/* Gradient orbs - more subtle like Linear */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full blur-3xl" />
 
         {/* Hero Section */}
         <HomeHero />
 
-        {/* Featured Artists Carousel */}
-        <Suspense
-          fallback={
-            <div className="py-16 text-center text-white">
-              Loading featured artists...
-            </div>
-          }
-        >
-          <FeaturedArtists />
-        </Suspense>
+        {/* Content sections with Linear-style spacing */}
+        <div className="relative z-10">
+          {/* Featured Artists with glass morphism */}
+          <section className="py-24">
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center py-16">
+                  <div className="animate-pulse text-white/60">
+                    Loading featured artists...
+                  </div>
+                </div>
+              }
+            >
+              <FeaturedArtists />
+            </Suspense>
+          </section>
 
-        {/* Problem Statement Section */}
-        <ProblemStatement />
+          {/* Problem Statement with Linear-style cards */}
+          <section className="py-24 border-t border-white/5">
+            <ProblemStatement />
+          </section>
 
-        {/* How It Works Section */}
-        <HowItWorks />
+          {/* How It Works with step indicators */}
+          <section className="py-24 border-t border-white/5">
+            <HowItWorks />
+          </section>
 
-        {/* Benefits Section */}
-        <BenefitsSection />
+          {/* Benefits with grid layout */}
+          <section className="py-24 border-t border-white/5">
+            <BenefitsSection />
+          </section>
 
-        {/* Comparison Section */}
-        <ComparisonSection />
+          {/* Comparison with modern table design */}
+          <section className="py-24 border-t border-white/5">
+            <ComparisonSection />
+          </section>
+        </div>
       </div>
+
+      {/* CTA section with glass morphism */}
       <PreFooterCTA />
     </>
   );

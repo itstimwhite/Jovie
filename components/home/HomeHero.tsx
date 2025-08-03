@@ -6,58 +6,78 @@ import { FeatureFlaggedArtistSearch } from './FeatureFlaggedArtistSearch';
 export function HomeHero() {
   return (
     <section
-      className="relative flex min-h-screen flex-col items-center justify-center px-4 py-16"
+      className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24"
       role="banner"
       aria-labelledby="hero-headline"
     >
-      <Container className="relative flex max-w-4xl flex-col items-center text-center">
-        {/* Hero Section - Above the fold */}
-        <div className="mb-16 space-y-8">
-          {/* Badge - Moved social proof here */}
+      <Container className="relative flex max-w-6xl flex-col items-center text-center">
+        {/* Linear-style badge with subtle glass morphism */}
+        <div className="mb-8">
           <div
-            className="inline-flex items-center rounded-full bg-white/8 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-xs ring-1 ring-white/20"
+            className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-sm font-medium text-white/80 backdrop-blur-sm border border-white/10"
             role="status"
             aria-label="Key benefits"
           >
-            <span
-              className="mr-2 h-2 w-2 rounded-full bg-green-400"
-              aria-hidden="true"
-            />
-            90-second setup • Free forever
+            <div className="flex h-2 w-2 items-center justify-center">
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            </div>
+            <span>90-second setup</span>
+            <div className="h-1 w-1 rounded-full bg-white/30" />
+            <span>Free forever</span>
           </div>
+        </div>
 
-          {/* Main Headline - Split for visual hierarchy */}
+        {/* Main headline with Linear's typography style */}
+        <div className="mb-12 space-y-6">
           <h1
             id="hero-headline"
-            className="text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl"
+            className="text-6xl font-semibold tracking-[-0.02em] text-white sm:text-7xl lg:text-8xl"
           >
-            <span className="block text-white">The fastest link-in-bio</span>
-            <span className="block text-accent">Built for musicians</span>
+            <span className="block leading-none">The fastest</span>
+            <span className="block leading-none text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text">
+              link-in-bio
+            </span>
+            <span className="block leading-none text-white/90">
+              for musicians
+            </span>
           </h1>
 
-          {/* Subheadline - Tightened copy */}
+          {/* Subtitle with better hierarchy */}
           <p
-            className="mx-auto max-w-2xl text-xl text-white sm:text-2xl leading-relaxed"
+            className="mx-auto max-w-2xl text-xl text-white/70 font-light leading-relaxed sm:text-2xl"
             role="doc-subtitle"
           >
-            One link. Every stream.
+            Connect your music, social media, and merch in one beautiful link.
+            <br />
+            <span className="text-white/50">No design skills required.</span>
           </p>
         </div>
 
-        {/* Artist Search - Front and center */}
+        {/* Artist Search with Linear-style container */}
         <div className="w-full max-w-2xl" role="main">
-          <FeatureFlaggedArtistSearch />
+          <div className="relative">
+            {/* Subtle glow effect behind search */}
+            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-cyan-500/20 rounded-2xl blur-xl opacity-50" />
+            <div className="relative">
+              <FeatureFlaggedArtistSearch />
+            </div>
+          </div>
         </div>
 
-        {/* Trust Indicators - Moved to bottom */}
-        <div className="mt-12 text-center">
-          <p
-            className="text-sm text-white/50"
-            role="complementary"
-            aria-label="Security and payment information"
-          >
-            Secure • No credit card required
+        {/* Trust indicators with Linear styling */}
+        <div className="mt-16 flex flex-col items-center space-y-4">
+          <p className="text-sm text-white/50 font-medium">
+            Trusted by musicians worldwide
           </p>
+          <div className="flex items-center space-x-8 opacity-60">
+            <div className="text-xs text-white/40 font-mono">
+              10,000+ artists
+            </div>
+            <div className="h-1 w-1 rounded-full bg-white/20" />
+            <div className="text-xs text-white/40 font-mono">1M+ clicks</div>
+            <div className="h-1 w-1 rounded-full bg-white/20" />
+            <div className="text-xs text-white/40 font-mono">99.9% uptime</div>
+          </div>
         </div>
       </Container>
     </section>

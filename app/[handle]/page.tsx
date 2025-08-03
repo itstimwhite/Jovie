@@ -227,21 +227,27 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       <ArtistSEO artist={artist} socialLinks={socialLinks} />
       <div className="min-h-screen bg-white dark:bg-gray-900">
         <Container>
-          <div className="flex min-h-screen flex-col items-center justify-center py-12">
-            <div className="w-full max-w-md space-y-8">
-              <ProfileHeader artist={artist} />
+          <div className="flex min-h-screen flex-col py-12">
+            <div className="flex-1 flex flex-col items-center justify-center">
+              <div className="w-full max-w-md space-y-8">
+                <ProfileHeader artist={artist} />
 
-              <div className="flex justify-center">
-                <ListenNow handle={artist.handle} artistName={artist.name} />
+                <div className="flex justify-center">
+                  <ListenNow handle={artist.handle} artistName={artist.name} />
+                </div>
+
+                <SocialBar
+                  handle={artist.handle}
+                  artistName={artist.name}
+                  socialLinks={socialLinks}
+                />
               </div>
+            </div>
 
-              <SocialBar
-                handle={artist.handle}
-                artistName={artist.name}
-                socialLinks={socialLinks}
-              />
-
-              <ProfileFooter artist={artist} />
+            <div className="flex justify-center">
+              <div className="w-full max-w-md">
+                <ProfileFooter artist={artist} />
+              </div>
             </div>
           </div>
         </Container>
