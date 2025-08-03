@@ -68,10 +68,10 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
       [onChange]
     );
 
-    // Memoize the display value
-    const displayValue = useMemo(() => {
-      return value?.name || '';
-    }, [value]);
+    // Memoize the display value function
+    const displayValue = useCallback((item: ComboboxOption | null) => {
+      return item?.name || '';
+    }, []);
 
     return (
       <Headless.Combobox

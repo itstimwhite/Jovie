@@ -68,7 +68,7 @@ export function useArtistSearch(options: UseArtistSearchOptions = {}) {
           const res = await fetch(
             `/api/spotify/search?q=${encodeURIComponent(searchQuery)}`,
             {
-              signal: abortController.current.signal,
+              signal: abortController.current?.signal,
             }
           );
 

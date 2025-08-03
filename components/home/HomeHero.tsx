@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { Combobox } from '@/components/ui/Combobox';
 import { Container } from '@/components/site/Container';
 import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
+import type { SpotifyArtist } from '@/types/common';
 import clsx from 'clsx';
 
 export function HomeHero() {

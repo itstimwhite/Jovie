@@ -31,12 +31,12 @@ class PerformanceMonitor {
 
   getMetrics(): Record<string, { avg: number; count: number }> {
     const result: Record<string, { avg: number; count: number }> = {};
-    for (const [operation, measurements] of this.metrics.entries()) {
+    this.metrics.forEach((measurements, operation) => {
       result[operation] = {
         avg: this.getAverageTime(operation),
         count: measurements.length,
       };
-    }
+    });
     return result;
   }
 

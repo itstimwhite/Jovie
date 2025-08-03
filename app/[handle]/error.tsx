@@ -50,11 +50,7 @@ export default function Error({ error, reset }: ErrorProps) {
                 Try again
               </Button>
 
-              <Button
-                onClick={() => (window.location.href = '/')}
-                color="gray"
-                outline
-              >
+              <Button onClick={() => (window.location.href = '/')} outline>
                 Go home
               </Button>
             </div>

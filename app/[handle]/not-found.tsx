@@ -43,7 +43,7 @@ export default function NotFound() {
               </Link>
 
               <Link href="/">
-                <Button color="gray" outline className="w-full">
+                <Button outline className="w-full">
                   Go home
                 </Button>
               </Link>
