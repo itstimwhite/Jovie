@@ -48,7 +48,13 @@ type InputProps = {
 } & Omit<Headless.InputProps, 'as' | 'className'>;
 
 export const Input = forwardRef(function Input(
-  { className, label, error, loading, ...props }: InputProps & Partial<LegacyInputProps>,
+  {
+    className,
+    label,
+    error,
+    loading,
+    ...props
+  }: InputProps & Partial<LegacyInputProps>,
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
   const inputElement = (
@@ -115,11 +121,14 @@ export const Input = forwardRef(function Input(
           loading && 'pr-10 sm:pr-8',
         ])}
       />
-      
+
       {/* Loading Spinner */}
       {loading && (
         <div className="absolute right-3 top-1/2 -translate-y-1/2 sm:right-2.5">
-          <LoadingSpinner size="sm" className="text-zinc-500 dark:text-zinc-400" />
+          <LoadingSpinner
+            size="sm"
+            className="text-zinc-500 dark:text-zinc-400"
+          />
         </div>
       )}
     </span>

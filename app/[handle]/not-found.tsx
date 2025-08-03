@@ -31,7 +31,8 @@ export default function NotFound() {
                 Artist not found
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                The artist profile you&apos;re looking for doesn&apos;t exist or hasn&apos;t been created yet.
+                The artist profile you&apos;re looking for doesn&apos;t exist or
+                hasn&apos;t been created yet.
               </p>
             </div>
 

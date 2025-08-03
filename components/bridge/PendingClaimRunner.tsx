@@ -117,13 +117,14 @@ export function PendingClaimRunner() {
           .select('*')
           .single();
 
+        let finalArtist = artist;
+
         if (artistError) {
           if (artistError.code === '23505') {
             // Handle conflict, try with numeric suffix
             let counter = 1;
             let finalHandle = suggestedHandle;
             let inserted = false;
-            let finalArtist = null;
 
             while (!inserted && counter < 10) {
               finalHandle = `${suggestedHandle}${counter}`;
@@ -151,15 +152,12 @@ export function PendingClaimRunner() {
             if (!inserted || !finalArtist) {
               throw new Error('Could not generate unique handle');
             }
-
-            // Use the final artist for the rest of the process
-            const artist = finalArtist;
           } else {
             throw artistError;
           }
         }
 
-        if (!artist) {
+        if (!finalArtist) {
           throw new Error('Failed to create artist profile');
         }
 
@@ -170,7 +168,7 @@ export function PendingClaimRunner() {
           );
           if (latestRelease) {
             await supabase.from('releases').insert({
-              artist_id: artist.id,
+              artist_id: finalArtist.id,
               dsp: 'spotify',
               title: latestRelease.name,
               url: buildSpotifyAlbumUrl(latestRelease.id),
@@ -183,7 +181,7 @@ export function PendingClaimRunner() {
 
         // Track successful claim
         track('artist_claim_success', {
-          handle: artist.handle,
+          handle: finalArtist.handle,
           spotifyId: pendingClaim.spotifyId,
         });
 
