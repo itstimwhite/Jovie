@@ -71,7 +71,7 @@ jobs:
         run: npx size-limit || (echo "Bundle size exceeded" && exit 1)
 
       - name: ZAP Baseline DAST
-        uses: zaproxy/action-baseline@v0.10.0
+        uses: zaproxy/action-baseline@v0.14.0
         with:
           target: ${{ steps.vercel.outputs.url }}
           rules_file_name: '.zap/rules.tsv'
