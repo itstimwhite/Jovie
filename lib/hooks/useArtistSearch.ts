@@ -1,6 +1,14 @@
+'use client';
+
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { SpotifyArtist } from '@/types/common';
 import { measureAsync } from '@/lib/utils/performance';
+
+interface SpotifyArtist {
+  id: string;
+  name: string;
+  images?: Array<{ url: string; width: number; height: number }>;
+  popularity: number;
+}
 
 interface UseArtistSearchOptions {
   debounceMs?: number;
@@ -8,139 +16,136 @@ interface UseArtistSearchOptions {
   maxResults?: number;
 }
 
-interface SearchCache {
-  [query: string]: {
-    results: SpotifyArtist[];
-    timestamp: number;
-  };
+interface UseArtistSearchReturn {
+  results: SpotifyArtist[];
+  isLoading: boolean;
+  error: string | null;
+  updateQuery: (query: string) => void;
 }
 
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
-const DEFAULT_DEBOUNCE_MS = 300;
-const DEFAULT_MIN_QUERY_LENGTH = 2;
-const DEFAULT_MAX_RESULTS = 10;
+// Client-side cache for search results
+const searchCache = new Map<string, { data: SpotifyArtist[]; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-export function useArtistSearch(options: UseArtistSearchOptions = {}) {
-  const {
-    debounceMs = DEFAULT_DEBOUNCE_MS,
-    minQueryLength = DEFAULT_MIN_QUERY_LENGTH,
-    maxResults = DEFAULT_MAX_RESULTS,
-  } = options;
-
-  const [query, setQuery] = useState('');
+export function useArtistSearch({
+  debounceMs = 300,
+  minQueryLength = 2,
+  maxResults = 8,
+}: UseArtistSearchOptions = {}): UseArtistSearchReturn {
   const [results, setResults] = useState<SpotifyArtist[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const cache = useRef<SearchCache>({});
+  const [query, setQuery] = useState('');
   const abortController = useRef<AbortController | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  const searchArtists = useCallback(
-    async (searchQuery: string) => {
-      if (searchQuery.length < minQueryLength) {
-        setResults([]);
-        setError(null);
-        return;
+  // Clean up old cache entries
+  useEffect(() => {
+    const now = Date.now();
+    for (const [key, value] of searchCache.entries()) {
+      if (now - value.timestamp > CACHE_TTL) {
+        searchCache.delete(key);
       }
+    }
+  }, []);
 
-      // Check cache first
-      const cached = cache.current[searchQuery];
-      if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
-        setResults(cached.results);
-        setError(null);
-        return;
-      }
-
-      // Cancel previous request
-      if (abortController.current) {
-        abortController.current.abort();
-      }
-
-      // Create new abort controller
-      abortController.current = new AbortController();
-
-      setIsLoading(true);
+  const searchArtists = useCallback(async (searchQuery: string) => {
+    if (!searchQuery.trim() || searchQuery.length < minQueryLength) {
+      setResults([]);
       setError(null);
+      return;
+    }
 
-      try {
-        const data = await measureAsync('spotify-search', async () => {
-          const res = await fetch(
-            `/api/spotify/search?q=${encodeURIComponent(searchQuery)}`,
-            {
-              signal: abortController.current?.signal,
-            }
-          );
+    // Check cache first
+    const cacheKey = searchQuery.toLowerCase();
+    const cached = searchCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      setResults(cached.data.slice(0, maxResults));
+      setError(null);
+      return;
+    }
 
-          if (!res.ok) {
-            throw new Error(`Search failed: ${res.status}`);
-          }
+    setIsLoading(true);
+    setError(null);
 
-          return res.json();
+    // Cancel previous request
+    if (abortController.current) {
+      abortController.current.abort();
+    }
+
+    abortController.current = new AbortController();
+
+    try {
+      const duration = await measureAsync(async () => {
+        const response = await fetch(`/api/spotify/search?q=${encodeURIComponent(searchQuery)}`, {
+          signal: abortController.current?.signal,
         });
 
-        const limitedResults = data.slice(0, maxResults);
-
-        // Cache the results
-        cache.current[searchQuery] = {
-          results: limitedResults,
-          timestamp: Date.now(),
-        };
-
-        setResults(limitedResults);
-      } catch (err) {
-        if (err instanceof Error && err.name === 'AbortError') {
-          // Request was cancelled, ignore
-          return;
+        if (!response.ok) {
+          throw new Error(`Search failed: ${response.status}`);
         }
 
-        setError(err instanceof Error ? err.message : 'Search failed');
-        setResults([]);
-      } finally {
-        setIsLoading(false);
+        const data = await response.json();
+        return data.artists || [];
+      });
+
+      console.log(`Artist search took ${duration}ms for query: "${searchQuery}"`);
+
+      // Cache the results
+      searchCache.set(cacheKey, {
+        data: results,
+        timestamp: Date.now(),
+      });
+
+      // Keep cache size manageable
+      if (searchCache.size > 100) {
+        const firstKey = searchCache.keys().next().value;
+        searchCache.delete(firstKey);
       }
-    },
-    [minQueryLength, maxResults]
-  );
 
-  const debouncedSearch = useCallback(
-    (searchQuery: string) => {
-      // Clear existing timeout
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      setResults(results.slice(0, maxResults));
+      setError(null);
+
+      // Track search analytics
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'artist_search', {
+          search_term: searchQuery,
+          results_count: results.length,
+        });
       }
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        // Request was cancelled, ignore
+        return;
+      }
+      
+      console.error('Artist search error:', err);
+      setError(err instanceof Error ? err.message : 'Search failed');
+      setResults([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [minQueryLength, maxResults, results]);
 
-      // Set new timeout
-      timeoutRef.current = setTimeout(() => {
-        searchArtists(searchQuery);
-      }, debounceMs);
-    },
-    [searchArtists, debounceMs]
-  );
+  const updateQuery = useCallback((newQuery: string) => {
+    setQuery(newQuery);
 
-  const updateQuery = useCallback(
-    (newQuery: string) => {
-      setQuery(newQuery);
-      debouncedSearch(newQuery);
-    },
-    [debouncedSearch]
-  );
+    // Clear previous timeout
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
 
-  const clearResults = useCallback(() => {
-    setResults([]);
-    setError(null);
-    setIsLoading(false);
-  }, []);
-
-  const clearCache = useCallback(() => {
-    cache.current = {};
-  }, []);
+    // Set new timeout
+    debounceTimeout.current = setTimeout(() => {
+      searchArtists(newQuery);
+    }, debounceMs);
+  }, [debounceMs, searchArtists]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
       }
       if (abortController.current) {
         abortController.current.abort();
@@ -149,12 +154,9 @@ export function useArtistSearch(options: UseArtistSearchOptions = {}) {
   }, []);
 
   return {
-    query,
     results,
     isLoading,
     error,
     updateQuery,
-    clearResults,
-    clearCache,
   };
 }

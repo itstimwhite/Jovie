@@ -2,11 +2,12 @@ import { cn } from '@/lib/utils';
 
 interface LogoProps {
   className?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 }
 
 export function Logo({ className, size = 'md' }: LogoProps) {
   const sizeClasses = {
+    xs: 'h-4 w-auto',
     sm: 'h-6 w-auto',
     md: 'h-8 w-auto',
     lg: 'h-12 w-auto',

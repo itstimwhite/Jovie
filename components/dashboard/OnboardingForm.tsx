@@ -1,146 +1,42 @@
 'use client';
 
-import { useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { createBrowserClient } from '@/lib/supabase';
-import {
-  getSpotifyArtist,
-  getArtistLatestRelease,
-  buildSpotifyAlbumUrl,
-} from '@/lib/spotify';
-import { extractSpotifyId, generateHandle } from '@/lib/utils';
-import { Artist } from '@/types/db';
+import { APP_NAME } from '@/constants/app';
 
 interface OnboardingFormProps {
-  onSuccess: (artist: Artist) => void;
+  onSuccess: (artist: any) => void;
 }
 
 export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
-  const { user } = useUser();
-  const [spotifyUrl, setSpotifyUrl] = useState('');
-  const [handle, setHandle] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const supabase = createBrowserClient();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const spotifyId = extractSpotifyId(spotifyUrl);
-      if (!spotifyId) {
-        throw new Error('Invalid Spotify URL');
-      }
-
-      const spotifyArtist = await getSpotifyArtist(spotifyId);
-      const suggestedHandle = handle || generateHandle(spotifyArtist.name);
-
-      const { data: existingUser, error: userError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('clerk_id', user.id)
-        .single();
-
-      let userId;
-      if (userError && userError.code === 'PGRST116') {
-        const { data: newUser, error: createUserError } = await supabase
-          .from('users')
-          .insert({
-            clerk_id: user.id,
-            email: user.primaryEmailAddress?.emailAddress || '',
-          })
-          .select('id')
-          .single();
-
-        if (createUserError) throw createUserError;
-        userId = newUser.id;
-      } else if (userError) {
-        throw userError;
-      } else {
-        userId = existingUser.id;
-      }
-
-      const { data: artist, error: artistError } = await supabase
-        .from('artists')
-        .insert({
-          owner_user_id: userId,
-          handle: suggestedHandle,
-          spotify_id: spotifyId,
-          name: spotifyArtist.name,
-          image_url: spotifyArtist.images[0]?.url,
-        })
-        .select('*')
-        .single();
-
-      if (artistError) {
-        if (artistError.code === '23505') {
-          throw new Error('Handle already taken. Please choose another.');
-        }
-        throw artistError;
-      }
-
-      try {
-        const latestRelease = await getArtistLatestRelease(spotifyId);
-        if (latestRelease) {
-          await supabase.from('releases').insert({
-            artist_id: artist.id,
-            dsp: 'spotify',
-            title: latestRelease.name,
-            url: buildSpotifyAlbumUrl(latestRelease.id),
-            release_date: latestRelease.release_date,
-          });
-        }
-      } catch (releaseError) {
-        console.warn('Failed to fetch latest release:', releaseError);
-      }
-
-      onSuccess(artist);
-    } catch (error) {
-      console.error('Onboarding error:', error);
-      setError(error instanceof Error ? error.message : 'Something went wrong');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Connect Your Spotify</CardTitle>
+        <CardTitle>Welcome to {APP_NAME}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Spotify Artist URL or ID"
-            placeholder="https://open.spotify.com/artist/... or just the ID"
-            value={spotifyUrl}
-            onChange={(e) => setSpotifyUrl(e.target.value)}
-            required
-            error={error}
-          />
+      <CardContent className="space-y-4">
+        <p className="text-gray-600 dark:text-gray-400">
+          To get started, search for your artist profile on our homepage and claim it.
+        </p>
+        
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+            How it works:
+          </h3>
+          <ol className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+            <li>1. Search for your artist name on the homepage</li>
+            <li>2. Select your profile from the results</li>
+            <li>3. Click "Claim" to create your Jovie profile</li>
+            <li>4. Customize your profile and add social links</li>
+          </ol>
+        </div>
 
-          <Input
-            label="Custom Handle (optional)"
-            placeholder="your-artist-name"
-            value={handle}
-            onChange={(e) => setHandle(e.target.value)}
-          />
-
-          <Button
-            type="submit"
-            disabled={loading || !spotifyUrl}
-            className="w-full"
-          >
-            {loading ? 'Creating Profile...' : 'Create Profile'}
+        <Link href="/" className="block">
+          <Button className="w-full" color="indigo">
+            Search for Your Artist
           </Button>
-        </form>
+        </Link>
       </CardContent>
     </Card>
   );

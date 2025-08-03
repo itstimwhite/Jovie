@@ -13,7 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const baseUrl = APP_URL;
 
-  // Static pages
+  // Static pages with comprehensive metadata
   const staticPages = [
     {
       url: baseUrl,
@@ -21,9 +21,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily' as const,
       priority: 1,
     },
+    {
+      url: `${baseUrl}/legal/privacy`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/legal/terms`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.3,
+    },
   ];
 
-  // Artist profile pages
+  // Artist profile pages with optimized priorities
   const artistPages =
     artists?.map((artist) => ({
       url: `${baseUrl}/${artist.handle}`,

@@ -1,4 +1,5 @@
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { Artist } from '@/types/db';
 import { DEFAULT_PROFILE_TAGLINE } from '@/constants/app';
 
@@ -19,6 +20,13 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
           priority
           fill
         />
+        
+        {/* Verification badge overlay */}
+        {artist.is_verified && (
+          <div className="absolute -bottom-1 -right-1">
+            <VerifiedBadge size="md" />
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -26,7 +34,12 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
           className="text-3xl font-bold text-gray-900 dark:text-white"
           itemProp="name"
         >
-          {artist.name}
+          <span className="flex items-center justify-center gap-2">
+            {artist.name}
+            {artist.is_verified && (
+              <VerifiedBadge size="sm" className="ml-1" />
+            )}
+          </span>
         </h1>
         <p
           className="text-lg text-gray-600 dark:text-gray-400"

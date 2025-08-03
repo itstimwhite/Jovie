@@ -2,7 +2,25 @@
 
 import { SocialLink } from '@/types/db';
 import { track } from '@/lib/analytics';
-import * as SimpleIcons from 'simple-icons';
+import {
+  siInstagram,
+  siX,
+  siTiktok,
+  siYoutube,
+  siFacebook,
+  siSpotify,
+  siApplemusic,
+  siSoundcloud,
+  siBandcamp,
+  siDiscord,
+  siReddit,
+  siPinterest,
+  siTumblr,
+  siVimeo,
+  siGithub,
+  siMedium,
+  siPatreon,
+} from 'simple-icons';
 
 interface SocialBarProps {
   handle: string;
@@ -58,42 +76,32 @@ export function SocialBar({ handle, artistName, socialLinks }: SocialBarProps) {
 function SocialIcon({ platform }: { platform: string }) {
   const iconClass = 'h-3.5 w-3.5';
 
-  // Map platform names to Simple Icons keys
-  const getIconKey = (platform: string): string => {
-    const platformMap: Record<string, string> = {
-      instagram: 'instagram',
-      twitter: 'twitter',
-      tiktok: 'tiktok',
-      youtube: 'youtube',
-      facebook: 'facebook',
-      spotify: 'spotify',
-      apple: 'applemusic',
-      soundcloud: 'soundcloud',
-      bandcamp: 'bandcamp',
-      website: 'globe',
-      linkedin: 'linkedin',
-      snapchat: 'snapchat',
-      twitch: 'twitch',
-      discord: 'discord',
-      reddit: 'reddit',
-      pinterest: 'pinterest',
-      tumblr: 'tumblr',
-      vimeo: 'vimeo',
-      behance: 'behance',
-      dribbble: 'dribbble',
-      github: 'github',
-      medium: 'medium',
-      substack: 'substack',
-      patreon: 'patreon',
-      ko_fi: 'ko-fi',
-      buymeacoffee: 'buymeacoffee',
+  // Map platform names to Simple Icons
+  const getIcon = (platform: string) => {
+    const platformMap: Record<string, any> = {
+      instagram: siInstagram,
+      twitter: siX,
+      tiktok: siTiktok,
+      youtube: siYoutube,
+      facebook: siFacebook,
+      spotify: siSpotify,
+      apple: siApplemusic,
+      soundcloud: siSoundcloud,
+      bandcamp: siBandcamp,
+      discord: siDiscord,
+      reddit: siReddit,
+      pinterest: siPinterest,
+      tumblr: siTumblr,
+      vimeo: siVimeo,
+      github: siGithub,
+      medium: siMedium,
+      patreon: siPatreon,
     };
 
-    return platformMap[platform.toLowerCase()] || 'link';
+    return platformMap[platform.toLowerCase()];
   };
 
-  const iconKey = getIconKey(platform);
-  const icon = SimpleIcons[iconKey as keyof typeof SimpleIcons];
+  const icon = getIcon(platform);
 
   if (icon) {
     return (

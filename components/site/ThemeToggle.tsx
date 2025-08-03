@@ -6,25 +6,38 @@ import { Button } from '@/components/ui/Button';
 
 export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  // Don't render anything until mounted to prevent hydration mismatch
   if (!mounted) {
-    return null;
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-8 w-8 px-0"
+        disabled
+      >
+        <span className="sr-only">Loading theme toggle</span>
+        <div className="h-4 w-4 animate-pulse rounded bg-gray-300 dark:bg-gray-600" />
+      </Button>
+    );
   }
+
+  const currentTheme = resolvedTheme || theme;
 
   return (
     <Button
       variant="ghost"
       size="sm"
-      onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+      onClick={() => setTheme(currentTheme === 'light' ? 'dark' : 'light')}
       className="h-8 w-8 px-0"
     >
       <span className="sr-only">Toggle theme</span>
-      {theme === 'light' ? (
+      {currentTheme === 'light' ? (
         <svg
           className="h-4 w-4"
           fill="none"

@@ -11,6 +11,7 @@ import { ProfileForm } from '@/components/dashboard/ProfileForm';
 import { SocialsForm } from '@/components/dashboard/SocialsForm';
 import { ListenNowForm } from '@/components/dashboard/ListenNowForm';
 import { AnalyticsCards } from '@/components/dashboard/AnalyticsCards';
+import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
 import { createBrowserClient } from '@/lib/supabase';
 import { Artist } from '@/types/db';
 import { APP_NAME } from '@/constants/app';
@@ -85,73 +86,75 @@ export default function DashboardPage() {
     );
   }
 
-  if (!artist) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Container>
-          <div className="flex min-h-screen items-center justify-center py-12">
-            <div className="w-full max-w-md">
-              <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold">Welcome to {APP_NAME}</h1>
+  return (
+    <>
+      <PendingClaimRunner />
+      
+      {!artist ? (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <Container>
+            <div className="flex min-h-screen items-center justify-center py-12">
+              <div className="w-full max-w-md">
+                <div className="text-center mb-8">
+                  <h1 className="text-3xl font-bold">Welcome to {APP_NAME}</h1>
+                  <p className="mt-2 text-gray-600 dark:text-gray-400">
+                    Let&apos;s set up your artist profile
+                  </p>
+                </div>
+                <OnboardingForm onSuccess={handleArtistCreated} />
+              </div>
+            </div>
+          </Container>
+        </div>
+      ) : (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <Container>
+            <div className="py-8">
+              <div className="mb-8">
+                <h1 className="text-3xl font-bold">Dashboard</h1>
                 <p className="mt-2 text-gray-600 dark:text-gray-400">
-                  Let&apos;s set up your artist profile
+                  Manage your {APP_NAME} profile
                 </p>
               </div>
-              <OnboardingForm onSuccess={handleArtistCreated} />
+
+              <div className="mb-8">
+                <ProfileLinkCard artist={artist} />
+              </div>
+
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <nav className="-mb-px flex space-x-8">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                        activeTab === tab.id
+                          ? 'border-gray-900 text-gray-900 dark:border-gray-50 dark:text-gray-50'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+
+              <div className="mt-8">
+                {activeTab === 'profile' && (
+                  <ProfileForm artist={artist} onUpdate={handleArtistUpdated} />
+                )}
+                {activeTab === 'social' && <SocialsForm artistId={artist.id} />}
+                {activeTab === 'listen' && (
+                  <ListenNowForm artist={artist} onUpdate={handleArtistUpdated} />
+                )}
+                {activeTab === 'analytics' && (
+                  <AnalyticsCards artistId={artist.id} />
+                )}
+              </div>
             </div>
-          </div>
-        </Container>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Container>
-        <div className="py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold">Dashboard</h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
-              Manage your {APP_NAME} profile
-            </p>
-          </div>
-
-          <div className="mb-8">
-            <ProfileLinkCard artist={artist} />
-          </div>
-
-          <div className="border-b border-gray-200 dark:border-gray-700">
-            <nav className="-mb-px flex space-x-8">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                    activeTab === tab.id
-                      ? 'border-gray-900 text-gray-900 dark:border-gray-50 dark:text-gray-50'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          <div className="mt-8">
-            {activeTab === 'profile' && (
-              <ProfileForm artist={artist} onUpdate={handleArtistUpdated} />
-            )}
-            {activeTab === 'social' && <SocialsForm artistId={artist.id} />}
-            {activeTab === 'listen' && (
-              <ListenNowForm artist={artist} onUpdate={handleArtistUpdated} />
-            )}
-            {activeTab === 'analytics' && (
-              <AnalyticsCards artistId={artist.id} />
-            )}
-          </div>
+          </Container>
         </div>
-      </Container>
-    </div>
+      )}
+    </>
   );
 }

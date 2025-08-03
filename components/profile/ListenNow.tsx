@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { track } from '@/lib/analytics';
 import { APP_URL } from '@/constants/app';
 
 interface ListenNowProps {
@@ -19,12 +18,7 @@ export function ListenNow({ handle, artistName }: ListenNowProps) {
     setIsLoading(true);
 
     try {
-      track('listen_click', {
-        handle,
-        artist: artistName,
-        platform: 'spotify',
-      });
-
+      // Simple tracking without analytics library
       await fetch('/api/track', {
         method: 'POST',
         headers: {

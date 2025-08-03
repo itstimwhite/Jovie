@@ -57,6 +57,7 @@ export async function generateMetadata({ params }: ProfilePageProps) {
       'music artist',
       'musician',
       artist.tagline || '',
+      ...(artist.is_verified ? ['verified', 'authentic'] : []),
     ].filter(Boolean),
     authors: [{ name: artist.name }],
     creator: artist.name,
@@ -116,6 +117,7 @@ export async function generateMetadata({ params }: ProfilePageProps) {
     other: {
       'music:musician': artist.name,
       'music:album': artist.tagline || 'Latest Music',
+      ...(artist.is_verified && { 'music:verified': 'true' }),
     },
   };
 }
@@ -175,6 +177,14 @@ function generateStructuredData(artist: Artist, socialLinks: SocialLink[]) {
         name: 'Global',
       },
     },
+    // Add verification status
+    ...(artist.is_verified && {
+      additionalProperty: {
+        '@type': 'PropertyValue',
+        name: 'verified',
+        value: true,
+      },
+    }),
   };
 
   return structuredData;

@@ -18,6 +18,7 @@ export interface Artist {
     hide_branding?: boolean;
   };
   published: boolean;
+  is_verified: boolean;
   created_at: string;
 }
 
