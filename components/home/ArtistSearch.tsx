@@ -54,6 +54,16 @@ export function ArtistSearch() {
     updateQuery(value);
   };
 
+  const handleClaimClick = () => {
+    if (selectedArtist) {
+      handleArtistSelect({
+        id: selectedArtist.id,
+        name: selectedArtist.name,
+        imageUrl: selectedArtist.images?.[0]?.url,
+      });
+    }
+  };
+
   // Convert Spotify artists to Combobox options
   const options = results.map((artist) => ({
     id: artist.id,
@@ -62,55 +72,52 @@ export function ArtistSearch() {
   }));
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-6">
-      <div className="text-center space-y-4">
-        <h2 className="text-2xl font-bold text-white sm:text-3xl">
-          Find your artist profile
-        </h2>
-        <p className="text-lg text-white/80">
-          Search for your Spotify artist profile and claim your Jovie link
-        </p>
-      </div>
+    <div className="w-full space-y-6">
+      {/* Search Field with Inline Claim Button */}
+      <div className="relative">
+        <div className="flex items-center rounded-xl border border-white/20 bg-white/5 backdrop-blur-sm ring-1 ring-white/10 focus-within:ring-2 focus-within:ring-purple-400/50 transition-all duration-200">
+          <div className="flex-1">
+            <Combobox
+              options={options}
+              value={
+                selectedArtist
+                  ? {
+                      id: selectedArtist.id,
+                      name: selectedArtist.name,
+                      imageUrl: selectedArtist.images?.[0]?.url,
+                    }
+                  : null
+              }
+              onChange={handleArtistSelect}
+              onInputChange={handleInputChange}
+              placeholder="Search your Spotify artist name..."
+              isLoading={isLoading}
+              className="w-full border-0 bg-transparent text-white placeholder-white/60 focus:ring-0"
+            />
+          </div>
 
-      <div className="space-y-4">
-        <Combobox
-          options={options}
-          value={
-            selectedArtist
-              ? {
-                  id: selectedArtist.id,
-                  name: selectedArtist.name,
-                  imageUrl: selectedArtist.images?.[0]?.url,
-                }
-              : null
-          }
-          onChange={handleArtistSelect}
-          onInputChange={handleInputChange}
-          placeholder="Search for your artist name..."
-          isLoading={isLoading}
-          className="w-full"
-        />
+          {/* Inline Claim Button */}
+          <div className="flex items-center pr-2">
+            <Button
+              onClick={handleClaimClick}
+              disabled={!selectedArtist}
+              variant="primary"
+              size="sm"
+              className="rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            >
+              Claim Profile
+            </Button>
+          </div>
+        </div>
 
         {error && (
-          <div className="text-center">
+          <div className="mt-2 text-center">
             <p className="text-red-400 text-sm">{error}</p>
           </div>
         )}
-
-        {selectedArtist && (
-          <div className="text-center">
-            <Button
-              onClick={() => handleArtistSelect(selectedArtist)}
-              variant="primary"
-              size="lg"
-              className="w-full sm:w-auto"
-            >
-              Claim {selectedArtist.name}&apos;s Profile
-            </Button>
-          </div>
-        )}
       </div>
 
+      {/* Help Text */}
       <div className="text-center">
         <p className="text-sm text-white/60">
           Don&apos;t see your artist? Make sure you have a verified Spotify

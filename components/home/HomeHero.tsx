@@ -10,66 +10,59 @@ export function HomeHero() {
       role="banner"
       aria-labelledby="hero-headline"
     >
-      <Container className="flex max-w-4xl flex-col items-center text-center">
+      {/* Subtle gradient overlay for depth */}
+      <div className="absolute inset-0 bg-gradient-to-b from-purple-50/5 to-transparent" />
+
+      <Container className="relative flex max-w-4xl flex-col items-center text-center">
         {/* Hero Section - Above the fold */}
-        <div className="mb-12 space-y-6">
-          {/* Badge */}
+        <div className="mb-16 space-y-8">
+          {/* Badge - Moved social proof here */}
           <div
-            className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-sm ring-1 ring-white/20"
+            className="inline-flex items-center rounded-full bg-white/8 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-sm ring-1 ring-white/20"
             role="status"
-            aria-label="Setup time"
+            aria-label="Key benefits"
           >
             <span
               className="mr-2 h-2 w-2 rounded-full bg-green-400"
               aria-hidden="true"
             />
-            90-second setup
+            90-second setup • Free forever
           </div>
 
-          {/* Main Headline */}
+          {/* Main Headline - Split for visual hierarchy */}
           <h1
             id="hero-headline"
-            className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl"
+            className="text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl"
           >
-            <span className="block">
-              The fastest link-in-bio for musicians.
+            <span className="block text-white">The fastest link-in-bio</span>
+            <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Built for musicians
             </span>
           </h1>
 
-          {/* Subheadline */}
+          {/* Subheadline - Tightened copy */}
           <p
-            className="mx-auto max-w-2xl text-xl text-white/80 sm:text-2xl"
+            className="mx-auto max-w-2xl text-xl text-white/80 sm:text-2xl leading-relaxed"
             role="doc-subtitle"
           >
-            One optimized design loads instantly and converts consistently.
-            While others waste time customizing, you&apos;ll be gaining streams.
+            One optimized profile loads instantly and converts
+            consistently—while others tweak colors, you gain streams.
           </p>
-
-          {/* Social Proof */}
-          <div
-            className="flex items-center justify-center space-x-8 text-sm text-white/60"
-            role="complementary"
-            aria-label="Key benefits"
-          >
-            <span>Free forever</span>
-            <span aria-hidden="true">•</span>
-            <span>High converting</span>
-          </div>
         </div>
 
-        {/* Artist Search */}
-        <div className="w-full" role="main">
+        {/* Artist Search - Front and center */}
+        <div className="w-full max-w-2xl" role="main">
           <ArtistSearch />
         </div>
 
-        {/* Trust Indicators */}
-        <div className="mt-8 text-center">
+        {/* Trust Indicators - Moved to bottom */}
+        <div className="mt-12 text-center">
           <p
             className="text-sm text-white/50"
             role="complementary"
             aria-label="Security and payment information"
           >
-            Secure • No credit card
+            Secure • No credit card required
           </p>
         </div>
       </Container>

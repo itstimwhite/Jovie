@@ -21,18 +21,18 @@ export function ComparisonSection() {
   ];
 
   return (
-    <section className="relative bg-gray-50 py-16 sm:py-24">
+    <section className="relative bg-gray-50 py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+          <h2 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
             Linktree vs. Jovie
           </h2>
         </div>
-        <div className="mx-auto mt-16 max-w-4xl">
-          <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
+        <div className="mx-auto mt-20 max-w-4xl">
+          <div className="overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-3">
               {/* Header */}
-              <div className="bg-gray-100 px-6 py-4">
+              <div className="bg-gray-50 px-6 py-4">
                 <h3 className="text-lg font-semibold text-gray-900">Feature</h3>
               </div>
               <div className="bg-red-50 px-6 py-4">
@@ -40,24 +40,24 @@ export function ComparisonSection() {
                   Other Platforms
                 </h3>
               </div>
-              <div className="bg-indigo-50 px-6 py-4">
-                <h3 className="text-lg font-semibold text-indigo-900">Jovie</h3>
+              <div className="bg-blue-50 px-6 py-4">
+                <h3 className="text-lg font-semibold text-blue-900">Jovie</h3>
               </div>
 
               {/* Features */}
               {features.map((item, index) => (
                 <div key={item.feature} className="contents">
                   <div
-                    className={`px-6 py-4 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}
+                    className={`px-6 py-3 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}
                   >
                     <p className="font-medium text-gray-900">{item.feature}</p>
                   </div>
                   <div
-                    className={`px-6 py-4 ${index % 2 === 0 ? 'bg-red-25' : 'bg-red-50'}`}
+                    className={`px-6 py-3 ${index % 2 === 0 ? 'bg-red-25' : 'bg-red-50'}`}
                   >
                     <div className="flex items-center">
                       <svg
-                        className="mr-2 h-5 w-5 text-red-500"
+                        className="mr-3 h-4 w-4 text-gray-400"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -69,15 +69,15 @@ export function ComparisonSection() {
                           d="M6 18L18 6M6 6l12 12"
                         />
                       </svg>
-                      <p className="text-red-700">{item.others}</p>
+                      <p className="text-gray-600">{item.others}</p>
                     </div>
                   </div>
                   <div
-                    className={`px-6 py-4 ${index % 2 === 0 ? 'bg-indigo-25' : 'bg-indigo-50'}`}
+                    className={`px-6 py-3 ${index % 2 === 0 ? 'bg-blue-25' : 'bg-blue-50'}`}
                   >
                     <div className="flex items-center">
                       <svg
-                        className="mr-2 h-5 w-5 text-indigo-500"
+                        className="mr-3 h-4 w-4 text-blue-500"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -89,7 +89,7 @@ export function ComparisonSection() {
                           d="M5 13l4 4L19 7"
                         />
                       </svg>
-                      <p className="text-indigo-700">{item.jovie}</p>
+                      <p className="text-blue-700">{item.jovie}</p>
                     </div>
                   </div>
                 </div>

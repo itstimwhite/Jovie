@@ -6,7 +6,7 @@ export function HowItWorks() {
       description: 'Search and verify your Spotify artist profile',
       icon: (
         <svg
-          className="h-8 w-8"
+          className="h-6 w-6"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -26,7 +26,7 @@ export function HowItWorks() {
       description: 'Get your custom jov.ie/yourname link',
       icon: (
         <svg
-          className="h-8 w-8"
+          className="h-6 w-6"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -46,7 +46,7 @@ export function HowItWorks() {
       description: 'Fans click "Listen Now" and stream your music',
       icon: (
         <svg
-          className="h-8 w-8"
+          className="h-6 w-6"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -63,34 +63,39 @@ export function HowItWorks() {
   ];
 
   return (
-    <section className="relative bg-gray-50 py-16 sm:py-24">
+    <section className="relative bg-gray-50 py-24 sm:py-32">
+      {/* Section accent border */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-400 to-orange-600" />
+
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+          <h2 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
             From Spotify artist to converting fans in 60 seconds
           </h2>
         </div>
-        <div className="mx-auto mt-16 max-w-5xl">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="mx-auto mt-20 max-w-6xl">
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
             {steps.map((step, index) => (
               <div key={step.number} className="relative">
-                {/* Connection line */}
+                {/* Connection line - Apple-style */}
                 {index < steps.length - 1 && (
-                  <div className="absolute left-1/2 top-16 hidden h-px w-full -translate-x-1/2 bg-gradient-to-r from-indigo-500 to-purple-500 md:block" />
+                  <div className="absolute left-1/2 top-8 hidden h-px w-full -translate-x-1/2 bg-gradient-to-r from-orange-400/50 to-orange-600/50 md:block" />
                 )}
 
                 <div className="text-center">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-sm">
                     {step.icon}
                   </div>
-                  <div className="mt-4">
-                    <div className="text-sm font-semibold text-indigo-600">
-                      STEP {step.number}
+                  <div className="mt-6">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-orange-600">
+                      Step {step.number}
                     </div>
-                    <h3 className="mt-2 text-xl font-bold text-gray-900">
+                    <h3 className="mt-3 text-xl font-bold text-gray-900">
                       {step.title}
                     </h3>
-                    <p className="mt-2 text-gray-600">{step.description}</p>
+                    <p className="mt-3 text-gray-600 leading-relaxed">
+                      {step.description}
+                    </p>
                   </div>
                 </div>
               </div>
