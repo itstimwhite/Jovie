@@ -5,6 +5,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'sm' | 'md' | 'lg';
   color?: 'indigo' | 'red' | 'green';
   children: React.ReactNode;
+  href?: string;
   className?: string;
   as?: React.ElementType;
   outline?: boolean;

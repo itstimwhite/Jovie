@@ -26,7 +26,7 @@ const dateTypes = ['date', 'datetime-local', 'month', 'time', 'week'];
 type DateType = (typeof dateTypes)[number];
 
 // Legacy interface for backward compatibility
-interface LegacyInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface LegacyInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string;
   error?: string;
   loading?: boolean;
@@ -44,14 +44,16 @@ type InputProps = {
     | 'text'
     | 'url'
     | DateType;
+  size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
-} & Omit<Headless.InputProps, 'as' | 'className'>;
+} & Omit<Headless.InputProps, 'as' | 'className' | 'size'>;
 
 export const Input = forwardRef(function Input(
   {
     className,
     label,
     error,
+    
     loading,
     ...props
   }: InputProps & Partial<LegacyInputProps>,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { createBrowserClient } from '@/lib/supabase';
 import { Artist } from '@/types/db';
@@ -13,11 +13,26 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingName, setPendingName] = useState('');
   const [formData, setFormData] = useState({
-    name: '',
     handle: '',
-    tagline: '',
   });
+
+  // Load pending Spotify artist name from sessionStorage
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const raw = sessionStorage.getItem('pendingClaim');
+      if (raw) {
+        try {
+          const obj = JSON.parse(raw);
+          if (obj.artistName) {
+            setPendingName(obj.artistName as string);
+            setFormData((prev) => ({ ...prev, handle: obj.artistName.toLowerCase().replace(/[^a-z0-9]/g, '') }));
+          }
+        } catch {}
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,9 +77,9 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
         .from('artists')
         .insert({
           owner_user_id: userId,
-          name: formData.name,
+          name: pendingName,
           handle: formData.handle,
-          tagline: formData.tagline,
+          tagline: 'Artist',
         })
         .select('*')
         .single();
