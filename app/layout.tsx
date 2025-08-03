@@ -1,15 +1,19 @@
 import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/react';
 import { ClientProviders } from '@/components/providers/ClientProviders';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import '@/styles/globals.css';
 
+const inter = Inter({ subsets: ['latin'] });
+
 export const metadata: Metadata = {
   title: {
-    default: `${APP_NAME} - Link in bio for music artists`,
+    default: APP_NAME,
     template: `%s | ${APP_NAME}`,
   },
   description:
-    'Connect your music, social media, and merch in one link. No design needed. Live in under 90 seconds.',
+    'Link in bio for music artists. Connect your music, social media, and merch in one link. No design needed.',
   keywords: [
     'link in bio',
     'music artist',
@@ -24,12 +28,7 @@ export const metadata: Metadata = {
     'music discovery',
     'fan engagement',
   ],
-  authors: [
-    {
-      name: APP_NAME,
-      url: APP_URL,
-    },
-  ],
+  authors: [{ name: APP_NAME }],
   creator: APP_NAME,
   publisher: APP_NAME,
   formatDetection: {
@@ -39,34 +38,32 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL(APP_URL),
   alternates: {
-    canonical: APP_URL,
+    canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: APP_URL,
-    title: `${APP_NAME} - Link in bio for music artists`,
+    title: APP_NAME,
     description:
-      'Connect your music, social media, and merch in one link. No design needed. Live in under 90 seconds.',
+      'Link in bio for music artists. Connect your music, social media, and merch in one link. No design needed.',
     siteName: APP_NAME,
     images: [
       {
-        url: '/og/default.png',
+        url: `${APP_URL}/og/default.png`,
         width: 1200,
         height: 630,
-        alt: `${APP_NAME} - Link in bio for music artists`,
-        type: 'image/png',
+        alt: APP_NAME,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${APP_NAME} - Link in bio for music artists`,
+    title: APP_NAME,
     description:
-      'Connect your music, social media, and merch in one link. No design needed. Live in under 90 seconds.',
-    images: ['/og/default.png'],
+      'Link in bio for music artists. Connect your music, social media, and merch in one link. No design needed.',
+    images: [`${APP_URL}/og/default.png`],
     creator: '@jovie',
-    site: '@jovie',
   },
   robots: {
     index: true,
@@ -80,31 +77,17 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    google: 'your-google-verification-code',
   },
-  icons: {
-    icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/favicon.ico', sizes: 'any' },
-    ],
-    shortcut: '/favicon-16x16.png',
-    apple: '/apple-touch-icon.png',
-  },
-  manifest: '/site.webmanifest',
   other: {
-    'music:musician': APP_URL,
-    'music:album': APP_URL,
-    'theme-color': '#6366f1',
-    'msapplication-TileColor': '#6366f1',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
     'apple-mobile-web-app-title': APP_NAME,
-    'mobile-web-app-capable': 'yes',
     'application-name': APP_NAME,
+    'msapplication-TileColor': '#000000',
+    'theme-color': '#000000',
   },
 };
-
-export const dynamic = 'force-dynamic';
 
 export default function RootLayout({
   children,
@@ -114,18 +97,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preconnect to external domains for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        <link rel="preconnect" href="https://i.scdn.co" />
-        <link rel="preconnect" href="https://api.spotify.com" />
-
-        {/* DNS prefetch for performance */}
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://i.scdn.co" />
         <link rel="dns-prefetch" href="https://api.spotify.com" />
 
@@ -145,28 +122,20 @@ export default function RootLayout({
               '@type': 'Organization',
               name: APP_NAME,
               url: APP_URL,
-              logo: {
-                '@type': 'ImageObject',
-                url: `${APP_URL}/brand/jovie-logo.svg`,
-                width: 136,
-                height: 39,
-              },
-              description: 'Link in bio for music artists',
+              logo: `${APP_URL}/brand/jovie-logo.svg`,
+              description:
+                'Link in bio for music artists. Connect your music, social media, and merch in one link.',
               sameAs: [
                 'https://twitter.com/jovie',
                 'https://instagram.com/jovie',
               ],
-              contactPoint: {
-                '@type': 'ContactPoint',
-                contactType: 'customer service',
-                url: APP_URL,
-              },
             }),
           }}
         />
       </head>
-      <body>
+      <body className={inter.className}>
         <ClientProviders>{children}</ClientProviders>
+        <Analytics />
       </body>
     </html>
   );

@@ -2,15 +2,26 @@
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { analytics } from '@/lib/analytics';
+import { page } from '@/lib/analytics';
 
 export function Analytics() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      analytics.page();
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+
+    // Track page views with Vercel Analytics
+    if ((window as any).va) {
+      (window as any).va('page_view', {
+        url: pathname,
+      });
     }
+
+    // Track page views with our analytics
+    page(pathname, {
+      url: pathname,
+    });
   }, [pathname]);
 
   return null;
