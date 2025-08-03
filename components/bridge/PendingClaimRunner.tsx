@@ -4,7 +4,11 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { createBrowserClient } from '@/lib/supabase';
-import { getSpotifyArtist, getArtistLatestRelease, buildSpotifyAlbumUrl } from '@/lib/spotify';
+import {
+  getSpotifyArtist,
+  getArtistLatestRelease,
+  buildSpotifyAlbumUrl,
+} from '@/lib/spotify';
 import { generateHandle } from '@/lib/utils';
 import { track } from '@/lib/analytics';
 
@@ -31,7 +35,7 @@ export function PendingClaimRunner() {
         if (!pendingClaimStr) return;
 
         const pendingClaim: PendingClaim = JSON.parse(pendingClaimStr);
-        
+
         // Check if claim is still valid (within 1 hour)
         const now = Date.now();
         if (now - pendingClaim.timestamp > 60 * 60 * 1000) {
@@ -161,7 +165,9 @@ export function PendingClaimRunner() {
 
         // Try to fetch and insert latest release
         try {
-          const latestRelease = await getArtistLatestRelease(pendingClaim.spotifyId);
+          const latestRelease = await getArtistLatestRelease(
+            pendingClaim.spotifyId
+          );
           if (latestRelease) {
             await supabase.from('releases').insert({
               artist_id: artist.id,
@@ -184,7 +190,6 @@ export function PendingClaimRunner() {
         // Clear pending claim and redirect
         sessionStorage.removeItem('pendingClaim');
         router.push('/dashboard');
-
       } catch (err) {
         console.error('Error processing pending claim:', err);
         setError(err instanceof Error ? err.message : 'Failed to claim artist');
@@ -214,7 +219,9 @@ export function PendingClaimRunner() {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
         <div className="bg-white rounded-lg p-6 shadow-xl max-w-md">
-          <h3 className="text-lg font-semibold text-red-600 mb-2">Claim Failed</h3>
+          <h3 className="text-lg font-semibold text-red-600 mb-2">
+            Claim Failed
+          </h3>
           <p className="text-gray-700 mb-4">{error}</p>
           <button
             onClick={() => {
@@ -231,4 +238,4 @@ export function PendingClaimRunner() {
   }
 
   return null;
-} 
+}

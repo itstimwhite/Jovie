@@ -17,9 +17,10 @@ export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-gray-600 dark:text-gray-400">
-          To get started, search for your artist profile on our homepage and claim it.
+          To get started, search for your artist profile on our homepage and
+          claim it.
         </p>
-        
+
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
             How it works:

@@ -3,7 +3,9 @@ require('dotenv').config({ path: '.env.local' });
 
 // Supabase credentials
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
+const supabaseServiceKey =
+  process.env.SUPABASE_SERVICE_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -77,7 +79,7 @@ async function listVerifiedArtists() {
 
     console.log('\n📋 Verified Artists:');
     if (data && data.length > 0) {
-      data.forEach(artist => {
+      data.forEach((artist) => {
         console.log(`  ✅ ${artist.name} (${artist.handle})`);
       });
     } else {
@@ -115,7 +117,7 @@ async function main() {
       }
       await verifyArtist(handle);
       break;
-    
+
     case 'unverify':
       if (!handle) {
         console.error('❌ Please provide a handle to unverify');
@@ -123,11 +125,11 @@ async function main() {
       }
       await unverifyArtist(handle);
       break;
-    
+
     case 'list':
       await listVerifiedArtists();
       break;
-    
+
     default:
       console.error(`❌ Unknown command: ${command}`);
       console.log('Available commands: verify, unverify, list');
@@ -136,4 +138,4 @@ async function main() {
 }
 
 // Run the script
-main(); 
+main();

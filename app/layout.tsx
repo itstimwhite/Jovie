@@ -8,7 +8,8 @@ export const metadata: Metadata = {
     default: `${APP_NAME} - Link in bio for music artists`,
     template: `%s | ${APP_NAME}`,
   },
-  description: 'Connect your music, social media, and merch in one link. No design needed. Live in under 90 seconds.',
+  description:
+    'Connect your music, social media, and merch in one link. No design needed. Live in under 90 seconds.',
   keywords: [
     'link in bio',
     'music artist',
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     'music links',
     'artist bio',
     'music discovery',
-    'fan engagement'
+    'fan engagement',
   ],
   authors: [
     {
@@ -45,7 +46,8 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: APP_URL,
     title: `${APP_NAME} - Link in bio for music artists`,
-    description: 'Connect your music, social media, and merch in one link. No design needed. Live in under 90 seconds.',
+    description:
+      'Connect your music, social media, and merch in one link. No design needed. Live in under 90 seconds.',
     siteName: APP_NAME,
     images: [
       {
@@ -60,7 +62,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: `${APP_NAME} - Link in bio for music artists`,
-    description: 'Connect your music, social media, and merch in one link. No design needed. Live in under 90 seconds.',
+    description:
+      'Connect your music, social media, and merch in one link. No design needed. Live in under 90 seconds.',
     images: ['/og/default.png'],
     creator: '@jovie',
     site: '@jovie',
@@ -113,22 +116,26 @@ export default function RootLayout({
       <head>
         {/* Preconnect to external domains for performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
         <link rel="preconnect" href="https://i.scdn.co" />
         <link rel="preconnect" href="https://api.spotify.com" />
-        
+
         {/* DNS prefetch for performance */}
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://i.scdn.co" />
         <link rel="dns-prefetch" href="https://api.spotify.com" />
-        
+
         {/* Vercel Page Speed Insights */}
         <script
           defer
           data-domain="jov.ie"
           src="https://vitals.vercel-insights.com/v1/vitals.js"
         />
-        
+
         {/* Structured Data for Organization */}
         <script
           type="application/ld+json"

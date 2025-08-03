@@ -15,12 +15,7 @@ export function ThemeToggle() {
   // Don't render anything until mounted to prevent hydration mismatch
   if (!mounted) {
     return (
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-8 w-8 px-0"
-        disabled
-      >
+      <Button variant="ghost" size="sm" className="h-8 w-8 px-0" disabled>
         <span className="sr-only">Loading theme toggle</span>
         <div className="h-4 w-4 animate-pulse rounded bg-gray-300 dark:bg-gray-600" />
       </Button>

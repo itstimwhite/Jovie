@@ -7,7 +7,9 @@ const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 
 // Supabase credentials
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
+const supabaseServiceKey =
+  process.env.SUPABASE_SERVICE_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
 
 if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) {
   console.error('Missing Spotify credentials in .env.local');
@@ -27,9 +29,13 @@ async function getSpotifyToken() {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ' + Buffer.from(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString('base64')
+      Authorization:
+        'Basic ' +
+        Buffer.from(SPOTIFY_CLIENT_ID + ':' + SPOTIFY_CLIENT_SECRET).toString(
+          'base64'
+        ),
     },
-    body: 'grant_type=client_credentials'
+    body: 'grant_type=client_credentials',
   });
 
   if (!response.ok) {
@@ -42,11 +48,14 @@ async function getSpotifyToken() {
 
 // Get artist data from Spotify
 async function getSpotifyArtist(artistId, token) {
-  const response = await fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
-    headers: {
-      'Authorization': `Bearer ${token}`
+  const response = await fetch(
+    `https://api.spotify.com/v1/artists/${artistId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }
-  });
+  );
 
   if (!response.ok) {
     throw new Error(`Failed to fetch artist from Spotify: ${response.status}`);
@@ -61,8 +70,8 @@ async function getArtistLatestRelease(artistId, token) {
     `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&limit=1&market=US`,
     {
       headers: {
-        'Authorization': `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     }
   );
 
@@ -80,7 +89,9 @@ async function updateArtist(handle, spotifyData, latestRelease) {
     .from('artists')
     .update({
       image_url: spotifyData.images[0]?.url || null,
-      tagline: latestRelease ? `${latestRelease.name} - ${latestRelease.album_type}` : spotifyData.name
+      tagline: latestRelease
+        ? `${latestRelease.name} - ${latestRelease.album_type}`
+        : spotifyData.name,
     })
     .eq('handle', handle);
 
@@ -116,30 +127,31 @@ async function updateAllArtists() {
     for (const artist of artists) {
       try {
         console.log(`\n🔄 Processing ${artist.name} (${artist.handle})...`);
-        
+
         // Get Spotify data
         const spotifyData = await getSpotifyArtist(artist.spotify_id, token);
-        
+
         // Get latest release
-        const latestRelease = await getArtistLatestRelease(artist.spotify_id, token);
-        
+        const latestRelease = await getArtistLatestRelease(
+          artist.spotify_id,
+          token
+        );
+
         // Update database
         await updateArtist(artist.handle, spotifyData, latestRelease);
-        
+
         // Small delay to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
+        await new Promise((resolve) => setTimeout(resolve, 100));
       } catch (error) {
         console.error(`❌ Error processing ${artist.handle}:`, error.message);
       }
     }
 
     console.log('\n🎉 Finished updating all artists!');
-
   } catch (error) {
     console.error('❌ Script failed:', error);
   }
 }
 
 // Run the script
-updateAllArtists(); 
+updateAllArtists();

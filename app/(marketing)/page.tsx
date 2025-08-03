@@ -8,7 +8,8 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = `${APP_NAME} - Link in bio for music artists`;
-  const description = 'Connect your music, social media, and merch in one link. No design needed. Live in under 90 seconds.';
+  const description =
+    'Connect your music, social media, and merch in one link. No design needed. Live in under 90 seconds.';
   const keywords = [
     'link in bio',
     'music artist',
@@ -21,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
     'music links',
     'artist bio',
     'music discovery',
-    'fan engagement'
+    'fan engagement',
   ];
 
   return {

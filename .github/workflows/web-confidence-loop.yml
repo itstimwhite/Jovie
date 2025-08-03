@@ -2,9 +2,9 @@ name: Preview Confidence Loop
 
 on:
   push:
-    branches: [ preview ]
+    branches: [preview]
   schedule:
-    - cron: "0 8 * * *"  # daily 08:00 UTC
+    - cron: '0 8 * * *' # daily 08:00 UTC
   workflow_dispatch: {}
 
 permissions:

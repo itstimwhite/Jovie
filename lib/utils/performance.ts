@@ -52,13 +52,27 @@ export const performanceMonitor = new PerformanceMonitor();
 export async function measureAsync<T>(
   operation: string,
   fn: () => Promise<T>
-): Promise<T> {
-  const endTimer = performanceMonitor.startTimer(operation);
+): Promise<{ data: T; duration: number }> {
+  const start = performance.now();
   try {
     const result = await fn();
-    return result;
-  } finally {
-    endTimer();
+    const duration = performance.now() - start;
+
+    // Track the measurement
+    if (!performanceMonitor['metrics'].has(operation)) {
+      performanceMonitor['metrics'].set(operation, []);
+    }
+    performanceMonitor['metrics'].get(operation)!.push(duration);
+
+    // Keep only last 100 measurements
+    const measurements = performanceMonitor['metrics'].get(operation)!;
+    if (measurements.length > 100) {
+      performanceMonitor['metrics'].set(operation, measurements.slice(-100));
+    }
+
+    return { data: result, duration };
+  } catch (error) {
+    throw error;
   }
 }
 

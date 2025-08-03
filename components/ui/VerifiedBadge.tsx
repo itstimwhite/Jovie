@@ -5,7 +5,10 @@ interface VerifiedBadgeProps {
   className?: string;
 }
 
-export function VerifiedBadge({ size = 'md', className = '' }: VerifiedBadgeProps) {
+export function VerifiedBadge({
+  size = 'md',
+  className = '',
+}: VerifiedBadgeProps) {
   const sizeClasses = {
     sm: 'h-4 w-4',
     md: 'h-5 w-5',
@@ -22,4 +25,4 @@ export function VerifiedBadge({ size = 'md', className = '' }: VerifiedBadgeProp
       <CheckBadgeIcon className={sizeClasses[size]} />
     </div>
   );
-} 
+}

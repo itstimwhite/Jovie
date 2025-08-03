@@ -100,9 +100,7 @@ export function ArtistSEO({ artist, socialLinks }: ArtistSEOProps) {
       <meta name="music:genre" content="Music" />
 
       {/* Verification meta tag */}
-      {artist.is_verified && (
-        <meta name="music:verified" content="true" />
-      )}
+      {artist.is_verified && <meta name="music:verified" content="true" />}
 
       {/* Social media meta tags */}
       <meta property="og:type" content="profile" />

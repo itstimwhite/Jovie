@@ -89,7 +89,7 @@ export default function DashboardPage() {
   return (
     <>
       <PendingClaimRunner />
-      
+
       {!artist ? (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
           <Container>
@@ -145,7 +145,10 @@ export default function DashboardPage() {
                 )}
                 {activeTab === 'social' && <SocialsForm artistId={artist.id} />}
                 {activeTab === 'listen' && (
-                  <ListenNowForm artist={artist} onUpdate={handleArtistUpdated} />
+                  <ListenNowForm
+                    artist={artist}
+                    onUpdate={handleArtistUpdated}
+                  />
                 )}
                 {activeTab === 'analytics' && (
                   <AnalyticsCards artistId={artist.id} />

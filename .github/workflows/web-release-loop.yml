@@ -2,10 +2,10 @@ name: Release Loop (Main)
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
     types: [opened, synchronize, reopened]
   push:
-    branches: [ main ]
+    branches: [main]
 
 permissions:
   contents: read
@@ -106,4 +106,5 @@ jobs:
           echo "prod_url=$URL" >> $GITHUB_OUTPUT
 
       - name: Output prod URL
-        run: echo "Deployed: ${{ steps.vercel.outputs.prod_url }}"
+        run: |
+          echo "Deployed: ${{ steps.vercel.outputs.prod_url }}"

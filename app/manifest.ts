@@ -5,7 +5,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: `${APP_NAME} - Link in bio for music artists`,
     short_name: 'Jovie',
-    description: 'Connect your music, social media, and merch in one link. No design needed. Live in under 90 seconds.',
+    description:
+      'Connect your music, social media, and merch in one link. No design needed. Live in under 90 seconds.',
     start_url: '/',
     display: 'standalone',
     background_color: '#1e1b4b', // indigo-900
