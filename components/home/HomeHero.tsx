@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/site/Container';
+import { ArtistSearch } from './ArtistSearch';
 
 export function HomeHero() {
   return (
@@ -56,30 +57,20 @@ export function HomeHero() {
           </div>
         </div>
 
-        {/* Simple CTA */}
-        <div className="w-full max-w-2xl space-y-6" role="main">
-          <div className="flex justify-center">
-            <Link href="/sign-in">
-              <Button
-                variant="primary"
-                size="lg"
-                className="px-8 py-4 text-lg font-semibold"
-              >
-                Get Started
-              </Button>
-            </Link>
-          </div>
+        {/* Artist Search */}
+        <div className="w-full" role="main">
+          <ArtistSearch />
+        </div>
 
-          {/* Trust Indicators */}
-          <div className="mt-8 text-center">
-            <p
-              className="text-sm text-white/50"
-              role="complementary"
-              aria-label="Security and payment information"
-            >
-              Secure • No credit card
-            </p>
-          </div>
+        {/* Trust Indicators */}
+        <div className="mt-8 text-center">
+          <p
+            className="text-sm text-white/50"
+            role="complementary"
+            aria-label="Security and payment information"
+          >
+            Secure • No credit card
+          </p>
         </div>
       </Container>
     </section>
