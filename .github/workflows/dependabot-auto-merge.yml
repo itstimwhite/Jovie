@@ -36,7 +36,7 @@ jobs:
           echo "allowed=$ALLOWED" >> $GITHUB_OUTPUT
 
       - name: Wait for required checks
-        uses: lewagon/wait-on-check-action@v1.3.4
+        uses: lewagon/wait-on-check-action@v1.4.0
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
