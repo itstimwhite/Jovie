@@ -5,7 +5,7 @@
 
 -- Insert Tim White artist profile
 INSERT INTO artists (handle, spotify_id, name, image_url, tagline, published) VALUES
-  ('tim', '4Uwpa6zW3zzCSQvooQNksm', 'Tim White', 'https://i.scdn.co/image/ab6761610000e5eb4Uwpa6zW3zzCSQvooQNksm', 'Electronic music producer & DJ - "Let''s fall in love for the night"', true)
+  ('tim', '4Uwpa6zW3zzCSQvooQNksm', 'Tim White', 'https://i.scdn.co/image/ab6761610000e5eb4Uwpa6zW3zzCSQvooQNksm', 'Artist', true)
 ON CONFLICT (handle) DO NOTHING;
 
 -- Insert social links for Tim White

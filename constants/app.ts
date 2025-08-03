@@ -3,7 +3,7 @@ export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://jov.ie';
 export const MAX_SOCIAL_LINKS = 6;
 export const LISTEN_COOKIE = 'jovie_dsp';
 export const DSPS = { spotify: 'spotify' } as const;
-export const DEFAULT_PROFILE_TAGLINE = 'Listen now.';
+export const DEFAULT_PROFILE_TAGLINE = 'Artist';
 export const ANALYTICS = {
   segmentWriteKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY ?? '',
 };

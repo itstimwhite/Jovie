@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { APP_NAME } from '@/constants/app';
+import { APP_NAME, FEATURE_FLAGS } from '@/constants/app';
 import { Artist } from '@/types/db';
 import { Logo } from '@/components/ui/Logo';
 
@@ -27,10 +27,14 @@ export function ProfileFooter({ artist }: ProfileFooterProps) {
           />
         </Link>
         <Link
-          href={`/?utm_source=profile&utm_artist=${artist.handle}`}
+          href={
+            FEATURE_FLAGS.waitlistEnabled
+              ? `/waitlist?utm_source=profile&utm_artist=${artist.handle}`
+              : `/sign-up?utm_source=profile&utm_artist=${artist.handle}`
+          }
           className="text-xs text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 font-medium transition-colors"
         >
-          Claim your profile
+          Claim your profile now
         </Link>
         <span className="text-xs text-gray-400 dark:text-gray-500 mt-1">
           Made for musicians, by musicians
