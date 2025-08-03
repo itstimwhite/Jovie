@@ -5,6 +5,7 @@ import {
   generateHandle,
   extractSpotifyId,
   detectPlatformFromUA,
+  formatDate,
 } from '@/lib/utils';
 
 describe('utils', () => {
@@ -12,6 +13,17 @@ describe('utils', () => {
     it('should merge class names correctly', () => {
       expect(cn('bg-red-500', 'text-white')).toBe('bg-red-500 text-white');
       expect(cn('bg-red-500', 'bg-blue-500')).toBe('bg-blue-500');
+      expect(cn('p-4', undefined, 'm-2', null, 'text-center')).toBe(
+        'p-4 m-2 text-center'
+      );
+      expect(cn()).toBe('');
+    });
+
+    it('should handle conditional classes', () => {
+      expect(cn('base', true && 'active', false && 'inactive')).toBe(
+        'base active'
+      );
+      expect(cn('base', { active: true, disabled: false })).toBe('base active');
     });
   });
 
@@ -20,13 +32,19 @@ describe('utils', () => {
       expect(slugify('Hello World')).toBe('hello-world');
       expect(slugify('Artist Name!!!')).toBe('artist-name');
       expect(slugify('  spaces  ')).toBe('spaces');
+      expect(slugify('Special@#$%^&*()Characters')).toBe('specialcharacters');
+      expect(slugify('Multiple   Spaces')).toBe('multiple-spaces');
+      expect(slugify('')).toBe('');
     });
   });
 
   describe('generateHandle', () => {
     it('should generate handle from name', () => {
       expect(generateHandle('The Beatles')).toBe('the-beatles');
+      expect(generateHandle('Lady Gaga')).toBe('lady-gaga');
       expect(generateHandle('')).toBe('artist');
+      expect(generateHandle('   ')).toBe('artist');
+      expect(generateHandle('Dua Lipa')).toBe('dua-lipa');
     });
   });
 
@@ -44,6 +62,17 @@ describe('utils', () => {
         '4Z8W4fKeB5YxbusRsdQVPb'
       );
       expect(extractSpotifyId('invalid-url')).toBeNull();
+      expect(extractSpotifyId('')).toBeNull();
+    });
+  });
+
+  describe('formatDate', () => {
+    it('should format dates correctly', () => {
+      const date = new Date('2023-12-25T12:00:00Z');
+      expect(formatDate(date)).toMatch(/December 25, 2023/);
+
+      const dateString = '2023-12-25T12:00:00Z';
+      expect(formatDate(dateString)).toMatch(/December 25, 2023/);
     });
   });
 
@@ -67,6 +96,7 @@ describe('utils', () => {
         'web'
       );
       expect(detectPlatformFromUA(undefined)).toBeNull();
+      expect(detectPlatformFromUA('')).toBeNull();
     });
   });
 });
