@@ -35,13 +35,13 @@ export function ComparisonSection() {
               <div className="bg-gray-50 px-6 py-4">
                 <h3 className="text-lg font-semibold text-gray-900">Feature</h3>
               </div>
-              <div className="bg-red-50 px-6 py-4">
-                <h3 className="text-lg font-semibold text-red-900">
+              <div className="bg-gray-100 px-6 py-4">
+                <h3 className="text-lg font-semibold text-gray-900">
                   Other Platforms
                 </h3>
               </div>
-              <div className="bg-blue-50 px-6 py-4">
-                <h3 className="text-lg font-semibold text-blue-900">Jovie</h3>
+              <div className="bg-violet-50 px-6 py-4">
+                <h3 className="text-lg font-bold text-violet-900">Jovie</h3>
               </div>
 
               {/* Features */}
@@ -53,43 +53,30 @@ export function ComparisonSection() {
                     <p className="font-medium text-gray-900">{item.feature}</p>
                   </div>
                   <div
-                    className={`px-6 py-3 ${index % 2 === 0 ? 'bg-red-25' : 'bg-red-50'}`}
+                    className={`px-6 py-3 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-gray-100'}`}
                   >
-                    <div className="flex items-center">
-                      <svg
-                        className="mr-3 h-4 w-4 text-gray-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                      <p className="text-gray-600">{item.others}</p>
-                    </div>
+                    <p className="text-gray-600">{item.others}</p>
                   </div>
                   <div
-                    className={`px-6 py-3 ${index % 2 === 0 ? 'bg-blue-25' : 'bg-blue-50'}`}
+                    className={`px-6 py-3 ${index % 2 === 0 ? 'bg-violet-50' : 'bg-violet-100'}`}
                   >
                     <div className="flex items-center">
                       <svg
-                        className="mr-3 h-4 w-4 text-blue-500"
+                        className="mr-3 h-4 w-4 text-violet-600"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
+                        strokeWidth={1.5}
                       >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          strokeWidth={2}
                           d="M5 13l4 4L19 7"
                         />
                       </svg>
-                      <p className="text-blue-700">{item.jovie}</p>
+                      <p className="font-semibold text-violet-700">
+                        {item.jovie}
+                      </p>
                     </div>
                   </div>
                 </div>
