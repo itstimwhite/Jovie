@@ -1,8 +1,10 @@
 import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co';
+const supabaseAnonKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'public-anon-key';
 
 export async function createServerClient() {
   // For public pages, just return anonymous client
@@ -28,7 +30,7 @@ export async function createAuthenticatedServerClient() {
         },
       });
     }
-  } catch (error) {
+  } catch {
     // Fall back to anonymous client
   }
 
