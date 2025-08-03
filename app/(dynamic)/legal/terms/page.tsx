@@ -3,9 +3,6 @@
 import { useEffect, useState } from 'react';
 import { Container } from '@/components/site/Container';
 
-// Legal pages need to be client components due to potential client-side dependencies
-export const dynamic = 'force-dynamic';
-
 export default function TermsPage() {
   const [contentHtml, setContentHtml] = useState<string>('');
 

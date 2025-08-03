@@ -9,8 +9,7 @@ import { ArtistSEO } from '@/components/seo/ArtistSEO';
 import { Artist, SocialLink } from '@/types/db';
 import { APP_NAME, APP_URL } from '@/constants/app';
 
-// Enable SSR for artist profiles with ISR
-export const dynamic = 'force-static';
+// Root layout handles dynamic rendering
 export const revalidate = 3600; // Revalidate every hour
 
 interface ProfilePageProps {

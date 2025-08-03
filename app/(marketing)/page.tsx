@@ -5,8 +5,7 @@ import { FeaturedArtists } from '@/components/home/FeaturedArtists';
 import { PreFooterCTA } from '@/components/home/PreFooterCTA';
 import { APP_NAME, APP_URL } from '@/constants/app';
 
-// Enable SSR for homepage
-export const dynamic = 'force-static';
+// Root layout handles dynamic rendering
 export const revalidate = 3600; // Revalidate every hour
 
 export async function generateMetadata(): Promise<Metadata> {

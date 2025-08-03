@@ -1,8 +1,5 @@
 'use client';
 
-// Dashboard should remain dynamic due to authentication requirements
-export const dynamic = 'force-dynamic';
-
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { Container } from '@/components/site/Container';
@@ -16,6 +13,8 @@ import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
 import { createBrowserClient } from '@/lib/supabase';
 import { Artist } from '@/types/db';
 import { APP_NAME } from '@/constants/app';
+
+// Root layout handles dynamic rendering
 
 const tabs = [
   { id: 'profile', label: 'Profile' },

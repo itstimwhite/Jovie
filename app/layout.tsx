@@ -7,8 +7,8 @@ import '@/styles/globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
-// Remove force-dynamic to allow individual pages to control rendering strategy
-// export const dynamic = 'force-dynamic';
+// Bypass static rendering for now to fix build issues
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: {
