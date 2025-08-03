@@ -75,7 +75,7 @@ export function ArtistSearch() {
     <div className="w-full space-y-6">
       {/* Search Field with Inline Claim Button */}
       <div className="relative">
-        <div className="flex items-center rounded-xl border border-white/20 bg-white/5 backdrop-blur-sm ring-1 ring-white/10 focus-within:ring-2 focus-within:ring-purple-400/50 transition-all duration-200">
+        <div className="flex items-center rounded-xl border border-white/20 bg-white/5 backdrop-blur-xs ring-1 ring-white/10 focus-within:ring-2 focus-within:ring-purple-400/50 transition-all duration-200">
           <div className="flex-1">
             <Combobox
               options={options}
@@ -103,7 +103,7 @@ export function ArtistSearch() {
               disabled={!selectedArtist}
               variant="primary"
               size="sm"
-              className="rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="rounded-lg bg-linear-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
               Claim Profile
             </Button>

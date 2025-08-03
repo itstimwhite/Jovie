@@ -84,7 +84,7 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
           <div className="relative">
             <Headless.Combobox.Input
               className={clsx(
-                'w-full rounded-xl border-0 bg-white/5 px-4 py-3.5 pr-10 text-sm/6 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white/20 sm:text-sm/6',
+                'w-full rounded-xl border-0 bg-white/5 px-4 py-3.5 pr-10 text-sm/6 text-white placeholder-white/50 focus:outline-hidden focus:ring-2 focus:ring-inset focus:ring-white/20 sm:text-sm/6',
                 'backdrop-blur-xl shadow-lg ring-1 ring-white/10',
                 isLoading && 'animate-pulse'
               )}

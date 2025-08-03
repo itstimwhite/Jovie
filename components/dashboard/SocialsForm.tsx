@@ -110,7 +110,7 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
                 <select
                   value={newPlatform}
                   onChange={(e) => setNewPlatform(e.target.value)}
-                  className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-50"
+                  className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-gray-500 focus:outline-hidden focus:ring-1 focus:ring-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-50"
                   required
                 >
                   <option value="">Select platform</option>

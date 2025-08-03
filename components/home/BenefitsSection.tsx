@@ -77,7 +77,7 @@ export function BenefitsSection() {
           <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
             {benefits.map((benefit) => (
               <div key={benefit.title} className="text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-violet-600 text-white shadow-sm">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br from-violet-500 to-violet-600 text-white shadow-xs">
                   {benefit.icon}
                 </div>
                 <h3 className="mt-6 text-xl font-bold text-gray-900">

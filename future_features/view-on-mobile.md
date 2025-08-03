@@ -45,7 +45,7 @@ When a visitor loads any Jovi profile on a non-mobile viewport (≥ 768 px width
    5.	Accessibility
    •	aria-label="Scan to view on mobile" on QR <canvas> / <img> element.
    6.	Styling
-   •	Rounded 8 px corners, subtle shadow (rgba(0,0,0,.15)), backdrop-blur for glassy look.
+   •	Rounded 8 px corners, subtle shadow (rgba(0,0,0,.15)), backdrop-blur-sm for glassy look.
    •	Matches existing Jovi secondary color scheme.
    ```
 

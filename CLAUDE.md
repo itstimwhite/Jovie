@@ -181,7 +181,7 @@ Any solution resembling the above snippet or referencing “authMiddleware,” `
 
 ## **4. AI MODEL VERIFICATION STEPS**
 
-Before returning any Clerk-related solution, you **must** verify:
+`Before returning any Clerk-related solution, you **must** verify:
 
 1. **Middleware**: Is `clerkMiddleware()` used in `middleware.ts`?
 2. **Layout**: Is `<ClerkProvider>` wrapping the app in `app/layout.tsx`?

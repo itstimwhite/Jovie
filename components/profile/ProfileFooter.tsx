@@ -19,7 +19,7 @@ export function ProfileFooter({ artist }: ProfileFooterProps) {
         <Link
           href={`/?utm_source=profile&utm_artist=${artist.handle}`}
           aria-label={`Create your own profile with ${APP_NAME}`}
-          className="focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded"
+          className="focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded-sm"
         >
           <Logo
             size="sm"

@@ -65,7 +65,7 @@ export function HowItWorks() {
   return (
     <section className="relative bg-gray-50 py-24 sm:py-32">
       {/* Section accent border */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-400 to-orange-600" />
+      <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-orange-400 to-orange-600" />
 
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
@@ -79,11 +79,11 @@ export function HowItWorks() {
               <div key={step.number} className="relative">
                 {/* Connection line - Apple-style */}
                 {index < steps.length - 1 && (
-                  <div className="absolute left-1/2 top-8 hidden h-px w-full -translate-x-1/2 bg-gradient-to-r from-orange-400/50 to-orange-600/50 md:block" />
+                  <div className="absolute left-1/2 top-8 hidden h-px w-full -translate-x-1/2 bg-linear-to-r from-orange-400/50 to-orange-600/50 md:block" />
                 )}
 
                 <div className="text-center">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-sm">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br from-orange-500 to-orange-600 text-white shadow-xs">
                     {step.icon}
                   </div>
                   <div className="mt-6">

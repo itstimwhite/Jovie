@@ -101,7 +101,7 @@ describe('Button', () => {
     expect(ref).toHaveBeenCalled();
   });
 
-  it('renders with outline variant', () => {
+  it('renders with outline-solid variant', () => {
     render(<Button outline>Outline</Button>);
     const button = screen.getByRole('button');
     expect(button).toBeInTheDocument();

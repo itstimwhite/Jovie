@@ -178,7 +178,7 @@ useEffect(() => {
 
 ```typescript
 // Custom background gradient
-className="bg-gradient-to-r from-blue-50 to-purple-50"
+className="bg-linear-to-r from-blue-50 to-purple-50"
 
 // Custom auto-play interval
 const interval = setInterval(() => {

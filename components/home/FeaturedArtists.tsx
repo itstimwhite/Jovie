@@ -31,7 +31,7 @@ export async function FeaturedArtists() {
 
   if (!artists || artists.length === 0) {
     return (
-      <section className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 py-16 sm:py-24">
+      <section className="relative bg-linear-to-br from-indigo-600 via-purple-600 to-pink-600 py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -47,7 +47,7 @@ export async function FeaturedArtists() {
   }
 
   return (
-    <section className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 py-16 sm:py-24">
+    <section className="relative bg-linear-to-br from-indigo-600 via-purple-600 to-pink-600 py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -65,9 +65,9 @@ export async function FeaturedArtists() {
               <Link
                 key={artist.id}
                 href={`/${artist.handle}`}
-                className="flex-shrink-0 group"
+                className="shrink-0 group"
               >
-                <div className="w-48 h-48 rounded-2xl overflow-hidden bg-white/10 backdrop-blur-sm ring-1 ring-white/20 transition-all duration-300 group-hover:scale-105 group-hover:ring-white/40">
+                <div className="w-48 h-48 rounded-2xl overflow-hidden bg-white/10 backdrop-blur-xs ring-1 ring-white/20 transition-all duration-300 group-hover:scale-105 group-hover:ring-white/40">
                   {artist.image_url ? (
                     <img
                       src={artist.image_url}
@@ -102,7 +102,7 @@ export async function FeaturedArtists() {
         <div className="text-center mt-8">
           <Link
             href="/artists"
-            className="inline-flex items-center justify-center rounded-lg bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm ring-1 ring-white/20 hover:bg-white/20 transition-all duration-200"
+            className="inline-flex items-center justify-center rounded-lg bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-xs ring-1 ring-white/20 hover:bg-white/20 transition-all duration-200"
           >
             View All Artists
             <svg

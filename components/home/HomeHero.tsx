@@ -11,14 +11,14 @@ export function HomeHero() {
       aria-labelledby="hero-headline"
     >
       {/* Subtle gradient overlay for depth */}
-      <div className="absolute inset-0 bg-gradient-to-b from-purple-50/5 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-b from-purple-50/5 to-transparent" />
 
       <Container className="relative flex max-w-4xl flex-col items-center text-center">
         {/* Hero Section - Above the fold */}
         <div className="mb-16 space-y-8">
           {/* Badge - Moved social proof here */}
           <div
-            className="inline-flex items-center rounded-full bg-white/8 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-sm ring-1 ring-white/20"
+            className="inline-flex items-center rounded-full bg-white/8 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-xs ring-1 ring-white/20"
             role="status"
             aria-label="Key benefits"
           >
@@ -35,7 +35,7 @@ export function HomeHero() {
             className="text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl"
           >
             <span className="block text-white">The fastest link-in-bio</span>
-            <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <span className="block bg-linear-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               Built for musicians
             </span>
           </h1>

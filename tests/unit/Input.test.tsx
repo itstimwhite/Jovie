@@ -75,7 +75,7 @@ describe('Input', () => {
     expect(screen.getByPlaceholderText('Large')).toBeInTheDocument();
   });
 
-  it('handles focus and blur events', () => {
+  it('handles focus and blur-sm events', () => {
     const handleFocus = vi.fn();
     const handleBlur = vi.fn();
 

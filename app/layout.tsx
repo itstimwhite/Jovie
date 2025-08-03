@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Analytics } from '@vercel/analytics/react';
 import { ClientProviders } from '@/components/providers/ClientProviders';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import '@/styles/globals.css';
@@ -139,7 +138,6 @@ export default function RootLayout({
       </head>
       <body className="font-sans">
         <ClientProviders>{children}</ClientProviders>
-        <Analytics />
       </body>
     </html>
   );

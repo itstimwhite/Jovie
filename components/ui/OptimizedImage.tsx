@@ -113,7 +113,7 @@ export function OptimizedImage({
 
       {/* Loading skeleton */}
       {isLoading && (
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 animate-pulse" />
+        <div className="absolute inset-0 bg-linear-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 animate-pulse" />
       )}
     </div>
   );
