@@ -11,7 +11,7 @@ interface ClientProvidersProps {
 
 export function ClientProviders({ children }: ClientProvidersProps) {
   return (
-    <ClerkProvider>
+    <ClerkProvider clerkJSVersion="latest">
       <ThemeProvider
         attribute="class"
         defaultTheme="light"
