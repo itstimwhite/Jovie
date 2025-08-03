@@ -1,12 +1,17 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { SpotifyArtist } from '@/types/common';
 
-interface SpotifyArtist {
-  id: string;
-  name: string;
-  images?: Array<{ url: string; width: number; height: number }>;
-  popularity: number;
+// Extend window interface for analytics
+declare global {
+  interface Window {
+    gtag?: (
+      command: string,
+      event: string,
+      properties?: Record<string, unknown>
+    ) => void;
+  }
 }
 
 interface UseArtistSearchOptions {
@@ -117,8 +122,8 @@ export function useArtistSearch({
         setError(null);
 
         // Track search analytics
-        if (typeof window !== 'undefined' && (window as any).gtag) {
-          (window as any).gtag('event', 'artist_search', {
+        if (typeof window !== 'undefined' && window.gtag) {
+          window.gtag('event', 'artist_search', {
             search_term: searchQuery,
             results_count: searchResults.length,
           });

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createBrowserClient } from '@/lib/supabase';
 
 interface Artist {
@@ -45,11 +46,12 @@ export function FeaturedArtists() {
                 className="h-16 w-16 shrink-0 snap-center transform transition-transform duration-150 ease-out hover:-translate-y-0.5 hover:scale-105"
               >
                 {artist.image_url ? (
-                  <img
+                  <Image
                     src={artist.image_url}
                     alt={artist.name}
+                    width={64}
+                    height={64}
                     className="h-16 w-16 rounded-full object-cover"
-                    loading="lazy"
                   />
                 ) : (
                   <Skeleton />

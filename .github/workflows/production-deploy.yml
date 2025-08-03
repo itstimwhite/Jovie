@@ -1,0 +1,101 @@
+name: Production Deployment
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.PROD_NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PROD_SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.PROD_NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+      CLERK_SECRET_KEY: ${{ secrets.PROD_CLERK_SECRET_KEY }}
+      SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+      SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Run Supabase migrations (Production)
+        run: |
+          supabase db push --db-url "$NEXT_PUBLIC_SUPABASE_URL" --linked
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.PROD_SUPABASE_DB_PASSWORD }}
+
+      - name: Final pre-deployment checks
+        run: |
+          npm run lint
+          npm run typecheck
+          npm run test
+          npm run build
+
+      - name: Deploy to Production
+        run: |
+          npm install -g vercel@latest
+          vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
+
+      - name: Post-deployment verification
+        run: |
+          # Wait for deployment to be ready
+          sleep 30
+          
+          # Run Lighthouse CI on production
+          npm install -g @lhci/cli@0.14.x
+          lhci autorun || echo "Lighthouse CI completed with warnings"
+
+      - name: Notify deployment success
+        uses: actions/github-script@v7
+        if: success()
+        with:
+          script: |
+            const message = `🚀 **Production Deployment Successful!**
+            
+            The latest changes have been deployed to production.
+            
+            **Deployment Details:**
+            - Commit: ${context.sha.substring(0, 7)}
+            - Branch: ${context.ref.replace('refs/heads/', '')}
+            - Workflow: ${context.workflow}
+            - Run ID: ${context.runId}
+            
+            **Database Migrations:**
+            - ✅ Supabase migrations applied successfully
+            - ✅ Database schema updated
+            
+            **Next Steps:**
+            - Monitor application performance
+            - Check error tracking dashboards
+            - Verify feature flags are working as expected
+            
+            Production URL: https://jov.ie`;
+            
+            console.log(message);

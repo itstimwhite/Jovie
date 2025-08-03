@@ -5,13 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Combobox } from '@/components/ui/Combobox';
 import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
 import { Button } from '@/components/ui/Button';
-
-interface SpotifyArtist {
-  id: string;
-  name: string;
-  images?: Array<{ url: string; width: number; height: number }>;
-  popularity: number;
-}
+import { SpotifyArtist } from '@/types/common';
 
 export function ArtistSearch() {
   const router = useRouter();

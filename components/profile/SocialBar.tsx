@@ -18,6 +18,7 @@ import {
   siTumblr,
   siVimeo,
   siGithub,
+  type SimpleIcon,
   siMedium,
   siPatreon,
 } from 'simple-icons';
@@ -78,7 +79,7 @@ function SocialIcon({ platform }: { platform: string }) {
 
   // Map platform names to Simple Icons
   const getIcon = (platform: string) => {
-    const platformMap: Record<string, any> = {
+    const platformMap: Record<string, SimpleIcon> = {
       instagram: siInstagram,
       twitter: siX,
       tiktok: siTiktok,

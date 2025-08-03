@@ -7,6 +7,14 @@ export const DEFAULT_PROFILE_TAGLINE = 'Listen now.';
 export const ANALYTICS = {
   segmentWriteKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY ?? '',
 };
+
+// Feature flags
+export const FEATURE_FLAGS = {
+  // Enable artist search in development and preview, disable in production
+  artistSearchEnabled:
+    process.env.NODE_ENV !== 'production' ||
+    process.env.VERCEL_ENV === 'preview',
+};
 export const LEGAL = {
   privacyPath: '/legal/privacy',
   termsPath: '/legal/terms',

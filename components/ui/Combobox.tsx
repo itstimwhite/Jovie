@@ -1,6 +1,7 @@
 import * as Headless from '@headlessui/react';
 import clsx from 'clsx';
 import React, { forwardRef, useState, useMemo, useCallback } from 'react';
+import Image from 'next/image';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { LoadingSpinner } from './LoadingSpinner';
 
@@ -131,11 +132,12 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                   {({ selected, active }) => (
                     <div className="flex items-center space-x-3">
                       {option.imageUrl ? (
-                        <img
+                        <Image
                           src={option.imageUrl}
                           alt=""
+                          width={32}
+                          height={32}
                           className="h-8 w-8 rounded-full object-cover"
-                          loading="lazy"
                         />
                       ) : (
                         <div className="h-8 w-8 rounded-full bg-gray-200" />

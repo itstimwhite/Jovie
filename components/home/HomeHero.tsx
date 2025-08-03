@@ -1,7 +1,7 @@
 'use client';
 
 import { Container } from '@/components/site/Container';
-import { ArtistSearch } from './ArtistSearch';
+import { FeatureFlaggedArtistSearch } from './FeatureFlaggedArtistSearch';
 
 export function HomeHero() {
   return (
@@ -52,7 +52,7 @@ export function HomeHero() {
 
         {/* Artist Search - Front and center */}
         <div className="w-full max-w-2xl" role="main">
-          <ArtistSearch />
+          <FeatureFlaggedArtistSearch />
         </div>
 
         {/* Trust Indicators - Moved to bottom */}
