@@ -13,6 +13,7 @@ import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
 import { createBrowserClient } from '@/lib/supabase';
 import { Artist } from '@/types/db';
 import { APP_NAME } from '@/constants/app';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 
 // Root layout handles dynamic rendering
 
@@ -87,18 +88,22 @@ export default function DashboardPage() {
       <PendingClaimRunner />
 
       {!artist ? (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-black">
           <Container>
             <div className="flex min-h-screen items-center justify-center py-12">
-              <div className="w-full max-w-md">
-                <div className="text-center mb-8">
-                  <h1 className="text-3xl font-bold">Welcome to {APP_NAME}</h1>
+              <Card className="w-full max-w-md">
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl font-semibold">
+                    Welcome to {APP_NAME}
+                  </CardTitle>
                   <p className="mt-2 text-gray-600 dark:text-gray-400">
-                    Let&apos;s set up your artist profile
+                    Claim your jov.ie handle to launch your artist profile
                   </p>
-                </div>
-                <OnboardingForm />
-              </div>
+                </CardHeader>
+                <CardContent>
+                  <OnboardingForm />
+                </CardContent>
+              </Card>
             </div>
           </Container>
         </div>

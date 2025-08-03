@@ -80,49 +80,44 @@ export function OnboardingForm() {
   };
 
   return (
-    <div className="mx-auto max-w-[420px] pt-[15vh] pb-[20vh]">
-      <h2 className="text-3xl font-semibold">Welcome to Jovie</h2>
-      <p className="mb-8 text-base text-slate-500">Choose your jov.ie handle</p>
-
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="relative">
-          <Input
-            {...form.register('handle')}
-            placeholder="your-handle"
-            autoFocus
-            maxLength={24}
-            className="h-12 pl-16"
-          />
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-            jov.ie/
-          </span>
-          <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            {isHandleAvailable === true && (
-              <CheckCircleIcon className="h-6 w-6 text-green-500" />
-            )}
-            {isHandleAvailable === false && (
-              <XCircleIcon className="h-6 w-6 text-red-500" />
-            )}
-          </div>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <div className="relative">
+        <Input
+          {...form.register('handle')}
+          placeholder="your-handle"
+          autoFocus
+          maxLength={24}
+          className="h-12 pl-16"
+        />
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+          jov.ie/
+        </span>
+        <div className="absolute right-4 top-1/2 -translate-y-1/2">
+          {isHandleAvailable === true && (
+            <CheckCircleIcon className="h-6 w-6 text-green-500" />
+          )}
+          {isHandleAvailable === false && (
+            <XCircleIcon className="h-6 w-6 text-red-500" />
+          )}
         </div>
-        {form.formState.errors.handle && (
-          <p className="mt-2 text-sm text-red-500" aria-live="polite">
-            {form.formState.errors.handle.message}
-          </p>
-        )}
+      </div>
+      {form.formState.errors.handle && (
+        <p className="-mt-4 text-sm text-red-500" aria-live="polite">
+          {form.formState.errors.handle.message}
+        </p>
+      )}
 
-        <Button
-          type="submit"
-          className="mt-6 w-full rounded-full py-3"
-          disabled={!form.formState.isValid || !isHandleAvailable || loading}
-        >
-          {loading ? 'Saving...' : 'Continue'}
-        </Button>
-      </form>
+      <Button
+        type="submit"
+        className="w-full rounded-md py-3"
+        disabled={!form.formState.isValid || !isHandleAvailable || loading}
+      >
+        {loading ? 'Saving...' : 'Get started'}
+      </Button>
 
-      <p className="mt-4 text-xs text-slate-400">
+      <p className="text-center text-xs text-slate-400">
         You can change this later in Settings.
       </p>
-    </div>
+    </form>
   );
 }
