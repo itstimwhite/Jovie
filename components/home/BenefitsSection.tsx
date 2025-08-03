@@ -1,4 +1,8 @@
+import { cn } from '@/lib/utils';
+
 export function BenefitsSection() {
+  const defaultAccent = 'violet';
+
   const benefits = [
     {
       title: 'Lightning Fast',
@@ -18,6 +22,7 @@ export function BenefitsSection() {
           />
         </svg>
       ),
+      accent: 'violet',
     },
     {
       title: 'Smart Preferences',
@@ -37,6 +42,7 @@ export function BenefitsSection() {
           />
         </svg>
       ),
+      accent: 'violet',
     },
     {
       title: 'Zero Distractions',
@@ -62,6 +68,7 @@ export function BenefitsSection() {
           />
         </svg>
       ),
+      accent: 'violet',
     },
   ];
 
@@ -75,21 +82,35 @@ export function BenefitsSection() {
         </div>
         <div className="mx-auto mt-20 max-w-6xl">
           <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
-            {benefits.map((benefit) => (
-              <div key={benefit.title} className="text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br from-violet-500 to-violet-600 text-white shadow-xs">
-                  {benefit.icon}
+            {benefits.map((benefit) => {
+              const accent = benefit.accent ?? defaultAccent;
+
+              return (
+                <div key={benefit.title} className="text-center">
+                  <div
+                    className={cn(
+                      'mx-auto flex h-12 w-12 items-center justify-center rounded-full text-white shadow-xs bg-linear-to-br',
+                      `from-${accent}-500 to-${accent}-600`
+                    )}
+                  >
+                    {benefit.icon}
+                  </div>
+                  <h3 className="mt-6 text-xl font-bold text-gray-900">
+                    {benefit.title}
+                  </h3>
+                  {/* Accent dot */}
+                  <div
+                    className={cn(
+                      'mx-auto mt-3 h-1 w-1 rounded-full',
+                      `bg-${accent}-500`
+                    )}
+                  />
+                  <p className="mt-4 text-gray-600 leading-relaxed">
+                    {benefit.description}
+                  </p>
                 </div>
-                <h3 className="mt-6 text-xl font-bold text-gray-900">
-                  {benefit.title}
-                </h3>
-                {/* Violet accent dot */}
-                <div className="mx-auto mt-3 h-1 w-1 rounded-full bg-violet-500" />
-                <p className="mt-4 text-gray-600 leading-relaxed">
-                  {benefit.description}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
