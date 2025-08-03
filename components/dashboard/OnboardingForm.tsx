@@ -1,199 +1,128 @@
 'use client';
 
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { createBrowserClient } from '@/lib/supabase';
-import { Artist } from '@/types/db';
+import {
+  onboardingSchema,
+  OnboardingValues,
+} from '@/lib/validation/onboarding';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
-interface OnboardingFormProps {
-  onSuccess?: (artist: Artist) => void;
-}
-
-export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
+export function OnboardingForm() {
+  const router = useRouter();
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [pendingName, setPendingName] = useState('');
-  const [formData, setFormData] = useState({
-    handle: '',
+
+  const [isHandleAvailable, setIsHandleAvailable] = useState<boolean | null>(
+    null
+  );
+
+  const form = useForm<OnboardingValues>({
+    resolver: zodResolver(onboardingSchema),
+    defaultValues: {
+      handle: '',
+    },
   });
 
-  // Load pending Spotify artist name from sessionStorage
-  React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const raw = sessionStorage.getItem('pendingClaim');
-      if (raw) {
-        try {
-          const obj = JSON.parse(raw);
-          if (obj.artistName) {
-            setPendingName(obj.artistName as string);
-            setFormData((prev) => ({ ...prev, handle: obj.artistName.toLowerCase().replace(/[^a-z0-9]/g, '') }));
-          }
-        } catch {}
+  const handle = form.watch('handle');
+
+  useEffect(() => {
+    const checkHandle = async () => {
+      if (handle.length < 3) {
+        setIsHandleAvailable(null);
+        return;
       }
-    }
-  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
+      const response = await fetch(`/api/handle/check?handle=${handle}`);
+      const { available } = await response.json();
+      setIsHandleAvailable(available);
+    };
 
+    const debounce = setTimeout(() => {
+      checkHandle();
+    }, 500);
+
+    return () => clearTimeout(debounce);
+  }, [handle]);
+
+  const onSubmit = async (values: OnboardingValues) => {
     setLoading(true);
-    setError(null);
 
     try {
       const supabase = createBrowserClient();
+      const artistName = sessionStorage.getItem('pendingClaim')
+        ? JSON.parse(sessionStorage.getItem('pendingClaim')!).artistName
+        : 'New Artist';
 
-      // Create user record if it doesn't exist
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('clerk_id', user.id)
-        .single();
+      await supabase.from('artists').insert({
+        owner_user_id: user!.id,
+        name: artistName,
+        handle: values.handle,
+        tagline: 'Artist',
+      });
 
-      let userId: string;
-
-      if (userError && userError.code === 'PGRST116') {
-        // User doesn't exist, create them
-        const { data: newUser, error: createUserError } = await supabase
-          .from('users')
-          .insert({
-            clerk_id: user.id,
-            email: user.emailAddresses[0]?.emailAddress,
-          })
-          .select('id')
-          .single();
-
-        if (createUserError) throw createUserError;
-        userId = newUser.id;
-      } else if (userError) {
-        throw userError;
-      } else {
-        userId = userData.id;
-      }
-
-      // Create artist profile
-      const { data: artist, error: artistError } = await supabase
-        .from('artists')
-        .insert({
-          owner_user_id: userId,
-          name: pendingName,
-          handle: formData.handle,
-          tagline: 'Artist',
-        })
-        .select('*')
-        .single();
-
-      if (artistError) throw artistError;
-
-      // Call onSuccess callback if provided
-      if (onSuccess && artist) {
-        onSuccess(artist);
-      }
-
-      // Redirect to dashboard
-      window.location.href = '/dashboard';
+      router.push('/dashboard');
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      console.error('Error creating artist:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create artist');
+      form.setError('handle', {
+        type: 'manual',
+        message: 'An unexpected error occurred. Please try again.',
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label
-          htmlFor="name"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
-          Artist Name
-        </label>
-        <input
-          type="text"
-          id="name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
-          placeholder="Enter your artist name"
-          required
-        />
-      </div>
+    <div className="mx-auto max-w-[420px] pt-[15vh] pb-[20vh]">
+      <h2 className="text-3xl font-semibold">Welcome to Jovie</h2>
+      <p className="mb-8 text-base text-slate-500">Choose your jov.ie handle</p>
 
-      <div>
-        <label
-          htmlFor="handle"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
-          Handle
-        </label>
-        <div className="mt-1 flex rounded-md shadow-xs">
-          <span className="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-sm text-gray-500 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-300">
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <div className="relative">
+          <Input
+            {...form.register('handle')}
+            placeholder="your-handle"
+            autoFocus
+            maxLength={24}
+            className="h-12 pl-16"
+          />
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
             jov.ie/
           </span>
-          <input
-            type="text"
-            id="handle"
-            value={formData.handle}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                handle: e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''),
-              })
-            }
-            className="flex-1 min-w-0 block w-full rounded-none rounded-r-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
-            placeholder="your-handle"
-            required
-          />
-        </div>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          This will be your unique URL: jov.ie/
-          {formData.handle || 'your-handle'}
-        </p>
-      </div>
-
-      <div>
-        <label
-          htmlFor="tagline"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >
-          Tagline
-        </label>
-        <input
-          type="text"
-          id="tagline"
-          value={formData.tagline}
-          onChange={(e) =>
-            setFormData({ ...formData, tagline: e.target.value })
-          }
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
-          placeholder="A short description of your music"
-        />
-      </div>
-
-      {error && (
-        <div className="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
-          <div className="flex">
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
-                Error
-              </h3>
-              <div className="mt-2 text-sm text-red-700 dark:text-red-300">
-                {error}
-              </div>
-            </div>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            {isHandleAvailable === true && (
+              <CheckCircleIcon className="h-6 w-6 text-green-500" />
+            )}
+            {isHandleAvailable === false && (
+              <XCircleIcon className="h-6 w-6 text-red-500" />
+            )}
           </div>
         </div>
-      )}
+        {form.formState.errors.handle && (
+          <p className="mt-2 text-sm text-red-500" aria-live="polite">
+            {form.formState.errors.handle.message}
+          </p>
+        )}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-xs text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? 'Creating...' : 'Create Profile'}
-      </button>
-    </form>
+        <Button
+          type="submit"
+          className="mt-6 w-full rounded-full py-3"
+          disabled={!form.formState.isValid || !isHandleAvailable || loading}
+        >
+          {loading ? 'Saving...' : 'Continue'}
+        </Button>
+      </form>
+
+      <p className="mt-4 text-xs text-slate-400">
+        You can change this later in Settings.
+      </p>
+    </div>
   );
 }

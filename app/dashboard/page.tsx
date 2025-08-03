@@ -67,10 +67,6 @@ export default function DashboardPage() {
     }
   }, [user, fetchArtist]);
 
-  const handleArtistCreated = (newArtist: Artist) => {
-    setArtist(newArtist);
-  };
-
   const handleArtistUpdated = (updatedArtist: Artist) => {
     setArtist(updatedArtist);
   };
@@ -101,7 +97,7 @@ export default function DashboardPage() {
                     Let&apos;s set up your artist profile
                   </p>
                 </div>
-                <OnboardingForm onSuccess={handleArtistCreated} />
+                <OnboardingForm />
               </div>
             </div>
           </Container>
