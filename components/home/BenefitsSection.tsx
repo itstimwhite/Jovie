@@ -77,14 +77,14 @@ export function BenefitsSection() {
           <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
             {benefits.map((benefit) => (
               <div key={benefit.title} className="text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br from-violet-500 to-violet-600 text-white shadow-xs">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--accent-features)] text-white shadow-xs">
                   {benefit.icon}
                 </div>
                 <h3 className="mt-6 text-xl font-bold text-gray-900">
                   {benefit.title}
                 </h3>
                 {/* Violet accent dot */}
-                <div className="mx-auto mt-3 h-1 w-1 rounded-full bg-violet-500" />
+                <div className="mx-auto mt-3 h-1 w-1 rounded-full bg-[var(--accent-features)]" />
                 <p className="mt-4 text-gray-600 leading-relaxed">
                   {benefit.description}
                 </p>

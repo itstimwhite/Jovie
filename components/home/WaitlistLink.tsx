@@ -19,7 +19,8 @@ export function WaitlistLink() {
               <Button
                 variant="primary"
                 size="lg"
-                className="rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 transition-all duration-200"
+                accent="hero"
+                className="transition-all duration-200"
               >
                 Join Waitlist
               </Button>
