@@ -1,16 +1,28 @@
 import { notFound } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase-server';
+import dynamic from 'next/dynamic';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
-import { ListenNow } from '@/components/profile/ListenNow';
-import { SocialBar } from '@/components/profile/SocialBar';
 import { ProfileFooter } from '@/components/profile/ProfileFooter';
 import { Container } from '@/components/site/Container';
 import { ArtistSEO } from '@/components/seo/ArtistSEO';
 import { Artist, SocialLink } from '@/types/db';
 import { APP_NAME, APP_URL } from '@/constants/app';
 
-// Root layout handles dynamic rendering
-export const revalidate = 3600; // Revalidate every hour
+// Lazily load client components to reduce initial bundle size
+const ListenNow = dynamic(() => import('@/components/profile/ListenNow'), {
+  loading: () => (
+    <div className="w-full max-w-sm">
+      <div className="h-12 w-full animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
+    </div>
+  ),
+});
+
+const SocialBar = dynamic(() => import('@/components/profile/SocialBar'), {
+  loading: () => (
+    <div className="h-8 w-full animate-pulse rounded-lg bg-gray-200 dark:bg-gray-700" />
+  ),
+  ssr: false,
+});
 
 interface ProfilePageProps {
   params: Promise<{
@@ -253,11 +265,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 <ListenNow handle={artist.handle} artistName={artist.name} />
               </div>
 
-              <SocialBar
-                handle={artist.handle}
-                artistName={artist.name}
-                socialLinks={socialLinks}
-              />
+              {socialLinks.length > 0 && (
+                <SocialBar
+                  handle={artist.handle}
+                  artistName={artist.name}
+                  socialLinks={socialLinks}
+                />
+              )}
 
               <ProfileFooter artist={artist} />
             </div>
