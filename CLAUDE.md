@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Branching Strategy (as of 2024-06)
+
+- **develop**: The default branch. All new work, features, and bugfixes should be based on this branch. PRs should target develop unless merging up to preview or main.
+- **preview**: Staging branch. Used for pre-production testing and Vercel preview deployments. Promote from develop to preview as needed.
+- **main**: Production branch. Only production-ready code should be merged here. Promote from preview to main for releases.
+
+> **Note:** Always branch from and open PRs against `develop` unless you are promoting to `preview` or `main`.
+
 ## Project Overview
 
 Jovie is a Next.js application that integrates with multiple services for authentication, data storage, and music functionality. The project is currently in early development with minimal code structure.

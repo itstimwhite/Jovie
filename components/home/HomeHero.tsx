@@ -31,9 +31,8 @@ export function HomeHero() {
             id="hero-headline"
             className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl"
           >
-            <span className="block">Link in bio</span>
-            <span className="block bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              for music artists
+            <span className="block">
+              The fastest link-in-bio for musicians.
             </span>
           </h1>
 
@@ -42,8 +41,8 @@ export function HomeHero() {
             className="mx-auto max-w-2xl text-xl text-white/80 sm:text-2xl"
             role="doc-subtitle"
           >
-            Connect your music, social media, and merch in one link.
-            <span className="font-semibold text-white"> No design needed.</span>
+            One optimized design loads instantly and converts consistently.
+            While others waste time customizing, you&apos;ll be gaining streams.
           </p>
 
           {/* Social Proof */}

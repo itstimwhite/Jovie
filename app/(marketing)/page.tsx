@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { HomeHero } from '@/components/home/HomeHero';
 import { FeaturedArtists } from '@/components/home/FeaturedArtists';
+import { PreFooterCTA } from '@/components/home/PreFooterCTA';
 import { APP_NAME, APP_URL } from '@/constants/app';
 
 export const dynamic = 'force-dynamic';
@@ -156,6 +157,7 @@ export default function HomePage() {
           <FeaturedArtists />
         </Suspense>
       </div>
+      <PreFooterCTA />
     </>
   );
 }
