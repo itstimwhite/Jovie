@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 export function PreFooterCTA() {
   return (
@@ -12,12 +13,12 @@ export function PreFooterCTA() {
           Jovie&apos;s standardized design converts 3x better than customizable
           alternatives. Connect your Spotify, claim your link, start converting.
         </p>
-        <a
+        <Link
           href="/sign-in"
           className="inline-flex items-center justify-center rounded-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-white text-indigo-700 hover:bg-indigo-50 focus:ring-indigo-500 px-8 py-4 text-lg font-semibold shadow-lg"
         >
           Get Your jov.ie Link Now
-        </a>
+        </Link>
       </div>
     </section>
   );

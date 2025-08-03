@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { createBrowserClient } from '@/lib/supabase';
-import { AnalyticsData } from '@/types/db';
+import { AnalyticsData } from '@/types/common';
 
 export function AnalyticsCards({ artistId }: { artistId: string }) {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);

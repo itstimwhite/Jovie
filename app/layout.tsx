@@ -1,11 +1,8 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/react';
 import { ClientProviders } from '@/components/providers/ClientProviders';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import '@/styles/globals.css';
-
-const inter = Inter({ subsets: ['latin'] });
 
 // Bypass static rendering for now to fix build issues
 export const dynamic = 'force-dynamic';
@@ -106,6 +103,10 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
+          rel="stylesheet"
+        />
         <link rel="dns-prefetch" href="https://i.scdn.co" />
         <link rel="dns-prefetch" href="https://api.spotify.com" />
 
@@ -136,7 +137,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body className="font-sans">
         <ClientProviders>{children}</ClientProviders>
         <Analytics />
       </body>
