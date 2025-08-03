@@ -73,8 +73,7 @@ alter table subscriptions enable row level security;
 
 -- Policies
 create policy "users self access" on users
-  for select using (clerk_id = current_setting('request.jwt.claims', true)::jsonb->>'sub')
-  with check (clerk_id = current_setting('request.jwt.claims', true)::jsonb->>'sub');
+  for select using (clerk_id = current_setting('request.jwt.claims', true)::jsonb->>'sub');
 
 create policy "users insert self" on users
   for insert with check (clerk_id = current_setting('request.jwt.claims', true)::jsonb->>'sub');
