@@ -1,0 +1,9 @@
+{
+  "ci": {
+    "assert": {
+      "assertions": {
+        "interactive": ["error", { "maxNumericValue": 1500 }]
+      }
+    }
+  }
+}
