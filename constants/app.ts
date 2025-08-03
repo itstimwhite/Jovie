@@ -10,10 +10,12 @@ export const ANALYTICS = {
 
 // Feature flags
 export const FEATURE_FLAGS = {
-  // Enable artist search in development and preview, disable in production
-  artistSearchEnabled:
-    process.env.NODE_ENV !== 'production' ||
-    process.env.VERCEL_ENV === 'preview',
+  // Control waitlist mode via environment variable
+  // When WAITLIST_ENABLED=true: show waitlist page, hide artist search, convert sign-up buttons to waitlist buttons
+  // When WAITLIST_ENABLED=false or not set: normal functionality with artist search and sign-up
+  waitlistEnabled: process.env.NEXT_PUBLIC_WAITLIST_ENABLED === 'true',
+  // Artist search is enabled when waitlist mode is disabled
+  artistSearchEnabled: process.env.NEXT_PUBLIC_WAITLIST_ENABLED !== 'true',
 };
 export const LEGAL = {
   privacyPath: '/legal/privacy',

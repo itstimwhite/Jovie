@@ -6,6 +6,7 @@ import { Combobox } from '@/components/ui/Combobox';
 import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
 import { Button } from '@/components/ui/Button';
 import { SpotifyArtist } from '@/types/common';
+import { FEATURE_FLAGS } from '@/constants/app';
 
 export function ArtistSearch() {
   const router = useRouter();
@@ -36,8 +37,8 @@ export function ArtistSearch() {
           })
         );
 
-        // Redirect to claim page
-        router.push('/sign-up');
+        // Redirect to claim page or waitlist based on feature flag
+        router.push(FEATURE_FLAGS.waitlistEnabled ? '/waitlist' : '/sign-up');
       }
     } else {
       setSelectedArtist(null);

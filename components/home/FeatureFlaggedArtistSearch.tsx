@@ -5,10 +5,10 @@ import { ArtistSearch } from './ArtistSearch';
 import { WaitlistLink } from './WaitlistLink';
 
 export function FeatureFlaggedArtistSearch() {
-  // Show artist search if feature flag is enabled, otherwise show waitlist link
-  if (FEATURE_FLAGS.artistSearchEnabled) {
-    return <ArtistSearch />;
+  // Show waitlist link if waitlist is enabled, otherwise show artist search
+  if (FEATURE_FLAGS.waitlistEnabled) {
+    return <WaitlistLink />;
   }
 
-  return <WaitlistLink />;
+  return <ArtistSearch />;
 }
