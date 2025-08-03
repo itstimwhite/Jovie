@@ -2,6 +2,7 @@ import * as Headless from '@headlessui/react';
 import clsx from 'clsx';
 import React, { forwardRef, useState, useMemo, useCallback } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import { LoadingSpinner } from './LoadingSpinner';
 
 interface ComboboxOption {
   id: string;
@@ -93,7 +94,7 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
             />
             <Headless.Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-3">
               {isLoading ? (
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white/50" />
+                <LoadingSpinner size="sm" className="text-white/50" />
               ) : (
                 <ChevronDownIcon
                   className="h-4 w-4 text-white/50"
@@ -107,7 +108,7 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
             {isLoading && query.length > 0 ? (
               <div className="px-4 py-3 text-sm text-gray-500">
                 <div className="flex items-center space-x-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+                  <LoadingSpinner size="sm" className="text-gray-500" />
                   <span>Searching...</span>
                 </div>
               </div>

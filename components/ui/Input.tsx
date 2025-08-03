@@ -1,6 +1,7 @@
 import * as Headless from '@headlessui/react';
 import clsx from 'clsx';
 import React, { forwardRef } from 'react';
+import { LoadingSpinner } from './LoadingSpinner';
 
 export function InputGroup({
   children,
@@ -28,6 +29,7 @@ type DateType = (typeof dateTypes)[number];
 interface LegacyInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
+  loading?: boolean;
 }
 
 // New interface for Catalyst UI Kit
@@ -42,10 +44,11 @@ type InputProps = {
     | 'text'
     | 'url'
     | DateType;
+  loading?: boolean;
 } & Omit<Headless.InputProps, 'as' | 'className'>;
 
 export const Input = forwardRef(function Input(
-  { className, label, error, ...props }: InputProps & Partial<LegacyInputProps>,
+  { className, label, error, loading, ...props }: InputProps & Partial<LegacyInputProps>,
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
   const inputElement = (
@@ -108,8 +111,17 @@ export const Input = forwardRef(function Input(
           // Error state for legacy support
           error &&
             'border-red-500 data-hover:border-red-500 dark:border-red-500 dark:data-hover:border-red-500',
+          // Loading state - add right padding for spinner
+          loading && 'pr-10 sm:pr-8',
         ])}
       />
+      
+      {/* Loading Spinner */}
+      {loading && (
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 sm:right-2.5">
+          <LoadingSpinner size="sm" className="text-zinc-500 dark:text-zinc-400" />
+        </div>
+      )}
     </span>
   );
 
