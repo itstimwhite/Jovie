@@ -8,15 +8,17 @@ export function ProblemStatement() {
           </h2>
           <div className="mt-8 space-y-6 text-lg leading-8 text-gray-600">
             <p>
-              Remember MySpace? Everyone had glitter backgrounds, custom fonts, and auto-playing music. 
-              It was chaos. Facebook won by making every profile identical—and optimized.
+              Remember MySpace? Everyone had glitter backgrounds, custom fonts,
+              and auto-playing music. It was chaos. Facebook won by making every
+              profile identical—and optimized.
             </p>
             <p className="text-xl font-semibold text-gray-900">
-              Your link-in-bio shouldn't be your creative outlet. It should be your conversion machine.
+              Your link-in-bio shouldn&apos;t be your creative outlet. It should
+              be your conversion machine.
             </p>
           </div>
         </div>
       </div>
     </section>
   );
-} 
+}

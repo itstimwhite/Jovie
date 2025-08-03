@@ -36,7 +36,9 @@ export function ComparisonSection() {
                 <h3 className="text-lg font-semibold text-gray-900">Feature</h3>
               </div>
               <div className="bg-red-50 px-6 py-4">
-                <h3 className="text-lg font-semibold text-red-900">Other Platforms</h3>
+                <h3 className="text-lg font-semibold text-red-900">
+                  Other Platforms
+                </h3>
               </div>
               <div className="bg-indigo-50 px-6 py-4">
                 <h3 className="text-lg font-semibold text-indigo-900">Jovie</h3>
@@ -45,21 +47,47 @@ export function ComparisonSection() {
               {/* Features */}
               {features.map((item, index) => (
                 <div key={item.feature} className="contents">
-                  <div className={`px-6 py-4 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                  <div
+                    className={`px-6 py-4 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}
+                  >
                     <p className="font-medium text-gray-900">{item.feature}</p>
                   </div>
-                  <div className={`px-6 py-4 ${index % 2 === 0 ? 'bg-red-25' : 'bg-red-50'}`}>
+                  <div
+                    className={`px-6 py-4 ${index % 2 === 0 ? 'bg-red-25' : 'bg-red-50'}`}
+                  >
                     <div className="flex items-center">
-                      <svg className="mr-2 h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      <svg
+                        className="mr-2 h-5 w-5 text-red-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
                       </svg>
                       <p className="text-red-700">{item.others}</p>
                     </div>
                   </div>
-                  <div className={`px-6 py-4 ${index % 2 === 0 ? 'bg-indigo-25' : 'bg-indigo-50'}`}>
+                  <div
+                    className={`px-6 py-4 ${index % 2 === 0 ? 'bg-indigo-25' : 'bg-indigo-50'}`}
+                  >
                     <div className="flex items-center">
-                      <svg className="mr-2 h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      <svg
+                        className="mr-2 h-5 w-5 text-indigo-500"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
                       </svg>
                       <p className="text-indigo-700">{item.jovie}</p>
                     </div>
@@ -72,4 +100,4 @@ export function ComparisonSection() {
       </div>
     </section>
   );
-} 
+}

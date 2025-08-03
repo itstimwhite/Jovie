@@ -35,6 +35,23 @@ export function ProfileFooter({ artist }: ProfileFooterProps) {
         <span className="text-xs text-gray-400 dark:text-gray-500 mt-1">
           Made for musicians, by musicians
         </span>
+
+        {/* Subtle legal links */}
+        <div className="flex items-center justify-center space-x-4 mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+          <Link
+            href="/legal/privacy"
+            className="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+          >
+            Privacy
+          </Link>
+          <span className="text-xs text-gray-300 dark:text-gray-600">•</span>
+          <Link
+            href="/legal/terms"
+            className="text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+          >
+            Terms
+          </Link>
+        </div>
       </div>
     </footer>
   );

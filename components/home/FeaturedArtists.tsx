@@ -11,7 +11,7 @@ interface Artist {
 
 async function getFeaturedArtists(): Promise<Artist[]> {
   const supabase = await createServerClient();
-  
+
   const { data: artists, error } = await supabase
     .from('artists')
     .select('id, handle, name, image_url, tagline')
@@ -77,7 +77,9 @@ export async function FeaturedArtists() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-gray-300">
-                      <span className="text-gray-500 text-sm">{artist.name}</span>
+                      <span className="text-gray-500 text-sm">
+                        {artist.name}
+                      </span>
                     </div>
                   )}
                 </div>

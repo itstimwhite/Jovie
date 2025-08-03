@@ -15,17 +15,21 @@ interface SpotifyArtist {
 
 export function ArtistSearch() {
   const router = useRouter();
-  const [selectedArtist, setSelectedArtist] = useState<SpotifyArtist | null>(null);
+  const [selectedArtist, setSelectedArtist] = useState<SpotifyArtist | null>(
+    null
+  );
   const { results, isLoading, error, updateQuery } = useArtistSearch({
     debounceMs: 300,
     minQueryLength: 2,
     maxResults: 8,
   });
 
-  const handleArtistSelect = (option: { id: string; name: string; imageUrl?: string } | null) => {
+  const handleArtistSelect = (
+    option: { id: string; name: string; imageUrl?: string } | null
+  ) => {
     if (option) {
       // Find the full artist data from results
-      const artist = results.find(a => a.id === option.id);
+      const artist = results.find((a) => a.id === option.id);
       if (artist) {
         setSelectedArtist(artist);
         // Store the selected artist in sessionStorage for the claim process
@@ -37,7 +41,7 @@ export function ArtistSearch() {
             timestamp: Date.now(),
           })
         );
-        
+
         // Redirect to claim page
         router.push('/sign-up');
       }
@@ -71,11 +75,15 @@ export function ArtistSearch() {
       <div className="space-y-4">
         <Combobox
           options={options}
-          value={selectedArtist ? {
-            id: selectedArtist.id,
-            name: selectedArtist.name,
-            imageUrl: selectedArtist.images?.[0]?.url,
-          } : null}
+          value={
+            selectedArtist
+              ? {
+                  id: selectedArtist.id,
+                  name: selectedArtist.name,
+                  imageUrl: selectedArtist.images?.[0]?.url,
+                }
+              : null
+          }
           onChange={handleArtistSelect}
           onInputChange={handleInputChange}
           placeholder="Search for your artist name..."
@@ -105,9 +113,10 @@ export function ArtistSearch() {
 
       <div className="text-center">
         <p className="text-sm text-white/60">
-          Don&apos;t see your artist? Make sure you have a verified Spotify artist profile.
+          Don&apos;t see your artist? Make sure you have a verified Spotify
+          artist profile.
         </p>
       </div>
     </div>
   );
-} 
+}
