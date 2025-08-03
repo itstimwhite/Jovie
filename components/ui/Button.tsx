@@ -4,6 +4,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'plain';
   size?: 'sm' | 'md' | 'lg';
   color?: 'indigo' | 'red' | 'green';
+  accent?: 'hero' | 'features';
   children: React.ReactNode;
   href?: string;
   className?: string;
@@ -18,6 +19,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       variant = 'primary',
       size = 'md',
       color = 'indigo',
+      accent,
       className = '',
       children,
       as: Component = 'button',
@@ -56,11 +58,18 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       green: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500',
     };
 
+    const accentClasses = {
+      hero: 'bg-[var(--accent-hero)] text-white hover:opacity-90 focus:ring-[var(--accent-hero)]',
+      features:
+        'bg-[var(--accent-features)] text-white hover:opacity-90 focus:ring-[var(--accent-features)]',
+    } as const;
+
     // Determine which classes to use based on props
     let variantClass = variantClasses[variant];
     if (outline) variantClass = variantClasses.outline;
     if (plain) variantClass = variantClasses.plain;
     if (color && variant === 'primary') variantClass = colorClasses[color];
+    if (accent) variantClass = accentClasses[accent];
 
     const classes =
       `${baseClasses} ${variantClass} ${sizeClasses[size]} ${className}`.trim();

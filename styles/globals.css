@@ -99,6 +99,8 @@
   :root {
     --background: 255 255 255;
     --foreground: 17 24 39;
+    --accent-hero: #a855f7;
+    --accent-features: #f97316;
   }
 
   .dark {

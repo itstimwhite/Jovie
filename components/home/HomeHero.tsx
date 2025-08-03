@@ -10,8 +10,8 @@ export function HomeHero() {
       role="banner"
       aria-labelledby="hero-headline"
     >
-      {/* Subtle gradient overlay for depth */}
-      <div className="absolute inset-0 bg-linear-to-b from-purple-50/5 to-transparent" />
+      {/* Subtle accent overlay for depth */}
+      <div className="absolute inset-0 bg-[var(--accent-hero)]/5" />
 
       <Container className="relative flex max-w-4xl flex-col items-center text-center">
         {/* Hero Section - Above the fold */}
@@ -35,7 +35,7 @@ export function HomeHero() {
             className="text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl"
           >
             <span className="block text-white">The fastest link-in-bio</span>
-            <span className="block bg-linear-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <span className="block text-[var(--accent-hero)]">
               Built for musicians
             </span>
           </h1>

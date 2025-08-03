@@ -13,7 +13,7 @@ interface Artist {
 }
 
 const Skeleton = () => (
-  <div className="h-16 w-16 shrink-0 rounded-full bg-slate-400/20 animate-pulse snap-center" />
+  <div className="h-16 w-16 shrink-0 rounded-full bg-[var(--accent-features)]/20 animate-pulse snap-center" />
 );
 
 export function FeaturedArtists() {
@@ -32,7 +32,7 @@ export function FeaturedArtists() {
   }, []);
 
   return (
-    <section className="relative bg-linear-to-b from-indigo-600/90 to-pink-600/90 py-14 lg:py-20">
+    <section className="relative bg-black py-14 lg:py-20 border-t border-[var(--accent-features)]">
       <div className="mx-auto max-w-[1200px] px-6 lg:px-8">
         <div
           className="flex gap-6 overflow-x-auto snap-x snap-mandatory"

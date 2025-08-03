@@ -98,7 +98,8 @@ export function ArtistSearch() {
               disabled={!selectedArtist}
               variant="primary"
               size="sm"
-              className="rounded-lg bg-linear-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              accent="hero"
+              className="disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
               Claim Profile
             </Button>
