@@ -17,7 +17,7 @@ export default function WaitlistPage() {
           </p>
 
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
-            <Waitlist />
+            <Waitlist signInUrl="/sign-in" />
           </div>
 
           <div className="mt-12 text-center">
