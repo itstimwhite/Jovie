@@ -197,39 +197,21 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const { handle } = await params;
   const supabase = await createServerClient();
 
-  // Optimize database queries with better error handling
-  const [artistResult, socialLinksResult] = await Promise.allSettled([
-    supabase
-      .from('artists')
-      .select('*')
-      .eq('handle', handle)
-      .eq('published', true)
-      .single(),
-    supabase
-      .from('social_links')
-      .select('*')
-      .eq(
-        'artist_id',
-        (
-          await supabase
-            .from('artists')
-            .select('id')
-            .eq('handle', handle)
-            .single()
-        )?.data?.id
-      )
-      .order('clicks', { ascending: false }),
-  ]);
+  // Fetch artist and social links in a single query to reduce latency
+  const { data, error } = await supabase
+    .from('artists')
+    .select('*, social_links(*)')
+    .eq('handle', handle)
+    .eq('published', true)
+    .single();
 
-  // Handle artist not found
-  if (artistResult.status === 'rejected' || !artistResult.value.data) {
+  if (error || !data) {
     notFound();
   }
 
-  const artist = artistResult.value.data as Artist;
-  const socialLinks = (
-    socialLinksResult.status === 'fulfilled' ? socialLinksResult.value.data : []
-  ) as SocialLink[];
+  const { social_links: socialLinks = [], ...artist } = data as Artist & {
+    social_links: SocialLink[];
+  };
 
   // Generate structured data
   const structuredData = generateStructuredData(artist, socialLinks);
