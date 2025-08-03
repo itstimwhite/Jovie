@@ -2,6 +2,10 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { HomeHero } from '@/components/home/HomeHero';
 import { FeaturedArtists } from '@/components/home/FeaturedArtists';
+import { ProblemStatement } from '@/components/home/ProblemStatement';
+import { HowItWorks } from '@/components/home/HowItWorks';
+import { BenefitsSection } from '@/components/home/BenefitsSection';
+import { ComparisonSection } from '@/components/home/ComparisonSection';
 import { PreFooterCTA } from '@/components/home/PreFooterCTA';
 import { APP_NAME, APP_URL } from '@/constants/app';
 
@@ -158,6 +162,19 @@ export default function HomePage() {
           <FeaturedArtists />
         </Suspense>
       </div>
+
+      {/* Problem Statement Section */}
+      <ProblemStatement />
+
+      {/* How It Works Section */}
+      <HowItWorks />
+
+      {/* Benefits Section */}
+      <BenefitsSection />
+
+      {/* Comparison Section */}
+      <ComparisonSection />
+
       <PreFooterCTA />
     </>
   );
