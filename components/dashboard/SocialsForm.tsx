@@ -1,12 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/lib/supabase';
 import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
-import { createBrowserClient } from '@/lib/supabase';
 import { SocialLink } from '@/types/db';
-import { SOCIAL_PLATFORMS, MAX_SOCIAL_LINKS } from '@/constants/app';
 
 interface SocialsFormProps {
   artistId: string;
@@ -14,168 +11,87 @@ interface SocialsFormProps {
 
 export function SocialsForm({ artistId }: SocialsFormProps) {
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
-  const [newPlatform, setNewPlatform] = useState('');
-  const [newUrl, setNewUrl] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const supabase = createBrowserClient();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    fetchSocialLinks();
-  }, [artistId]);
-
-  const fetchSocialLinks = async () => {
+  const fetchSocialLinks = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('social_links')
         .select('*')
         .eq('artist_id', artistId)
-        .order('clicks', { ascending: false });
+        .order('platform');
 
-      if (error) throw error;
-      setSocialLinks(data || []);
+      if (error) {
+        console.error('Error fetching social links:', error);
+      } else {
+        setSocialLinks((data as unknown as SocialLink[]) || []);
+      }
     } catch (error) {
-      console.error('Error fetching social links:', error);
-    }
-  };
-
-  const handleAddLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newPlatform || !newUrl) return;
-
-    if (socialLinks.length >= MAX_SOCIAL_LINKS) {
-      setError(`Maximum ${MAX_SOCIAL_LINKS} social links allowed`);
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const { data, error } = await supabase
-        .from('social_links')
-        .insert({
-          artist_id: artistId,
-          platform: newPlatform,
-          url: newUrl,
-        })
-        .select('*')
-        .single();
-
-      if (error) throw error;
-
-      setSocialLinks([...socialLinks, data]);
-      setNewPlatform('');
-      setNewUrl('');
-    } catch (error) {
-      console.error('Error adding social link:', error);
-      setError('Failed to add social link');
+      console.error('Error:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [artistId]);
 
-  const handleDeleteLink = async (linkId: string) => {
+  useEffect(() => {
+    fetchSocialLinks();
+  }, [artistId, fetchSocialLinks]);
+
+  const updateSocialLink = async (id: string, url: string) => {
     try {
       const { error } = await supabase
         .from('social_links')
-        .delete()
-        .eq('id', linkId);
+        .update({ url })
+        .eq('id', id);
 
-      if (error) throw error;
-      setSocialLinks(socialLinks.filter((link) => link.id !== linkId));
+      if (error) {
+        console.error('Error updating social link:', error);
+      }
     } catch (error) {
-      console.error('Error deleting social link:', error);
+      console.error('Error:', error);
     }
   };
 
+  const handleUrlChange = async (id: string, url: string) => {
+    setSaving(true);
+    await updateSocialLink(id, url);
+    setSaving(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-white">Social Links</h3>
+        <div className="animate-pulse space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-10 bg-white/10 rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Add Social Link</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleAddLink} className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Platform
-                </label>
-                <select
-                  value={newPlatform}
-                  onChange={(e) => setNewPlatform(e.target.value)}
-                  className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-50"
-                  required
-                >
-                  <option value="">Select platform</option>
-                  {SOCIAL_PLATFORMS.map((platform) => (
-                    <option key={platform} value={platform}>
-                      {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <Input
-                label="URL"
-                placeholder="https://..."
-                value={newUrl}
-                onChange={(e) => setNewUrl(e.target.value)}
-                type="url"
-                required
-              />
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-white">Social Links</h3>
+      <div className="space-y-3">
+        {socialLinks.map((link) => (
+          <div key={link.id} className="flex items-center space-x-3">
+            <div className="w-24 text-sm font-medium text-white/70 capitalize">
+              {link.platform}
             </div>
-
-            {error && (
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-            )}
-
-            <Button type="submit" disabled={loading || !newPlatform || !newUrl}>
-              {loading ? 'Adding...' : 'Add Link'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Your Social Links</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {socialLinks.length === 0 ? (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              No social links added yet.
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {socialLinks.map((link) => (
-                <div
-                  key={link.id}
-                  className="flex items-center justify-between rounded-lg border border-gray-200 p-3 dark:border-gray-700"
-                >
-                  <div>
-                    <p className="font-medium capitalize">{link.platform}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                      {link.url}
-                    </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">
-                      {link.clicks} clicks
-                    </p>
-                  </div>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleDeleteLink(link.id)}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            <Input
+              type="url"
+              value={link.url || ''}
+              onChange={(e) => handleUrlChange(link.id, e.target.value)}
+              placeholder={`Your ${link.platform} URL`}
+              className="flex-1"
+            />
+            {saving && <div className="text-xs text-white/50">Saving...</div>}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

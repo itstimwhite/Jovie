@@ -3,15 +3,15 @@
 
 -- Insert seed artists with real Spotify profile pictures
 INSERT INTO artists (handle, spotify_id, name, image_url, tagline, published) VALUES
-  ('ladygaga', '1HY2Jd0NmPuamShAr6KMms', 'Lady Gaga', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Born This Way - Chromatica', true),
-  ('davidguetta', '1Cs0zKBU1kc0i8zK8oBxlK', 'David Guetta', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'One Love - Future Rave', true),
-  ('billieeilish', '6qqNVTkY8uBg9cP3Jd7DAH', 'Billie Eilish', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Bad Guy - Happier Than Ever', true),
-  ('marshmello', '64KEffDW9EtZ1y2vBYgq8T', 'Marshmello', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Happier - Shockwave', true),
-  ('rihanna', '5pKCCKE2ajJHZ9KAiaK11H', 'Rihanna', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Diamonds - Anti', true),
-  ('calvinharris', '7CajNmpbOovfoOQ5XGgU9h', 'Calvin Harris', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Summer - Funk Wav Bounces Vol. 1', true),
-  ('sabrinacarpenter', '1mU3m3BcHkbdQAYM9u0h3q', 'Sabrina Carpenter', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Nonsense - Emails I Cant Send', true),
-  ('thechainsmokers', '69GGBxA162lTqCwzJG5jLp', 'The Chainsmokers', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Closer - So Far So Good', true),
-  ('dualipa', '6M2wZ9GZgrQXHCFfjv46we', 'Dua Lipa', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Levitating - Future Nostalgia', true)
+  ('ladygaga', '1HY2Jd0NmPuamShAr6KMms', 'Lady Gaga', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Artist', true),
+  ('davidguetta', '1Cs0zKBU1kc0i8zK8oBxlK', 'David Guetta', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Artist', true),
+  ('billieeilish', '6qqNVTkY8uBg9cP3Jd7DAH', 'Billie Eilish', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Artist', true),
+  ('marshmello', '64KEffDW9EtZ1y2vBYgq8T', 'Marshmello', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Artist', true),
+  ('rihanna', '5pKCCKE2ajJHZ9KAiaK11H', 'Rihanna', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Artist', true),
+  ('calvinharris', '7CajNmpbOovfoOQ5XGgU9h', 'Calvin Harris', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Artist', true),
+  ('sabrinacarpenter', '1mU3m3BcHkbdQAYM9u0h3q', 'Sabrina Carpenter', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Artist', true),
+  ('thechainsmokers', '69GGBxA162lTqCwzJG5jLp', 'The Chainsmokers', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Artist', true),
+  ('dualipa', '6M2wZ9GZgrQXHCFfjv46we', 'Dua Lipa', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Artist', true)
 ON CONFLICT (handle) DO NOTHING;
 
 -- Add some sample social links for demonstration

@@ -9,6 +9,9 @@ import { ArtistSEO } from '@/components/seo/ArtistSEO';
 import { Artist, SocialLink } from '@/types/db';
 import { APP_NAME, APP_URL } from '@/constants/app';
 
+// Root layout handles dynamic rendering
+export const revalidate = 3600; // Revalidate every hour
+
 interface ProfilePageProps {
   params: Promise<{
     handle: string;
@@ -194,39 +197,21 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const { handle } = await params;
   const supabase = await createServerClient();
 
-  // Optimize database queries with better error handling
-  const [artistResult, socialLinksResult] = await Promise.allSettled([
-    supabase
-      .from('artists')
-      .select('*')
-      .eq('handle', handle)
-      .eq('published', true)
-      .single(),
-    supabase
-      .from('social_links')
-      .select('*')
-      .eq(
-        'artist_id',
-        (
-          await supabase
-            .from('artists')
-            .select('id')
-            .eq('handle', handle)
-            .single()
-        )?.data?.id
-      )
-      .order('clicks', { ascending: false }),
-  ]);
+  // Fetch artist and social links in a single query to reduce latency
+  const { data, error } = await supabase
+    .from('artists')
+    .select('*, social_links(*)')
+    .eq('handle', handle)
+    .eq('published', true)
+    .single();
 
-  // Handle artist not found
-  if (artistResult.status === 'rejected' || !artistResult.value.data) {
+  if (error || !data) {
     notFound();
   }
 
-  const artist = artistResult.value.data as Artist;
-  const socialLinks = (
-    socialLinksResult.status === 'fulfilled' ? socialLinksResult.value.data : []
-  ) as SocialLink[];
+  const { social_links: socialLinks = [], ...artist } = data as Artist & {
+    social_links: SocialLink[];
+  };
 
   // Generate structured data
   const structuredData = generateStructuredData(artist, socialLinks);
@@ -240,23 +225,29 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         }}
       />
       <ArtistSEO artist={artist} socialLinks={socialLinks} />
-      <div className="min-h-screen bg-white dark:bg-gray-900">
+      <div className="min-h-screen bg-[#0D0E12]">
         <Container>
-          <div className="flex min-h-screen flex-col items-center justify-center py-12">
-            <div className="w-full max-w-md space-y-8">
-              <ProfileHeader artist={artist} />
+          <div className="flex min-h-screen flex-col py-12">
+            <div className="flex-1 flex flex-col items-center justify-center">
+              <div className="w-full max-w-md space-y-8">
+                <ProfileHeader artist={artist} />
 
-              <div className="flex justify-center">
-                <ListenNow handle={artist.handle} artistName={artist.name} />
+                <div className="flex justify-center">
+                  <ListenNow handle={artist.handle} artistName={artist.name} />
+                </div>
+
+                <SocialBar
+                  handle={artist.handle}
+                  artistName={artist.name}
+                  socialLinks={socialLinks}
+                />
               </div>
+            </div>
 
-              <SocialBar
-                handle={artist.handle}
-                artistName={artist.name}
-                socialLinks={socialLinks}
-              />
-
-              <ProfileFooter artist={artist} />
+            <div className="flex justify-center">
+              <div className="w-full max-w-md">
+                <ProfileFooter artist={artist} />
+              </div>
             </div>
           </div>
         </Container>

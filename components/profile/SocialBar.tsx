@@ -18,6 +18,7 @@ import {
   siTumblr,
   siVimeo,
   siGithub,
+  type SimpleIcon,
   siMedium,
   siPatreon,
 } from 'simple-icons';
@@ -62,7 +63,7 @@ export function SocialBar({ handle, artistName, socialLinks }: SocialBarProps) {
         <button
           key={link.id}
           onClick={() => handleSocialClick(link)}
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
           title={`Follow on ${link.platform}`}
           aria-label={`Follow ${artistName} on ${link.platform}`}
         >
@@ -78,7 +79,7 @@ function SocialIcon({ platform }: { platform: string }) {
 
   // Map platform names to Simple Icons
   const getIcon = (platform: string) => {
-    const platformMap: Record<string, any> = {
+    const platformMap: Record<string, SimpleIcon> = {
       instagram: siInstagram,
       twitter: siX,
       tiktok: siTiktok,

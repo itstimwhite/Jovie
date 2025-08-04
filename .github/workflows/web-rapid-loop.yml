@@ -73,7 +73,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Create/Update PR dev → preview
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           title: 'Promote dev → preview'
           body: 'Automated promotion from dev.'

@@ -4,6 +4,13 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { page } from '@/lib/analytics';
 
+// Type for Vercel Analytics
+declare global {
+  interface Window {
+    va?: (event: string, data: Record<string, unknown>) => void;
+  }
+}
+
 export function Analytics() {
   const pathname = usePathname();
 
@@ -12,8 +19,8 @@ export function Analytics() {
     if (typeof window === 'undefined') return;
 
     // Track page views with Vercel Analytics
-    if ((window as any).va) {
-      (window as any).va('page_view', {
+    if (window.va) {
+      window.va('page_view', {
         url: pathname,
       });
     }

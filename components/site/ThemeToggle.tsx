@@ -17,7 +17,7 @@ export function ThemeToggle() {
     return (
       <Button variant="ghost" size="sm" className="h-8 w-8 px-0" disabled>
         <span className="sr-only">Loading theme toggle</span>
-        <div className="h-4 w-4 animate-pulse rounded bg-gray-300 dark:bg-gray-600" />
+        <div className="h-4 w-4 animate-pulse rounded-sm bg-gray-300 dark:bg-gray-600" />
       </Button>
     );
   }

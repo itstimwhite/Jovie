@@ -1,44 +1,151 @@
 'use client';
 
-import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { useState, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
-import { APP_NAME } from '@/constants/app';
+import { Input } from '@/components/ui/Input';
 
-interface OnboardingFormProps {
-  onSuccess: (artist: any) => void;
-}
+export function OnboardingForm() {
+  const { user } = useUser();
+  const router = useRouter();
+  const [handle, setHandle] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-export function OnboardingForm({ onSuccess }: OnboardingFormProps) {
+  useEffect(() => {
+    // Check for pending claim
+    const pendingClaim = sessionStorage.getItem('pendingClaim');
+    if (pendingClaim) {
+      try {
+        const claim = JSON.parse(pendingClaim);
+        // Generate a handle from the artist name
+        const suggestedHandle = claim.artistName
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '')
+          .substring(0, 20);
+        setHandle(suggestedHandle);
+      } catch (error) {
+        console.error('Error parsing pending claim:', error);
+      }
+    }
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!handle.trim()) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // Get or create user in database
+      if (!user?.id) {
+        setError('User not found. Please sign in again.');
+        setLoading(false);
+        return;
+      }
+      const { data: existingUser, error: userError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('clerk_id', user.id)
+        .single();
+
+      let userId;
+      if (userError && userError.code === 'PGRST116') {
+        const { data: newUser, error: createUserError } = await supabase
+          .from('users')
+          .insert({
+            clerk_id: user?.id,
+            email: user?.primaryEmailAddress?.emailAddress || '',
+          })
+          .select('id')
+          .single();
+
+        if (createUserError) throw createUserError;
+        userId = newUser.id;
+      } else if (userError) {
+        throw userError;
+      } else {
+        userId = existingUser.id;
+      }
+
+      // Check if handle is available
+      const { data: existingArtist } = await supabase
+        .from('artists')
+        .select('id')
+        .eq('handle', handle)
+        .single();
+
+      if (existingArtist) {
+        setError('This handle is already taken. Please choose another one.');
+        return;
+      }
+
+      // Create artist profile
+      const { error: artistError } = await supabase
+        .from('artists')
+        .insert({
+          owner_user_id: userId,
+          handle: handle.toLowerCase(),
+          name: 'Your Artist Name',
+          published: true,
+        })
+        .select('*')
+        .single();
+
+      if (artistError) {
+        throw artistError;
+      }
+
+      // Clear pending claim
+      sessionStorage.removeItem('pendingClaim');
+
+      // Redirect to dashboard
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Error creating artist profile:', error);
+      setError('Failed to create artist profile. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Welcome to {APP_NAME}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-gray-600 dark:text-gray-400">
-          To get started, search for your artist profile on our homepage and
-          claim it.
-        </p>
-
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-            How it works:
-          </h3>
-          <ol className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-            <li>1. Search for your artist name on the homepage</li>
-            <li>2. Select your profile from the results</li>
-            <li>3. Click "Claim" to create your Jovie profile</li>
-            <li>4. Customize your profile and add social links</li>
-          </ol>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <label className="block text-sm font-semibold text-white mb-2">
+          Choose your jov.ie handle
+        </label>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-white/50 font-medium">jov.ie/</span>
+          <Input
+            value={handle}
+            onChange={(e) => setHandle(e.target.value.toLowerCase())}
+            placeholder="yourname"
+            className="flex-1"
+            required
+          />
         </div>
+        <p className="mt-2 text-xs text-white/50">
+          This will be your unique URL on Jovie
+        </p>
+      </div>
 
-        <Link href="/" className="block">
-          <Button className="w-full" color="indigo">
-            Search for Your Artist
-          </Button>
-        </Link>
-      </CardContent>
-    </Card>
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+          <p className="text-sm text-red-400">{error}</p>
+        </div>
+      )}
+
+      <Button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-white text-black hover:bg-white/90 font-semibold"
+      >
+        {loading ? 'Creating Profile...' : 'Create Profile'}
+      </Button>
+    </form>
   );
 }

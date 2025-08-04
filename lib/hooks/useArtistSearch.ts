@@ -1,13 +1,17 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { measureAsync } from '@/lib/utils/performance';
+import { SpotifyArtist } from '@/types/common';
 
-interface SpotifyArtist {
-  id: string;
-  name: string;
-  images?: Array<{ url: string; width: number; height: number }>;
-  popularity: number;
+// Extend window interface for analytics
+declare global {
+  interface Window {
+    gtag?: (
+      command: string,
+      event: string,
+      properties?: Record<string, unknown>
+    ) => void;
+  }
 }
 
 interface UseArtistSearchOptions {
@@ -80,29 +84,29 @@ export function useArtistSearch({
       abortController.current = new AbortController();
 
       try {
-        const searchResults = await measureAsync('artist-search', async () => {
-          const response = await fetch(
-            `/api/spotify/search?q=${encodeURIComponent(searchQuery)}`,
-            {
-              signal: abortController.current?.signal,
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error(`Search failed: ${response.status}`);
+        const startTime = performance.now();
+        const response = await fetch(
+          `/api/spotify/search?q=${encodeURIComponent(searchQuery)}`,
+          {
+            signal: abortController.current?.signal,
           }
+        );
 
-          const data = await response.json();
-          return data.artists || [];
-        });
+        if (!response.ok) {
+          throw new Error(`Search failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const searchResults = data.artists || [];
+        const duration = performance.now() - startTime;
 
         console.log(
-          `Artist search took ${searchResults.duration}ms for query: "${searchQuery}"`
+          `Artist search took ${duration}ms for query: "${searchQuery}"`
         );
 
         // Cache the results
         searchCache.set(cacheKey, {
-          data: searchResults.data,
+          data: searchResults,
           timestamp: Date.now(),
         });
 
@@ -114,14 +118,14 @@ export function useArtistSearch({
           }
         }
 
-        setResults(searchResults.data.slice(0, maxResults));
+        setResults(searchResults.slice(0, maxResults));
         setError(null);
 
         // Track search analytics
-        if (typeof window !== 'undefined' && (window as any).gtag) {
-          (window as any).gtag('event', 'artist_search', {
+        if (typeof window !== 'undefined' && window.gtag) {
+          window.gtag('event', 'artist_search', {
             search_term: searchQuery,
-            results_count: searchResults.data.length,
+            results_count: searchResults.length,
           });
         }
       } catch (err) {

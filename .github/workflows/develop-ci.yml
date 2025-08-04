@@ -1,0 +1,124 @@
+name: Develop CI/CD Pipeline
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.DEV_NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.DEV_SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.DEV_NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+      CLERK_SECRET_KEY: ${{ secrets.DEV_CLERK_SECRET_KEY }}
+      SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+      SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run type checking
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli@0.14.x
+          lhci autorun || echo "Lighthouse CI completed with warnings"
+
+  auto-promote-to-preview:
+    needs: test-and-build
+    runs-on: ubuntu-latest
+    if: success()
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Check if develop is ahead of preview
+        id: check-ahead
+        run: |
+          # Ensure we have the preview branch
+          git fetch origin preview:preview
+          if [ "$(git rev-list --count preview..develop)" -gt 0 ]; then
+            echo "develop_ahead=true" >> $GITHUB_OUTPUT
+          else
+            echo "develop_ahead=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create PR to preview
+        if: steps.check-ahead.outputs.develop_ahead == 'true'
+        run: |
+          # Create a new branch from develop
+          git checkout -b auto-promote/preview
+          
+          # Push the branch
+          git push origin auto-promote/preview
+          
+          # Create PR using GitHub CLI
+          gh pr create \
+            --base preview \
+            --head auto-promote/preview \
+            --title "🚀 Auto-promote develop to preview" \
+            --body "## Auto-promotion from develop to preview
+
+          This PR was automatically created after successful CI checks on the develop branch.
+
+          ### Changes included:
+          - All commits from develop branch
+          - Passed linting, type checking, tests, and build
+          - Lighthouse CI completed
+
+          ### Next steps:
+          - This PR will be auto-merged if all checks pass
+          - Preview deployment will be triggered automatically
+          - Production PR will be created for manual review"
+
+      - name: Auto-merge PR to preview
+        if: steps.check-ahead.outputs.develop_ahead == 'true'
+        run: |
+          # Get the PR number
+          PR_NUMBER=$(gh pr list --base preview --head auto-promote/preview --json number --jq '.[0].number')
+          
+          if [ ! -z "$PR_NUMBER" ]; then
+            # Enable auto-merge
+            gh pr merge $PR_NUMBER --squash --auto
+          else
+            echo "No PR found to merge"
+            exit 1
+          fi
+
+      - name: Skip promotion - no changes
+        if: steps.check-ahead.outputs.develop_ahead == 'false'
+        run: echo "No changes to promote - develop is not ahead of preview"

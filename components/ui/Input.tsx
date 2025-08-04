@@ -11,10 +11,10 @@ export function InputGroup({
       data-slot="control"
       className={clsx(
         'relative isolate block',
-        'has-[[data-slot=icon]:first-child]:[&_input]:pl-10 has-[[data-slot=icon]:last-child]:[&_input]:pr-10 sm:has-[[data-slot=icon]:first-child]:[&_input]:pl-8 sm:has-[[data-slot=icon]:last-child]:[&_input]:pr-8',
-        '*:data-[slot=icon]:pointer-events-none *:data-[slot=icon]:absolute *:data-[slot=icon]:top-3 *:data-[slot=icon]:z-10 *:data-[slot=icon]:size-5 sm:*:data-[slot=icon]:top-2.5 sm:*:data-[slot=icon]:size-4',
+        '[&_input]:has-[[data-slot=icon]:first-child]:pl-10 [&_input]:has-[[data-slot=icon]:last-child]:pr-10 sm:[&_input]:has-[[data-slot=icon]:first-child]:pl-8 sm:[&_input]:has-[[data-slot=icon]:last-child]:pr-8',
+        'data-[slot=icon]:*:pointer-events-none data-[slot=icon]:*:absolute data-[slot=icon]:*:top-3 data-[slot=icon]:*:z-10 data-[slot=icon]:*:size-5 sm:data-[slot=icon]:*:top-2.5 sm:data-[slot=icon]:*:size-4',
         '[&>[data-slot=icon]:first-child]:left-3 sm:[&>[data-slot=icon]:first-child]:left-2.5 [&>[data-slot=icon]:last-child]:right-3 sm:[&>[data-slot=icon]:last-child]:right-2.5',
-        '*:data-[slot=icon]:text-zinc-500 dark:*:data-[slot=icon]:text-zinc-400'
+        'data-[slot=icon]:*:text-zinc-500 dark:data-[slot=icon]:*:text-zinc-400'
       )}
     >
       {children}
@@ -26,7 +26,8 @@ const dateTypes = ['date', 'datetime-local', 'month', 'time', 'week'];
 type DateType = (typeof dateTypes)[number];
 
 // Legacy interface for backward compatibility
-interface LegacyInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface LegacyInputProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string;
   error?: string;
   loading?: boolean;
@@ -44,11 +45,19 @@ type InputProps = {
     | 'text'
     | 'url'
     | DateType;
+  size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
 } & Omit<Headless.InputProps, 'as' | 'className'>;
 
 export const Input = forwardRef(function Input(
-  { className, label, error, loading, ...props }: InputProps & Partial<LegacyInputProps>,
+  {
+    className,
+    label,
+    error,
+
+    loading,
+    ...props
+  }: InputProps & Partial<LegacyInputProps>,
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
   const inputElement = (
@@ -59,7 +68,7 @@ export const Input = forwardRef(function Input(
         // Basic layout
         'relative block w-full',
         // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
-        'before:absolute before:inset-px before:rounded-[calc(var(--radius-lg)-1px)] before:bg-white before:shadow-sm',
+        'before:absolute before:inset-px before:rounded-[calc(var(--radius-lg)-1px)] before:bg-white before:shadow-xs',
         // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
         'dark:before:hidden',
         // Focus ring
@@ -115,11 +124,14 @@ export const Input = forwardRef(function Input(
           loading && 'pr-10 sm:pr-8',
         ])}
       />
-      
+
       {/* Loading Spinner */}
       {loading && (
         <div className="absolute right-3 top-1/2 -translate-y-1/2 sm:right-2.5">
-          <LoadingSpinner size="sm" className="text-zinc-500 dark:text-zinc-400" />
+          <LoadingSpinner
+            size="sm"
+            className="text-zinc-500 dark:text-zinc-400"
+          />
         </div>
       )}
     </span>

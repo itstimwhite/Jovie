@@ -62,7 +62,7 @@ jobs:
           temporaryPublicStorage: true
 
       - name: ZAP Baseline DAST
-        uses: zaproxy/action-baseline@v0.10.0
+        uses: zaproxy/action-baseline@v0.14.0
         with:
           target: ${{ steps.vercel.outputs.url }}
           cmd_options: '-a'

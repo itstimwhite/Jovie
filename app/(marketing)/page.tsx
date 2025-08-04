@@ -2,9 +2,15 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { HomeHero } from '@/components/home/HomeHero';
 import { FeaturedArtists } from '@/components/home/FeaturedArtists';
+import { ProblemStatement } from '@/components/home/ProblemStatement';
+import { HowItWorks } from '@/components/home/HowItWorks';
+import { BenefitsSection } from '@/components/home/BenefitsSection';
+import { ComparisonSection } from '@/components/home/ComparisonSection';
+import { PreFooterCTA } from '@/components/home/PreFooterCTA';
 import { APP_NAME, APP_URL } from '@/constants/app';
 
-export const dynamic = 'force-dynamic';
+// Root layout handles dynamic rendering
+export const revalidate = 3600; // Revalidate every hour
 
 export async function generateMetadata(): Promise<Metadata> {
   const title = `${APP_NAME} - Link in bio for music artists`;
@@ -130,32 +136,59 @@ export default function HomePage() {
         }}
       />
 
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-50">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent" />
-        </div>
+      {/* Linear-inspired design with dark theme and subtle gradients */}
+      <div className="relative min-h-screen bg-[#0D0E12] text-white">
+        {/* Subtle grid background pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
 
-        {/* Floating Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-gradient-to-tr from-pink-500/20 to-purple-500/20 blur-3xl" />
-        </div>
+        {/* Gradient orbs - more subtle like Linear */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full blur-3xl" />
 
         {/* Hero Section */}
         <HomeHero />
 
-        {/* Featured Artists Carousel */}
-        <Suspense
-          fallback={
-            <div className="py-16 text-center text-white">
-              Loading featured artists...
-            </div>
-          }
-        >
-          <FeaturedArtists />
-        </Suspense>
+        {/* Content sections with Linear-style spacing */}
+        <div className="relative z-10">
+          {/* Featured Artists with glass morphism */}
+          <section className="py-24">
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center py-16">
+                  <div className="animate-pulse text-white/60">
+                    Loading featured artists...
+                  </div>
+                </div>
+              }
+            >
+              <FeaturedArtists />
+            </Suspense>
+          </section>
+
+          {/* Problem Statement with Linear-style cards */}
+          <section className="py-24 border-t border-white/5">
+            <ProblemStatement />
+          </section>
+
+          {/* How It Works with step indicators */}
+          <section className="py-24 border-t border-white/5">
+            <HowItWorks />
+          </section>
+
+          {/* Benefits with grid layout */}
+          <section className="py-24 border-t border-white/5">
+            <BenefitsSection />
+          </section>
+
+          {/* Comparison with modern table design */}
+          <section className="py-24 border-t border-white/5">
+            <ComparisonSection />
+          </section>
+        </div>
       </div>
+
+      {/* CTA section with glass morphism */}
+      <PreFooterCTA />
     </>
   );
 }
