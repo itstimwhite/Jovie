@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { DataCard } from '@/components/ui/DataCard';
+import { InfoBox } from '@/components/ui/InfoBox';
 import { createBrowserClient } from '@/lib/supabase';
 import { buildSpotifyArtistUrl } from '@/lib/spotify';
 import { Artist, Release } from '@/types/db';
@@ -62,20 +64,13 @@ export function ListenNowForm({ artist }: ListenNowFormProps) {
               </p>
             </div>
 
-            <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-              <h4 className="font-medium mb-2">How it works:</h4>
-              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                <li>
-                  • We automatically detect your latest release from Spotify
-                </li>
-                <li>
-                  • If no recent release is found, we link to your artist page
-                </li>
-                <li>
-                  • The link updates automatically when you release new music
-                </li>
+            <InfoBox title="How it works:">
+              <ul className="space-y-1">
+                <li>• We automatically detect your latest release from Spotify</li>
+                <li>• If no recent release is found, we link to your artist page</li>
+                <li>• The link updates automatically when you release new music</li>
               </ul>
-            </div>
+            </InfoBox>
           </div>
         </CardContent>
       </Card>
@@ -88,31 +83,24 @@ export function ListenNowForm({ artist }: ListenNowFormProps) {
           <CardContent>
             <div className="space-y-3">
               {releases.map((release, index) => (
-                <div
+                <DataCard
                   key={release.id}
-                  className="flex items-center justify-between rounded-lg border border-gray-200 p-3 dark:border-gray-700"
-                >
-                  <div>
-                    <p className="font-medium">{release.title}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {release.release_date
-                        ? new Date(release.release_date).toLocaleDateString()
-                        : 'No date'}
-                    </p>
-                    {index === 0 && (
-                      <span className="inline-block mt-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full dark:bg-green-900 dark:text-green-200">
-                        Currently featured
-                      </span>
-                    )}
-                  </div>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => window.open(release.url, '_blank')}
-                  >
-                    View
-                  </Button>
-                </div>
+                  title={release.title}
+                  subtitle={release.release_date
+                    ? new Date(release.release_date).toLocaleDateString()
+                    : 'No date'}
+                  badge={index === 0 ? 'Currently featured' : undefined}
+                  badgeVariant={index === 0 ? 'success' : 'default'}
+                  actions={
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => window.open(release.url, '_blank')}
+                    >
+                      View
+                    </Button>
+                  }
+                />
               ))}
             </div>
           </CardContent>

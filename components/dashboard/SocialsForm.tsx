@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
+import { FormField } from '@/components/ui/FormField';
+import { Form } from '@/components/ui/Form';
+import { DataCard } from '@/components/ui/DataCard';
+import { useFormState } from '@/lib/hooks/useFormState';
 import { createBrowserClient } from '@/lib/supabase';
 import { SocialLink } from '@/types/db';
 import { SOCIAL_PLATFORMS, MAX_SOCIAL_LINKS } from '@/constants/app';
@@ -16,8 +21,7 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [newPlatform, setNewPlatform] = useState('');
   const [newUrl, setNewUrl] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { loading, error, success, handleAsync, setError } = useFormState();
   const supabase = createBrowserClient();
 
   useEffect(() => {
@@ -48,10 +52,7 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
       return;
     }
 
-    setLoading(true);
-    setError('');
-
-    try {
+    await handleAsync(async () => {
       const { data, error } = await supabase
         .from('social_links')
         .insert({
@@ -67,12 +68,7 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
       setSocialLinks([...socialLinks, data]);
       setNewPlatform('');
       setNewUrl('');
-    } catch (error) {
-      console.error('Error adding social link:', error);
-      setError('Failed to add social link');
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   const handleDeleteLink = async (linkId: string) => {
@@ -96,45 +92,41 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
           <CardTitle>Add Social Link</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleAddLink} className="space-y-4">
+          <Form 
+            onSubmit={handleAddLink} 
+            loading={loading} 
+            error={error} 
+            success={success}
+          >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Platform
-                </label>
-                <select
+              <FormField label="Platform" required>
+                <Select
+                  options={SOCIAL_PLATFORMS.map(platform => ({
+                    value: platform,
+                    label: platform.charAt(0).toUpperCase() + platform.slice(1)
+                  }))}
+                  placeholder="Select platform"
                   value={newPlatform}
                   onChange={(e) => setNewPlatform(e.target.value)}
-                  className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-50"
                   required
-                >
-                  <option value="">Select platform</option>
-                  {SOCIAL_PLATFORMS.map((platform) => (
-                    <option key={platform} value={platform}>
-                      {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                />
+              </FormField>
 
-              <Input
-                label="URL"
-                placeholder="https://..."
-                value={newUrl}
-                onChange={(e) => setNewUrl(e.target.value)}
-                type="url"
-                required
-              />
+              <FormField label="URL" required>
+                <Input
+                  placeholder="https://..."
+                  value={newUrl}
+                  onChange={(e) => setNewUrl(e.target.value)}
+                  type="url"
+                  required
+                />
+              </FormField>
             </div>
-
-            {error && (
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-            )}
 
             <Button type="submit" disabled={loading || !newPlatform || !newUrl}>
               {loading ? 'Adding...' : 'Add Link'}
             </Button>
-          </form>
+          </Form>
         </CardContent>
       </Card>
 
@@ -150,27 +142,21 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
           ) : (
             <div className="space-y-3">
               {socialLinks.map((link) => (
-                <div
+                <DataCard
                   key={link.id}
-                  className="flex items-center justify-between rounded-lg border border-gray-200 p-3 dark:border-gray-700"
-                >
-                  <div>
-                    <p className="font-medium capitalize">{link.platform}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                      {link.url}
-                    </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-500">
-                      {link.clicks} clicks
-                    </p>
-                  </div>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => handleDeleteLink(link.id)}
-                  >
-                    Delete
-                  </Button>
-                </div>
+                  title={link.platform.charAt(0).toUpperCase() + link.platform.slice(1)}
+                  subtitle={link.url}
+                  metadata={`${link.clicks} clicks`}
+                  actions={
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => handleDeleteLink(link.id)}
+                    >
+                      Delete
+                    </Button>
+                  }
+                />
               ))}
             </div>
           )}
