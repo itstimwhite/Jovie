@@ -56,7 +56,9 @@ jobs:
     needs: test-and-build
     runs-on: ubuntu-latest
     if: success()
-
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
