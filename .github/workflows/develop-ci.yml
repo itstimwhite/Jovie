@@ -79,7 +79,12 @@ jobs:
 
       - name: Create PR to preview
         if: steps.check-ahead.outputs.develop_ahead == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Debug: Check if GH_TOKEN is set
+          echo "GH_TOKEN is set: $([ ! -z "$GH_TOKEN" ] && echo "YES" || echo "NO")"
+          
           # Create a new branch from develop
           git checkout -b auto-promote/preview
           
@@ -107,7 +112,12 @@ jobs:
 
       - name: Auto-merge PR to preview
         if: steps.check-ahead.outputs.develop_ahead == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Debug: Check if GH_TOKEN is set
+          echo "GH_TOKEN is set: $([ ! -z "$GH_TOKEN" ] && echo "YES" || echo "NO")"
+          
           # Get the PR number
           PR_NUMBER=$(gh pr list --base preview --head auto-promote/preview --json number --jq '.[0].number')
           
