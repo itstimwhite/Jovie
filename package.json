@@ -26,7 +26,8 @@
     "format:check": "prettier --check .",
     "postbuild": "next-sitemap",
     "verify-artist-images": "node scripts/verify-artist-images.js",
-    "update-artist-images": "node scripts/update-artist-images.js"
+    "update-artist-images": "node scripts/update-artist-images.js",
+    "ensure-valid-artist-images": "node scripts/ensure-valid-artist-images.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.28.1",
