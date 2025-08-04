@@ -67,6 +67,8 @@ jobs:
       - name: Check if develop is ahead of preview
         id: check-ahead
         run: |
+          # Ensure we have the preview branch
+          git fetch origin preview:preview
           if [ "$(git rev-list --count preview..develop)" -gt 0 ]; then
             echo "develop_ahead=true" >> $GITHUB_OUTPUT
           else
