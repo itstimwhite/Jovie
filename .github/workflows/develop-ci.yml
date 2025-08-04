@@ -97,7 +97,7 @@ jobs:
             - This PR will be auto-merged if all checks pass
             - Preview deployment will be triggered automatically
             - Production PR will be created for manual review
-          branch: auto-promote/preview-$(date +%s)
+          branch: auto-promote/preview
           delete-branch: true
 
       - name: Auto-merge PR to preview
