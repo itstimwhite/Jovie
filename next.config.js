@@ -4,10 +4,16 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
   output: 'standalone',
   serverExternalPackages: ['@clerk/nextjs'],
   // Disable static generation to prevent Clerk context issues during build
   trailingSlash: false,
+  // Build optimizations
+  poweredByHeader: false,
+  compress: true,
   images: {
     remotePatterns: [
       {
@@ -65,9 +71,32 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
     optimizePackageImports: ['@headlessui/react', '@heroicons/react'],
+    // Build optimizations
+    forceSwcTransforms: true,
+    swcTraceProfiling: false,
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
+  },
+  // Webpack optimizations
+  webpack: (config, { dev, isServer }) => {
+    if (!dev && !isServer) {
+      // Optimize bundle size
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+            },
+          },
+        },
+      };
+    }
+    return config;
   },
 };
 
