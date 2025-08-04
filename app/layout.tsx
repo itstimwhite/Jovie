@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     google: 'your-google-verification-code',
   },
   other: {
-    'apple-mobile-web-app-capable': 'yes',
+    'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'default',
     'apple-mobile-web-app-title': APP_NAME,
     'application-name': APP_NAME,

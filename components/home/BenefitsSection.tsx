@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 
 export function BenefitsSection() {
-  const defaultAccent = 'violet';
+  const defaultAccent = 'blue';
 
   const benefits = [
     {
@@ -22,7 +22,7 @@ export function BenefitsSection() {
           />
         </svg>
       ),
-      accent: 'violet',
+      accent: 'blue',
     },
     {
       title: 'Smart Preferences',
@@ -42,7 +42,7 @@ export function BenefitsSection() {
           />
         </svg>
       ),
-      accent: 'violet',
+      accent: 'purple',
     },
     {
       title: 'Zero Distractions',
@@ -68,15 +68,15 @@ export function BenefitsSection() {
           />
         </svg>
       ),
-      accent: 'violet',
+      accent: 'cyan',
     },
   ];
 
   return (
-    <section className="relative bg-white py-24 sm:py-32">
+    <section className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+          <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
             Built exclusively for musicians
           </h2>
         </div>
@@ -89,23 +89,23 @@ export function BenefitsSection() {
                 <div key={benefit.title} className="text-center">
                   <div
                     className={cn(
-                      'mx-auto flex h-12 w-12 items-center justify-center rounded-full text-white shadow-xs bg-linear-to-br',
+                      'mx-auto flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg bg-gradient-to-br',
                       `from-${accent}-500 to-${accent}-600`
                     )}
                   >
                     {benefit.icon}
                   </div>
-                  <h3 className="mt-6 text-xl font-bold text-gray-900">
+                  <h3 className="mt-6 text-xl font-semibold text-white">
                     {benefit.title}
                   </h3>
                   {/* Accent dot */}
                   <div
                     className={cn(
                       'mx-auto mt-3 h-1 w-1 rounded-full',
-                      `bg-${accent}-500`
+                      `bg-${accent}-400`
                     )}
                   />
-                  <p className="mt-4 text-gray-600 leading-relaxed">
+                  <p className="mt-4 text-white/70 leading-relaxed">
                     {benefit.description}
                   </p>
                 </div>

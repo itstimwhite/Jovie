@@ -18,12 +18,12 @@ export default function TermsPage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-[#0D0E12]">
       <main className="flex-1 py-12">
         <Container>
           <div className="mx-auto max-w-3xl">
             <div
-              className="prose prose-gray max-w-none dark:prose-invert"
+              className="prose prose-invert max-w-none prose-headings:text-white prose-p:text-white/70 prose-a:text-blue-400 prose-strong:text-white prose-code:text-white prose-pre:bg-white/5 prose-pre:border prose-pre:border-white/10"
               dangerouslySetInnerHTML={{ __html: contentHtml }}
             />
           </div>

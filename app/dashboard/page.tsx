@@ -74,10 +74,10 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#0D0E12]">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white"></div>
+          <p className="mt-4 text-white/70">Loading...</p>
         </div>
       </div>
     );
@@ -88,15 +88,15 @@ export default function DashboardPage() {
       <PendingClaimRunner />
 
       {!artist ? (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-black">
+        <div className="min-h-screen bg-[#0D0E12]">
           <Container>
             <div className="flex min-h-screen items-center justify-center py-12">
-              <Card className="w-full max-w-md">
+              <Card className="w-full max-w-md bg-white/5 backdrop-blur-sm border border-white/10">
                 <CardHeader className="text-center">
-                  <CardTitle className="text-2xl font-semibold">
+                  <CardTitle className="text-2xl font-semibold text-white">
                     Welcome to {APP_NAME}
                   </CardTitle>
-                  <p className="mt-2 text-gray-600 dark:text-gray-400">
+                  <p className="mt-2 text-white/70">
                     Claim your jov.ie handle to launch your artist profile
                   </p>
                 </CardHeader>
@@ -108,12 +108,12 @@ export default function DashboardPage() {
           </Container>
         </div>
       ) : (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="min-h-screen bg-[#0D0E12]">
           <Container>
             <div className="py-8">
               <div className="mb-8">
-                <h1 className="text-3xl font-bold">Dashboard</h1>
-                <p className="mt-2 text-gray-600 dark:text-gray-400">
+                <h1 className="text-3xl font-semibold text-white">Dashboard</h1>
+                <p className="mt-2 text-white/70">
                   Manage your {APP_NAME} profile
                 </p>
               </div>
@@ -122,16 +122,16 @@ export default function DashboardPage() {
                 <ProfileLinkCard artist={artist} />
               </div>
 
-              <div className="border-b border-gray-200 dark:border-gray-700">
+              <div className="border-b border-white/10">
                 <nav className="-mb-px flex space-x-8">
                   {tabs.map((tab) => (
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                      className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors ${
                         activeTab === tab.id
-                          ? 'border-gray-900 text-gray-900 dark:border-gray-50 dark:text-gray-50'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                          ? 'border-white text-white'
+                          : 'border-transparent text-white/50 hover:text-white/70 hover:border-white/30'
                       }`}
                     >
                       {tab.label}

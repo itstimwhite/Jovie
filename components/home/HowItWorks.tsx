@@ -63,13 +63,13 @@ export function HowItWorks() {
   ];
 
   return (
-    <section className="relative bg-gray-50 py-24 sm:py-32">
+    <section className="relative py-24 sm:py-32">
       {/* Section accent border */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-orange-400 to-orange-600" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-blue-500/50 via-purple-500/50 to-cyan-500/50" />
 
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+          <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
             From Spotify artist to converting fans in 60 seconds
           </h2>
         </div>
@@ -77,23 +77,23 @@ export function HowItWorks() {
           <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
             {steps.map((step, index) => (
               <div key={step.number} className="relative">
-                {/* Connection line - Apple-style */}
+                {/* Connection line - Linear-style */}
                 {index < steps.length - 1 && (
-                  <div className="absolute left-1/2 top-8 hidden h-px w-full -translate-x-1/2 bg-linear-to-r from-orange-400/50 to-orange-600/50 md:block" />
+                  <div className="absolute left-1/2 top-8 hidden h-px w-full -translate-x-1/2 bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-cyan-500/30 md:block" />
                 )}
 
                 <div className="text-center">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br from-orange-500 to-orange-600 text-white shadow-xs">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg">
                     {step.icon}
                   </div>
                   <div className="mt-6">
-                    <div className="text-xs font-semibold uppercase tracking-wider text-orange-600">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-blue-400">
                       Step {step.number}
                     </div>
-                    <h3 className="mt-3 text-xl font-bold text-gray-900">
+                    <h3 className="mt-3 text-xl font-semibold text-white">
                       {step.title}
                     </h3>
-                    <p className="mt-3 text-gray-600 leading-relaxed">
+                    <p className="mt-3 text-white/70 leading-relaxed">
                       {step.description}
                     </p>
                   </div>

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Combobox } from '@/components/ui/Combobox';
 import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
-import { Button } from '@/components/ui/Button';
 import { SpotifyArtist } from '@/types/common';
 import { FEATURE_FLAGS } from '@/constants/app';
 
@@ -49,7 +48,14 @@ export function ArtistSearch() {
     updateQuery(value);
   };
 
-  const handleClaimClick = () => {
+  // Convert Spotify artists to Combobox options
+  const options = results.map((artist) => ({
+    id: artist.id,
+    name: artist.name,
+    imageUrl: artist.images?.[0]?.url,
+  }));
+
+  const handleSubmit = () => {
     if (selectedArtist) {
       handleArtistSelect({
         id: selectedArtist.id,
@@ -59,66 +65,30 @@ export function ArtistSearch() {
     }
   };
 
-  // Convert Spotify artists to Combobox options
-  const options = results.map((artist) => ({
-    id: artist.id,
-    name: artist.name,
-    imageUrl: artist.images?.[0]?.url,
-  }));
-
   return (
-    <div className="w-full space-y-6">
-      {/* Search Field with Inline Claim Button */}
-      <div className="relative">
-        <div className="flex items-center rounded-xl border border-white/20 bg-white/5 backdrop-blur-xs ring-1 ring-white/10 focus-within:ring-2 focus-within:ring-purple-400/50 transition-all duration-200">
-          <div className="flex-1">
-            <Combobox
-              options={options}
-              value={
-                selectedArtist
-                  ? {
-                      id: selectedArtist.id,
-                      name: selectedArtist.name,
-                      imageUrl: selectedArtist.images?.[0]?.url,
-                    }
-                  : null
+    <div className="w-full max-w-2xl mx-auto">
+      <Combobox
+        options={options}
+        value={
+          selectedArtist
+            ? {
+                id: selectedArtist.id,
+                name: selectedArtist.name,
+                imageUrl: selectedArtist.images?.[0]?.url,
               }
-              onChange={handleArtistSelect}
-              onInputChange={handleInputChange}
-              placeholder="Search your Spotify artist name..."
-              isLoading={isLoading}
-              className="w-full border-0 bg-transparent text-white placeholder-white/60 focus:ring-0"
-            />
-          </div>
-
-          {/* Inline Claim Button */}
-          <div className="flex items-center pr-2">
-            <Button
-              onClick={handleClaimClick}
-              disabled={!selectedArtist}
-              variant="primary"
-              size="sm"
-              className="rounded-lg bg-linear-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-            >
-              Claim Profile
-            </Button>
-          </div>
-        </div>
-
-        {error && (
-          <div className="mt-2 text-center">
-            <p className="text-red-400 text-sm">{error}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Help Text */}
-      <div className="text-center">
-        <p className="text-sm text-white/60">
-          Don&apos;t see your artist? Make sure you have a verified Spotify
-          artist profile.
-        </p>
-      </div>
+            : null
+        }
+        onChange={handleArtistSelect}
+        onInputChange={handleInputChange}
+        onSubmit={handleSubmit}
+        placeholder="Search for your artist on Spotify..."
+        label="Search for your artist on Spotify"
+        isLoading={isLoading}
+        error={error}
+        ctaText="Claim Profile"
+        showCta={true}
+        className="w-full"
+      />
     </div>
   );
 }

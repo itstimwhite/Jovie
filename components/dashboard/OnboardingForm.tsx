@@ -1,123 +1,135 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { createBrowserClient } from '@/lib/supabase';
-import {
-  onboardingSchema,
-  OnboardingValues,
-} from '@/lib/validation/onboarding';
-import { Input } from '@/components/ui/Input';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
-import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import { Input } from '@/components/ui/Input';
 
 export function OnboardingForm() {
-  const router = useRouter();
   const { user } = useUser();
+  const router = useRouter();
+  const [handle, setHandle] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const [isHandleAvailable, setIsHandleAvailable] = useState<boolean | null>(
-    null
-  );
-
-  const form = useForm<OnboardingValues>({
-    resolver: zodResolver(onboardingSchema),
-    defaultValues: {
-      handle: '',
-    },
-  });
-
-  const handle = form.watch('handle');
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const checkHandle = async () => {
-      if (handle.length < 3) {
-        setIsHandleAvailable(null);
+    // Check for pending claim
+    const pendingClaim = sessionStorage.getItem('pendingClaim');
+    if (pendingClaim) {
+      try {
+        const claim = JSON.parse(pendingClaim);
+        // Generate a handle from the artist name
+        const suggestedHandle = claim.artistName
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '')
+          .substring(0, 20);
+        setHandle(suggestedHandle);
+      } catch (error) {
+        console.error('Error parsing pending claim:', error);
+      }
+    }
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!handle.trim()) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // Get or create user in database
+      const { data: existingUser, error: userError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('clerk_id', user?.id)
+        .single();
+
+      let userId;
+      if (userError && userError.code === 'PGRST116') {
+        const { data: newUser, error: createUserError } = await supabase
+          .from('users')
+          .insert({
+            clerk_id: user?.id,
+            email: user?.primaryEmailAddress?.emailAddress || '',
+          })
+          .select('id')
+          .single();
+
+        if (createUserError) throw createUserError;
+        userId = newUser.id;
+      } else if (userError) {
+        throw userError;
+      } else {
+        userId = existingUser.id;
+      }
+
+      // Check if handle is available
+      const { data: existingArtist } = await supabase
+        .from('artists')
+        .select('id')
+        .eq('handle', handle)
+        .single();
+
+      if (existingArtist) {
+        setError('This handle is already taken. Please choose another one.');
         return;
       }
 
-      const response = await fetch(`/api/handle/check?handle=${handle}`);
-      const { available } = await response.json();
-      setIsHandleAvailable(available);
-    };
+      // Create artist profile
+      const { error: artistError } = await supabase
+        .from('artists')
+        .insert({
+          owner_user_id: userId,
+          handle: handle.toLowerCase(),
+          name: 'Your Artist Name',
+          published: true,
+        })
+        .select('*')
+        .single();
 
-    const debounce = setTimeout(() => {
-      checkHandle();
-    }, 500);
+      if (artistError) {
+        throw artistError;
+      }
 
-    return () => clearTimeout(debounce);
-  }, [handle]);
+      // Clear pending claim
+      sessionStorage.removeItem('pendingClaim');
 
-  const onSubmit = async (values: OnboardingValues) => {
-    setLoading(true);
-
-    try {
-      const supabase = createBrowserClient();
-      const artistName = sessionStorage.getItem('pendingClaim')
-        ? JSON.parse(sessionStorage.getItem('pendingClaim')!).artistName
-        : 'New Artist';
-
-      await supabase.from('artists').insert({
-        owner_user_id: user!.id,
-        name: artistName,
-        handle: values.handle,
-        tagline: 'Artist',
-      });
-
+      // Redirect to dashboard
       router.push('/dashboard');
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      form.setError('handle', {
-        type: 'manual',
-        message: 'An unexpected error occurred. Please try again.',
-      });
+    } catch (error) {
+      console.error('Error creating artist profile:', error);
+      setError('Failed to create artist profile. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-      <div className="relative">
-        <Input
-          {...form.register('handle')}
-          placeholder="your-handle"
-          autoFocus
-          maxLength={24}
-          className="h-12 pl-16"
-        />
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-          jov.ie/
-        </span>
-        <div className="absolute right-4 top-1/2 -translate-y-1/2">
-          {isHandleAvailable === true && (
-            <CheckCircleIcon className="h-6 w-6 text-green-500" />
-          )}
-          {isHandleAvailable === false && (
-            <XCircleIcon className="h-6 w-6 text-red-500" />
-          )}
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-white/70 mb-1">
+          Choose your jov.ie handle
+        </label>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-white/50">jov.ie/</span>
+          <Input
+            value={handle}
+            onChange={(e) => setHandle(e.target.value.toLowerCase())}
+            placeholder="yourname"
+            className="flex-1"
+            required
+          />
         </div>
       </div>
-      {form.formState.errors.handle && (
-        <p className="-mt-4 text-sm text-red-500" aria-live="polite">
-          {form.formState.errors.handle.message}
-        </p>
-      )}
 
-      <Button
-        type="submit"
-        className="w-full rounded-md py-3"
-        disabled={!form.formState.isValid || !isHandleAvailable || loading}
-      >
-        {loading ? 'Saving...' : 'Get started'}
+      {error && <p className="text-sm text-red-400">{error}</p>}
+
+      <Button type="submit" disabled={loading} className="w-full">
+        {loading ? 'Creating Profile...' : 'Create Profile'}
       </Button>
-
-      <p className="text-center text-xs text-slate-400">
-        You can change this later in Settings.
-      </p>
     </form>
   );
 }

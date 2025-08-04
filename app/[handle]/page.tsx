@@ -225,7 +225,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         }}
       />
       <ArtistSEO artist={artist} socialLinks={socialLinks} />
-      <div className="min-h-screen bg-white dark:bg-gray-900">
+      <div className="min-h-screen bg-[#0D0E12]">
         <Container>
           <div className="flex min-h-screen flex-col py-12">
             <div className="flex-1 flex flex-col items-center justify-center">
