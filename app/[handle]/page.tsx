@@ -8,8 +8,7 @@ import { ListenNow } from '@/components/profile/ListenNow';
 import { SocialBar } from '@/components/profile/SocialBar';
 import { ProfileFooter } from '@/components/profile/ProfileFooter';
 import { ArtistSEO } from '@/components/seo/ArtistSEO';
-import { ArtistThemeProvider } from '@/components/profile/ArtistThemeProvider';
-import { ArtistThemeToggle } from '@/components/profile/ArtistThemeToggle';
+import { ThemeToggle } from '@/components/site/ThemeToggle';
 
 interface ProfilePageProps {
   params: Promise<{
@@ -156,43 +155,38 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         }}
       />
       <ArtistSEO artist={artist} socialLinks={socialLinks} />
-      <ArtistThemeProvider artist={artist}>
-        <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
-          <Container>
-            {/* Theme Toggle */}
-            <div className="absolute top-4 right-4 z-10">
-              <ArtistThemeToggle />
-            </div>
+      <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+        <Container>
+          {/* Theme Toggle */}
+          <div className="absolute top-4 right-4 z-10">
+            <ThemeToggle />
+          </div>
 
-            <div className="flex min-h-screen flex-col py-12">
-              <div className="flex-1 flex flex-col items-center justify-center">
-                <div className="w-full max-w-md space-y-8">
-                  <ProfileHeader artist={artist} />
+          <div className="flex min-h-screen flex-col py-12">
+            <div className="flex-1 flex flex-col items-center justify-center">
+              <div className="w-full max-w-md space-y-8">
+                <ProfileHeader artist={artist} />
 
-                  <div className="flex justify-center">
-                    <ListenNow
-                      handle={artist.handle}
-                      artistName={artist.name}
-                    />
-                  </div>
-
-                  <SocialBar
-                    handle={artist.handle}
-                    artistName={artist.name}
-                    socialLinks={socialLinks}
-                  />
+                <div className="flex justify-center">
+                  <ListenNow handle={artist.handle} artistName={artist.name} />
                 </div>
-              </div>
 
-              <div className="flex justify-center">
-                <div className="w-full max-w-md">
-                  <ProfileFooter artist={artist} />
-                </div>
+                <SocialBar
+                  handle={artist.handle}
+                  artistName={artist.name}
+                  socialLinks={socialLinks}
+                />
               </div>
             </div>
-          </Container>
-        </div>
-      </ArtistThemeProvider>
+
+            <div className="flex justify-center">
+              <div className="w-full max-w-md">
+                <ProfileFooter artist={artist} />
+              </div>
+            </div>
+          </div>
+        </Container>
+      </div>
     </>
   );
 }
