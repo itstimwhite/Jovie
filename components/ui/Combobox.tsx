@@ -142,7 +142,6 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                 <div className="relative flex-1">
                   <Headless.Combobox.Input
                     id={inputId}
-                    role="combobox"
                     aria-controls={listboxId}
                     aria-expanded={open}
                     aria-describedby={error ? errorId : undefined}
@@ -267,7 +266,6 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                   filteredOptions.map((option) => (
                     <Headless.Combobox.Option
                       key={option.id}
-                      role="option"
                       className={({ active }) =>
                         clsx(
                           'relative cursor-pointer select-none px-4 py-3 transition-colors',

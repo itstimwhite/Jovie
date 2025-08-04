@@ -33,7 +33,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
       if (error) {
         console.error('Error updating artist:', error);
       } else {
-        onUpdate(data);
+        onUpdate(data as unknown as Artist);
       }
     } catch (error) {
       console.error('Error:', error);

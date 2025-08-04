@@ -35,25 +35,34 @@ export default function DashboardPage() {
     if (!user) return;
 
     try {
+      // First get the user's database ID
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('clerk_id', user.id)
+        .single();
+
+      if (userError) {
+        console.error('Error fetching user:', userError);
+        return;
+      }
+
+      if (!userData?.id) {
+        console.error('No user ID found');
+        return;
+      }
+
+      // Then get the artist data
       const { data, error } = await supabase
         .from('artists')
         .select('*')
-        .eq(
-          'owner_user_id',
-          (
-            await supabase
-              .from('users')
-              .select('id')
-              .eq('clerk_id', user.id)
-              .single()
-          )?.data?.id
-        )
+        .eq('owner_user_id', userData.id)
         .single();
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching artist:', error);
       } else {
-        setArtist(data);
+        setArtist(data as Artist | null);
       }
     } catch (error) {
       console.error('Error:', error);

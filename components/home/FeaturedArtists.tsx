@@ -23,7 +23,7 @@ export function FeaturedArtists() {
         .select('id, handle, name, image_url')
         .eq('published', true)
         .order('name');
-      setArtists(data || []);
+      setArtists((data as unknown as Artist[]) || []);
     })();
   }, []);
 

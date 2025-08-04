@@ -17,6 +17,9 @@ export interface Artist {
   settings?: {
     hide_branding?: boolean;
   };
+  spotify_url?: string;
+  apple_music_url?: string;
+  youtube_url?: string;
   published: boolean;
   is_verified: boolean;
   created_at: string;

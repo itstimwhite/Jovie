@@ -28,8 +28,10 @@ export function AnalyticsCards({ artistId }: AnalyticsCardsProps) {
           console.error('Error fetching social analytics:', socialError);
         } else {
           const totalSocialClicks =
-            socialLinks?.reduce((sum, link) => sum + (link.clicks || 0), 0) ||
-            0;
+            socialLinks?.reduce(
+              (sum, link) => sum + (Number(link.clicks) || 0),
+              0
+            ) || 0;
           setAnalytics((prev) => ({
             ...prev,
             socialClicks: totalSocialClicks,

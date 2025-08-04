@@ -41,10 +41,15 @@ export function OnboardingForm() {
 
     try {
       // Get or create user in database
+      if (!user?.id) {
+        setError('User not found. Please sign in again.');
+        setLoading(false);
+        return;
+      }
       const { data: existingUser, error: userError } = await supabase
         .from('users')
         .select('id')
-        .eq('clerk_id', user?.id)
+        .eq('clerk_id', user.id)
         .single();
 
       let userId;

@@ -25,7 +25,7 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
       if (error) {
         console.error('Error fetching social links:', error);
       } else {
-        setSocialLinks(data || []);
+        setSocialLinks((data as unknown as SocialLink[]) || []);
       }
     } catch (error) {
       console.error('Error:', error);
