@@ -81,7 +81,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: preview
-          head: develop
           title: "🚀 Auto-promote develop to preview"
           body: |
             ## Auto-promotion from develop to preview
