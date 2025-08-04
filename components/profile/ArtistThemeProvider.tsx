@@ -75,12 +75,15 @@ export function ArtistThemeProvider({
     }
   };
 
+  // Ensure resolvedTheme is always 'light' or 'dark'
+  const safeResolvedTheme: 'light' | 'dark' = resolvedTheme || 'light';
+
   return (
     <ArtistThemeContext.Provider
       value={{
         theme: artistTheme,
         setTheme: handleSetTheme,
-        resolvedTheme,
+        resolvedTheme: safeResolvedTheme,
         isCustomTheme,
       }}
     >

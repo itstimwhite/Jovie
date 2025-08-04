@@ -12,7 +12,6 @@ const nextConfig = {
   // Disable static generation to prevent Clerk context issues during build
   trailingSlash: false,
   // Build optimizations
-  swcMinify: true,
   poweredByHeader: false,
   compress: true,
   images: {
