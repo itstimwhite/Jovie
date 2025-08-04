@@ -15,10 +15,6 @@ export default defineConfig({
         singleFork: true,
       },
     },
-    // Faster execution
-    threads: true,
-    maxThreads: 4,
-    minThreads: 2,
     // Coverage optimization
     coverage: {
       provider: 'v8',
