@@ -76,7 +76,10 @@ export function ArtistThemeProvider({
   };
 
   // Ensure resolvedTheme is always 'light' or 'dark'
-  const safeResolvedTheme: 'light' | 'dark' = resolvedTheme || 'light';
+  const safeResolvedTheme: 'light' | 'dark' =
+    resolvedTheme === 'light' || resolvedTheme === 'dark'
+      ? resolvedTheme
+      : 'light';
 
   return (
     <ArtistThemeContext.Provider
