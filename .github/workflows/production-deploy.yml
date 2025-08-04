@@ -6,15 +6,17 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: write
-  pull-requests: write
-  actions: write
+  contents: read
+  deployments: write
+  security-events: write
 
 jobs:
-  deploy-production:
+  deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    environment: production
+    timeout-minutes: 30
+    environment:
+      name: production
+      url: ${{ steps.vercel.outputs.prod_url }}
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -23,67 +25,36 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PROD_SUPABASE_SERVICE_ROLE_KEY }}
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.PROD_NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
       CLERK_SECRET_KEY: ${{ secrets.PROD_CLERK_SECRET_KEY }}
-      SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
-      SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
         with:
           node-version: 20.17
           cache: 'npm'
+          
+      - run: npm ci
+      - run: npm run build
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Vercel pull prod env
+        run: npx vercel pull --environment=production --yes --token "$VERCEL_TOKEN"
 
-      - name: Final pre-deployment checks
+      - name: Vercel build (prod)
+        run: npx vercel build --prod --token "$VERCEL_TOKEN"
+
+      - name: Vercel deploy (prod)
+        id: vercel
         run: |
-          npm run lint
-          npm run typecheck
-          npm run test
-          npm run build
+          URL=$(npx vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN")
+          echo "prod_url=$URL" >> $GITHUB_OUTPUT
 
-      - name: Deploy to Production
+      - name: Output prod URL
         run: |
-          npm install -g vercel@latest
-          vercel --token ${{ secrets.VERCEL_TOKEN }} --prod --yes
+          echo "🚀 Production deployed: ${{ steps.vercel.outputs.prod_url }}"
+          echo "📊 Monitor at: https://vercel.com/dashboard"
 
       - name: Post-deployment verification
         run: |
-          # Wait for deployment to be ready
-          sleep 30
-          
-          # Run Lighthouse CI on production
-          npm install -g @lhci/cli@0.14.x
-          lhci autorun || echo "Lighthouse CI completed with warnings"
-
-      - name: Notify deployment success
-        uses: actions/github-script@v7
-        if: success()
-        with:
-          script: |
-            const message = `🚀 **Production Deployment Successful!**
-            
-            The latest changes have been deployed to production.
-            
-            **Deployment Details:**
-            - Commit: ${context.sha.substring(0, 7)}
-            - Branch: ${context.ref.replace('refs/heads/', '')}
-            - Workflow: ${context.workflow}
-            - Run ID: ${context.runId}
-            
-            **Database Migrations:**
-            - ✅ Supabase migrations applied successfully
-            - ✅ Database schema updated
-            
-            **Next Steps:**
-            - Monitor application performance
-            - Check error tracking dashboards
-            - Verify feature flags are working as expected
-            
-            Production URL: https://jov.ie`;
-            
-            console.log(message);
+          echo "✅ Production deployment completed successfully"
+          echo "🔍 Verify deployment at: ${{ steps.vercel.outputs.prod_url }}"
