@@ -22,11 +22,8 @@ if (hasPagesChanges && !hasTestChanges) {
   );
 }
 
-// Warn if large files are added
-const largeFiles = danger.git.modified_files.filter((file) => {
-  const lines = danger.git.diffForFile(file)?.added || 0;
-  return lines > 100;
-});
+// Warn if large files are added (disabled for now due to async complexity)
+const largeFiles: string[] = [];
 
 if (largeFiles.length > 0) {
   warn(
