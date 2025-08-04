@@ -24,7 +24,9 @@
     "a11y:ci": "playwright test -g @a11y",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "postbuild": "next-sitemap"
+    "postbuild": "next-sitemap",
+    "verify-artist-images": "node scripts/verify-artist-images.js",
+    "update-artist-images": "node scripts/update-artist-images.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.28.1",
