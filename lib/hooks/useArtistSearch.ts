@@ -97,11 +97,13 @@ export function useArtistSearch({
         }
 
         const data = await response.json();
-        const searchResults = data.artists || [];
+        console.log('Search API response:', data);
+
+        const searchResults = data || [];
         const duration = performance.now() - startTime;
 
         console.log(
-          `Artist search took ${duration}ms for query: "${searchQuery}"`
+          `Artist search took ${duration}ms for query: "${searchQuery}", found ${searchResults.length} results`
         );
 
         // Cache the results

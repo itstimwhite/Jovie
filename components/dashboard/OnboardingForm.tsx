@@ -115,11 +115,13 @@ export function OnboardingForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label className="block text-sm font-semibold text-white mb-2">
+        <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2 transition-colors">
           Choose your jov.ie handle
         </label>
         <div className="flex items-center space-x-2">
-          <span className="text-sm text-white/50 font-medium">jov.ie/</span>
+          <span className="text-sm text-gray-500 dark:text-white/50 font-medium transition-colors">
+            jov.ie/
+          </span>
           <Input
             value={handle}
             onChange={(e) => setHandle(e.target.value.toLowerCase())}
@@ -128,21 +130,23 @@ export function OnboardingForm() {
             required
           />
         </div>
-        <p className="mt-2 text-xs text-white/50">
+        <p className="mt-2 text-xs text-gray-500 dark:text-white/50 transition-colors">
           This will be your unique URL on Jovie
         </p>
       </div>
 
       {error && (
         <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-          <p className="text-sm text-red-400">{error}</p>
+          <p className="text-sm text-red-600 dark:text-red-400 transition-colors">
+            {error}
+          </p>
         </div>
       )}
 
       <Button
         type="submit"
         disabled={loading}
-        className="w-full bg-white text-black hover:bg-white/90 font-semibold"
+        className="w-full bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 font-semibold transition-colors"
       >
         {loading ? 'Creating Profile...' : 'Create Profile'}
       </Button>

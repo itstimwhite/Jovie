@@ -51,12 +51,14 @@ export function AnalyticsCards({ artistId }: AnalyticsCardsProps) {
   if (loading) {
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-white">Analytics</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">
+          Analytics
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-24 bg-white/10 rounded-lg animate-pulse"
+              className="h-24 bg-gray-100 dark:bg-white/10 rounded-lg animate-pulse transition-colors"
             />
           ))}
         </div>
@@ -66,25 +68,33 @@ export function AnalyticsCards({ artistId }: AnalyticsCardsProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-white">Analytics</h3>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">
+        Analytics
+      </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4">
-          <div className="text-2xl font-semibold text-white">
+        <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-lg p-4 transition-colors">
+          <div className="text-2xl font-semibold text-gray-900 dark:text-white transition-colors">
             {analytics.totalClicks}
           </div>
-          <div className="text-sm text-white/70">Total Clicks</div>
+          <div className="text-sm text-gray-600 dark:text-white/70 transition-colors">
+            Total Clicks
+          </div>
         </div>
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4">
-          <div className="text-2xl font-semibold text-white">
+        <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-lg p-4 transition-colors">
+          <div className="text-2xl font-semibold text-gray-900 dark:text-white transition-colors">
             {analytics.spotifyClicks}
           </div>
-          <div className="text-sm text-white/70">Spotify Clicks</div>
+          <div className="text-sm text-gray-600 dark:text-white/70 transition-colors">
+            Spotify Clicks
+          </div>
         </div>
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4">
-          <div className="text-2xl font-semibold text-white">
+        <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-lg p-4 transition-colors">
+          <div className="text-2xl font-semibold text-gray-900 dark:text-white transition-colors">
             {analytics.socialClicks}
           </div>
-          <div className="text-sm text-white/70">Social Clicks</div>
+          <div className="text-sm text-gray-600 dark:text-white/70 transition-colors">
+            Social Clicks
+          </div>
         </div>
       </div>
     </div>

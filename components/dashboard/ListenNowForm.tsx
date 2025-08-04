@@ -47,10 +47,12 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-white">Listen Now Links</h3>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">
+        Listen Now Links
+      </h3>
       <div className="space-y-3">
         <div>
-          <label className="block text-sm font-medium text-white/70 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-white/70 mb-1 transition-colors">
             Spotify URL
           </label>
           <Input
@@ -62,7 +64,7 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-white/70 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-white/70 mb-1 transition-colors">
             Apple Music URL
           </label>
           <Input
@@ -74,7 +76,7 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-white/70 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-white/70 mb-1 transition-colors">
             YouTube URL
           </label>
           <Input

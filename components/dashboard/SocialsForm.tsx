@@ -62,10 +62,15 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
   if (loading) {
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-white">Social Links</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">
+          Social Links
+        </h3>
         <div className="animate-pulse space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-10 bg-white/10 rounded-lg" />
+            <div
+              key={i}
+              className="h-10 bg-gray-100 dark:bg-white/10 rounded-lg transition-colors"
+            />
           ))}
         </div>
       </div>
@@ -74,11 +79,13 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-white">Social Links</h3>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">
+        Social Links
+      </h3>
       <div className="space-y-3">
         {socialLinks.map((link) => (
           <div key={link.id} className="flex items-center space-x-3">
-            <div className="w-24 text-sm font-medium text-white/70 capitalize">
+            <div className="w-24 text-sm font-medium text-gray-700 dark:text-white/70 capitalize transition-colors">
               {link.platform}
             </div>
             <Input
@@ -88,7 +95,11 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
               placeholder={`Your ${link.platform} URL`}
               className="flex-1"
             />
-            {saving && <div className="text-xs text-white/50">Saving...</div>}
+            {saving && (
+              <div className="text-xs text-gray-500 dark:text-white/50 transition-colors">
+                Saving...
+              </div>
+            )}
           </div>
         ))}
       </div>

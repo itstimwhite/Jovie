@@ -44,10 +44,12 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-white">Profile Information</h3>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">
+        Profile Information
+      </h3>
       <div className="space-y-3">
         <div>
-          <label className="block text-sm font-medium text-white/70 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-white/70 mb-1 transition-colors">
             Artist Name
           </label>
           <Input
@@ -58,7 +60,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-white/70 mb-1">
+          <label className="block text-sm font-medium text-gray-700 dark:text-white/70 mb-1 transition-colors">
             Tagline
           </label>
           <Textarea

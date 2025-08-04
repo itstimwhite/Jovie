@@ -38,7 +38,7 @@ export function HomeHero() {
               link-in-bio
             </span>
             <span className="block leading-none text-white/90">
-              for musicians
+              Built for musicians
             </span>
           </h1>
 
