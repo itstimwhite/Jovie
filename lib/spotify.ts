@@ -19,11 +19,16 @@ async function getSpotifyToken(): Promise<string> {
   }
 
   try {
+    const basicAuth =
+      typeof Buffer !== 'undefined'
+        ? Buffer.from(`${clientId}:${clientSecret}`).toString('base64')
+        : btoa(`${clientId}:${clientSecret}`);
+
     const response = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+        Authorization: `Basic ${basicAuth}`,
       },
       body: 'grant_type=client_credentials',
     });
