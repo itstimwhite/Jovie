@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useTheme } from 'next-themes';
 import { Artist } from '@/types/db';
 
 export type ArtistTheme = 'light' | 'dark' | 'auto';
@@ -25,61 +26,36 @@ export function ArtistThemeProvider({
   children,
   artist,
 }: ArtistThemeProviderProps) {
-  const [theme, setTheme] = useState<ArtistTheme>('auto');
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
+  const { setTheme: setSystemTheme, resolvedTheme } = useTheme();
+  const [artistTheme, setArtistTheme] = useState<ArtistTheme>('auto');
   const [isCustomTheme, setIsCustomTheme] = useState(false);
 
   // Initialize theme from artist settings or default to auto
   useEffect(() => {
-    const artistTheme = artist.theme as { mode?: ArtistTheme } | undefined;
-    if (artistTheme?.mode) {
-      setTheme(artistTheme.mode);
+    const artistThemeData = artist.theme as { mode?: ArtistTheme } | undefined;
+    if (artistThemeData?.mode) {
+      setArtistTheme(artistThemeData.mode);
       setIsCustomTheme(true);
+      // Set the system theme to match artist preference
+      if (artistThemeData.mode !== 'auto') {
+        setSystemTheme(artistThemeData.mode);
+      }
     } else {
-      setTheme('auto');
+      setArtistTheme('auto');
       setIsCustomTheme(false);
     }
-  }, [artist.theme]);
-
-  // Resolve the actual theme based on artist preference and system preference
-  useEffect(() => {
-    const updateResolvedTheme = () => {
-      if (theme === 'auto') {
-        // Use system preference
-        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
-          .matches
-          ? 'dark'
-          : 'light';
-        setResolvedTheme(systemTheme);
-      } else {
-        setResolvedTheme(theme);
-      }
-    };
-
-    updateResolvedTheme();
-
-    // Listen for system theme changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => {
-      if (theme === 'auto') {
-        updateResolvedTheme();
-      }
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme]);
-
-  // Update document class when theme changes
-  useEffect(() => {
-    const root = document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(resolvedTheme);
-  }, [resolvedTheme]);
+  }, [artist.theme, setSystemTheme]);
 
   const handleSetTheme = async (newTheme: ArtistTheme) => {
-    setTheme(newTheme);
+    setArtistTheme(newTheme);
     setIsCustomTheme(true);
+
+    // Update the system theme
+    if (newTheme === 'auto') {
+      setSystemTheme('system');
+    } else {
+      setSystemTheme(newTheme);
+    }
 
     // Save theme preference to database
     try {
@@ -102,7 +78,7 @@ export function ArtistThemeProvider({
   return (
     <ArtistThemeContext.Provider
       value={{
-        theme,
+        theme: artistTheme,
         setTheme: handleSetTheme,
         resolvedTheme,
         isCustomTheme,
