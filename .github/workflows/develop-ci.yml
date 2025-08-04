@@ -35,22 +35,11 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: List build output
-        run: |
-          echo "=== Current directory ==="
-          pwd
-          echo "=== Directory contents ==="
-          ls -la
-          echo "=== .next directory (if exists) ==="
-          ls -la .next/ 2>/dev/null || echo ".next directory not found"
-          echo "=== .next/standalone directory (if exists) ==="
-          ls -la .next/standalone/ 2>/dev/null || echo ".next/standalone directory not found"
-
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: build-output
-          path: .next
+          path: .next/standalone
           retention-days: 1
 
   deploy:
@@ -79,7 +68,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-output
-          path: .next
+          path: .next/standalone
 
       - name: Vercel pull preview env
         run: npx vercel pull --environment=preview --yes --token "$VERCEL_TOKEN"
@@ -146,16 +135,16 @@ jobs:
           title: 'Auto-promote: develop → preview'
           body: |
             🤖 **Automated Promotion**
-            
+
             This PR automatically promotes changes from `develop` to `preview`.
-            
+
             **Changes included:**
             - Latest develop branch changes
             - All CI checks passed ✅
             - Ready for preview deployment
-            
+
             **Auto-merge enabled** - This PR will be automatically merged when all checks pass.
-            
+
             **Deployment URL:** ${{ steps.vercel.outputs.url }}
           branch: auto-promote/preview
           base: preview
