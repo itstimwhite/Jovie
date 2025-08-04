@@ -58,7 +58,7 @@ jobs:
     if: success()
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -84,13 +84,13 @@ jobs:
         run: |
           # Debug: Check if GH_TOKEN is set
           echo "GH_TOKEN is set: $([ ! -z "$GH_TOKEN" ] && echo "YES" || echo "NO")"
-          
+
           # Create a new branch from develop
           git checkout -b auto-promote/preview
-          
+
           # Push the branch
           git push origin auto-promote/preview
-          
+
           # Create PR using GitHub CLI
           gh pr create \
             --base preview \
@@ -122,8 +122,19 @@ jobs:
           PR_NUMBER=$(gh pr list --base preview --head auto-promote/preview --json number --jq '.[0].number')
           
           if [ ! -z "$PR_NUMBER" ]; then
-            # Enable auto-merge
-            gh pr merge $PR_NUMBER --squash --auto
+            echo "Found PR #$PR_NUMBER, attempting to enable auto-merge..."
+            
+            # Try to enable auto-merge
+            if gh pr merge $PR_NUMBER --squash --auto; then
+              echo "✅ Auto-merge enabled successfully for PR #$PR_NUMBER"
+              echo "PR URL: https://github.com/itstimwhite/Jovie/pull/$PR_NUMBER"
+            else
+              echo "⚠️ Auto-merge failed - this may be due to branch protection rules"
+              echo "PR URL: https://github.com/itstimwhite/Jovie/pull/$PR_NUMBER"
+              echo "Please check the PR manually and merge if needed"
+              # Don't fail the workflow, just log the issue
+              exit 0
+            fi
           else
             echo "No PR found to merge"
             exit 1
