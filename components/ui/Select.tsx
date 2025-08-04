@@ -1,0 +1,78 @@
+import React, { forwardRef } from 'react';
+import { cn } from '@/lib/utils';
+
+interface SelectOption {
+  value: string;
+  label: string;
+  disabled?: boolean;
+}
+
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  options: SelectOption[];
+  placeholder?: string;
+  label?: string;
+  error?: string;
+  required?: boolean;
+}
+
+export const Select = forwardRef<HTMLSelectElement, SelectProps>(
+  (
+    {
+      options,
+      placeholder = 'Select an option',
+      label,
+      error,
+      required = false,
+      className,
+      ...props
+    },
+    ref
+  ) => {
+    const selectElement = (
+      <select
+        ref={ref}
+        className={cn(
+          'block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm',
+          'focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500',
+          'dark:border-gray-600 dark:bg-gray-800 dark:text-gray-50',
+          'disabled:opacity-50 disabled:cursor-not-allowed',
+          error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
+          className
+        )}
+        {...props}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((option) => (
+          <option
+            key={option.value}
+            value={option.value}
+            disabled={option.disabled}
+          >
+            {option.label}
+          </option>
+        ))}
+      </select>
+    );
+
+    if (label || error) {
+      return (
+        <div className="space-y-2">
+          {label && (
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {label}
+              {required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+          )}
+          {selectElement}
+          {error && (
+            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          )}
+        </div>
+      );
+    }
+
+    return selectElement;
+  }
+);
+
+Select.displayName = 'Select';
