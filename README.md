@@ -198,3 +198,5 @@ For support and questions:
 ---
 
 Built with ❤️ for musicians everywhere.
+
+# Test CI with Vercel secrets
