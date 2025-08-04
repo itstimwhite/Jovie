@@ -9,10 +9,10 @@ INSERT INTO artists (handle, spotify_id, name, image_url, tagline, published, is
   ('billieeilish', '6qqNVTkY8uBg9cP3Jd7DAH', 'Billie Eilish', 'https://i.scdn.co/image/ab6761610000e5eb6qqNVTkY8uBg9cP3Jd7DAH', 'Artist', true, false),
   ('marshmello', '64KEffDW9EtZ1y2vBYgq8T', 'Marshmello', 'https://i.scdn.co/image/ab6761610000e5eb64KEffDW9EtZ1y2vBYgq8T', 'Artist', true, false),
   ('rihanna', '5pKCCKE2ajJHZ9KAiaK11H', 'Rihanna', 'https://i.scdn.co/image/ab6761610000e5eb5pKCCKE2ajJHZ9KAiaK11H', 'Artist', true, false),
-  ('calvinharris', '7CajNmpbOovFoOoasH2HaY', 'Calvin Harris', 'https://i.scdn.co/image/ab6761610000e5eb7CajNmpbOovfoOQ5XGgU9h', 'Artist', true, false),
-  ('sabrinacarpenter', '74KM79TiuVKeVCqs8QtB0B', 'Sabrina Carpenter', 'https://i.scdn.co/image/ab6761610000e5eb1mU3m3BcHkbdQAYM9u0h3q', 'Artist', true, false),
-  ('thechainsmokers', '69GGBxA162lTqCwzJG5jLp', 'The Chainsmokers', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Artist', true, false),
-  ('dualipa', '6M2wZ9GZgrQXHCFfjv46we', 'Dua Lipa', 'https://i.scdn.co/image/ab6761610000e5eb8b0b5c5c5c5c5c5c5c5c5c5c', 'Artist', true, false),
+  ('calvinharris', '7CajNmpbOovFoOoasH2HaY', 'Calvin Harris', 'https://i.scdn.co/image/ab6761610000e5eb7CajNmpbOovFoOoasH2HaY', 'Artist', true, false),
+  ('sabrinacarpenter', '74KM79TiuVKeVCqs8QtB0B', 'Sabrina Carpenter', 'https://i.scdn.co/image/ab6761610000e5eb74KM79TiuVKeVCqs8QtB0B', 'Artist', true, false),
+  ('thechainsmokers', '69GGBxA162lTqCwzJG5jLp', 'The Chainsmokers', 'https://i.scdn.co/image/ab6761610000e5eb69GGBxA162lTqCwzJG5jLp', 'Artist', true, false),
+  ('dualipa', '6M2wZ9GZgrQXHCFfjv46we', 'Dua Lipa', 'https://i.scdn.co/image/ab6761610000e5eb6M2wZ9GZgrQXHCFfjv46we', 'Artist', true, false),
   ('tim', '4Uwpa6zW3zzCSQvooQNksm', 'Tim White', 'https://i.scdn.co/image/ab6761610000e5eb4Uwpa6zW3zzCSQvooQNksm', 'Artist', true, true)
 ON CONFLICT (handle) DO UPDATE SET
   spotify_id = EXCLUDED.spotify_id,

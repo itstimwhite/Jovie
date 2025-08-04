@@ -39,14 +39,14 @@ WHERE handle = 'rihanna';
 -- Update Calvin Harris
 UPDATE artists
 SET
-  image_url = 'https://i.scdn.co/image/ab6761610000e5eb7CajNmpbOovfoOQ5XGgU9h',
+  image_url = 'https://i.scdn.co/image/ab6761610000e5eb7CajNmpbOovFoOoasH2HaY',
   tagline = 'Summer - Funk Wav Bounces Vol. 1'
 WHERE handle = 'calvinharris';
 
 -- Update Sabrina Carpenter
 UPDATE artists
 SET
-  image_url = 'https://i.scdn.co/image/ab6761610000e5eb1mU3m3BcHkbdQAYM9u0h3q',
+  image_url = 'https://i.scdn.co/image/ab6761610000e5eb74KM79TiuVKeVCqs8QtB0B',
   tagline = 'Nonsense - Emails I Cant Send'
 WHERE handle = 'sabrinacarpenter';
 
