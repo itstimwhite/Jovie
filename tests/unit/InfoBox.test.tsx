@@ -218,7 +218,7 @@ describe('InfoBox', () => {
   });
 
   it('handles empty children gracefully', () => {
-    render(<InfoBox title="Test" />);
+    render(<InfoBox title="Test">{null}</InfoBox>);
 
     expect(screen.getByText('Test')).toBeInTheDocument();
   });
