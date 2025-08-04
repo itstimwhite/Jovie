@@ -90,6 +90,8 @@ jobs:
           
           if [ ! -z "$EXISTING_PR" ]; then
             echo "PR #$EXISTING_PR already exists, updating branch instead of creating new PR"
+            # Create the branch locally first
+            git checkout -b auto-promote/preview
             # Force push to update the existing branch
             git push origin auto-promote/preview --force
             echo "Branch updated for existing PR #$EXISTING_PR"
