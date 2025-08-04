@@ -1,0 +1,58 @@
+name: Reusable Build
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        default: '20.17'
+        type: string
+      cache-key:
+        description: 'Cache key for npm'
+        required: false
+        default: 'npm'
+        type: string
+    outputs:
+      build-artifact:
+        description: 'Build artifact path'
+        value: ${{ jobs.build.outputs.build-artifact }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      build-artifact: ${{ steps.build.outputs.artifact-path }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: ${{ inputs.cache-key }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck --if-present
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Test
+        run: npm run test:ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: .next
+          retention-days: 1
+        id: build
+
+      - name: Set artifact path
+        run: echo "artifact-path=.next" >> $GITHUB_OUTPUT 

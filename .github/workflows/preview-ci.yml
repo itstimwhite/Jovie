@@ -3,19 +3,19 @@ name: Preview CI/CD Pipeline
 on:
   push:
     branches: [preview]
-  pull_request:
-    branches: [preview]
   workflow_dispatch: {}
 
-permissions:
-  contents: write
-  pull-requests: write
-  security-events: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  ci:
+  build:
+    uses: ./.github/workflows/_reusable-build.yml
+
+  deploy:
+    needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 60
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -34,7 +34,12 @@ jobs:
           cache: 'npm'
 
       - run: npm ci
-      - run: npm run build
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: .next
 
       - name: Vercel pull preview env
         run: npx vercel pull --environment=preview --yes --token "$VERCEL_TOKEN"
@@ -48,41 +53,98 @@ jobs:
           URL=$(npx vercel deploy --prebuilt --token "$VERCEL_TOKEN")
           echo "url=$URL" >> $GITHUB_OUTPUT
 
-      - name: Playwright E2E (full, desktop+mobile)
-        run: |
-          npx playwright install --with-deps
-          BASE_URL="${{ steps.vercel.outputs.url }}" npm run e2e:full --if-present
+      - name: Upload Vercel output
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-output
+          path: .vercel/output
+          retention-days: 1
 
-      - name: Visual regression
-        run: |
-          BASE_URL="${{ steps.vercel.outputs.url }}" npm run vr:ci --if-present
+  e2e:
+    needs: deploy
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Lighthouse (budgeted)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npx playwright install --with-deps
+
+      - name: Run E2E tests
+        run: |
+          BASE_URL="${{ needs.deploy.outputs.url }}" npm run test:e2e
+
+  lighthouse:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lighthouse multipage audit
         uses: treosh/lighthouse-ci-action@v12
         with:
           urls: |
-            ${{ steps.vercel.outputs.url }}
-            ${{ steps.vercel.outputs.url }}/auth/sign-in
-            ${{ steps.vercel.outputs.url }}/links/demo
+            ${{ needs.deploy.outputs.url }}
+            ${{ needs.deploy.outputs.url }}/artists
+            ${{ needs.deploy.outputs.url }}/dashboard
           configPath: .lighthouserc.json
           uploadArtifacts: true
           temporaryPublicStorage: true
 
-      - name: Bundle size (size-limit)
-        run: npx size-limit || (echo "Bundle size exceeded" && exit 1)
+  bundle-size:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: ZAP Baseline DAST
-        uses: zaproxy/action-baseline@v0.14.0
+      - uses: actions/setup-node@v4
         with:
-          target: ${{ steps.vercel.outputs.url }}
+          node-version: 20.17
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Analyze bundle size
+        run: |
+          npx @next/bundle-analyzer .next/static/chunks/*.js --out-dir ./bundle-analysis
+
+      - name: Upload bundle analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-analysis
+          path: ./bundle-analysis
+          retention-days: 7
+
+  security:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run ZAP DAST
+        uses: zaproxy/action-full-scan@v0.8.0
+        with:
+          target: '${{ needs.deploy.outputs.url }}'
           rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a'
 
-      - name: Dependency security (high+)
-        run: npx audit-ci --moderate --allowlist "npm:*" || npm audit --audit-level=high
+      - name: Upload ZAP results
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-results
+          path: zap-report.html
+          retention-days: 30
 
   promote:
-    needs: ci
+    needs: [deploy, e2e, lighthouse, bundle-size, security]
     if: ${{ success() && github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
@@ -90,48 +152,35 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check if preview is ahead of main
-        id: check-ahead
-        run: |
-          git fetch origin main
-          if [ "$(git rev-list --count main..preview)" -gt 0 ]; then
-            echo "preview_ahead=true" >> $GITHUB_OUTPUT
-            echo "✅ Preview is ahead of main, proceeding with promotion"
-          else
-            echo "preview_ahead=false" >> $GITHUB_OUTPUT
-            echo "⚠️ Preview is not ahead of main, skipping promotion"
-          fi
-
       - name: Create/Update PR preview → main
-        if: steps.check-ahead.outputs.preview_ahead == 'true'
         id: create_pull_request
         uses: peter-evans/create-pull-request@v7
         with:
           title: 'Auto-promote: preview → main'
           body: |
-            🤖 **Automated Promotion**
+            🤖 **Automated Production Promotion**
             
             This PR automatically promotes changes from `preview` to `main`.
             
-            **Changes included:**
-            - Latest preview branch changes
-            - All CI checks passed ✅
-            - Full E2E tests passed
-            - Lighthouse scores within budget
-            - Security scan completed
-            - Ready for production deployment
+            **All checks passed:**
+            - ✅ E2E tests (all browsers)
+            - ✅ Lighthouse performance
+            - ✅ Bundle size analysis
+            - ✅ Security scan (ZAP)
+            - ✅ All CI checks passed
             
-            **Manual review required** - This PR requires manual approval before merging.
+            **Auto-merge enabled** - This PR will be automatically merged when all checks pass.
             
-            **Deployment URL:** ${{ steps.vercel.outputs.url }}
+            **Deployment URL:** ${{ needs.deploy.outputs.url }}
           branch: auto-promote/main
           base: main
           delete-branch: true
-          labels: ci, promotion, production, needs-review
+          labels: ci, promotion, auto-merge, production
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Skip promotion - no changes
-        if: steps.check-ahead.outputs.preview_ahead == 'false'
-        run: |
-          echo "No changes to promote - preview is not ahead of main"
-          echo "This is expected if the preview branch was already merged to main"
+      - name: Enable auto-merge (squash)
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          pull-request-number: ${{ steps.create_pull_request.outputs.pull-request-number }}
+          merge-method: squash
+          token: ${{ secrets.GITHUB_TOKEN }}

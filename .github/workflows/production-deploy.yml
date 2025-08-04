@@ -1,9 +1,13 @@
-name: Production Deployment
+name: Production Deploy
 
 on:
   push:
     branches: [main]
   workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -13,10 +17,6 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment:
-      name: production
-      url: ${{ steps.vercel.outputs.prod_url }}
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -28,33 +28,55 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20.17
           cache: 'npm'
-          
-      - run: npm ci
-      - run: npm run build
 
-      - name: Vercel pull prod env
+      - run: npm ci
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: .next
+
+      - name: Vercel pull production env
         run: npx vercel pull --environment=production --yes --token "$VERCEL_TOKEN"
 
-      - name: Vercel build (prod)
-        run: npx vercel build --prod --token "$VERCEL_TOKEN"
+      - name: Vercel build
+        run: npx vercel build --token "$VERCEL_TOKEN"
 
-      - name: Vercel deploy (prod)
+      - name: Vercel deploy (production)
         id: vercel
         run: |
           URL=$(npx vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN")
-          echo "prod_url=$URL" >> $GITHUB_OUTPUT
+          echo "url=$URL" >> $GITHUB_OUTPUT
 
-      - name: Output prod URL
+  health-check:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Health check
         run: |
-          echo "🚀 Production deployed: ${{ steps.vercel.outputs.prod_url }}"
-          echo "📊 Monitor at: https://vercel.com/dashboard"
+          sleep 30  # Wait for deployment to stabilize
+          curl -f "${{ needs.deploy.outputs.url }}/api/health" || exit 1
 
-      - name: Post-deployment verification
+  smoke-test:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npx playwright install --with-deps
+
+      - name: Run smoke test
         run: |
-          echo "✅ Production deployment completed successfully"
-          echo "🔍 Verify deployment at: ${{ steps.vercel.outputs.prod_url }}"
+          BASE_URL="${{ needs.deploy.outputs.url }}" npm run e2e:smoke

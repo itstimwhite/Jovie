@@ -3,18 +3,19 @@ name: Develop CI/CD Pipeline
 on:
   push:
     branches: [develop]
-  pull_request:
-    branches: [develop]
   workflow_dispatch: {}
 
-permissions:
-  contents: write
-  pull-requests: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  ci:
+  build:
+    uses: ./.github/workflows/_reusable-build.yml
+
+  deploy:
+    needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 40
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -34,10 +35,11 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run typecheck --if-present
-      - run: npm run lint --if-present
-      - run: npm run test:ci
-      - run: npm run build
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: .next
 
       - name: Vercel pull preview env
         run: npx vercel pull --environment=preview --yes --token "$VERCEL_TOKEN"
@@ -51,11 +53,18 @@ jobs:
           URL=$(npx vercel deploy --prebuilt --token "$VERCEL_TOKEN")
           echo "url=$URL" >> $GITHUB_OUTPUT
 
-      # Temporarily disabled E2E tests due to environment setup issues
-      # - name: Playwright E2E (smoke)
-      #   run: |
-      #     npx playwright install --with-deps
-      #     BASE_URL="${{ steps.vercel.outputs.url }}" npm run e2e:smoke --if-present
+      - name: Upload Vercel output
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-output
+          path: .vercel/output
+          retention-days: 1
+
+      # Basic smoke test (1-2 happy paths)
+      - name: Smoke test
+        run: |
+          npx playwright install --with-deps
+          BASE_URL="${{ steps.vercel.outputs.url }}" npm run e2e:smoke --if-present
 
       - name: Lighthouse budgets
         uses: treosh/lighthouse-ci-action@v12
@@ -69,7 +78,7 @@ jobs:
         run: npx audit-ci --moderate --allowlist "npm:*" || npm audit --audit-level=high
 
   promote:
-    needs: ci
+    needs: deploy
     if: ${{ success() && github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
