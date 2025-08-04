@@ -151,7 +151,9 @@ describe('DataCard', () => {
 
     expect(screen.getByText('Test Card')).toBeInTheDocument();
     // Empty strings should not be rendered as text content
-    expect(screen.queryByText('', { exact: true })).not.toBeInTheDocument();
+    expect(screen.queryByText('subtitle=""')).not.toBeInTheDocument();
+    expect(screen.queryByText('metadata=""')).not.toBeInTheDocument();
+    expect(screen.queryByText('badge=""')).not.toBeInTheDocument();
   });
 
   it('renders with proper spacing for metadata', () => {

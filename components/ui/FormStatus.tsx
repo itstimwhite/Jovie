@@ -26,11 +26,11 @@ export function FormStatus({
         </div>
       )}
 
-      {error && (
+      {error && error.trim() !== '' && (
         <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
       )}
 
-      {success && (
+      {success && success.trim() !== '' && (
         <p className="text-sm text-green-600 dark:text-green-400">{success}</p>
       )}
     </div>

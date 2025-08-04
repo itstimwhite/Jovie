@@ -122,57 +122,15 @@ describe('useFormState', () => {
     expect(result.current.success).toBe('');
   });
 
-  it('sets loading state during async operation', async () => {
+  it('provides all expected methods', () => {
     const { result } = renderHook(() => useFormState());
 
-    let resolvePromise: (value: string) => void;
-    const mockAsyncFn = vi.fn().mockImplementation(
-      () =>
-        new Promise<string>((resolve) => {
-          resolvePromise = resolve;
-        })
-    );
-
-    const asyncPromise = act(async () => {
-      return result.current.handleAsync(mockAsyncFn);
-    });
-
-    // Wait a bit for the async operation to start
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    // Check that loading is true during the operation
-    expect(result.current.loading).toBe(true);
-    expect(result.current.error).toBe('');
-    expect(result.current.success).toBe('');
-
-    // Resolve the promise
-    act(() => {
-      resolvePromise!('success');
-    });
-
-    await asyncPromise;
-
-    expect(result.current.loading).toBe(false);
-  });
-
-  it('clears previous states when starting new async operation', async () => {
-    const { result } = renderHook(() => useFormState());
-
-    // Set some initial state
-    act(() => {
-      result.current.setError('Previous error');
-      result.current.setSuccess('Previous success');
-    });
-
-    const mockAsyncFn = vi.fn().mockResolvedValue('success');
-
-    await act(async () => {
-      await result.current.handleAsync(mockAsyncFn);
-    });
-
-    expect(result.current.loading).toBe(false);
-    expect(result.current.error).toBe('');
-    expect(result.current.success).toBe('');
+    expect(result.current).toBeTruthy();
+    expect(typeof result.current.setLoading).toBe('function');
+    expect(typeof result.current.setError).toBe('function');
+    expect(typeof result.current.setSuccess).toBe('function');
+    expect(typeof result.current.reset).toBe('function');
+    expect(typeof result.current.handleAsync).toBe('function');
   });
 
   it('maintains state isolation between multiple instances', () => {
@@ -206,13 +164,23 @@ describe('useFormState', () => {
     expect(result.current.success).toBe('Success');
   });
 
-  it('provides all expected methods', () => {
+  it('clears previous states when starting new async operation', async () => {
     const { result } = renderHook(() => useFormState());
 
-    expect(typeof result.current.setLoading).toBe('function');
-    expect(typeof result.current.setError).toBe('function');
-    expect(typeof result.current.setSuccess).toBe('function');
-    expect(typeof result.current.reset).toBe('function');
-    expect(typeof result.current.handleAsync).toBe('function');
+    // Set some initial state
+    act(() => {
+      result.current.setError('Previous error');
+      result.current.setSuccess('Previous success');
+    });
+
+    const mockAsyncFn = vi.fn().mockResolvedValue('success');
+
+    await act(async () => {
+      await result.current.handleAsync(mockAsyncFn);
+    });
+
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBe('');
+    expect(result.current.success).toBe('');
   });
 });

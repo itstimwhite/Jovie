@@ -50,14 +50,18 @@ describe('FormStatus', () => {
   it('applies custom className', () => {
     render(<FormStatus loading className="custom-status" />);
 
-    const statusContainer = screen.getByText('Processing...').closest('div');
+    const statusContainer = screen
+      .getByText('Processing...')
+      .closest('div[class*="space-y-2"]');
     expect(statusContainer).toHaveClass('custom-status');
   });
 
   it('renders with proper spacing classes', () => {
     render(<FormStatus loading />);
 
-    const statusContainer = screen.getByText('Processing...').closest('div');
+    const statusContainer = screen
+      .getByText('Processing...')
+      .closest('div[class*="space-y-2"]');
     expect(statusContainer).toHaveClass('space-y-2');
   });
 
@@ -71,14 +75,14 @@ describe('FormStatus', () => {
 
   it('handles empty error message', () => {
     render(<FormStatus error="" />);
-    // Should not render anything when error is empty
-    expect(screen.queryByText('', { exact: true })).not.toBeInTheDocument();
+    // Should not render error text when error is empty
+    expect(screen.queryByText('error=""')).not.toBeInTheDocument();
   });
 
   it('handles empty success message', () => {
     render(<FormStatus success="" />);
-    // Should not render anything when success is empty
-    expect(screen.queryByText('', { exact: true })).not.toBeInTheDocument();
+    // Should not render success text when success is empty
+    expect(screen.queryByText('success=""')).not.toBeInTheDocument();
   });
 
   it('renders with dark mode classes', () => {

@@ -41,7 +41,7 @@ export function DataCard({
       <div className="flex-1 min-w-0">
         <div className="flex items-center space-x-2">
           <p className="font-medium truncate">{title}</p>
-          {badge && (
+          {badge && badge.trim() !== '' && (
             <span
               className={cn(
                 'inline-block px-2 py-1 text-xs rounded-full',
@@ -52,12 +52,12 @@ export function DataCard({
             </span>
           )}
         </div>
-        {subtitle && (
+        {subtitle && subtitle.trim() !== '' && (
           <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
             {subtitle}
           </p>
         )}
-        {metadata && (
+        {metadata && metadata.trim() !== '' && (
           <p className="text-xs text-gray-400 dark:text-gray-500">{metadata}</p>
         )}
         {children}
