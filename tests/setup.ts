@@ -105,15 +105,9 @@ vi.mock('@/components/ui/OptimizedImage', () => ({
 
 // Mock PlaceholderImage component
 vi.mock('@/components/ui/PlaceholderImage', () => ({
-  PlaceholderImage: ({
-    width,
-    height,
-    className,
-    ...props
-  }: React.ComponentProps<'div'>) => {
+  PlaceholderImage: ({ className, ...props }: React.ComponentProps<'div'>) => {
     return React.createElement('div', {
       className: `bg-gray-200 animate-pulse ${className || ''}`,
-      style: { width, height },
       'data-testid': 'placeholder-image',
       ...props,
     });
