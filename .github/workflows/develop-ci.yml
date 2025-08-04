@@ -84,31 +84,42 @@ jobs:
         run: |
           # Debug: Check if GH_TOKEN is set
           echo "GH_TOKEN is set: $([ ! -z "$GH_TOKEN" ] && echo "YES" || echo "NO")"
+          
+          # Check if a PR already exists
+          EXISTING_PR=$(gh pr list --base preview --head auto-promote/preview --json number --jq '.[0].number')
+          
+          if [ ! -z "$EXISTING_PR" ]; then
+            echo "PR #$EXISTING_PR already exists, updating branch instead of creating new PR"
+            # Force push to update the existing branch
+            git push origin auto-promote/preview --force
+            echo "Branch updated for existing PR #$EXISTING_PR"
+            echo "PR URL: https://github.com/itstimwhite/Jovie/pull/$EXISTING_PR"
+          else
+            # Create a new branch from develop
+            git checkout -b auto-promote/preview
+            
+            # Push the branch
+            git push origin auto-promote/preview
+            
+            # Create PR using GitHub CLI
+            gh pr create \
+              --base preview \
+              --head auto-promote/preview \
+              --title "🚀 Auto-promote develop to preview" \
+              --body "## Auto-promotion from develop to preview
 
-          # Create a new branch from develop
-          git checkout -b auto-promote/preview
+            This PR was automatically created after successful CI checks on the develop branch.
 
-          # Push the branch
-          git push origin auto-promote/preview
+            ### Changes included:
+            - All commits from develop branch
+            - Passed linting, type checking, tests, and build
+            - Lighthouse CI completed
 
-          # Create PR using GitHub CLI
-          gh pr create \
-            --base preview \
-            --head auto-promote/preview \
-            --title "🚀 Auto-promote develop to preview" \
-            --body "## Auto-promotion from develop to preview
-
-          This PR was automatically created after successful CI checks on the develop branch.
-
-          ### Changes included:
-          - All commits from develop branch
-          - Passed linting, type checking, tests, and build
-          - Lighthouse CI completed
-
-          ### Next steps:
-          - This PR will be auto-merged if all checks pass
-          - Preview deployment will be triggered automatically
-          - Production PR will be created for manual review"
+            ### Next steps:
+            - This PR will be auto-merged if all checks pass
+            - Preview deployment will be triggered automatically
+            - Production PR will be created for manual review"
+          fi
 
       - name: Auto-merge PR to preview
         if: steps.check-ahead.outputs.develop_ahead == 'true'
