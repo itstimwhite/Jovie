@@ -64,7 +64,17 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
+      - name: Check if develop is ahead of preview
+        id: check-ahead
+        run: |
+          if [ "$(git rev-list --count preview..develop)" -gt 0 ]; then
+            echo "develop_ahead=true" >> $GITHUB_OUTPUT
+          else
+            echo "develop_ahead=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Create PR to preview
+        if: steps.check-ahead.outputs.develop_ahead == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -85,12 +95,17 @@ jobs:
             - This PR will be auto-merged if all checks pass
             - Preview deployment will be triggered automatically
             - Production PR will be created for manual review
-          branch-suffix: timestamp
+          branch: auto-promote/preview-$(date +%s)
           delete-branch: true
 
       - name: Auto-merge PR to preview
+        if: steps.check-ahead.outputs.develop_ahead == 'true'
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          pull-request-number: ${{ steps.create-pr.outputs.pull-request-number }}
+          repository: itstimwhite/Jovie
           merge-method: squash
+
+      - name: Skip promotion - no changes
+        if: steps.check-ahead.outputs.develop_ahead == 'false'
+        run: echo "No changes to promote - develop is not ahead of preview"

@@ -1,5 +1,8 @@
 {
   "ci": {
+    "collect": {
+      "staticDistDir": ".next"
+    },
     "assert": {
       "assertions": {
         "interactive": ["error", { "maxNumericValue": 1500 }]
