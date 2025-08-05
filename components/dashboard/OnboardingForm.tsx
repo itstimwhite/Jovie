@@ -127,7 +127,6 @@ export function OnboardingForm() {
           onChange={(e) => setHandle(e.target.value)}
           placeholder="your-handle"
           required
-          pattern="[a-zA-Z0-9-]+"
           title="Only letters, numbers, and hyphens allowed"
           className="font-mono"
         />
