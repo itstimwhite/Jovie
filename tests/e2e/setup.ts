@@ -8,7 +8,7 @@ export const test = base.extend({
     // Set up page to handle React context
     await page.addInitScript(() => {
       // Mock React context providers for testing
-      window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
+      (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
         supportsFiber: true,
         inject: () => {},
         onCommitFiberRoot: () => {},
