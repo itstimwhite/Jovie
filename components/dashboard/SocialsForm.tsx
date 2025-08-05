@@ -159,19 +159,20 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
             >
               <Select
                 value={link.platform}
-                onValueChange={(value) =>
-                  updateSocialLink(index, 'platform', value)
+                onChange={(e) =>
+                  updateSocialLink(index, 'platform', e.target.value)
                 }
                 className="w-32"
-              >
-                <option value="instagram">Instagram</option>
-                <option value="twitter">Twitter</option>
-                <option value="tiktok">TikTok</option>
-                <option value="youtube">YouTube</option>
-                <option value="facebook">Facebook</option>
-                <option value="linkedin">LinkedIn</option>
-                <option value="website">Website</option>
-              </Select>
+                options={[
+                  { value: 'instagram', label: 'Instagram' },
+                  { value: 'twitter', label: 'Twitter' },
+                  { value: 'tiktok', label: 'TikTok' },
+                  { value: 'youtube', label: 'YouTube' },
+                  { value: 'facebook', label: 'Facebook' },
+                  { value: 'linkedin', label: 'LinkedIn' },
+                  { value: 'website', label: 'Website' },
+                ]}
+              />
 
               <Input
                 type="url"
