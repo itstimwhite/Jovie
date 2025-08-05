@@ -36,10 +36,10 @@ export function AnalyticsCards({ artistId }: { artistId: string }) {
           console.error('Error fetching analytics:', error);
         } else if (analytics) {
           setData({
-            totalPlays: analytics.total_plays || 0,
-            totalLikes: analytics.total_likes || 0,
-            totalShares: analytics.total_shares || 0,
-            totalComments: analytics.total_comments || 0,
+            totalPlays: (analytics.total_plays as number) || 0,
+            totalLikes: (analytics.total_likes as number) || 0,
+            totalShares: (analytics.total_shares as number) || 0,
+            totalComments: (analytics.total_comments as number) || 0,
           });
         }
       } catch (error) {
@@ -66,31 +66,27 @@ export function AnalyticsCards({ artistId }: { artistId: string }) {
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       <DataCard
         title="Total Plays"
-        value={data.totalPlays.toLocaleString()}
-        icon="play"
-        trend="up"
-        trendValue="12%"
+        subtitle={data.totalPlays.toLocaleString()}
+        badge="+12%"
+        badgeVariant="success"
       />
       <DataCard
         title="Total Likes"
-        value={data.totalLikes.toLocaleString()}
-        icon="heart"
-        trend="up"
-        trendValue="8%"
+        subtitle={data.totalLikes.toLocaleString()}
+        badge="+8%"
+        badgeVariant="success"
       />
       <DataCard
         title="Total Shares"
-        value={data.totalShares.toLocaleString()}
-        icon="share"
-        trend="up"
-        trendValue="15%"
+        subtitle={data.totalShares.toLocaleString()}
+        badge="+15%"
+        badgeVariant="success"
       />
       <DataCard
         title="Total Comments"
-        value={data.totalComments.toLocaleString()}
-        icon="message"
-        trend="up"
-        trendValue="5%"
+        subtitle={data.totalComments.toLocaleString()}
+        badge="+5%"
+        badgeVariant="success"
       />
     </div>
   );

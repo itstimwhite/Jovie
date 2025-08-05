@@ -17,13 +17,13 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
   const [appleMusicUrl, setAppleMusicUrl] = useState(artist.apple_music_url || '');
   const [youtubeUrl, setYoutubeUrl] = useState(artist.youtube_url || '');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setError(undefined);
     setSuccess(false);
 
     try {
@@ -44,7 +44,7 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
         throw error;
       }
 
-      onUpdate(data as Artist);
+      onUpdate(data as unknown as Artist);
       setSuccess(true);
     } catch (error) {
       console.error('Error updating listen now links:', error);
@@ -58,7 +58,6 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <FormField
         label="Spotify URL"
-        description="Your Spotify artist or track URL"
         error={error}
       >
         <Input
@@ -71,7 +70,6 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
 
       <FormField
         label="Apple Music URL"
-        description="Your Apple Music artist or track URL"
       >
         <Input
           type="url"
@@ -83,7 +81,6 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
 
       <FormField
         label="YouTube URL"
-        description="Your YouTube channel or video URL"
       >
         <Input
           type="url"

@@ -5,6 +5,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 // Create a single singleton instance
 let supabaseClient: ReturnType<typeof createClient> | null = null;
+let authenticatedClient: ReturnType<typeof createClient> | null = null;
 
 export function createBrowserClient() {
   if (!supabaseClient) {
@@ -20,28 +21,38 @@ export const supabase = createBrowserClient();
 export async function getAuthenticatedClient() {
   try {
     // Import auth dynamically to avoid SSR issues
-    const { auth } = await import('@clerk/nextjs');
-    const { getToken } = auth();
+    const { auth } = await import('@clerk/nextjs/server');
+    const { getToken } = await auth();
     const token = await getToken({ template: 'supabase' });
 
     if (token) {
-      // Update the existing client's headers with the token
-      supabaseClient!.rest.headers = {
-        ...supabaseClient!.rest.headers,
-        Authorization: `Bearer ${token}`,
-      };
-    } else {
-      // Remove authorization header if no token
-      const { Authorization, ...headers } = supabaseClient!.rest.headers;
-      supabaseClient!.rest.headers = headers;
+      // Create a new authenticated client if we don't have one
+      if (!authenticatedClient) {
+        authenticatedClient = createClient(supabaseUrl, supabaseAnonKey, {
+          global: {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        });
+      } else {
+        // Create a new client with updated headers
+        authenticatedClient = createClient(supabaseUrl, supabaseAnonKey, {
+          global: {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        });
+      }
+      
+      return authenticatedClient;
     }
   } catch (error) {
     console.error('Error getting Supabase token:', error);
-    // Remove authorization header on error
-    const { Authorization, ...headers } = supabaseClient!.rest.headers;
-    supabaseClient!.rest.headers = headers;
   }
 
+  // Fall back to anonymous client
   return supabaseClient!;
 }
 

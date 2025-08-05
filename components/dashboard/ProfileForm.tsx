@@ -15,16 +15,15 @@ interface ProfileFormProps {
 
 export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
   const [name, setName] = useState(artist.name || '');
-  const [bio, setBio] = useState(artist.bio || '');
-  const [location, setLocation] = useState(artist.location || '');
+  const [tagline, setTagline] = useState(artist.tagline || '');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setError(undefined);
     setSuccess(false);
 
     try {
@@ -34,8 +33,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
         .from('artists')
         .update({
           name: name || null,
-          bio: bio || null,
-          location: location || null,
+          tagline: tagline || null,
         })
         .eq('id', artist.id)
         .select('*')
@@ -45,7 +43,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
         throw error;
       }
 
-      onUpdate(data as Artist);
+      onUpdate(data as unknown as Artist);
       setSuccess(true);
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -59,7 +57,6 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <FormField
         label="Artist Name"
-        description="Your display name"
         error={error}
       >
         <Input
@@ -72,26 +69,14 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
       </FormField>
 
       <FormField
-        label="Bio"
-        description="Tell your story"
+        label="Tagline"
+        error={error}
       >
         <Textarea
-          value={bio}
-          onChange={(e) => setBio(e.target.value)}
+          value={tagline}
+          onChange={(e) => setTagline(e.target.value)}
           placeholder="Share your story, music journey, or what inspires you..."
           rows={4}
-        />
-      </FormField>
-
-      <FormField
-        label="Location"
-        description="Where you're based"
-      >
-        <Input
-          type="text"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder="City, Country"
         />
       </FormField>
 

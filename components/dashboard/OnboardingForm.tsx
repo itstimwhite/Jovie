@@ -11,14 +11,14 @@ export function OnboardingForm() {
   const { user } = useUser();
   const [handle, setHandle] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
     setLoading(true);
-    setError(null);
+    setError(undefined);
 
     try {
       // Get authenticated Supabase client
@@ -122,7 +122,6 @@ export function OnboardingForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <FormField
         label="Handle"
-        description="This will be your jov.ie URL"
         error={error}
       >
         <Input
