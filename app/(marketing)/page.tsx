@@ -5,7 +5,7 @@ import { FeaturedArtists } from '@/components/home/FeaturedArtists';
 import { ProblemStatement } from '@/components/home/ProblemStatement';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { BenefitsSection } from '@/components/home/BenefitsSection';
-import { ComparisonSection } from '@/components/home/ComparisonSection';
+import { SocialProofSection } from '@/components/home/ComparisonSection';
 import { PreFooterCTA } from '@/components/home/PreFooterCTA';
 import { APP_NAME, APP_URL } from '@/constants/app';
 
@@ -182,7 +182,7 @@ export default function HomePage() {
 
           {/* Comparison with modern table design */}
           <section className="py-24 border-t border-white/5">
-            <ComparisonSection />
+            <SocialProofSection />
           </section>
         </div>
       </div>

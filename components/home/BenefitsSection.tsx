@@ -1,12 +1,12 @@
 import { cn } from '@/lib/utils';
 
 export function BenefitsSection() {
-  const defaultAccent = 'blue';
-
   const benefits = [
     {
-      title: 'Lightning Fast',
-      description: 'Loads 3× faster than customizable pages.',
+      title: '3.2x Faster Loading',
+      description:
+        'Fans discover your music instantly. No waiting, no bouncing.',
+      metric: '0.8s load time',
       icon: (
         <svg
           className="h-6 w-6"
@@ -25,8 +25,32 @@ export function BenefitsSection() {
       accent: 'blue',
     },
     {
-      title: 'Smart Preferences',
-      description: "Remembers every fan's favorite platform.",
+      title: '47% More Streams',
+      description:
+        'Optimized for conversion. Fans click and stream immediately.',
+      metric: '+47% conversion',
+      icon: (
+        <svg
+          className="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+          />
+        </svg>
+      ),
+      accent: 'green',
+    },
+    {
+      title: 'Smart Fan Routing',
+      description:
+        "Remembers each fan's favorite platform. One click to their preferred streaming service.",
+      metric: '1-click streaming',
       icon: (
         <svg
           className="h-6 w-6"
@@ -44,70 +68,73 @@ export function BenefitsSection() {
       ),
       accent: 'purple',
     },
-    {
-      title: 'Zero Distractions',
-      description: 'One design, no detours—pure music discovery.',
-      icon: (
-        <svg
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-          />
-        </svg>
-      ),
-      accent: 'cyan',
-    },
   ];
 
   return (
     <section className="relative py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="mx-auto max-w-3xl text-center mb-16">
+          <div className="mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-sm font-medium text-green-400">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              The Solution
+            </div>
+          </div>
+
           <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
-            Built exclusively for musicians
+            Built for musicians, optimized for conversion
           </h2>
+
+          <p className="mt-6 text-xl text-white/70">
+            Every element is designed to turn fans into streams. No
+            distractions, just results.
+          </p>
         </div>
-        <div className="mx-auto mt-20 max-w-6xl">
-          <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+
+        <div className="mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {benefits.map((benefit) => {
-              const accent = benefit.accent ?? defaultAccent;
+              const accent = benefit.accent;
 
               return (
-                <div key={benefit.title} className="text-center">
-                  <div
-                    className={cn(
-                      'mx-auto flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg bg-gradient-to-br',
-                      `from-${accent}-500 to-${accent}-600`
-                    )}
-                  >
-                    {benefit.icon}
+                <div key={benefit.title} className="relative group">
+                  <div className="absolute -inset-4 bg-gradient-to-r from-white/5 to-white/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:border-white/20 transition-all duration-300">
+                    <div
+                      className={cn(
+                        'inline-flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-lg bg-gradient-to-br',
+                        `from-${accent}-500 to-${accent}-600`
+                      )}
+                    >
+                      {benefit.icon}
+                    </div>
+
+                    <h3 className="mt-6 text-xl font-semibold text-white">
+                      {benefit.title}
+                    </h3>
+
+                    <div className="mt-2">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/10 text-white/80">
+                        {benefit.metric}
+                      </span>
+                    </div>
+
+                    <p className="mt-4 text-white/70 leading-relaxed">
+                      {benefit.description}
+                    </p>
                   </div>
-                  <h3 className="mt-6 text-xl font-semibold text-white">
-                    {benefit.title}
-                  </h3>
-                  {/* Accent dot */}
-                  <div
-                    className={cn(
-                      'mx-auto mt-3 h-1 w-1 rounded-full',
-                      `bg-${accent}-400`
-                    )}
-                  />
-                  <p className="mt-4 text-white/70 leading-relaxed">
-                    {benefit.description}
-                  </p>
                 </div>
               );
             })}

@@ -1,21 +1,57 @@
 export function ProblemStatement() {
   return (
     <section className="relative py-24 sm:py-32">
-      <div className="mx-auto max-w-4xl px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl text-center">
+          <div className="mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20 text-sm font-medium text-red-400">
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                />
+              </svg>
+              The Problem
+            </div>
+          </div>
+
           <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
-            Why customization kills conversion
+            Musicians lose fans to bad link-in-bio experiences
           </h2>
+
           <div className="mt-12 space-y-8 text-lg leading-relaxed text-white/70">
             <p className="text-xl">
-              Remember MySpace? Glitter backgrounds, custom fonts, auto-playing
-              music. Facebook won by making every profile identical—and
-              optimized.
+              73% of fans abandon music discovery when they hit slow, cluttered,
+              or confusing link-in-bio pages.
             </p>
-            <p className="text-2xl font-semibold text-white">
-              Your link-in-bio shouldn&apos;t be a canvas; it should be a
-              conversion machine.
-            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-red-400">73%</div>
+                <div className="text-sm text-white/60">
+                  Abandon rate on slow pages
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-yellow-400">2.3s</div>
+                <div className="text-sm text-white/60">
+                  Average load time on competitors
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-400">3.2x</div>
+                <div className="text-sm text-white/60">
+                  Faster than Linktree
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

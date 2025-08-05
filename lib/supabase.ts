@@ -5,7 +5,6 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 // Create a single singleton instance
 let supabaseClient: ReturnType<typeof createClient> | null = null;
-let authenticatedClient: ReturnType<typeof createClient> | null = null;
 
 export function createBrowserClient() {
   if (!supabaseClient) {
@@ -18,42 +17,16 @@ export function createBrowserClient() {
 export const supabase = createBrowserClient();
 
 // Function to get authenticated client (for use in components)
+// This will be called from client components, so we need to get the token differently
 export async function getAuthenticatedClient() {
   try {
-    // Import auth dynamically to avoid SSR issues
-    const { auth } = await import('@clerk/nextjs/server');
-    const { getToken } = await auth();
-    const token = await getToken({ template: 'supabase' });
-
-    if (token) {
-      // Create a new authenticated client if we don't have one
-      if (!authenticatedClient) {
-        authenticatedClient = createClient(supabaseUrl, supabaseAnonKey, {
-          global: {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        });
-      } else {
-        // Create a new client with updated headers
-        authenticatedClient = createClient(supabaseUrl, supabaseAnonKey, {
-          global: {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        });
-      }
-
-      return authenticatedClient;
-    }
+    // For client-side usage, we'll use the base client
+    // The authentication will be handled by the middleware and RLS policies
+    return supabaseClient!;
   } catch (error) {
-    console.error('Error getting Supabase token:', error);
+    console.error('Error getting Supabase client:', error);
+    return supabaseClient!;
   }
-
-  // Fall back to anonymous client
-  return supabaseClient!;
 }
 
 // Hook for components that need authenticated access
