@@ -123,4 +123,10 @@ describe('Button', () => {
     rerender(<Button color="green">Green</Button>);
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
+
+  it('has cursor pointer styling for accessibility', () => {
+    render(<Button>Clickable Button</Button>);
+    const button = screen.getByRole('button');
+    expect(button).toHaveClass('cursor-pointer');
+  });
 });
