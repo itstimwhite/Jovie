@@ -8,17 +8,17 @@ if (linesOfCode > 500) {
   );
 }
 
-// Warn if pages are touched but no tests added
-const hasPagesChanges = danger.git.modified_files.some((file) =>
-  file.includes('/pages/')
+// Warn if app or key component directories are touched but no tests added
+const hasAppOrComponentChanges = danger.git.modified_files.some(
+  (file) => file.includes('/app/') || file.includes('/components/')
 );
 const hasTestChanges = danger.git.modified_files.some(
   (file) => file.includes('.spec.ts') || file.includes('.test.ts')
 );
 
-if (hasPagesChanges && !hasTestChanges) {
+if (hasAppOrComponentChanges && !hasTestChanges) {
   warn(
-    'Pages were modified but no tests were added. Consider adding tests for the changes.'
+    'App or component files were modified but no tests were added. Consider adding tests for the changes.'
   );
 }
 
