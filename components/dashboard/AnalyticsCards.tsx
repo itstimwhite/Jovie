@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSupabase } from '@/lib/supabase';
+import { getAuthenticatedClient } from '@/lib/supabase';
 import { DataCard } from '@/components/ui/DataCard';
 
 interface AnalyticsData {
@@ -12,7 +12,6 @@ interface AnalyticsData {
 }
 
 export function AnalyticsCards({ artistId }: { artistId: string }) {
-  const { getAuthenticatedClient } = useSupabase();
   const [data, setData] = useState<AnalyticsData>({
     totalPlays: 0,
     totalLikes: 0,
@@ -51,7 +50,7 @@ export function AnalyticsCards({ artistId }: { artistId: string }) {
     };
 
     fetchAnalytics();
-  }, [artistId, getAuthenticatedClient]);
+  }, [artistId]);
 
   if (loading) {
     return (

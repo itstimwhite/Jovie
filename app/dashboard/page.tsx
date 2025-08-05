@@ -11,7 +11,7 @@ import { SocialsForm } from '@/components/dashboard/SocialsForm';
 import { ListenNowForm } from '@/components/dashboard/ListenNowForm';
 import { AnalyticsCards } from '@/components/dashboard/AnalyticsCards';
 import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
-import { useSupabase } from '@/lib/supabase';
+import { getAuthenticatedClient } from '@/lib/supabase';
 import { Artist } from '@/types/db';
 import { APP_NAME } from '@/constants/app';
 
@@ -26,7 +26,6 @@ const tabs = [
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser();
-  const { getAuthenticatedClient } = useSupabase();
   const [artist, setArtist] = useState<Artist | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('profile');
@@ -74,7 +73,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [user, isLoaded, getAuthenticatedClient]);
+  }, [user, isLoaded]);
 
   useEffect(() => {
     if (user && isLoaded) {

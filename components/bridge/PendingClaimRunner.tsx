@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useSupabase } from '@/lib/supabase';
+import { getAuthenticatedClient } from '@/lib/supabase';
 
 export function PendingClaimRunner() {
-  const { getAuthenticatedClient } = useSupabase();
-
   useEffect(() => {
     const processPendingClaims = async () => {
       try {
@@ -34,7 +32,7 @@ export function PendingClaimRunner() {
     };
 
     processPendingClaims();
-  }, [getAuthenticatedClient]);
+  }, []);
 
   return null;
 }

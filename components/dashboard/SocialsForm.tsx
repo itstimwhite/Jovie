@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSupabase } from '@/lib/supabase';
+import { getAuthenticatedClient } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
@@ -14,7 +14,6 @@ interface SocialLink {
 }
 
 export function SocialsForm({ artistId }: { artistId: string }) {
-  const { getAuthenticatedClient } = useSupabase();
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -45,7 +44,7 @@ export function SocialsForm({ artistId }: { artistId: string }) {
     };
 
     fetchSocialLinks();
-  }, [artistId, getAuthenticatedClient]);
+  }, [artistId]);
 
   const handleSave = async () => {
     setSaving(true);

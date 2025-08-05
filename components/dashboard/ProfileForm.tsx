@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSupabase } from '@/lib/supabase';
+import { getAuthenticatedClient } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
@@ -14,7 +14,6 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
-  const { getAuthenticatedClient } = useSupabase();
   const [name, setName] = useState(artist.name || '');
   const [bio, setBio] = useState(artist.bio || '');
   const [location, setLocation] = useState(artist.location || '');

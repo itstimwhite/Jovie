@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSupabase } from '@/lib/supabase';
+import { getAuthenticatedClient } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
@@ -13,7 +13,6 @@ interface ListenNowFormProps {
 }
 
 export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
-  const { getAuthenticatedClient } = useSupabase();
   const [spotifyUrl, setSpotifyUrl] = useState(artist.spotify_url || '');
   const [appleMusicUrl, setAppleMusicUrl] = useState(artist.apple_music_url || '');
   const [youtubeUrl, setYoutubeUrl] = useState(artist.youtube_url || '');
