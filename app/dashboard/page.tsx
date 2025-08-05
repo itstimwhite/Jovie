@@ -25,13 +25,14 @@ const tabs = [
 ];
 
 export default function DashboardPage() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const [artist, setArtist] = useState<Artist | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('profile');
+  const [error, setError] = useState<string | null>(null);
 
   const fetchArtist = useCallback(async () => {
-    if (!user) return;
+    if (!user || !isLoaded) return;
 
     try {
       // First get the user's database ID
@@ -65,22 +66,43 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Error:', error);
+      setError('Failed to load dashboard data');
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, isLoaded]);
 
   useEffect(() => {
-    if (user) {
+    if (user && isLoaded) {
       fetchArtist();
     }
-  }, [user, fetchArtist]);
+  }, [user, isLoaded, fetchArtist]);
 
   const handleArtistUpdated = (updatedArtist: Artist) => {
     setArtist(updatedArtist);
   };
 
-  if (loading) {
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-[#0D0E12] flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+            Something went wrong
+          </h1>
+          <p className="text-gray-600 dark:text-white/70 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading || !isLoaded) {
     return (
       <div className="min-h-screen bg-white dark:bg-[#0D0E12] transition-colors">
         {/* Subtle grid background pattern */}
