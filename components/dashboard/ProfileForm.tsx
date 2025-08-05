@@ -33,6 +33,11 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
       // Get authenticated Supabase client
       const supabase = await getAuthenticatedClient();
 
+      if (!supabase) {
+        setError('Database connection failed. Please try again later.');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('artists')
         .update({
