@@ -1,12 +1,14 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export default clerkMiddleware(async (auth, req) => {
-  const { userId } = await auth();
-  if (userId && req.nextUrl.pathname === '/') {
-    return NextResponse.redirect(new URL('/dashboard', req.url));
-  }
-});
+export function middleware(req: NextRequest) {
+  // Temporarily disabled Clerk middleware for testing
+  // const { userId } = await auth();
+  // if (userId && req.nextUrl.pathname === '/') {
+  //   return NextResponse.redirect(new URL('/dashboard', req.url));
+  // }
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [

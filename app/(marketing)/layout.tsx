@@ -1,4 +1,4 @@
-import { Header } from '@/components/site/Header';
+import { SiteHeader } from '@/components/organisms/SiteHeader.client';
 import { Footer } from '@/components/site/Footer';
 
 export default function MarketingLayout({
@@ -8,7 +8,7 @@ export default function MarketingLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <SiteHeader />
       <main className="flex-1">{children}</main>
       <Footer />
     </div>

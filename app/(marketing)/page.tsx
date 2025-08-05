@@ -137,7 +137,10 @@ export default function HomePage() {
       />
 
       {/* Linear-inspired design with dark theme and subtle gradients */}
-      <div className="relative min-h-screen bg-[#0D0E12] text-white">
+      <section
+        data-theme="dark"
+        className="relative min-h-screen bg-[#0D0E12] text-white"
+      >
         {/* Subtle grid background pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
 
@@ -151,7 +154,7 @@ export default function HomePage() {
         {/* Content sections with Linear-style spacing */}
         <div className="relative z-10">
           {/* Featured Artists with glass morphism */}
-          <section className="py-24">
+          <section data-theme="dark" className="py-24">
             <Suspense
               fallback={
                 <div className="flex items-center justify-center py-16">
@@ -166,29 +169,43 @@ export default function HomePage() {
           </section>
 
           {/* Problem Statement with Linear-style cards */}
-          <section className="py-24 border-t border-white/5">
+          <section
+            data-theme="light"
+            className="py-24 border-t border-white/5 bg-white text-neutral-900"
+          >
             <ProblemStatement />
           </section>
 
           {/* How It Works with step indicators */}
-          <section className="py-24 border-t border-white/5">
+          <section
+            data-theme="dark"
+            className="py-24 border-t border-gray-200/5 bg-neutral-900 text-white"
+          >
             <HowItWorks />
           </section>
 
           {/* Benefits with grid layout */}
-          <section className="py-24 border-t border-white/5">
+          <section
+            data-theme="light"
+            className="py-24 border-t border-white/5 bg-gray-50 text-neutral-900"
+          >
             <BenefitsSection />
           </section>
 
           {/* Comparison with modern table design */}
-          <section className="py-24 border-t border-white/5">
+          <section
+            data-theme="dark"
+            className="py-24 border-t border-gray-200/5 bg-neutral-900 text-white"
+          >
             <SocialProofSection />
           </section>
         </div>
-      </div>
+      </section>
 
       {/* CTA section with glass morphism */}
-      <PreFooterCTA />
+      <section data-theme="dark">
+        <PreFooterCTA />
+      </section>
     </>
   );
 }
