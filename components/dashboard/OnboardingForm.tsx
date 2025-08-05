@@ -46,6 +46,10 @@ export function OnboardingForm() {
         setLoading(false);
         return;
       }
+
+      console.log('Creating artist profile for user:', user.id);
+      console.log('Handle:', handle);
+
       const { data: existingUser, error: userError } = await supabase
         .from('users')
         .select('id')
@@ -54,6 +58,7 @@ export function OnboardingForm() {
 
       let userId;
       if (userError && userError.code === 'PGRST116') {
+        console.log('Creating new user in database');
         const { data: newUser, error: createUserError } = await supabase
           .from('users')
           .insert({
@@ -63,20 +68,32 @@ export function OnboardingForm() {
           .select('id')
           .single();
 
-        if (createUserError) throw createUserError;
+        if (createUserError) {
+          console.error('Error creating user:', createUserError);
+          throw createUserError;
+        }
         userId = newUser.id;
+        console.log('Created user with ID:', userId);
       } else if (userError) {
+        console.error('Error fetching user:', userError);
         throw userError;
       } else {
         userId = existingUser.id;
+        console.log('Found existing user with ID:', userId);
       }
 
       // Check if handle is available
-      const { data: existingArtist } = await supabase
+      console.log('Checking if handle is available:', handle);
+      const { data: existingArtist, error: checkError } = await supabase
         .from('artists')
         .select('id')
         .eq('handle', handle)
         .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking handle availability:', checkError);
+        throw checkError;
+      }
 
       if (existingArtist) {
         setError('This handle is already taken. Please choose another one.');
@@ -84,7 +101,14 @@ export function OnboardingForm() {
       }
 
       // Create artist profile
-      const { error: artistError } = await supabase
+      console.log('Creating artist profile with data:', {
+        owner_user_id: userId,
+        handle: handle.toLowerCase(),
+        name: 'Your Artist Name',
+        published: true,
+      });
+
+      const { data: newArtist, error: artistError } = await supabase
         .from('artists')
         .insert({
           owner_user_id: userId,
@@ -96,8 +120,11 @@ export function OnboardingForm() {
         .single();
 
       if (artistError) {
+        console.error('Error creating artist:', artistError);
         throw artistError;
       }
+
+      console.log('Successfully created artist:', newArtist);
 
       // Clear pending claim
       sessionStorage.removeItem('pendingClaim');
@@ -106,7 +133,9 @@ export function OnboardingForm() {
       router.push('/dashboard');
     } catch (error) {
       console.error('Error creating artist profile:', error);
-      setError('Failed to create artist profile. Please try again.');
+      setError(
+        `Failed to create artist profile: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     } finally {
       setLoading(false);
     }
@@ -146,7 +175,8 @@ export function OnboardingForm() {
       <Button
         type="submit"
         disabled={loading}
-        className="w-full bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 font-semibold transition-colors"
+        variant="primary"
+        className="w-full"
       >
         {loading ? 'Creating Profile...' : 'Create Profile'}
       </Button>
