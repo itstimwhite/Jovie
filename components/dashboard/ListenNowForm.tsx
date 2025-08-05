@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getAuthenticatedClient } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -14,7 +14,9 @@ interface ListenNowFormProps {
 
 export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
   const [spotifyUrl, setSpotifyUrl] = useState(artist.spotify_url || '');
-  const [appleMusicUrl, setAppleMusicUrl] = useState(artist.apple_music_url || '');
+  const [appleMusicUrl, setAppleMusicUrl] = useState(
+    artist.apple_music_url || ''
+  );
   const [youtubeUrl, setYoutubeUrl] = useState(artist.youtube_url || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -56,10 +58,7 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <FormField
-        label="Spotify URL"
-        error={error}
-      >
+      <FormField label="Spotify URL" error={error}>
         <Input
           type="url"
           value={spotifyUrl}
@@ -68,9 +67,7 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
         />
       </FormField>
 
-      <FormField
-        label="Apple Music URL"
-      >
+      <FormField label="Apple Music URL">
         <Input
           type="url"
           value={appleMusicUrl}
@@ -79,9 +76,7 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
         />
       </FormField>
 
-      <FormField
-        label="YouTube URL"
-      >
+      <FormField label="YouTube URL">
         <Input
           type="url"
           value={youtubeUrl}

@@ -45,7 +45,7 @@ export async function getAuthenticatedClient() {
           },
         });
       }
-      
+
       return authenticatedClient;
     }
   } catch (error) {

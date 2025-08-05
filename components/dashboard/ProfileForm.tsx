@@ -55,10 +55,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <FormField
-        label="Artist Name"
-        error={error}
-      >
+      <FormField label="Artist Name" error={error}>
         <Input
           type="text"
           value={name}
@@ -68,10 +65,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
         />
       </FormField>
 
-      <FormField
-        label="Tagline"
-        error={error}
-      >
+      <FormField label="Tagline" error={error}>
         <Textarea
           value={tagline}
           onChange={(e) => setTagline(e.target.value)}

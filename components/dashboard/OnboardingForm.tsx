@@ -120,10 +120,7 @@ export function OnboardingForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <FormField
-        label="Handle"
-        error={error}
-      >
+      <FormField label="Handle" error={error}>
         <Input
           type="text"
           value={handle}

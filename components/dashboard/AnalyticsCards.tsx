@@ -24,7 +24,7 @@ export function AnalyticsCards({ artistId }: { artistId: string }) {
     const fetchAnalytics = async () => {
       try {
         const supabase = await getAuthenticatedClient();
-        
+
         // Fetch analytics data for the artist
         const { data: analytics, error } = await supabase
           .from('analytics')
@@ -56,7 +56,10 @@ export function AnalyticsCards({ artistId }: { artistId: string }) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-24 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
+          <div
+            key={i}
+            className="h-24 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse"
+          />
         ))}
       </div>
     );
