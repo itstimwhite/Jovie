@@ -136,10 +136,10 @@ export default function HomePage() {
         }}
       />
 
-      {/* Linear-inspired design with dark theme and subtle gradients */}
-      <div className="relative min-h-screen bg-[#0D0E12] text-white">
+      {/* Linear-inspired design with theme support */}
+      <div className="relative min-h-screen bg-white text-gray-900 dark:bg-[#0D0E12] dark:text-white">
         {/* Subtle grid background pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
 
         {/* Gradient orbs - more subtle like Linear */}
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-3xl" />
@@ -155,7 +155,7 @@ export default function HomePage() {
             <Suspense
               fallback={
                 <div className="flex items-center justify-center py-16">
-                  <div className="animate-pulse text-white/60">
+                  <div className="animate-pulse text-gray-600 dark:text-white/60">
                     Loading featured artists...
                   </div>
                 </div>
@@ -166,22 +166,22 @@ export default function HomePage() {
           </section>
 
           {/* Problem Statement with Linear-style cards */}
-          <section className="py-24 border-t border-white/5">
+          <section className="py-24 border-t border-gray-200 dark:border-white/5">
             <ProblemStatement />
           </section>
 
           {/* How It Works with step indicators */}
-          <section className="py-24 border-t border-white/5">
+          <section className="py-24 border-t border-gray-200 dark:border-white/5">
             <HowItWorks />
           </section>
 
           {/* Benefits with grid layout */}
-          <section className="py-24 border-t border-white/5">
+          <section className="py-24 border-t border-gray-200 dark:border-white/5">
             <BenefitsSection />
           </section>
 
           {/* Comparison with modern table design */}
-          <section className="py-24 border-t border-white/5">
+          <section className="py-24 border-t border-gray-200 dark:border-white/5">
             <SocialProofSection />
           </section>
         </div>

@@ -21,7 +21,7 @@ export function Logo({ className, size = 'md' }: LogoProps) {
       viewBox="0 0 136 39"
       className={cn(
         sizeClasses[size],
-        'text-gray-900 dark:text-white transition-colors duration-200',
+        'text-black dark:text-white transition-colors duration-200',
         className
       )}
       fill="currentColor"
