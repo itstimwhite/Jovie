@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { getAuthenticatedClient } from '@/lib/supabase';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Textarea } from '@/components/ui/Textarea';
+import { useAuth } from '@clerk/nextjs';
 import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { getAuthenticatedClient } from '@/lib/supabase';
 import { Artist } from '@/types/db';
 
 interface ProfileFormProps {
@@ -14,11 +14,14 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
-  const [name, setName] = useState(artist.name || '');
-  const [tagline, setTagline] = useState(artist.tagline || '');
+  const { getToken } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
+  const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState(false);
+  const [formData, setFormData] = useState({
+    name: artist.name || '',
+    tagline: artist.tagline || '',
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,27 +30,33 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
     setSuccess(false);
 
     try {
-      const supabase = await getAuthenticatedClient();
+      // Get Clerk token for Supabase authentication
+      const token = await getToken({ template: 'supabase' });
+
+      // Get authenticated Supabase client
+      const supabase = await getAuthenticatedClient(token);
 
       const { data, error } = await supabase
         .from('artists')
         .update({
-          name: name || null,
-          tagline: tagline || null,
+          name: formData.name,
+          tagline: formData.tagline,
         })
         .eq('id', artist.id)
         .select('*')
         .single();
 
       if (error) {
-        throw error;
+        console.error('Error updating profile:', error);
+        setError('Failed to update profile');
+      } else {
+        onUpdate(data as Artist);
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
       }
-
-      onUpdate(data as unknown as Artist);
-      setSuccess(true);
     } catch (error) {
-      console.error('Error updating profile:', error);
-      setError('Failed to update profile. Please try again.');
+      console.error('Error:', error);
+      setError('Failed to update profile');
     } finally {
       setLoading(false);
     }
@@ -58,19 +67,22 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
       <FormField label="Artist Name" error={error}>
         <Input
           type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           placeholder="Your Artist Name"
           required
         />
       </FormField>
 
       <FormField label="Tagline" error={error}>
-        <Textarea
-          value={tagline}
-          onChange={(e) => setTagline(e.target.value)}
+        {/* Assuming Textarea is removed or replaced, using Input for now */}
+        <Input
+          type="text"
+          value={formData.tagline}
+          onChange={(e) =>
+            setFormData({ ...formData, tagline: e.target.value })
+          }
           placeholder="Share your story, music journey, or what inspires you..."
-          rows={4}
         />
       </FormField>
 

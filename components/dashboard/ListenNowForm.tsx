@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { getAuthenticatedClient } from '@/lib/supabase';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { useAuth } from '@clerk/nextjs';
 import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { getAuthenticatedClient } from '@/lib/supabase';
 import { Artist } from '@/types/db';
 
 interface ListenNowFormProps {
@@ -13,14 +14,15 @@ interface ListenNowFormProps {
 }
 
 export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
-  const [spotifyUrl, setSpotifyUrl] = useState(artist.spotify_url || '');
-  const [appleMusicUrl, setAppleMusicUrl] = useState(
-    artist.apple_music_url || ''
-  );
-  const [youtubeUrl, setYoutubeUrl] = useState(artist.youtube_url || '');
+  const { getToken } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
+  const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState(false);
+  const [formData, setFormData] = useState({
+    spotify_url: artist.spotify_url || '',
+    apple_music_url: artist.apple_music_url || '',
+    youtube_url: artist.youtube_url || '',
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,28 +31,34 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
     setSuccess(false);
 
     try {
-      const supabase = await getAuthenticatedClient();
+      // Get Clerk token for Supabase authentication
+      const token = await getToken({ template: 'supabase' });
+
+      // Get authenticated Supabase client
+      const supabase = await getAuthenticatedClient(token);
 
       const { data, error } = await supabase
         .from('artists')
         .update({
-          spotify_url: spotifyUrl || null,
-          apple_music_url: appleMusicUrl || null,
-          youtube_url: youtubeUrl || null,
+          spotify_url: formData.spotify_url || null,
+          apple_music_url: formData.apple_music_url || null,
+          youtube_url: formData.youtube_url || null,
         })
         .eq('id', artist.id)
         .select('*')
         .single();
 
       if (error) {
-        throw error;
+        console.error('Error updating music links:', error);
+        setError('Failed to update music links');
+      } else {
+        onUpdate(data as Artist);
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
       }
-
-      onUpdate(data as unknown as Artist);
-      setSuccess(true);
     } catch (error) {
-      console.error('Error updating listen now links:', error);
-      setError('Failed to update links. Please try again.');
+      console.error('Error:', error);
+      setError('Failed to update music links');
     } finally {
       setLoading(false);
     }
@@ -61,8 +69,10 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
       <FormField label="Spotify URL" error={error}>
         <Input
           type="url"
-          value={spotifyUrl}
-          onChange={(e) => setSpotifyUrl(e.target.value)}
+          value={formData.spotify_url}
+          onChange={(e) =>
+            setFormData({ ...formData, spotify_url: e.target.value })
+          }
           placeholder="https://open.spotify.com/artist/..."
         />
       </FormField>
@@ -70,8 +80,10 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
       <FormField label="Apple Music URL">
         <Input
           type="url"
-          value={appleMusicUrl}
-          onChange={(e) => setAppleMusicUrl(e.target.value)}
+          value={formData.apple_music_url}
+          onChange={(e) =>
+            setFormData({ ...formData, apple_music_url: e.target.value })
+          }
           placeholder="https://music.apple.com/..."
         />
       </FormField>
@@ -79,8 +91,10 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
       <FormField label="YouTube URL">
         <Input
           type="url"
-          value={youtubeUrl}
-          onChange={(e) => setYoutubeUrl(e.target.value)}
+          value={formData.youtube_url}
+          onChange={(e) =>
+            setFormData({ ...formData, youtube_url: e.target.value })
+          }
           placeholder="https://youtube.com/..."
         />
       </FormField>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useAuth } from '@clerk/nextjs';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { ProfileLinkCard } from '@/components/dashboard/ProfileLinkCard';
@@ -26,6 +26,7 @@ const tabs = [
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser();
+  const { getToken } = useAuth();
   const [artist, setArtist] = useState<Artist | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('profile');
@@ -35,8 +36,11 @@ export default function DashboardPage() {
     if (!user || !isLoaded) return;
 
     try {
+      // Get Clerk token for Supabase authentication
+      const token = await getToken({ template: 'supabase' });
+
       // Get authenticated Supabase client
-      const supabase = await getAuthenticatedClient();
+      const supabase = await getAuthenticatedClient(token);
 
       // First get the user's database ID
       const { data: userData, error: userError } = await supabase
@@ -73,7 +77,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [user, isLoaded]);
+  }, [user, isLoaded, getToken]);
 
   useEffect(() => {
     if (user && isLoaded) {

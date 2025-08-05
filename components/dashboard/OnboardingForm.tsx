@@ -1,17 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { useUser } from '@clerk/nextjs';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { useUser, useAuth } from '@clerk/nextjs';
 import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 import { getAuthenticatedClient } from '@/lib/supabase';
 
 export function OnboardingForm() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const [handle, setHandle] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
+  const [error, setError] = useState<string | undefined>();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,29 +22,29 @@ export function OnboardingForm() {
     setError(undefined);
 
     try {
+      // Get Clerk token for Supabase authentication
+      const token = await getToken({ template: 'supabase' });
+
       // Get authenticated Supabase client
-      const supabase = await getAuthenticatedClient();
+      const supabase = await getAuthenticatedClient(token);
 
-      console.log('Creating artist profile for user:', user.id);
-      console.log('Handle:', handle);
+      let userId: string;
 
-      // First get the user's database ID
+      // Check if user already exists in our database
       const { data: existingUser, error: userError } = await supabase
         .from('users')
         .select('id')
         .eq('clerk_id', user.id)
         .single();
 
-      let userId;
-      if (userError && userError.code === 'PGRST116') {
-        console.log('Creating new user in database');
+      if (userError && userError.code !== 'PGRST116') {
+        // User doesn't exist, create them
         const { data: newUser, error: createUserError } = await supabase
           .from('users')
           .insert({
             clerk_id: user.id,
-            email: user.emailAddresses[0]?.emailAddress || '',
-            first_name: user.firstName || '',
-            last_name: user.lastName || '',
+            email: user.emailAddresses[0]?.emailAddress,
+            name: user.fullName || user.firstName || 'Unknown',
           })
           .select('id')
           .single();

@@ -18,10 +18,19 @@ export const supabase = createBrowserClient();
 
 // Function to get authenticated client (for use in components)
 // This will be called from client components, so we need to get the token differently
-export async function getAuthenticatedClient() {
+export async function getAuthenticatedClient(token?: string | null) {
   try {
-    // For client-side usage, we'll use the base client
-    // The authentication will be handled by the middleware and RLS policies
+    if (token) {
+      // Create a new client with the token
+      return createClient(supabaseUrl, supabaseAnonKey, {
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      });
+    }
+    // Fall back to base client
     return supabaseClient!;
   } catch (error) {
     console.error('Error getting Supabase client:', error);

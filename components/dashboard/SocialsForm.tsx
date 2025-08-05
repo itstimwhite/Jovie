@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { getAuthenticatedClient } from '@/lib/supabase';
-import { Button } from '@/components/ui/Button';
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@clerk/nextjs';
 import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
+import { getAuthenticatedClient } from '@/lib/supabase';
 import { SocialLink } from '@/types/db';
 
 interface SocialsFormProps {
@@ -12,85 +13,81 @@ interface SocialsFormProps {
 }
 
 export function SocialsForm({ artistId }: SocialsFormProps) {
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
+  const { getToken } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState(false);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [newLink, setNewLink] = useState({ platform: '', url: '' });
+
+  const fetchSocialLinks = useCallback(async () => {
+    try {
+      // Get Clerk token for Supabase authentication
+      const token = await getToken({ template: 'supabase' });
+
+      // Get authenticated Supabase client
+      const supabase = await getAuthenticatedClient(token);
+
+      const { data, error } = await supabase
+        .from('social_links')
+        .select('*')
+        .eq('artist_id', artistId)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching social links:', error);
+      } else {
+        setSocialLinks(data as SocialLink[]);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }, [artistId, getToken]);
 
   useEffect(() => {
-    const fetchSocialLinks = async () => {
-      try {
-        const supabase = await getAuthenticatedClient();
-
-        const { data, error } = await supabase
-          .from('social_links')
-          .select('*')
-          .eq('artist_id', artistId)
-          .order('created_at', { ascending: true });
-
-        if (error) {
-          console.error('Error fetching social links:', error);
-        } else {
-          setSocialLinks((data as unknown as SocialLink[]) || []);
-        }
-      } catch (error) {
-        console.error('Error fetching social links:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchSocialLinks();
-  }, [artistId]);
+  }, [fetchSocialLinks]);
 
-  const handleSave = async () => {
-    setSaving(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newLink.platform || !newLink.url) return;
+
+    setLoading(true);
     setError(undefined);
     setSuccess(false);
 
     try {
-      const supabase = await getAuthenticatedClient();
+      // Get Clerk token for Supabase authentication
+      const token = await getToken({ template: 'supabase' });
 
-      // Delete existing social links
-      await supabase.from('social_links').delete().eq('artist_id', artistId);
+      // Get authenticated Supabase client
+      const supabase = await getAuthenticatedClient(token);
 
-      // Insert new social links
-      if (socialLinks.length > 0) {
-        const { error } = await supabase.from('social_links').insert(
-          socialLinks.map((link) => ({
-            artist_id: artistId,
-            platform: link.platform,
-            url: link.url,
-          }))
-        );
+      const { data, error } = await supabase
+        .from('social_links')
+        .insert({
+          artist_id: artistId,
+          platform: newLink.platform,
+          url: newLink.url,
+        })
+        .select('*')
+        .single();
 
-        if (error) {
-          throw error;
-        }
+      if (error) {
+        console.error('Error adding social link:', error);
+        setError('Failed to add social link');
+      } else {
+        setSocialLinks([...socialLinks, data as SocialLink]);
+        setNewLink({ platform: '', url: '' });
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
       }
-
-      setSuccess(true);
     } catch (error) {
-      console.error('Error saving social links:', error);
-      setError('Failed to save social links. Please try again.');
+      console.error('Error:', error);
+      setError('Failed to add social link');
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
-  };
-
-  const addSocialLink = () => {
-    setSocialLinks([
-      ...socialLinks,
-      {
-        id: `temp-${Date.now()}`,
-        artist_id: artistId,
-        platform: 'instagram',
-        url: '',
-        clicks: 0,
-        created_at: new Date().toISOString(),
-      },
-    ]);
   };
 
   const removeSocialLink = (index: number) => {
@@ -129,7 +126,7 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
         <Button
           type="button"
           variant="secondary"
-          onClick={addSocialLink}
+          onClick={() => setNewLink({ platform: 'instagram', url: '' })}
           className="text-sm"
         >
           Add Link
@@ -144,7 +141,7 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
           <Button
             type="button"
             variant="secondary"
-            onClick={addSocialLink}
+            onClick={() => setNewLink({ platform: 'instagram', url: '' })}
             className="mt-2"
           >
             Add Your First Link
@@ -194,12 +191,12 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
           ))}
 
           <Button
-            onClick={handleSave}
-            disabled={saving}
+            onClick={handleSubmit}
+            disabled={loading}
             variant="primary"
             className="w-full"
           >
-            {saving ? 'Saving...' : 'Save Social Links'}
+            {loading ? 'Saving...' : 'Save Social Links'}
           </Button>
         </div>
       )}

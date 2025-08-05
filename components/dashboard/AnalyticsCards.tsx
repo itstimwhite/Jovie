@@ -1,56 +1,54 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { getAuthenticatedClient } from '@/lib/supabase';
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@clerk/nextjs';
 import { DataCard } from '@/components/ui/DataCard';
+import { getAuthenticatedClient } from '@/lib/supabase';
 
-interface AnalyticsData {
-  totalPlays: number;
-  totalLikes: number;
-  totalShares: number;
-  totalComments: number;
+interface AnalyticsCardsProps {
+  artistId: string;
 }
 
-export function AnalyticsCards({ artistId }: { artistId: string }) {
-  const [data, setData] = useState<AnalyticsData>({
-    totalPlays: 0,
-    totalLikes: 0,
-    totalShares: 0,
-    totalComments: 0,
-  });
+export function AnalyticsCards({ artistId }: AnalyticsCardsProps) {
+  const { getToken } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [analytics, setAnalytics] = useState({
+    total_plays: 0,
+    total_clicks: 0,
+    total_fans: 0,
+  });
+
+  const fetchAnalytics = useCallback(async () => {
+    try {
+      // Get Clerk token for Supabase authentication
+      const token = await getToken({ template: 'supabase' });
+
+      // Get authenticated Supabase client
+      const supabase = await getAuthenticatedClient(token);
+
+      const { data, error } = await supabase
+        .from('analytics')
+        .select('*')
+        .eq('artist_id', artistId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching analytics:', error);
+      } else {
+        setAnalytics(
+          data || { total_plays: 0, total_clicks: 0, total_fans: 0 }
+        );
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [artistId, getToken]);
 
   useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        const supabase = await getAuthenticatedClient();
-
-        // Fetch analytics data for the artist
-        const { data: analytics, error } = await supabase
-          .from('analytics')
-          .select('*')
-          .eq('artist_id', artistId)
-          .single();
-
-        if (error && error.code !== 'PGRST116') {
-          console.error('Error fetching analytics:', error);
-        } else if (analytics) {
-          setData({
-            totalPlays: (analytics.total_plays as number) || 0,
-            totalLikes: (analytics.total_likes as number) || 0,
-            totalShares: (analytics.total_shares as number) || 0,
-            totalComments: (analytics.total_comments as number) || 0,
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching analytics:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAnalytics();
-  }, [artistId]);
+  }, [fetchAnalytics]);
 
   if (loading) {
     return (
@@ -69,25 +67,25 @@ export function AnalyticsCards({ artistId }: { artistId: string }) {
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       <DataCard
         title="Total Plays"
-        subtitle={data.totalPlays.toLocaleString()}
+        subtitle={analytics.total_plays.toLocaleString()}
         badge="+12%"
         badgeVariant="success"
       />
       <DataCard
         title="Total Likes"
-        subtitle={data.totalLikes.toLocaleString()}
+        subtitle={analytics.total_clicks.toLocaleString()}
         badge="+8%"
         badgeVariant="success"
       />
       <DataCard
         title="Total Shares"
-        subtitle={data.totalShares.toLocaleString()}
+        subtitle={analytics.total_fans.toLocaleString()}
         badge="+15%"
         badgeVariant="success"
       />
       <DataCard
         title="Total Comments"
-        subtitle={data.totalComments.toLocaleString()}
+        subtitle={analytics.total_fans.toLocaleString()}
         badge="+5%"
         badgeVariant="success"
       />
