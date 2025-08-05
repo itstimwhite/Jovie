@@ -166,16 +166,16 @@ create policy "subscriptions_user_access" on subscriptions
 
 -- Insert popular artists for testing and demonstration
 insert into artists (handle, spotify_id, name, image_url, tagline, published) values
-  ('ladygaga', '1HY2Jd0NmPuamShAr6KMms', 'Lady Gaga', 'https://i.scdn.co/image/ab6761610000e5eb1HY2Jd0NmPuamShAr6KMms', 'Born This Way - Chromatica', true),
-  ('davidguetta', '1Cs0zKBU1kc0i8ypK3B9ai', 'David Guetta', 'https://i.scdn.co/image/ab6761610000e5eb1Cs0zKBU1kc0i8ypK3B9ai', 'One Love - Future Rave', true),
-  ('billieeilish', '6qqNVTkY8uBg9cP3Jd7DAH', 'Billie Eilish', 'https://i.scdn.co/image/ab6761610000e5eb6qqNVTkY8uBg9cP3Jd7DAH', 'Bad Guy - Happier Than Ever', true),
-  ('marshmello', '64KEffDW9EtZ1y2vBYgq8T', 'Marshmello', 'https://i.scdn.co/image/ab6761610000e5eb64KEffDW9EtZ1y2vBYgq8T', 'Happier - Shockwave', true),
-  ('rihanna', '5pKCCKE2ajJHZ9KAiaK11H', 'Rihanna', 'https://i.scdn.co/image/ab6761610000e5eb5pKCCKE2ajJHZ9KAiaK11H', 'Diamonds - Anti', true),
-  ('calvinharris', '7CajNmpbOovFoOoasH2HaY', 'Calvin Harris', 'https://i.scdn.co/image/ab6761610000e5eb7CajNmpbOovFoOoasH2HaY', 'Summer - Funk Wav Bounces Vol. 1', true),
-  ('sabrinacarpenter', '74KM79TiuVKeVCqs8QtB0B', 'Sabrina Carpenter', 'https://i.scdn.co/image/ab6761610000e5eb74KM79TiuVKeVCqs8QtB0B', 'Nonsense - Emails I Cant Send', true),
-  ('thechainsmokers', '69GGBxA162lTqCwzJG5jLp', 'The Chainsmokers', 'https://i.scdn.co/image/ab6761610000e5eb69GGBxA162lTqCwzJG5jLp', 'Closer - So Far So Good', true),
-  ('dualipa', '6M2wZ9GZgrQXHCFfjv46we', 'Dua Lipa', 'https://i.scdn.co/image/ab6761610000e5eb6M2wZ9GZgrQXHCFfjv46we', 'Levitating - Future Nostalgia', true),
-  ('tim', '4Uwpa6zW3zzCSQvooQNksm', 'Tim White', 'https://i.scdn.co/image/ab6761610000e5eb4Uwpa6zW3zzCSQvooQNksm', 'Never Say A Word - 2024', true)
+  ('ladygaga', '1HY2Jd0NmPuamShAr6KMms', 'Lady Gaga', 'https://i.scdn.co/image/ab6761610000e5ebc36dd9eb55fb0db4911f25dd', 'Artist', true),
+  ('davidguetta', '1Cs0zKBU1kc0i8ypK3B9ai', 'David Guetta', 'https://i.scdn.co/image/ab6761610000e5eb150e1b9e6ae26e8d7b3fb5a2', 'Artist', true),
+  ('billieeilish', '6qqNVTkY8uBg9cP3Jd7DAH', 'Billie Eilish', 'https://i.scdn.co/image/ab6761610000e5eb7aa2e8b4b7b87781b1c4dc52', 'Artist', true),
+  ('marshmello', '64KEffDW9EtZ1y2vBYgq8T', 'Marshmello', 'https://i.scdn.co/image/ab6761610000e5eba85b8b1a09c9bf5b5e0dad0e', 'Artist', true),
+  ('rihanna', '5pKCCKE2ajJHZ9KAiaK11H', 'Rihanna', 'https://i.scdn.co/image/ab6761610000e5eb99e4fca7c0b7cb166d915789', 'Artist', true),
+  ('calvinharris', '7CajNmpbOovFoOoasH2HaY', 'Calvin Harris', 'https://i.scdn.co/image/ab6761610000e5eb6e1b1bee0e4ea8c2b9e86d53', 'Artist', true),
+  ('sabrinacarpenter', '74KM79TiuVKeVCqs8QtB0B', 'Sabrina Carpenter', 'https://i.scdn.co/image/ab6761610000e5ebb5ccecf96c0cd5e423f6acaf', 'Artist', true),
+  ('thechainsmokers', '69GGBxA162lTqCwzJG5jLp', 'The Chainsmokers', 'https://i.scdn.co/image/ab6761610000e5eb04710bb6ccb46e81b96f9fd3', 'Artist', true),
+  ('dualipa', '6M2wZ9GZgrQXHCFfjv46we', 'Dua Lipa', 'https://i.scdn.co/image/ab6761610000e5eb9a0bb7bdffa7893f1d25c326', 'Artist', true),
+  ('tim', '4Uwpa6zW3zzCSQvooQNksm', 'Tim White', 'https://i.scdn.co/image/ab6761610000e5ebbab7ca6e76db7da72b58aa5c', 'Never Say A Word - 2024', true)
 on conflict (handle) do nothing;
 
 -- Mark Tim White as verified (founder)
@@ -184,6 +184,53 @@ set is_verified = true
 where handle = 'tim';
 
 -- Add social links for all seeded artists
+-- Add Spotify links for all artists
+insert into social_links (artist_id, platform, url) 
+select id, 'spotify', 'https://open.spotify.com/artist/1HY2Jd0NmPuamShAr6KMms' from artists where handle = 'ladygaga'
+union all
+select id, 'spotify', 'https://open.spotify.com/artist/1Cs0zKBU1kc0i8ypK3B9ai' from artists where handle = 'davidguetta'
+union all
+select id, 'spotify', 'https://open.spotify.com/artist/6qqNVTkY8uBg9cP3Jd7DAH' from artists where handle = 'billieeilish'
+union all
+select id, 'spotify', 'https://open.spotify.com/artist/64KEffDW9EtZ1y2vBYgq8T' from artists where handle = 'marshmello'
+union all
+select id, 'spotify', 'https://open.spotify.com/artist/5pKCCKE2ajJHZ9KAiaK11H' from artists where handle = 'rihanna'
+union all
+select id, 'spotify', 'https://open.spotify.com/artist/7CajNmpbOovFoOoasH2HaY' from artists where handle = 'calvinharris'
+union all
+select id, 'spotify', 'https://open.spotify.com/artist/74KM79TiuVKeVCqs8QtB0B' from artists where handle = 'sabrinacarpenter'
+union all
+select id, 'spotify', 'https://open.spotify.com/artist/69GGBxA162lTqCwzJG5jLp' from artists where handle = 'thechainsmokers'
+union all
+select id, 'spotify', 'https://open.spotify.com/artist/6M2wZ9GZgrQXHCFfjv46we' from artists where handle = 'dualipa'
+union all
+select id, 'spotify', 'https://open.spotify.com/artist/4Uwpa6zW3zzCSQvooQNksm' from artists where handle = 'tim'
+on conflict do nothing;
+
+-- Add Apple Music links for all artists
+insert into social_links (artist_id, platform, url) 
+select id, 'apple_music', 'https://music.apple.com/us/artist/lady-gaga/277293880' from artists where handle = 'ladygaga'
+union all
+select id, 'apple_music', 'https://music.apple.com/us/artist/david-guetta/5468295' from artists where handle = 'davidguetta'
+union all
+select id, 'apple_music', 'https://music.apple.com/us/artist/billie-eilish/1065981054' from artists where handle = 'billieeilish'
+union all
+select id, 'apple_music', 'https://music.apple.com/us/artist/marshmello/1115976606' from artists where handle = 'marshmello'
+union all
+select id, 'apple_music', 'https://music.apple.com/us/artist/rihanna/52486395' from artists where handle = 'rihanna'
+union all
+select id, 'apple_music', 'https://music.apple.com/us/artist/calvin-harris/40265304' from artists where handle = 'calvinharris'
+union all
+select id, 'apple_music', 'https://music.apple.com/us/artist/sabrina-carpenter/1141195867' from artists where handle = 'sabrinacarpenter'
+union all
+select id, 'apple_music', 'https://music.apple.com/us/artist/the-chainsmokers/1001089062' from artists where handle = 'thechainsmokers'
+union all
+select id, 'apple_music', 'https://music.apple.com/us/artist/dua-lipa/1109397171' from artists where handle = 'dualipa'
+union all
+select id, 'apple_music', 'https://music.apple.com/us/artist/tim-white/1664648289' from artists where handle = 'tim'
+on conflict do nothing;
+
+-- Add generic social media links for demonstration
 insert into social_links (artist_id, platform, url)
 select
   a.id,
@@ -224,10 +271,8 @@ select id, 'tiktok', 'https://tiktok.com/@itstimwhite' from tim_artist
 union all
 select id, 'youtube', 'https://youtube.com/@itstimwhite' from tim_artist
 union all
-select id, 'spotify', 'https://open.spotify.com/artist/4Uwpa6zW3zzCSQvooQNksm' from tim_artist
-union all
 select id, 'website', 'https://timwhite.co/' from tim_artist
-on conflict do nothing;
+on conflict (artist_id, platform) do update set url = excluded.url;
 
 -- Add sample releases for demonstration
 insert into releases (artist_id, dsp, title, url, release_date)
