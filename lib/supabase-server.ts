@@ -9,7 +9,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 export async function createServerClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
     console.warn('Supabase environment variables are not set');
-    throw new Error('Supabase environment variables are not configured');
+    return null;
   }
 
   return createClient(supabaseUrl, supabaseAnonKey);
@@ -20,7 +20,7 @@ export async function createAuthenticatedServerClient() {
   try {
     if (!supabaseUrl || !supabaseAnonKey) {
       console.warn('Supabase environment variables are not set');
-      throw new Error('Supabase environment variables are not configured');
+      return null;
     }
 
     // Get the JWT token from Clerk using the new integration
@@ -42,7 +42,7 @@ export async function createAuthenticatedServerClient() {
 
   // Fall back to anonymous client
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Supabase environment variables are not configured');
+    return null;
   }
   return createClient(supabaseUrl, supabaseAnonKey);
 }

@@ -25,6 +25,13 @@ export async function POST(request: NextRequest) {
     try {
       const supabase = await createServerClient();
 
+      if (!supabase) {
+        return NextResponse.json(
+          { error: 'Database connection failed' },
+          { status: 500 }
+        );
+      }
+
       // Update the artist's theme preference
       const { error } = await supabase
         .from('artists')
