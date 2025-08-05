@@ -28,7 +28,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseClasses =
-      'relative isolate inline-flex items-center justify-center rounded-lg font-semibold transition-colors focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900';
+      'relative isolate inline-flex items-center justify-center rounded-lg font-semibold transition-colors focus:outline-hidden focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 cursor-pointer';
 
     const variantClasses = {
       primary:
