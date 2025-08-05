@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { createServerClient } from '@/lib/supabase-server';
-import { LISTEN_COOKIE } from '@/constants/app';
 import { getAvailableDSPs, generateDSPButtonHTML } from '@/lib/dsp';
 
 export const runtime = 'edge';
@@ -11,8 +9,6 @@ export async function GET(
   { params }: { params: Promise<{ handle: string }> }
 ) {
   const { handle } = await params;
-  const cookieStore = await cookies();
-  const preference = cookieStore.get(LISTEN_COOKIE)?.value;
 
   const supabase = await createServerClient();
 
@@ -32,7 +28,7 @@ export async function GET(
     return new NextResponse('Artist not found', { status: 404 });
   }
 
-  // Fetch releases for this specific artist
+  // Now fetch releases for this specific artist
   const { data: releases } = await supabase
     .from('releases')
     .select('*')
@@ -41,45 +37,34 @@ export async function GET(
 
   const availableDSPs = getAvailableDSPs(artist, releases || []);
 
-  // If no DSPs available, show error
+  // If no DSPs available, redirect to main profile
   if (availableDSPs.length === 0) {
-    return new NextResponse(
-      `
-      <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>No Platforms Available - ${artist.name}</title>
-          <script src="https://cdn.tailwindcss.com"></script>
-        </head>
-        <body class="bg-white min-h-screen flex items-center justify-center">
-          <div class="text-center space-y-6 p-8">
-            <h1 class="text-2xl font-bold text-gray-900">${artist.name}</h1>
-            <p class="text-gray-600">No streaming platforms configured yet.</p>
-            <p class="text-sm text-gray-500">Check back soon!</p>
-          </div>
-        </body>
-      </html>
-    `,
-      {
-        headers: {
-          'Content-Type': 'text/html',
-          'Cache-Control': 'public, max-age=300, s-maxage=300',
-        },
-      }
-    );
+    return NextResponse.redirect(new URL(`/${handle}`, request.url));
   }
 
-  // Check for preference and redirect if valid
-  if (preference) {
-    const preferredDSP = availableDSPs.find((dsp) => dsp.key === preference);
-    if (preferredDSP) {
-      return NextResponse.redirect(preferredDSP.url);
+  // AUTO-REDIRECT LOGIC: If only one DSP is available, redirect directly
+  if (availableDSPs.length === 1) {
+    const singleDSP = availableDSPs[0];
+
+    // Track the auto-redirect (fire and forget)
+    try {
+      await fetch(new URL('/api/track', request.url).toString(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          handle,
+          linkType: 'listen',
+          target: singleDSP.key,
+        }),
+      });
+    } catch {
+      // Ignore tracking errors
     }
+
+    return NextResponse.redirect(singleDSP.url);
   }
 
-  // Generate HTML with all available DSPs
+  // Multiple DSPs available - show selection page
   const dspButtonsHTML = availableDSPs.map(generateDSPButtonHTML).join('');
 
   const html = `
@@ -89,7 +74,7 @@ export async function GET(
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Listen to ${artist.name}</title>
-        <meta name="description" content="Choose your preferred streaming platform to listen to ${artist.name}">
+        <meta name="description" content="Listen to ${artist.name} on your preferred streaming platform">
         <meta name="robots" content="noindex, nofollow">
         <link rel="preconnect" href="https://cdn.tailwindcss.com">
         <script src="https://cdn.tailwindcss.com"></script>
@@ -111,14 +96,14 @@ export async function GET(
             </div>
 
             <div class="text-xs text-gray-500 space-y-1">
-              <p>Your preference will be saved for next time</p>
+              <p>Links will open in a new tab</p>
               <p>Powered by <a href="https://jovie.co" class="text-blue-600 hover:underline">Jovie</a></p>
             </div>
           </div>
         </div>
 
         <script>
-          // Add click tracking and preference saving
+          // Add click tracking for analytics
           document.querySelectorAll('[data-dsp]').forEach(button => {
             button.addEventListener('click', async (e) => {
               e.preventDefault();
@@ -126,10 +111,6 @@ export async function GET(
               const url = button.dataset.url;
               
               if (!dsp || !url) return;
-              
-              // Save preference
-              document.cookie = \`${LISTEN_COOKIE}=\${dsp}; path=/; max-age=\${60 * 60 * 24 * 365}; SameSite=Lax\`;
-              localStorage.setItem('${LISTEN_COOKIE}', dsp);
               
               // Track click (fire and forget)
               fetch('/api/track', {
@@ -154,7 +135,7 @@ export async function GET(
   return new NextResponse(html, {
     headers: {
       'Content-Type': 'text/html',
-      'Cache-Control': 'public, max-age=300, s-maxage=300',
+      'Cache-Control': 'public, max-age=60, s-maxage=60', // Shorter cache for link route
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
     },
