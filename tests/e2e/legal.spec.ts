@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './setup';
 
 test.describe('Legal Pages', () => {
   test.describe('Privacy Policy', () => {

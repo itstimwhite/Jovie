@@ -29,5 +29,8 @@ export default defineConfig({
     command: 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
+    timeout: 120000, // Increase timeout to 2 minutes
   },
+  // Add global setup to handle React context issues
+  globalSetup: require.resolve('./tests/global-setup.ts'),
 });
