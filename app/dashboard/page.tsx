@@ -276,18 +276,14 @@ export default function DashboardPage() {
                       onUpdate={handleArtistUpdated}
                     />
                   )}
-                  {activeTab === 'social' && (
-                    <SocialsForm artistId={artist.id} />
-                  )}
+                  {activeTab === 'social' && <SocialsForm artist={artist} />}
                   {activeTab === 'listen' && (
                     <ListenNowForm
                       artist={artist}
                       onUpdate={handleArtistUpdated}
                     />
                   )}
-                  {activeTab === 'analytics' && (
-                    <AnalyticsCards artistId={artist.id} />
-                  )}
+                  {activeTab === 'analytics' && <AnalyticsCards />}
                 </div>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { useAuth } from '@clerk/nextjs';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -16,12 +17,38 @@ export function createBrowserClient() {
 // Export the singleton instance
 export const supabase = createBrowserClient();
 
-// Function to get authenticated client (for use in components)
-// This will be called from client components, so we need to get the token differently
+// Hook to get authenticated client with Clerk integration
+export function useAuthenticatedSupabase() {
+  const { getToken } = useAuth();
+
+  const getAuthenticatedClient = async () => {
+    try {
+      const token = await getToken({ template: 'supabase' });
+
+      if (token) {
+        return createClient(supabaseUrl, supabaseAnonKey, {
+          global: {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error getting authenticated Supabase client:', error);
+    }
+
+    // Fall back to base client
+    return supabaseClient!;
+  };
+
+  return { getAuthenticatedClient, supabase };
+}
+
+// Legacy function for backward compatibility
 export async function getAuthenticatedClient(token?: string | null) {
   try {
     if (token) {
-      // Create a new client with the token
       return createClient(supabaseUrl, supabaseAnonKey, {
         global: {
           headers: {
@@ -30,7 +57,6 @@ export async function getAuthenticatedClient(token?: string | null) {
         },
       });
     }
-    // Fall back to base client
     return supabaseClient!;
   } catch (error) {
     console.error('Error getting Supabase client:', error);
@@ -38,7 +64,7 @@ export async function getAuthenticatedClient(token?: string | null) {
   }
 }
 
-// Hook for components that need authenticated access
+// Legacy hook for backward compatibility
 export function useSupabase() {
   return { getAuthenticatedClient, supabase };
 }

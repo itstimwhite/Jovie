@@ -8,6 +8,14 @@ interface Artist {
   spotify_id: string;
 }
 
+interface RefreshResult {
+  processed: number;
+  succeeded: number;
+  failed: number;
+  failures: { id: string; error: string }[];
+  execution_time_ms: number;
+}
+
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 const spotifyClientId = Deno.env.get('SPOTIFY_CLIENT_ID');
@@ -80,7 +88,11 @@ async function updateArtist(artist: Artist, token: string) {
   }
 }
 
-Deno.serve(async () => {
+async function refreshArtists(): Promise<RefreshResult> {
+  const startTime = Date.now();
+
+  console.log('Starting Spotify artist refresh...');
+
   const { data: artists, error } = await supabase
     .from('artists')
     .select('id, handle, spotify_id')
@@ -89,10 +101,13 @@ Deno.serve(async () => {
   if (error) {
     const message = `Database error: ${error.message}`;
     console.error(message);
-    return new Response(JSON.stringify({ error: message }), { status: 500 });
+    throw new Error(message);
   }
 
+  console.log(`Found ${artists.length} published artists to refresh`);
+
   const token = await getSpotifyToken();
+  console.log('Successfully obtained Spotify access token');
 
   const batchSize = 10;
   let success = 0;
@@ -100,30 +115,69 @@ Deno.serve(async () => {
 
   for (let i = 0; i < artists.length; i += batchSize) {
     const batch = artists.slice(i, i + batchSize);
+    console.log(
+      `Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(artists.length / batchSize)}`
+    );
+
     await Promise.all(
       batch.map(async (artist) => {
         try {
           await updateArtist(artist, token);
           success += 1;
+          console.log(`✅ Updated artist: ${artist.handle}`);
         } catch (err) {
           failures.push({ id: artist.id, error: err.message });
+          console.error(
+            `❌ Failed to update artist ${artist.handle}: ${err.message}`
+          );
         }
       })
     );
+
+    // Rate limiting: wait 1 second between batches to respect Spotify's rate limits
     if (i + batchSize < artists.length) {
       await new Promise((r) => setTimeout(r, 1000));
     }
   }
 
-  const result = {
+  const executionTime = Date.now() - startTime;
+
+  const result: RefreshResult = {
     processed: artists.length,
     succeeded: success,
     failed: failures.length,
     failures,
+    execution_time_ms: executionTime,
   };
 
-  console.log('Artist refresh summary', result);
-  return new Response(JSON.stringify(result), {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  console.log('Artist refresh summary:', result);
+  return result;
+}
+
+Deno.serve(async (req) => {
+  try {
+    const result = await refreshArtists();
+
+    return new Response(JSON.stringify(result), {
+      headers: { 'Content-Type': 'application/json' },
+      status: 200,
+    });
+  } catch (error) {
+    console.error('Fatal error during artist refresh:', error);
+
+    return new Response(
+      JSON.stringify({
+        error: error.message,
+        processed: 0,
+        succeeded: 0,
+        failed: 0,
+        failures: [],
+        execution_time_ms: 0,
+      }),
+      {
+        headers: { 'Content-Type': 'application/json' },
+        status: 500,
+      }
+    );
+  }
 });

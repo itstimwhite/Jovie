@@ -1,90 +1,93 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@clerk/nextjs';
+import { useState, useEffect } from 'react';
+import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
-import { getAuthenticatedClient } from '@/lib/supabase';
-import { SocialLink } from '@/types/db';
+import { useAuthenticatedSupabase } from '@/lib/supabase';
+import { Artist } from '@/types/db';
 
-interface SocialsFormProps {
-  artistId: string;
+interface SocialLink {
+  id: string;
+  platform: string;
+  url: string;
 }
 
-export function SocialsForm({ artistId }: SocialsFormProps) {
-  const { getToken } = useAuth();
+interface SocialsFormProps {
+  artist: Artist;
+}
+
+export function SocialsForm({ artist }: SocialsFormProps) {
+  const { getAuthenticatedClient } = useAuthenticatedSupabase();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState(false);
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
-  const [newLink, setNewLink] = useState({ platform: '', url: '' });
-
-  const fetchSocialLinks = useCallback(async () => {
-    try {
-      // Get Clerk token for Supabase authentication
-      const token = await getToken({ template: 'supabase' });
-
-      // Get authenticated Supabase client
-      const supabase = await getAuthenticatedClient(token);
-
-      const { data, error } = await supabase
-        .from('social_links')
-        .select('*')
-        .eq('artist_id', artistId)
-        .order('created_at', { ascending: true });
-
-      if (error) {
-        console.error('Error fetching social links:', error);
-      } else {
-        setSocialLinks(data as SocialLink[]);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  }, [artistId, getToken]);
 
   useEffect(() => {
+    const fetchSocialLinks = async () => {
+      try {
+        const supabase = await getAuthenticatedClient();
+
+        const { data, error } = await supabase
+          .from('social_links')
+          .select('*')
+          .eq('artist_id', artist.id);
+
+        if (error) {
+          console.error('Error fetching social links:', error);
+        } else {
+          setSocialLinks(data || []);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
     fetchSocialLinks();
-  }, [fetchSocialLinks]);
+  }, [artist.id, getAuthenticatedClient]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newLink.platform || !newLink.url) return;
-
     setLoading(true);
     setError(undefined);
     setSuccess(false);
 
     try {
-      // Get Clerk token for Supabase authentication
-      const token = await getToken({ template: 'supabase' });
+      const supabase = await getAuthenticatedClient();
 
-      // Get authenticated Supabase client
-      const supabase = await getAuthenticatedClient(token);
+      // Delete existing social links
+      await supabase.from('social_links').delete().eq('artist_id', artist.id);
 
-      const { data, error } = await supabase
-        .from('social_links')
-        .insert({
-          artist_id: artistId,
-          platform: newLink.platform,
-          url: newLink.url,
-        })
-        .select('*')
-        .single();
+      // Insert new social links
+      const linksToInsert = socialLinks
+        .filter((link) => link.url.trim())
+        .map((link) => ({
+          artist_id: artist.id,
+          platform: link.platform,
+          url: link.url.trim(),
+        }));
 
-      if (error) {
-        console.error('Error adding social link:', error);
-        setError('Failed to add social link');
+      if (linksToInsert.length > 0) {
+        const { error } = await supabase
+          .from('social_links')
+          .insert(linksToInsert);
+
+        if (error) {
+          console.error('Error updating social links:', error);
+          setError('Failed to update social links');
+        } else {
+          setSuccess(true);
+          setTimeout(() => setSuccess(false), 3000);
+        }
       } else {
-        setSocialLinks([...socialLinks, data as SocialLink]);
-        setNewLink({ platform: '', url: '' });
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       }
     } catch (error) {
       console.error('Error:', error);
-      setError('Failed to add social link');
+      setError('Failed to update social links');
     } finally {
       setLoading(false);
     }
@@ -126,7 +129,12 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
         <Button
           type="button"
           variant="secondary"
-          onClick={() => setNewLink({ platform: 'instagram', url: '' })}
+          onClick={() =>
+            setSocialLinks([
+              ...socialLinks,
+              { id: '', platform: 'instagram', url: '' },
+            ])
+          }
           className="text-sm"
         >
           Add Link
@@ -141,7 +149,9 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
           <Button
             type="button"
             variant="secondary"
-            onClick={() => setNewLink({ platform: 'instagram', url: '' })}
+            onClick={() =>
+              setSocialLinks([{ id: '', platform: 'instagram', url: '' }])
+            }
             className="mt-2"
           >
             Add Your First Link
@@ -154,22 +164,23 @@ export function SocialsForm({ artistId }: SocialsFormProps) {
               key={link.id}
               className="flex items-center space-x-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
             >
-              <Select
-                value={link.platform}
-                onChange={(e) =>
-                  updateSocialLink(index, 'platform', e.target.value)
-                }
-                className="w-32"
-                options={[
-                  { value: 'instagram', label: 'Instagram' },
-                  { value: 'twitter', label: 'Twitter' },
-                  { value: 'tiktok', label: 'TikTok' },
-                  { value: 'youtube', label: 'YouTube' },
-                  { value: 'facebook', label: 'Facebook' },
-                  { value: 'linkedin', label: 'LinkedIn' },
-                  { value: 'website', label: 'Website' },
-                ]}
-              />
+              <FormField label="Platform" className="w-32">
+                <Select
+                  value={link.platform}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    updateSocialLink(index, 'platform', e.target.value)
+                  }
+                  options={[
+                    { value: 'instagram', label: 'Instagram' },
+                    { value: 'twitter', label: 'Twitter' },
+                    { value: 'tiktok', label: 'TikTok' },
+                    { value: 'youtube', label: 'YouTube' },
+                    { value: 'facebook', label: 'Facebook' },
+                    { value: 'linkedin', label: 'LinkedIn' },
+                    { value: 'website', label: 'Website' },
+                  ]}
+                />
+              </FormField>
 
               <Input
                 type="url"

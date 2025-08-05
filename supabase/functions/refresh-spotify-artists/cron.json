@@ -1,0 +1,4 @@
+{
+  "cron": "0 0 * * *",
+  "description": "Refresh Spotify artist data daily at midnight UTC"
+}

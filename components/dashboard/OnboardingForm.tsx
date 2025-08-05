@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useUser, useAuth } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs';
+import Image from 'next/image';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { getAuthenticatedClient } from '@/lib/supabase';
+import { useAuthenticatedSupabase } from '@/lib/supabase';
 
 interface OnboardingState {
   step:
@@ -34,7 +35,7 @@ interface SelectedArtist {
 
 export function OnboardingForm() {
   const { user } = useUser();
-  const { getToken } = useAuth();
+  const { getAuthenticatedClient } = useAuthenticatedSupabase();
 
   // Form state
   const [handle, setHandle] = useState('');
@@ -81,8 +82,7 @@ export function OnboardingForm() {
       setHandleValidation({ available: false, checking: true, error: null });
 
       try {
-        const token = await getToken({ template: 'supabase' });
-        const supabase = await getAuthenticatedClient(token);
+        const supabase = await getAuthenticatedClient();
 
         const { data, error: validationError } = await supabase
           .from('artists')
@@ -118,7 +118,7 @@ export function OnboardingForm() {
         });
       }
     },
-    [getToken]
+    [getAuthenticatedClient]
   );
 
   // Validate handle when it changes
@@ -176,10 +176,7 @@ export function OnboardingForm() {
       try {
         // Step 1: Get authentication token
         setState((prev) => ({ ...prev, step: 'validating', progress: 10 }));
-        const token = await getToken({ template: 'supabase' });
-        if (!token) throw new Error('Authentication failed');
-
-        const supabase = await getAuthenticatedClient(token);
+        const supabase = await getAuthenticatedClient();
 
         // Step 2: Create or get user
         setState((prev) => ({ ...prev, step: 'creating-user', progress: 30 }));
@@ -291,7 +288,7 @@ export function OnboardingForm() {
         }));
       }
     },
-    [user, handle, selectedArtist, isFormValid, getToken]
+    [user, handle, selectedArtist, isFormValid, getAuthenticatedClient]
   );
 
   // Progress indicator
@@ -336,10 +333,11 @@ export function OnboardingForm() {
           <div className="flex items-center space-x-3">
             {selectedArtist.imageUrl && (
               <div className="w-12 h-12 rounded-full overflow-hidden">
-                <img
+                <Image
                   src={selectedArtist.imageUrl}
                   alt={selectedArtist.artistName}
-                  className="w-full h-full object-cover"
+                  width={48}
+                  height={48}
                 />
               </div>
             )}

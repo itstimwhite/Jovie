@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@clerk/nextjs';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { getAuthenticatedClient } from '@/lib/supabase';
+import { useAuthenticatedSupabase } from '@/lib/supabase';
 import { Artist } from '@/types/db';
 
 interface ListenNowFormProps {
@@ -14,7 +13,7 @@ interface ListenNowFormProps {
 }
 
 export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
-  const { getToken } = useAuth();
+  const { getAuthenticatedClient } = useAuthenticatedSupabase();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState(false);
@@ -31,11 +30,8 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
     setSuccess(false);
 
     try {
-      // Get Clerk token for Supabase authentication
-      const token = await getToken({ template: 'supabase' });
-
       // Get authenticated Supabase client
-      const supabase = await getAuthenticatedClient(token);
+      const supabase = await getAuthenticatedClient();
 
       const { data, error } = await supabase
         .from('artists')

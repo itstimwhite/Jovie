@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@clerk/nextjs';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { getAuthenticatedClient } from '@/lib/supabase';
+import { useAuthenticatedSupabase } from '@/lib/supabase';
 import { Artist } from '@/types/db';
 
 interface ProfileFormProps {
@@ -14,13 +13,14 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
-  const { getToken } = useAuth();
+  const { getAuthenticatedClient } = useAuthenticatedSupabase();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
     name: artist.name || '',
     tagline: artist.tagline || '',
+    image_url: artist.image_url || '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,17 +30,15 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
     setSuccess(false);
 
     try {
-      // Get Clerk token for Supabase authentication
-      const token = await getToken({ template: 'supabase' });
-
       // Get authenticated Supabase client
-      const supabase = await getAuthenticatedClient(token);
+      const supabase = await getAuthenticatedClient();
 
       const { data, error } = await supabase
         .from('artists')
         .update({
           name: formData.name,
           tagline: formData.tagline,
+          image_url: formData.image_url || null,
         })
         .eq('id', artist.id)
         .select('*')

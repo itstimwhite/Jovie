@@ -10,11 +10,12 @@ export async function createServerClient() {
   return createClient(supabaseUrl, supabaseAnonKey);
 }
 
-// Server-side function to get authenticated Supabase client
+// Server-side function to get authenticated Supabase client using new integration
 export async function createAuthenticatedServerClient() {
   try {
+    // Get the JWT token from Clerk using the new integration
     const { getToken } = await auth();
-    const token = await getToken({ template: 'supabase' });
+    const token = await getToken();
 
     if (token) {
       return createClient(supabaseUrl, supabaseAnonKey, {
@@ -36,4 +37,15 @@ export async function createAuthenticatedServerClient() {
 // Alias for backward compatibility
 export async function getAuthenticatedServerClient() {
   return createAuthenticatedServerClient();
+}
+
+// Helper function to get user ID from Clerk session
+export async function getClerkUserId() {
+  try {
+    const { userId } = await auth();
+    return userId;
+  } catch (error) {
+    console.error('Error getting Clerk user ID:', error);
+    return null;
+  }
 }

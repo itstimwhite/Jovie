@@ -10,6 +10,7 @@ Thank you for your interest in contributing to Jovie! This document provides gui
 - npm or yarn
 - Git
 - A GitHub account
+- Supabase CLI (for database operations)
 
 ### Setting Up Your Development Environment
 
@@ -24,7 +25,11 @@ Thank you for your interest in contributing to Jovie! This document provides gui
    npm install
    ```
 4. Set up your environment variables (see README.md for details)
-5. Start the development server:
+5. Set up the database:
+   ```bash
+   supabase db push
+   ```
+6. Start the development server:
    ```bash
    npm run dev
    ```
@@ -39,10 +44,10 @@ Thank you for your interest in contributing to Jovie! This document provides gui
    # or
    git checkout -b fix/your-bug-fix
    ```
-2. Make sure your local main branch is up to date:
+2. Make sure your local develop branch is up to date:
    ```bash
-   git checkout main
-   git pull upstream main
+   git checkout develop
+   git pull upstream develop
    ```
 
 ### Making Changes
@@ -75,7 +80,7 @@ Thank you for your interest in contributing to Jovie! This document provides gui
    ```bash
    git push origin feature/your-feature-name
    ```
-3. Create a Pull Request on GitHub
+3. Create a Pull Request on GitHub targeting the `develop` branch
 
 ## Coding Standards
 
@@ -98,19 +103,141 @@ Thank you for your interest in contributing to Jovie! This document provides gui
 - Use Tailwind CSS classes
 - Follow the established design system
 - Ensure responsive design
-- Test in both light and dark modes
 
-### File Structure
+### Clerk-Supabase Integration
 
-- Follow the established folder structure
-- Use proper naming conventions:
-  - Components: PascalCase (e.g., `ProfileHeader.tsx`)
-  - Utilities: camelCase (e.g., `extractSpotifyId.ts`)
-  - Constants: UPPER_SNAKE_CASE (e.g., `MAX_SOCIAL_LINKS`)
+**CRITICAL**: This project uses Clerk's native Supabase integration. Follow these guidelines:
+
+#### ✅ DO Use Native Integration
+
+```typescript
+// Client-side integration
+import { useSession } from '@clerk/nextjs';
+import { createClient } from '@supabase/supabase-js';
+
+function createClerkSupabaseClient() {
+  const { session } = useSession();
+
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+    {
+      async accessToken() {
+        return session?.getToken() ?? null;
+      },
+    }
+  );
+}
+```
+
+```typescript
+// Server-side integration
+import { auth } from '@clerk/nextjs/server';
+import { createClient } from '@supabase/supabase-js';
+
+export function createServerSupabaseClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+    {
+      async accessToken() {
+        return (await auth()).getToken();
+      },
+    }
+  );
+}
+```
+
+#### ❌ DON'T Use JWT Templates (Deprecated)
+
+```typescript
+// ❌ DO NOT use JWT templates
+const token = await getToken({ template: 'supabase' });
+```
+
+#### RLS Policies
+
+Always use `auth.jwt()` for user identification in RLS policies:
+
+```sql
+-- ✅ CORRECT: Use auth.jwt() for RLS
+create policy "User can view own data" on "users"
+for select to authenticated using (
+  auth.jwt()->>'sub' = user_id
+);
+```
+
+### Database Operations
+
+- Always enable RLS on user data tables
+- Use proper RLS policies for data isolation
+- Test with multiple users to verify data isolation
+- Use migrations for database schema changes
+
+### Error Handling
+
+- Always handle Supabase errors gracefully
+- Provide meaningful error messages to users
+- Log errors appropriately for debugging
+- Use proper loading states
+
+## AI Development Guidelines
+
+This project includes comprehensive guidelines for AI coding tools:
+
+### For Claude Code (claude.ai/code)
+
+- See [CLAUDE.md](CLAUDE.md) for detailed guidelines
+- Follow the Clerk-Supabase integration patterns
+- Use the established component structure
+
+### For Cursor and Other AI Tools
+
+- See [.cursorrules](.cursorrules) for guidelines
+- Follow the native integration approach
+- Maintain security best practices
+
+### For All AI Tools
+
+- Reference [CLERK_SUPABASE_INTEGRATION.md](CLERK_SUPABASE_INTEGRATION.md) for detailed integration documentation
+- Use the latest patterns from Clerk's official documentation
+- Avoid deprecated approaches (JWT templates, etc.)
+
+## Testing Guidelines
+
+### Unit Tests
+
+- Use Vitest for component testing
+- Test both success and error scenarios
+- Mock Supabase calls appropriately
+- Test RLS policy compliance
+
+### E2E Tests
+
+- Use Playwright for end-to-end testing
+- Test authentication flows
+- Verify data isolation between users
+- Test responsive design
+
+### Database Tests
+
+- Test RLS policies with multiple users
+- Verify data access controls
+- Test migration scripts
+- Validate foreign key relationships
+
+## Security Guidelines
+
+1. **Never expose sensitive data** in client-side code
+2. **Always use RLS policies** for user data
+3. **Validate user permissions** before database operations
+4. **Use environment variables** for all secrets
+5. **Test authentication flows** thoroughly
+6. **Verify data isolation** between users
 
 ## Commit Message Guidelines
 
-We follow conventional commit format:
+Use conventional commit messages:
 
 - `feat:` - New features
 - `fix:` - Bug fixes
@@ -120,112 +247,99 @@ We follow conventional commit format:
 - `test:` - Adding or updating tests
 - `chore:` - Maintenance tasks
 
-Examples:
+Example:
 
-- `feat: add social media link management`
-- `fix: resolve profile image loading issue`
-- `docs: update API documentation`
-
-## Testing Guidelines
-
-### Unit Tests
-
-- Write unit tests for utility functions
-- Test component rendering and behavior
-- Use descriptive test names
-- Aim for good coverage of critical paths
-
-### End-to-End Tests
-
-- Test complete user workflows
-- Cover critical features like authentication and profile creation
-- Ensure tests are reliable and not flaky
+```
+feat: add artist profile customization options
+fix: resolve authentication token refresh issue
+docs: update Clerk-Supabase integration guide
+```
 
 ## Pull Request Guidelines
 
 ### Before Submitting
 
-- Ensure your PR has a clear title and description
-- Link to any related issues
-- Make sure all tests pass
-- Ensure your code follows the established patterns
+1. **Test thoroughly** with multiple users
+2. **Verify RLS policies** work correctly
+3. **Check authentication flow** end-to-end
+4. **Run all tests** and ensure they pass
+5. **Update documentation** if needed
 
-### PR Description Template
+### PR Description
 
-```markdown
-## Description
+Include:
 
-Brief description of the changes
+- Description of changes
+- Testing performed
+- Screenshots if UI changes
+- Any breaking changes
+- Migration steps if database changes
 
-## Type of Change
+### Review Process
 
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Breaking change
-- [ ] Documentation update
+- All PRs require review
+- Tests must pass
+- Code must follow established patterns
+- Security implications must be considered
 
-## Testing
+## Environment Setup
 
-- [ ] Tests pass locally
-- [ ] Added tests for new functionality
-- [ ] Manual testing completed
+### Required Environment Variables
 
-## Screenshots (if applicable)
+```bash
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
 
-Add screenshots to help explain your changes
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_KEY=your-anon-key
 
-## Additional Notes
-
-Any additional information about the changes
+# Spotify
+SPOTIFY_CLIENT_ID=your-spotify-client-id
+SPOTIFY_CLIENT_SECRET=your-spotify-client-secret
 ```
 
-## Code Review Process
+### Local Development
 
-1. PRs require at least one approval before merging
-2. All automated checks must pass
-3. Address any feedback promptly
-4. Keep discussions constructive and professional
+1. Set up Supabase project
+2. Configure Clerk application
+3. Set up Spotify Developer App
+4. Run database migrations
+5. Start development server
 
-## Reporting Issues
+## Troubleshooting
 
-### Bug Reports
+### Common Issues
 
-When reporting bugs, please include:
+1. **Authentication not working**
+   - Check Clerk configuration
+   - Verify Supabase integration setup
+   - Test with fresh browser session
 
-- Clear description of the issue
-- Steps to reproduce
-- Expected vs. actual behavior
-- Environment details (OS, browser, etc.)
-- Screenshots if applicable
+2. **Database access denied**
+   - Verify RLS policies are correct
+   - Check user authentication status
+   - Test with different users
 
-### Feature Requests
+3. **Environment variables missing**
+   - Check `.env.local` file
+   - Verify all required variables are set
+   - Restart development server
 
-For feature requests, please provide:
+### Getting Help
 
-- Clear description of the desired functionality
-- Use case and motivation
-- Any relevant mockups or examples
-- Discussion of implementation approach
+- Check existing documentation
+- Review AI guidelines for patterns
+- Open an issue on GitHub
+- Contact the maintainers
 
 ## Community Guidelines
 
 - Be respectful and inclusive
 - Help others learn and grow
-- Provide constructive feedback
-- Follow the project's code of conduct
-
-## Questions and Support
-
-- Check existing issues and PRs first
-- Use GitHub Discussions for questions
-- Join our community channels for real-time help
-
-## Recognition
-
-Contributors will be recognized in:
-
-- GitHub contributors list
-- Release notes for significant contributions
-- Project documentation
+- Follow the established patterns
+- Contribute to documentation
+- Report bugs and security issues
 
 Thank you for contributing to Jovie! 🎵
