@@ -3,7 +3,7 @@ export function HowItWorks() {
     {
       number: '01',
       title: 'Connect',
-      description: 'Search and verify your Spotify artist profile',
+      description: 'Find and verify your Spotify artist profile in seconds',
       icon: (
         <svg
           className="h-6 w-6"
@@ -23,7 +23,7 @@ export function HowItWorks() {
     {
       number: '02',
       title: 'Claim',
-      description: 'Get your custom jov.ie/yourname link',
+      description: 'Get your custom jov.ie link and professional profile',
       icon: (
         <svg
           className="h-6 w-6"
@@ -43,7 +43,7 @@ export function HowItWorks() {
     {
       number: '03',
       title: 'Convert',
-      description: 'Fans click "Listen Now" and stream your music',
+      description: 'Fans discover and stream your music instantly',
       icon: (
         <svg
           className="h-6 w-6"
@@ -70,7 +70,7 @@ export function HowItWorks() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
-            From Spotify artist to converting fans in 60 seconds
+            From Spotify artist to fan conversion in 60 seconds
           </h2>
         </div>
         <div className="mx-auto mt-20 max-w-6xl">

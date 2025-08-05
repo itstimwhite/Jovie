@@ -24,19 +24,19 @@ export function PreFooterCTA() {
 
               {/* Headline with Linear typography */}
               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-white tracking-tight leading-tight">
-                Ready to connect
+                Ready to turn fans
                 <br />
                 <span className="text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text">
-                  your music?
+                  into streams?
                 </span>
               </h2>
 
               {/* Subtitle */}
               <p className="text-xl text-white/70 font-light leading-relaxed max-w-2xl mx-auto">
-                Create your professional music profile in under 90 seconds.
+                Create your professional music profile in 60 seconds.
                 <br />
                 <span className="text-white/50">
-                  No design skills required.
+                  Start converting fans today.
                 </span>
               </p>
 
@@ -84,21 +84,7 @@ export function PreFooterCTA() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <span>Free forever</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="w-4 h-4 text-emerald-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>90-second setup</span>
+                  <span>60-second setup</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <svg

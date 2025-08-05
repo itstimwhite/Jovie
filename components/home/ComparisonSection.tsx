@@ -42,7 +42,7 @@ export function ComparisonSection() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
-            Linktree vs. Beacons vs. Jovie
+            Jovie vs the competition
           </h2>
         </div>
         <div className="mx-auto mt-20 max-w-4xl">

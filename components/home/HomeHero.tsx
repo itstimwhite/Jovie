@@ -21,7 +21,7 @@ export function HomeHero() {
             <div className="flex h-2 w-2 items-center justify-center">
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
             </div>
-            <span>90-second setup</span>
+            <span>60-second setup</span>
             <div className="h-1 w-1 rounded-full bg-white/30" />
             <span>Free forever</span>
           </div>
@@ -40,7 +40,7 @@ export function HomeHero() {
               </span>
             </span>
             <span className="block leading-none text-white/90">
-              Built for musicians
+              for musicians
             </span>
           </h1>
 
@@ -49,9 +49,9 @@ export function HomeHero() {
             className="mx-auto max-w-2xl text-xl text-white/70 font-light leading-relaxed sm:text-2xl"
             role="doc-subtitle"
           >
-            Connect your music, social media, and merch in one beautiful link.
+            Turn your Spotify profile into a conversion machine.
             <br />
-            <span className="text-white/50">No design skills required.</span>
+            <span className="text-white/50">One link. All your music.</span>
           </p>
         </div>
 
