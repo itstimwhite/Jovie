@@ -1,6 +1,19 @@
 # Cursor Rules for Jovie Project
 
-This file provides guidelines for Cursor and other AI coding tools when working with this repository.
+## ⚠️ CRITICAL: BRANCH PROTECTION RULES
+
+### **NEVER PUSH TO PREVIEW OR MAIN**
+- **ONLY push to `develop` branch**
+- **NEVER push directly to `preview` or `main` branches**
+- The CI/CD pipeline handles all promotions automatically
+- If pipeline is stuck, fix issues on `develop` and let CI handle the rest
+- Direct pushes to protected branches will be rejected and can break the pipeline
+
+### **Branch Protection**
+- `preview` and `main` are protected branches
+- All changes must go through the CI/CD pipeline
+- Auto-promote workflows handle `develop → preview → main` progression
+- Manual intervention should only be done on `develop` branch
 
 ## Project Overview
 

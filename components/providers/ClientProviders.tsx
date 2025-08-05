@@ -19,11 +19,27 @@ export function ClientProviders({ children }: ClientProvidersProps) {
     );
   }, []);
 
+  // Check if Clerk publishable key is available
+  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+  if (!publishableKey) {
+    console.error('Clerk publishable key is not set');
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">
+            Configuration Error
+          </h1>
+          <p className="text-gray-600">
+            Clerk publishable key is not configured.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <ClerkProvider
-      clerkJSVersion="latest"
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-    >
+    <ClerkProvider clerkJSVersion="latest" publishableKey={publishableKey}>
       <ThemeProvider
         attribute="class"
         defaultTheme="light"

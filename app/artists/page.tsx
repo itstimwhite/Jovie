@@ -10,6 +10,21 @@ export const revalidate = 3600; // Revalidate every hour
 export default async function ArtistsPage() {
   const supabase = await createServerClient();
 
+  if (!supabase) {
+    return (
+      <div className="min-h-screen bg-[#0D0E12]">
+        <Container className="py-16">
+          <div className="text-center">
+            <h1 className="text-2xl font-semibold text-white">
+              Database connection failed
+            </h1>
+            <p className="mt-4 text-white/70">Please try again later.</p>
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
   // Fetch all published artists
   const { data: artists, error } = await supabase
     .from('artists')

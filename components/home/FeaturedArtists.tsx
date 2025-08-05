@@ -20,6 +20,13 @@ export function FeaturedArtists() {
     (async () => {
       try {
         const supabase = createBrowserClient();
+
+        if (!supabase) {
+          console.error('Database connection failed');
+          setArtists([]);
+          return;
+        }
+
         const { data, error } = await supabase
           .from('artists')
           .select('id, handle, name, image_url')

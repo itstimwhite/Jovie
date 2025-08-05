@@ -1,38 +1,21 @@
 # Contributing to Jovie
 
-Thank you for your interest in contributing to Jovie! This document provides guidelines and information about contributing to the project.
+## ⚠️ CRITICAL: BRANCH PROTECTION RULES
 
-## Getting Started
+### **NEVER PUSH TO PREVIEW OR MAIN**
 
-### Prerequisites
+- **ONLY push to `develop` branch**
+- **NEVER push directly to `preview` or `main` branches**
+- The CI/CD pipeline handles all promotions automatically
+- If pipeline is stuck, fix issues on `develop` and let CI handle the rest
+- Direct pushes to protected branches will be rejected and can break the pipeline
 
-- Node.js 18+
-- npm or yarn
-- Git
-- A GitHub account
-- Supabase CLI (for database operations)
+### **Branch Protection**
 
-### Setting Up Your Development Environment
-
-1. Fork the repository on GitHub
-2. Clone your fork locally:
-   ```bash
-   git clone https://github.com/your-username/jovie.git
-   cd jovie
-   ```
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-4. Set up your environment variables (see README.md for details)
-5. Set up the database:
-   ```bash
-   supabase db push
-   ```
-6. Start the development server:
-   ```bash
-   npm run dev
-   ```
+- `preview` and `main` are protected branches
+- All changes must go through the CI/CD pipeline
+- Auto-promote workflows handle `develop → preview → main` progression
+- Manual intervention should only be done on `develop` branch
 
 ## Development Workflow
 

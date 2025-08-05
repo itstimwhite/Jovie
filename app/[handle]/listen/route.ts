@@ -17,6 +17,10 @@ export async function GET(
 
   const supabase = await createServerClient();
 
+  if (!supabase) {
+    return new NextResponse('Database connection failed', { status: 500 });
+  }
+
   const { data: artist, error: artistError } = await supabase
     .from('artists')
     .select('*')

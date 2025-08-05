@@ -27,6 +27,11 @@ export function AnalyticsCards() {
       try {
         const supabase = await getAuthenticatedClient();
 
+        if (!supabase) {
+          setError('Database connection failed. Please try again later.');
+          return;
+        }
+
         // Get analytics data for the current user's artists
         const { data: analyticsData, error } = await supabase
           .from('click_events')
