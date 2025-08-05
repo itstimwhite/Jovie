@@ -40,6 +40,8 @@ export function OnboardingForm() {
         .eq('clerk_id', user.id)
         .single();
 
+      console.log('User lookup result:', { existingUser, userError });
+
       if (userError && userError.code !== 'PGRST116') {
         // User doesn't exist, create them
         const userEmail = user.emailAddresses[0]?.emailAddress;
@@ -117,6 +119,8 @@ export function OnboardingForm() {
         published: true,
       });
 
+      console.log('About to insert artist with userId:', userId);
+
       const { data: newArtist, error: artistError } = await supabase
         .from('artists')
         .insert({
@@ -128,6 +132,8 @@ export function OnboardingForm() {
         })
         .select('*')
         .single();
+
+      console.log('Artist creation result:', { newArtist, artistError });
 
       if (artistError) {
         console.error('Error creating artist:', artistError);
