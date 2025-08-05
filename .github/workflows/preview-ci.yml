@@ -66,6 +66,7 @@ jobs:
     strategy:
       matrix:
         browser: [chromium, firefox, webkit]
+        country: [US, DE]
     steps:
       - uses: actions/checkout@v4
 
@@ -79,7 +80,7 @@ jobs:
 
       - name: Run E2E tests
         run: |
-          BASE_URL="${{ needs.deploy.outputs.url }}" npm run test:e2e
+          BASE_URL="${{ needs.deploy.outputs.url }}" COUNTRY="${{ matrix.country }}" npm run test:e2e
 
   lighthouse:
     needs: deploy
