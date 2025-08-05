@@ -18,6 +18,7 @@ Pipeline  Pipeline  Review   Deployment
 **Trigger:** Push to `develop` branch
 
 **Process:**
+
 1. ✅ **CI Checks:**
    - Type checking and linting
    - Unit and integration tests
@@ -39,6 +40,7 @@ Pipeline  Pipeline  Review   Deployment
 **Trigger:** Push to `preview` branch (after develop → preview merge)
 
 **Process:**
+
 1. ✅ **Comprehensive Testing:**
    - Full E2E testing (desktop + mobile)
    - Visual regression testing
@@ -60,6 +62,7 @@ Pipeline  Pipeline  Review   Deployment
 **Trigger:** Push to `main` branch (after preview → main merge)
 
 **Process:**
+
 1. ✅ **Production Deployment:**
    - Production environment deployment
    - Post-deployment verification
@@ -71,17 +74,20 @@ Pipeline  Pipeline  Review   Deployment
 ## 🎯 **Key Features**
 
 ### **Automated Promotions:**
+
 - ✅ **develop → preview:** Fully automated with auto-merge
 - ✅ **preview → main:** Automated PR creation, manual review required
 - ✅ **main → production:** Automated deployment
 
 ### **Safety Gates:**
+
 - ✅ **Develop:** All CI checks must pass
 - ✅ **Preview:** Full E2E tests + security scans must pass
 - ✅ **Main:** Manual review required
 - ✅ **Production:** Automatic deployment with verification
 
 ### **Error Handling:**
+
 - ✅ **Branch ahead checks:** Prevents unnecessary PRs
 - ✅ **Conditional execution:** Only runs when needed
 - ✅ **Comprehensive logging:** Clear status messages
@@ -90,6 +96,7 @@ Pipeline  Pipeline  Review   Deployment
 ## 🔍 **Workflow Triggers**
 
 ### **develop-ci.yml:**
+
 ```yaml
 on:
   push:
@@ -100,6 +107,7 @@ on:
 ```
 
 ### **preview-ci.yml:**
+
 ```yaml
 on:
   push:
@@ -110,6 +118,7 @@ on:
 ```
 
 ### **production-deploy.yml:**
+
 ```yaml
 on:
   push:
@@ -120,6 +129,7 @@ on:
 ## 🛡️ **Security & Quality Gates**
 
 ### **Develop Branch:**
+
 - ✅ TypeScript type checking
 - ✅ ESLint code quality
 - ✅ Unit and integration tests
@@ -129,6 +139,7 @@ on:
 - ✅ Dependency security audit
 
 ### **Preview Branch:**
+
 - ✅ Full E2E testing (desktop + mobile)
 - ✅ Visual regression testing
 - ✅ Lighthouse performance budgets
@@ -137,6 +148,7 @@ on:
 - ✅ Comprehensive security audit
 
 ### **Main Branch:**
+
 - ✅ Production deployment
 - ✅ Post-deployment verification
 - ✅ Environment protection
@@ -144,15 +156,18 @@ on:
 ## 📊 **Monitoring & Observability**
 
 ### **Workflow Status:**
+
 - ✅ **Success:** All checks passed, promotion successful
 - ✅ **Failure:** Check logs for specific issues
 - ✅ **Skipped:** No changes to promote (expected)
 
 ### **Deployment URLs:**
+
 - ✅ **Preview:** Available in PR description
 - ✅ **Production:** Available in deployment logs
 
 ### **Notifications:**
+
 - ✅ **PR Creation:** Automatic PR with detailed description
 - ✅ **Auto-merge:** Automatic merging when conditions met
 - ✅ **Manual Review:** Clear indication when manual review needed
@@ -177,6 +192,7 @@ on:
    - Check deployment logs
 
 ### **Debug Commands:**
+
 ```bash
 # Check branch status
 git fetch origin
@@ -192,18 +208,21 @@ gh run list --workflow=production-deploy.yml
 ## 🎯 **Best Practices**
 
 ### **Development:**
+
 - ✅ Always work on `develop` branch
 - ✅ Ensure all tests pass before pushing
 - ✅ Monitor CI/CD pipeline status
 - ✅ Review auto-created PRs
 
 ### **Review Process:**
+
 - ✅ Review preview → main PRs carefully
 - ✅ Test preview environment before approval
 - ✅ Check security scan results
 - ✅ Verify performance metrics
 
 ### **Deployment:**
+
 - ✅ Monitor production deployment
 - ✅ Verify post-deployment checks
 - ✅ Monitor application performance
@@ -212,11 +231,13 @@ gh run list --workflow=production-deploy.yml
 ## 📈 **Performance Metrics**
 
 ### **Pipeline Efficiency:**
+
 - ✅ **Develop CI:** ~40 minutes
 - ✅ **Preview CI:** ~60 minutes
 - ✅ **Production Deploy:** ~30 minutes
 
 ### **Quality Metrics:**
+
 - ✅ **Test Coverage:** Comprehensive E2E testing
 - ✅ **Performance:** Lighthouse budget compliance
 - ✅ **Security:** Automated vulnerability scanning
@@ -226,4 +247,4 @@ gh run list --workflow=production-deploy.yml
 
 **Status:** ✅ **Fully Automated Pipeline**
 
-The CI/CD pipeline is now fully automated with proper safety gates, comprehensive testing, and clear promotion flow from develop to production. The pipeline ensures quality, security, and reliability at every stage. 
+The CI/CD pipeline is now fully automated with proper safety gates, comprehensive testing, and clear promotion flow from develop to production. The pipeline ensures quality, security, and reliability at every stage.

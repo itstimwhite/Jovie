@@ -77,4 +77,4 @@ jobs:
           cache: 'npm'
 
       - run: npm ci
-      - run: npm run danger 
+      - run: npm run danger

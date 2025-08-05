@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useUser, useAuth } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { ProfileLinkCard } from '@/components/dashboard/ProfileLinkCard';
@@ -27,17 +28,40 @@ const tabs = [
 export default function DashboardPage() {
   const { user, isLoaded } = useUser();
   const { getToken } = useAuth();
+  const router = useRouter();
   const [artist, setArtist] = useState<Artist | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('profile');
   const [error, setError] = useState<string | null>(null);
+  const [checkingClaims, setCheckingClaims] = useState(true);
+
+  // Check for pending claims and redirect if needed
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const pendingClaim = sessionStorage.getItem('pendingClaim');
+    const selectedArtist = sessionStorage.getItem('selectedArtist');
+
+    if (pendingClaim && !selectedArtist) {
+      // User has a pending claim but hasn't selected an artist yet
+      router.push('/artist-selection');
+      return;
+    }
+
+    setCheckingClaims(false);
+  }, [isLoaded, router]);
 
   const fetchArtist = useCallback(async () => {
-    if (!user || !isLoaded) return;
+    if (!user || !isLoaded || checkingClaims) return;
 
     try {
       // Get Clerk token for Supabase authentication
       const token = await getToken({ template: 'supabase' });
+
+      if (!token) {
+        setError('Authentication failed. Please try logging in again.');
+        return;
+      }
 
       // Get authenticated Supabase client
       const supabase = await getAuthenticatedClient(token);
@@ -51,11 +75,18 @@ export default function DashboardPage() {
 
       if (userError) {
         console.error('Error fetching user:', userError);
+        if (userError.code === 'PGRST116') {
+          // User doesn't exist in database, redirect to onboarding
+          router.push('/onboarding');
+          return;
+        }
+        setError('Failed to load user data');
         return;
       }
 
       if (!userData?.id) {
         console.error('No user ID found');
+        setError('User data is incomplete');
         return;
       }
 
@@ -68,6 +99,11 @@ export default function DashboardPage() {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching artist:', error);
+        setError('Failed to load artist data');
+      } else if (error && error.code === 'PGRST116') {
+        // No artist found, redirect to onboarding
+        router.push('/onboarding');
+        return;
       } else {
         setArtist(data as Artist | null);
       }
@@ -77,17 +113,29 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [user, isLoaded, getToken]);
+  }, [user, isLoaded, getToken, checkingClaims, router]);
 
   useEffect(() => {
-    if (user && isLoaded) {
+    if (user && isLoaded && !checkingClaims) {
       fetchArtist();
     }
-  }, [user, isLoaded, fetchArtist]);
+  }, [user, isLoaded, fetchArtist, checkingClaims]);
 
   const handleArtistUpdated = (updatedArtist: Artist) => {
     setArtist(updatedArtist);
   };
+
+  // Show loading while checking claims
+  if (checkingClaims) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-[#0D0E12] flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 dark:border-white/20 border-t-gray-600 dark:border-t-white"></div>
+          <p className="mt-4 text-gray-600 dark:text-white/70">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Show error state
   if (error) {

@@ -159,18 +159,18 @@ jobs:
           title: 'Auto-promote: preview → main'
           body: |
             🤖 **Automated Production Promotion**
-            
+
             This PR automatically promotes changes from `preview` to `main`.
-            
+
             **All checks passed:**
             - ✅ E2E tests (all browsers)
             - ✅ Lighthouse performance
             - ✅ Bundle size analysis
             - ✅ Security scan (ZAP)
             - ✅ All CI checks passed
-            
+
             **Auto-merge enabled** - This PR will be automatically merged when all checks pass.
-            
+
             **Deployment URL:** ${{ needs.deploy.outputs.url }}
           branch: auto-promote/main
           base: main

@@ -55,4 +55,4 @@ jobs:
         id: build
 
       - name: Set artifact path
-        run: echo "artifact-path=.next" >> $GITHUB_OUTPUT 
+        run: echo "artifact-path=.next" >> $GITHUB_OUTPUT
