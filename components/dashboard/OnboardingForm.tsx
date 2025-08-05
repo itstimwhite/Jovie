@@ -25,6 +25,9 @@ export function OnboardingForm() {
       // Get Clerk token for Supabase authentication
       const token = await getToken({ template: 'supabase' });
 
+      console.log('Got Clerk token:', token ? 'Token exists' : 'No token');
+      console.log('User ID:', user.id);
+
       // Get authenticated Supabase client
       const supabase = await getAuthenticatedClient(token);
 
@@ -56,10 +59,29 @@ export function OnboardingForm() {
 
         if (createUserError) {
           console.error('Error creating user:', createUserError);
+          console.error('User creation error details:', {
+            code: createUserError.code,
+            message: createUserError.message,
+            details: createUserError.details,
+            hint: createUserError.hint,
+          });
           throw createUserError;
         }
         userId = newUser.id;
         console.log('Created user with ID:', userId);
+
+        // Verify the user was created by fetching it
+        const { data: verifyUser, error: verifyError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', userId)
+          .single();
+
+        if (verifyError) {
+          console.error('Error verifying user creation:', verifyError);
+        } else {
+          console.log('User verified:', verifyUser);
+        }
       } else if (userError) {
         console.error('Error fetching user:', userError);
         throw userError;
@@ -109,6 +131,12 @@ export function OnboardingForm() {
 
       if (artistError) {
         console.error('Error creating artist:', artistError);
+        console.error('Error details:', {
+          code: artistError.code,
+          message: artistError.message,
+          details: artistError.details,
+          hint: artistError.hint,
+        });
         throw artistError;
       }
 
