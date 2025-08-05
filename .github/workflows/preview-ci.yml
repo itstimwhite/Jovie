@@ -32,7 +32,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-output
-          path: .next
+          path: .next/standalone
 
       - name: Vercel pull preview env
         run: npx vercel pull --environment=preview --yes --token "$VERCEL_TOKEN"
