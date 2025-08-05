@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useUser, useAuth } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
@@ -12,7 +12,7 @@ import { SocialsForm } from '@/components/dashboard/SocialsForm';
 import { ListenNowForm } from '@/components/dashboard/ListenNowForm';
 import { AnalyticsCards } from '@/components/dashboard/AnalyticsCards';
 import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
-import { getAuthenticatedClient } from '@/lib/supabase';
+import { useAuthenticatedSupabase } from '@/lib/supabase';
 import { Artist } from '@/types/db';
 import { APP_NAME } from '@/constants/app';
 
@@ -27,7 +27,7 @@ const tabs = [
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser();
-  const { getToken } = useAuth();
+  const { getAuthenticatedClient } = useAuthenticatedSupabase();
   const router = useRouter();
   const [artist, setArtist] = useState<Artist | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,16 +55,8 @@ export default function DashboardPage() {
     if (!user || !isLoaded || checkingClaims) return;
 
     try {
-      // Get Clerk token for Supabase authentication
-      const token = await getToken({ template: 'supabase' });
-
-      if (!token) {
-        setError('Authentication failed. Please try logging in again.');
-        return;
-      }
-
-      // Get authenticated Supabase client
-      const supabase = await getAuthenticatedClient(token);
+      // Get authenticated Supabase client using the new integration
+      const supabase = await getAuthenticatedClient();
 
       // First get the user's database ID
       const { data: userData, error: userError } = await supabase
@@ -113,7 +105,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [user, isLoaded, getToken, checkingClaims, router]);
+  }, [user, isLoaded, getAuthenticatedClient, checkingClaims, router]);
 
   useEffect(() => {
     if (user && isLoaded && !checkingClaims) {
