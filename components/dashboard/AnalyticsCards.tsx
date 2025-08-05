@@ -1,92 +1,116 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useAuthenticatedSupabase } from '@/lib/supabase';
+import { DataCard } from '@/components/ui/DataCard';
 
-interface AnalyticsCardsProps {
-  artistId: string;
+interface AnalyticsData {
+  total_clicks: number;
+  spotify_clicks: number;
+  social_clicks: number;
+  recent_clicks: number;
 }
 
-export function AnalyticsCards({ artistId }: AnalyticsCardsProps) {
-  const [analytics, setAnalytics] = useState({
-    totalClicks: 0,
-    spotifyClicks: 0,
-    socialClicks: 0,
-  });
+export function AnalyticsCards() {
+  const { getAuthenticatedClient } = useAuthenticatedSupabase();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | undefined>();
+  const [data, setData] = useState<AnalyticsData>({
+    total_clicks: 0,
+    spotify_clicks: 0,
+    social_clicks: 0,
+    recent_clicks: 0,
+  });
 
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        // Fetch total clicks from social links
-        const { data: socialLinks, error: socialError } = await supabase
-          .from('social_links')
-          .select('clicks')
-          .eq('artist_id', artistId);
+        const supabase = await getAuthenticatedClient();
 
-        if (socialError) {
-          console.error('Error fetching social analytics:', socialError);
+        // Get analytics data for the current user's artists
+        const { data: analyticsData, error } = await supabase
+          .from('click_events')
+          .select('*')
+          .gte(
+            'created_at',
+            new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+          );
+
+        if (error) {
+          console.error('Error fetching analytics:', error);
+          setError('Failed to load analytics');
         } else {
-          const totalSocialClicks =
-            socialLinks?.reduce(
-              (sum, link) => sum + (Number(link.clicks) || 0),
-              0
-            ) || 0;
-          setAnalytics((prev) => ({
-            ...prev,
-            socialClicks: totalSocialClicks,
-            totalClicks: totalSocialClicks, // For now, just social clicks
-          }));
+          // Process analytics data
+          const totalClicks = analyticsData?.length || 0;
+          const spotifyClicks =
+            analyticsData?.filter((e) => e.link_type === 'listen').length || 0;
+          const socialClicks =
+            analyticsData?.filter((e) => e.link_type === 'social').length || 0;
+          const recentClicks =
+            analyticsData?.filter(
+              (e) =>
+                new Date(e.created_at) >
+                new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+            ).length || 0;
+
+          setData({
+            total_clicks: totalClicks,
+            spotify_clicks: spotifyClicks,
+            social_clicks: socialClicks,
+            recent_clicks: recentClicks,
+          });
         }
       } catch (error) {
-        console.error('Error fetching analytics:', error);
+        console.error('Error:', error);
+        setError('Failed to load analytics');
       } finally {
         setLoading(false);
       }
     };
 
     fetchAnalytics();
-  }, [artistId]);
+  }, [getAuthenticatedClient]);
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-white">Analytics</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-24 bg-white/10 rounded-lg animate-pulse"
-            />
-          ))}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <DataCard key={i} title="Loading..." subtitle="..." />
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-600">
+        <p>{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-white">Analytics</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4">
-          <div className="text-2xl font-semibold text-white">
-            {analytics.totalClicks}
-          </div>
-          <div className="text-sm text-white/70">Total Clicks</div>
-        </div>
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4">
-          <div className="text-2xl font-semibold text-white">
-            {analytics.spotifyClicks}
-          </div>
-          <div className="text-sm text-white/70">Spotify Clicks</div>
-        </div>
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4">
-          <div className="text-2xl font-semibold text-white">
-            {analytics.socialClicks}
-          </div>
-          <div className="text-sm text-white/70">Social Clicks</div>
-        </div>
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <DataCard
+        title="Total Clicks"
+        subtitle={data.total_clicks.toString()}
+        metadata="Last 30 days"
+      />
+      <DataCard
+        title="Spotify Clicks"
+        subtitle={data.spotify_clicks.toString()}
+        metadata="Music platform clicks"
+      />
+      <DataCard
+        title="Social Clicks"
+        subtitle={data.social_clicks.toString()}
+        metadata="Social media clicks"
+      />
+      <DataCard
+        title="Recent Activity"
+        subtitle={data.recent_clicks.toString()}
+        metadata="Last 7 days"
+      />
     </div>
   );
 }

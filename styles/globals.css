@@ -6,8 +6,8 @@
 
 @theme {
   --font-sans:
-    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
-    'Segoe UI', Roboto, Inter, Arial, sans-serif;
+    var(--font-inter), -apple-system, BlinkMacSystemFont, 'SF Pro Text',
+    'SF Pro Display', 'Segoe UI', Roboto, Arial, sans-serif;
 
   --color-gray-50: #f9fafb;
   --color-gray-100: #f3f4f6;
@@ -91,26 +91,26 @@
   @apply h-10 px-4 py-2;
 }
 
-  @utility btn-lg {
-    @apply h-12 px-8 text-base;
+@utility btn-lg {
+  @apply h-12 px-8 text-base;
+}
+
+@utility text-accent {
+  color: rgb(var(--accent));
+}
+
+@layer base {
+  :root {
+    --background: 255 255 255;
+    --foreground: 17 24 39;
+    --accent: 192 132 252;
   }
 
-  @utility text-accent {
-    color: rgb(var(--accent));
+  .dark {
+    --background: 17 24 39;
+    --foreground: 249 250 251;
+    --accent: 192 132 252;
   }
-
-  @layer base {
-    :root {
-      --background: 255 255 255;
-      --foreground: 17 24 39;
-      --accent: 192 132 252;
-    }
-
-    .dark {
-      --background: 17 24 39;
-      --foreground: 249 250 251;
-      --accent: 192 132 252;
-    }
 
   body {
     @apply bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-50;

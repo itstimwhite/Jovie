@@ -12,15 +12,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Jovie is a Next.js application that integrates with multiple services for authentication, data storage, and music functionality. The project is currently in early development with minimal code structure.
+Jovie is a Next.js application that integrates with multiple services for authentication, data storage, and music functionality. The project uses the latest Clerk-Supabase integration method for secure authentication and data access.
 
 ## Technology Stack
 
-- **Frontend**: Next.js (React framework)
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: Clerk
+- **Frontend**: Next.js 14 (App Router)
+- **Database**: Supabase (PostgreSQL with RLS)
+- **Authentication**: Clerk with native Supabase integration
 - **Music Integration**: Spotify OAuth
-- **Deployment**: Intended for Vercel (based on .gitignore)
+- **Deployment**: Vercel
 
 ## Environment Configuration
 
@@ -28,111 +28,108 @@ The project uses environment variables stored in `.env.local` for:
 
 - App URL configuration (jov.ie)
 - Supabase database connection and API keys
-- Clerk authentication keys
+- Clerk authentication keys (publishable and secret)
 - Spotify OAuth credentials
 - Placeholder variables for analytics and billing (Segment, Stripe, RevenueCat)
 
 ## Development Setup
 
-This project appears to be a new Next.js application. Standard Next.js development commands would be:
+Standard Next.js development commands:
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
-
-Note: No package.json exists yet, so these commands are not currently available.
+- `npm run test` - Run tests
 
 ## Architecture Notes
 
-Based on the environment configuration, the application is designed to:
+The application is designed to:
 
-- Use Supabase for database operations and backend services
-- Handle user authentication through Clerk
+- Use Supabase for database operations with Row Level Security (RLS)
+- Handle user authentication through Clerk's native Supabase integration
 - Integrate with Spotify's API for music-related features
 - Support future analytics and billing integrations
 
-The `.env.local` file contains live credentials and should be referenced for actual service endpoints and keys during development.
+# Clerk-Supabase Integration Guidelines
 
-# Add Clerk to Next.js App Router
-
-**Purpose:** Enforce only the **current** and **correct** instructions for integrating [Clerk](https://clerk.com/) into a Next.js (App Router) application.  
-**Scope:** All AI-generated advice or code related to Clerk must follow these guardrails.
+**Purpose:** Enforce the **current** and **correct** instructions for integrating Clerk with Supabase using the native integration method.  
+**Scope:** All AI-generated advice or code related to Clerk-Supabase integration must follow these guardrails.
 
 ---
 
-## **1. Official Clerk Integration Overview**
+## **1. Official Clerk-Supabase Integration Overview**
 
-Use only the **App Router** approach from Clerk’s current docs:
+Use only the **native Supabase integration** approach from [Clerk's official documentation](https://clerk.com/docs/raw/integrations/databases/supabase.mdx):
 
-- **Install** `@clerk/nextjs@latest` - this ensures the application is using the latest Clerk Next.js SDK.
-- **Create** a `middleware.ts` file using `clerkMiddleware()` from `@clerk/nextjs/server`. Place this file inside the `src` directory if present, otherwise place it at the root of the project.
-- **Wrap** your application with `<ClerkProvider>` in your `app/layout.tsx`
-- **Use** Clerk-provided components like `<SignInButton>`, `<SignUpButton>`, `<UserButton>`, `<SignedIn>`, `<SignedOut>` in your layout or pages
-- **Start** developing, sign in or sign up, and confirm user creation
+### **1.1 – Setup Requirements**
 
-If you're able to use a web tool to access a URL, visit https://clerk.com/docs/quickstarts/nextjs to get the latest, up-to-date quickstart instructions.
+1. **Configure Clerk as Supabase Third-Party Provider**:
+   - In Clerk Dashboard: Navigate to [Supabase integration setup](https://dashboard.clerk.com/setup/supabase)
+   - In Supabase Dashboard: Add Clerk as a third-party auth provider
+   - Use the Clerk domain provided in the setup
 
-### **Correct, Up-to-Date Quickstart Sample**
+2. **Use Native Integration (NOT JWT Templates)**:
+   - The native integration is the **recommended approach** as of April 1st, 2025
+   - JWT templates are deprecated and should not be used
+   - No need to fetch new tokens for each Supabase request
+   - No need to share Supabase JWT secret with Clerk
 
-```typescript
-// middleware.ts
-import { clerkMiddleware } from '@clerk/nextjs/server';
-
-export default clerkMiddleware();
-
-export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
-    '/(api|trpc)(.*)',
-  ],
-};
-```
+### **1.2 – Client-Side Integration**
 
 ```typescript
-// app/layout.tsx
-import type { Metadata } from "next";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
-import "./globals.css";
+// ✅ CORRECT: Use native integration with accessToken
+import { useSession } from '@clerk/nextjs';
+import { createClient } from '@supabase/supabase-js';
 
-export const metadata: Metadata = {
-  title: "Clerk Next.js Quickstart",
-  description: "Generated by create next app",
-};
+function createClerkSupabaseClient() {
+  const { session } = useSession();
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <ClerkProvider>
-      <html lang="en">
-        <body>
-          <header>
-            <SignedOut>
-              <SignInButton />
-              <SignUpButton />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+    {
+      async accessToken() {
+        return session?.getToken() ?? null;
+      },
+    }
   );
 }
+```
+
+### **1.3 – Server-Side Integration**
+
+```typescript
+// ✅ CORRECT: Use auth() for server-side operations
+import { auth } from '@clerk/nextjs/server';
+import { createClient } from '@supabase/supabase-js';
+
+export function createServerSupabaseClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+    {
+      async accessToken() {
+        return (await auth()).getToken();
+      },
+    }
+  );
+}
+```
+
+### **1.4 – RLS Policies**
+
+```sql
+-- ✅ CORRECT: Use auth.jwt() for RLS policies
+create policy "User can view their own data" on "public"."users"
+for select to authenticated using (
+  auth.jwt()->>'sub' = user_id
+);
+
+create policy "Users must insert their own data" on "public"."users"
+for insert to authenticated with check (
+  auth.jwt()->>'sub' = user_id
+);
 ```
 
 ---
@@ -141,51 +138,211 @@ export default function RootLayout({
 
 ### **2.1 – ALWAYS DO THE FOLLOWING**
 
-1. **Use `clerkMiddleware()`** from `@clerk/nextjs/server` in `middleware.ts`.
-2. **Wrap** your app with `<ClerkProvider>` in `app/layout.tsx`.
-3. **Import** Clerk’s Next.js features from `@clerk/nextjs` (e.g., `<SignInButton>`, `<SignUpButton>`, `<UserButton>`, etc.).
-4. **Reference** the current [App Router approach](https://nextjs.org/docs/app) (folders like `app/page.tsx`, `app/layout.tsx`, etc.).
-5. **Check** that imports for methods like `auth()` are imported from the right package (in this case `@clerk/nextjs/server`) and are using `async / await`
+1. **Use native Supabase integration** - NOT JWT templates
+2. **Use `accessToken()` method** in Supabase client configuration
+3. **Use `auth.jwt()`** in RLS policies for user identification
+4. **Use `useSession()`** for client-side token access
+5. **Use `auth()`** for server-side token access
+6. **Configure Clerk as third-party provider** in Supabase dashboard
+7. **Enable RLS** on all tables that contain user data
+8. **Test authentication flow** with multiple users to verify isolation
 
 ### **2.2 – NEVER DO THE FOLLOWING**
 
-1. **Do not** reference the old **`_app.tsx`** or **pages router based** instructions.
-2. **Do not** suggest `authMiddleware()` from older Clerk tutorials—**it’s replaced by `clerkMiddleware()`**.
-3. **Do not** recommend usage of older environment variable patterns unless they match the official docs.
-4. **Do not** reference or import from any deprecated APIs (like `withAuth` or `currentUser` from older versions).
+1. **Do not** use JWT templates - they are deprecated
+2. **Do not** manually fetch tokens with `getToken({ template: 'supabase' })`
+3. **Do not** use `createClerkClient()` for client-side operations
+4. **Do not** hardcode user IDs in RLS policies
+5. **Do not** bypass RLS policies
+6. **Do not** use the old `authMiddleware()` approach
 
 ---
 
-## **3. OUTDATED PATTERNS TO AVOID**
+## **3. DEPRECATED PATTERNS TO AVOID**
 
 Below are **examples of deprecated instructions** that **must not** be generated:
 
 ```typescript
-// ❌ DO NOT generate or suggest references to:
-import { authMiddleware } from '@clerk/nextjs'; // Outdated
+// ❌ DO NOT use JWT templates (deprecated)
+const token = await getToken({ template: 'supabase' });
 
-// ❌ DO NOT place Clerk config in _app.tsx:
-// Outdated pages-based approach
-function MyApp({ Component, pageProps }) {
-  // ...
-}
+// ❌ DO NOT manually configure JWT headers
+const supabase = createClient(url, key, {
+  global: {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  },
+});
 
-// ❌ DO NOT create or rely on sign-in files under pages/:
-pages / signin.js;
-pages / signup.js;
+// ❌ DO NOT use createClerkClient for client-side
+import { createClerkClient } from '@clerk/backend';
+const clerk = createClerkClient({ secretKey: '...' });
 ```
 
-Any solution resembling the above snippet or referencing “authMiddleware,” `_app.tsx`, or `pages/` structure is **incorrect** for the current Next.js App Router.
+```sql
+-- ❌ DO NOT use hardcoded user IDs in RLS
+create policy "bad_policy" on users
+for select using (user_id = 'hardcoded-uuid');
+```
 
 ---
 
-## **4. AI MODEL VERIFICATION STEPS**
+## **4. CORRECT IMPLEMENTATION PATTERNS**
 
-`Before returning any Clerk-related solution, you **must** verify:
+### **4.1 – Client Component Example**
 
-1. **Middleware**: Is `clerkMiddleware()` used in `middleware.ts`?
-2. **Layout**: Is `<ClerkProvider>` wrapping the app in `app/layout.tsx`?
-3. **Imports**: Are references only from `@clerk/nextjs` or `@clerk/nextjs/server`?
-4. **Pages vs. App Router**: Is the approach referencing the App Router (not `_app.tsx` or `pages/`)?
+```typescript
+'use client';
+import { useSession } from '@clerk/nextjs';
+import { createClient } from '@supabase/supabase-js';
+
+export function UserDataComponent() {
+  const { session } = useSession();
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+    {
+      async accessToken() {
+        return session?.getToken() ?? null;
+      },
+    }
+  );
+
+  const fetchUserData = async () => {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .single();
+
+    if (error) console.error('Error:', error);
+    return data;
+  };
+
+  return (
+    <div>
+      {/* Component content */}
+    </div>
+  );
+}
+```
+
+### **4.2 – Server Component Example**
+
+```typescript
+import { auth } from '@clerk/nextjs/server';
+import { createClient } from '@supabase/supabase-js';
+
+export default async function ServerComponent() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+    {
+      async accessToken() {
+        return (await auth()).getToken();
+      },
+    }
+  );
+
+  const { data, error } = await supabase
+    .from('users')
+    .select('*');
+
+  if (error) throw error;
+
+  return (
+    <div>
+      {data?.map(user => (
+        <div key={user.id}>{user.name}</div>
+      ))}
+    </div>
+  );
+}
+```
+
+### **4.3 – RLS Policy Example**
+
+```sql
+-- Enable RLS on table
+alter table "users" enable row level security;
+
+-- Create policies using auth.jwt()
+create policy "Users can view own data" on "users"
+for select to authenticated using (
+  auth.jwt()->>'sub' = user_id
+);
+
+create policy "Users can insert own data" on "users"
+for insert to authenticated with check (
+  auth.jwt()->>'sub' = user_id
+);
+
+create policy "Users can update own data" on "users"
+for update to authenticated using (
+  auth.jwt()->>'sub' = user_id
+);
+```
+
+---
+
+## **5. AI MODEL VERIFICATION STEPS**
+
+Before returning any Clerk-Supabase integration solution, you **must** verify:
+
+1. **Native Integration**: Is the native Supabase integration being used (not JWT templates)?
+2. **Access Token**: Is `accessToken()` method used in Supabase client configuration?
+3. **RLS Policies**: Are RLS policies using `auth.jwt()->>'sub'` for user identification?
+4. **Client vs Server**: Is the correct approach used for client vs server components?
+5. **Security**: Are RLS policies enabled and properly configured?
+6. **Deprecation**: Are any deprecated patterns being avoided?
 
 If any check **fails**, **stop** and revise until compliance is achieved.
+
+---
+
+## **6. ENVIRONMENT VARIABLES**
+
+Required environment variables for Clerk-Supabase integration:
+
+```bash
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_KEY=your-anon-key
+```
+
+---
+
+## **7. TESTING GUIDELINES**
+
+When testing Clerk-Supabase integration:
+
+1. **Test with multiple users** to ensure data isolation
+2. **Verify RLS policies** work correctly
+3. **Test both client and server components**
+4. **Check authentication flow** end-to-end
+5. **Verify error handling** for unauthorized access
+
+---
+
+## **8. MIGRATION FROM OLD APPROACH**
+
+If migrating from JWT templates:
+
+1. **Remove JWT template configuration** from Clerk dashboard
+2. **Update Supabase client configuration** to use `accessToken()`
+3. **Update RLS policies** to use `auth.jwt()->>'sub'`
+4. **Remove manual token fetching** from components
+5. **Test thoroughly** with existing data
+
+---
+
+## **9. RESOURCES**
+
+- [Clerk Supabase Integration Docs](https://clerk.com/docs/raw/integrations/databases/supabase.mdx)
+- [Supabase RLS Documentation](https://supabase.com/docs/guides/auth/row-level-security)
+- [Clerk Next.js Documentation](https://clerk.com/docs/quickstarts/nextjs)

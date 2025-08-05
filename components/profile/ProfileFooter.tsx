@@ -23,7 +23,7 @@ export function ProfileFooter({ artist }: ProfileFooterProps) {
         >
           <Logo
             size="sm"
-            className="text-gray-500 dark:text-gray-400 mx-auto"
+            className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
           />
         </Link>
         <Link

@@ -5,15 +5,17 @@ on:
     branches: [preview]
   workflow_dispatch: {}
 
-permissions:
-  contents: write
-  pull-requests: write
-  actions: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test-and-deploy-preview:
+  build:
+    uses: ./.github/workflows/_reusable-build.yml
+
+  deploy:
+    needs: build
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -22,113 +24,163 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PREVIEW_SUPABASE_SERVICE_ROLE_KEY }}
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.PREVIEW_NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
       CLERK_SECRET_KEY: ${{ secrets.PREVIEW_CLERK_SECRET_KEY }}
-      SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
-      SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20.17
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+      - run: npm ci
 
-      - name: Run full test suite
-        run: |
-          npm run lint
-          npm run typecheck
-          npm run test
-          npm run build
-
-      - name: Deploy to Vercel Preview
-        run: |
-          npm install -g vercel@latest
-          vercel --token ${{ secrets.VERCEL_TOKEN }} --yes
-          vercel --token ${{ secrets.VERCEL_TOKEN }} --prod
-
-      - name: Run Lighthouse CI on Preview
-        run: |
-          npm install -g @lhci/cli@0.14.x
-          lhci autorun || echo "Lighthouse CI completed with warnings"
-
-  auto-create-production-pr:
-    needs: test-and-deploy-preview
-    runs-on: ubuntu-latest
-    if: success()
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          name: build-output
+          path: .next
+
+      - name: Vercel pull preview env
+        run: npx vercel pull --environment=preview --yes --token "$VERCEL_TOKEN"
+
+      - name: Vercel build
+        run: npx vercel build --token "$VERCEL_TOKEN"
+
+      - name: Vercel deploy (preview)
+        id: vercel
+        run: |
+          URL=$(npx vercel deploy --prebuilt --token "$VERCEL_TOKEN")
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
+      - name: Upload Vercel output
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-output
+          path: .vercel/output
+          retention-days: 1
+
+  e2e:
+    needs: deploy
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npx playwright install --with-deps
+
+      - name: Run E2E tests
+        run: |
+          BASE_URL="${{ needs.deploy.outputs.url }}" npm run test:e2e
+
+  lighthouse:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lighthouse multipage audit
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: |
+            ${{ needs.deploy.outputs.url }}
+            ${{ needs.deploy.outputs.url }}/artists
+            ${{ needs.deploy.outputs.url }}/dashboard
+          configPath: .lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+  bundle-size:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Analyze bundle size
+        run: |
+          npx @next/bundle-analyzer .next/static/chunks/*.js --out-dir ./bundle-analysis
+
+      - name: Upload bundle analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-analysis
+          path: ./bundle-analysis
+          retention-days: 7
+
+  security:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run ZAP DAST
+        uses: zaproxy/action-full-scan@v0.8.0
+        with:
+          target: '${{ needs.deploy.outputs.url }}'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+      - name: Upload ZAP results
+        uses: actions/upload-artifact@v4
+        with:
+          name: zap-results
+          path: zap-report.html
+          retention-days: 30
+
+  promote:
+    needs: [deploy, e2e, lighthouse, bundle-size, security]
+    if: ${{ success() && github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
           fetch-depth: 0
 
-      - name: Create PR to production
+      - name: Create/Update PR preview → main
+        id: create_pull_request
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: main
-          head: preview
-          title: "🚀 Ready for Production: Preview → Main"
+          title: 'Auto-promote: preview → main'
           body: |
-            ## Production Release Request
-            
-            This PR was automatically created after successful preview deployment and testing.
-            
-            ### ✅ Completed Checks:
-            - ✅ Linting passed
-            - ✅ Type checking passed
-            - ✅ All tests passed
-            - ✅ Build successful
-            - ✅ Preview deployment successful
-            - ✅ Lighthouse CI completed
-            
-            ### 🔍 Preview Environment:
-            - Preview URL: [Check Vercel Dashboard](https://vercel.com/dashboard)
-            - All feature flags tested in preview environment
-            - Database migrations (if any) applied to preview
-            
-            ### ⚠️ Manual Review Required:
-            This PR requires manual approval before merging to production.
-            
-            **Please review:**
-            1. Preview environment functionality
-            2. Database migration safety (if applicable)
-            3. Feature flag configurations
-            4. Any breaking changes
-            
-            ### 🚀 Deployment Notes:
-            - Production environment variables are configured
-            - Feature flags will be applied per production settings
-            - Database migrations will run automatically on merge
-            
-            **Ready for production deployment after manual approval.**
-          branch-suffix: timestamp
-          delete-branch: false
-          labels: |
-            production
-            needs-review
-            auto-generated
+            🤖 **Automated Production Promotion**
 
-      - name: Request review from team
-        uses: actions/github-script@v7
+            This PR automatically promotes changes from `preview` to `main`.
+
+            **All checks passed:**
+            - ✅ E2E tests (all browsers)
+            - ✅ Lighthouse performance
+            - ✅ Bundle size analysis
+            - ✅ Security scan (ZAP)
+            - ✅ All CI checks passed
+
+            **Auto-merge enabled** - This PR will be automatically merged when all checks pass.
+
+            **Deployment URL:** ${{ needs.deploy.outputs.url }}
+          branch: auto-promote/main
+          base: main
+          delete-branch: true
+          labels: ci, promotion, auto-merge, production
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge (squash)
+        uses: peter-evans/enable-pull-request-automerge@v3
         with:
-          script: |
-            const { data: pullRequest } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: ${{ steps.create-pr.outputs.pull-request-number }}
-            });
-            
-            // Add reviewers (adjust usernames as needed)
-            await github.rest.pulls.requestReviewers({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pullRequest.number,
-              reviewers: ['itstimwhite'] // Add other team members as needed
-            });
+          pull-request-number: ${{ steps.create_pull_request.outputs.pull-request-number }}
+          merge-method: squash
+          token: ${{ secrets.GITHUB_TOKEN }}

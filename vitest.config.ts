@@ -8,11 +8,11 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
     exclude: ['tests/e2e/**', 'node_modules/**'],
-    // CI optimizations
-    pool: 'forks',
+    // Run tests sequentially to avoid interference
+    pool: 'threads',
     poolOptions: {
-      forks: {
-        singleFork: true,
+      threads: {
+        singleThread: true,
       },
     },
     // Coverage optimization

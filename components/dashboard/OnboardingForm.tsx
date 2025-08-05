@@ -1,151 +1,430 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
-import { Button } from '@/components/ui/Button';
+import Image from 'next/image';
+import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
+import { Button } from '@/components/ui/Button';
+import { useAuthenticatedSupabase } from '@/lib/supabase';
+
+interface OnboardingState {
+  step:
+    | 'validating'
+    | 'creating-user'
+    | 'checking-handle'
+    | 'creating-artist'
+    | 'complete';
+  progress: number;
+  error: string | null;
+  retryCount: number;
+}
+
+interface HandleValidation {
+  available: boolean;
+  checking: boolean;
+  error: string | null;
+}
+
+interface SelectedArtist {
+  spotifyId: string;
+  artistName: string;
+  imageUrl?: string;
+  timestamp: number;
+}
 
 export function OnboardingForm() {
   const { user } = useUser();
-  const router = useRouter();
-  const [handle, setHandle] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { getAuthenticatedClient } = useAuthenticatedSupabase();
 
+  // Form state
+  const [handle, setHandle] = useState('');
+  const [selectedArtist, setSelectedArtist] = useState<SelectedArtist | null>(
+    null
+  );
+
+  // Process state
+  const [state, setState] = useState<OnboardingState>({
+    step: 'validating',
+    progress: 0,
+    error: null,
+    retryCount: 0,
+  });
+
+  // Handle validation state
+  const [handleValidation, setHandleValidation] = useState<HandleValidation>({
+    available: false,
+    checking: false,
+    error: null,
+  });
+
+  // Check for selected artist data
   useEffect(() => {
-    // Check for pending claim
-    const pendingClaim = sessionStorage.getItem('pendingClaim');
-    if (pendingClaim) {
+    const stored = sessionStorage.getItem('selectedArtist');
+    if (stored) {
       try {
-        const claim = JSON.parse(pendingClaim);
-        // Generate a handle from the artist name
-        const suggestedHandle = claim.artistName
-          .toLowerCase()
-          .replace(/[^a-z0-9]/g, '')
-          .substring(0, 20);
-        setHandle(suggestedHandle);
+        const artist = JSON.parse(stored) as SelectedArtist;
+        setSelectedArtist(artist);
       } catch (error) {
-        console.error('Error parsing pending claim:', error);
+        console.error('Error parsing selected artist:', error);
       }
     }
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!handle.trim()) return;
-
-    setLoading(true);
-    setError('');
-
-    try {
-      // Get or create user in database
-      if (!user?.id) {
-        setError('User not found. Please sign in again.');
-        setLoading(false);
+  // Debounced handle validation
+  const validateHandle = useCallback(
+    async (handleValue: string) => {
+      if (!handleValue || handleValue.length < 3) {
+        setHandleValidation({ available: false, checking: false, error: null });
         return;
       }
-      const { data: existingUser, error: userError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('clerk_id', user.id)
-        .single();
 
-      let userId;
-      if (userError && userError.code === 'PGRST116') {
-        const { data: newUser, error: createUserError } = await supabase
-          .from('users')
-          .insert({
-            clerk_id: user?.id,
-            email: user?.primaryEmailAddress?.emailAddress || '',
-          })
+      setHandleValidation({ available: false, checking: true, error: null });
+
+      try {
+        const supabase = await getAuthenticatedClient();
+
+        const { data, error: validationError } = await supabase
+          .from('artists')
           .select('id')
+          .eq('handle', handleValue.toLowerCase())
           .single();
 
-        if (createUserError) throw createUserError;
-        userId = newUser.id;
-      } else if (userError) {
-        throw userError;
-      } else {
-        userId = existingUser.id;
+        if (validationError && validationError.code !== 'PGRST116') {
+          setHandleValidation({
+            available: false,
+            checking: false,
+            error: 'Error checking availability',
+          });
+        } else if (data) {
+          setHandleValidation({
+            available: false,
+            checking: false,
+            error: 'Handle already taken',
+          });
+        } else {
+          setHandleValidation({
+            available: true,
+            checking: false,
+            error: null,
+          });
+        }
+      } catch (validationError) {
+        console.error('Handle validation error:', validationError);
+        setHandleValidation({
+          available: false,
+          checking: false,
+          error: 'Network error',
+        });
       }
+    },
+    [getAuthenticatedClient]
+  );
 
-      // Check if handle is available
-      const { data: existingArtist } = await supabase
-        .from('artists')
-        .select('id')
-        .eq('handle', handle)
-        .single();
+  // Validate handle when it changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      validateHandle(handle);
+    }, 500);
 
-      if (existingArtist) {
-        setError('This handle is already taken. Please choose another one.');
-        return;
+    return () => clearTimeout(timeoutId);
+  }, [handle, validateHandle]);
+
+  // Handle validation rules
+  const handleError = useMemo(() => {
+    if (!handle) return null;
+    if (handle.length < 3) return 'Handle must be at least 3 characters';
+    if (handle.length > 30) return 'Handle must be less than 30 characters';
+    if (!/^[a-zA-Z0-9-]+$/.test(handle))
+      return 'Handle can only contain letters, numbers, and hyphens';
+    if (handleValidation.error) return handleValidation.error;
+    return null;
+  }, [handle, handleValidation.error]);
+
+  const isFormValid = useMemo(() => {
+    return (
+      handle.length >= 3 &&
+      handle.length <= 30 &&
+      /^[a-zA-Z0-9-]+$/.test(handle) &&
+      handleValidation.available &&
+      !state.error
+    );
+  }, [handle, handleValidation.available, state.error]);
+
+  // Retry mechanism
+  const retryOperation = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      error: null,
+      retryCount: prev.retryCount + 1,
+    }));
+  }, []);
+
+  // Main submission handler with improved error handling
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!user || !isFormValid) return;
+
+      setState((prev) => ({
+        ...prev,
+        error: null,
+        step: 'validating',
+        progress: 0,
+      }));
+
+      try {
+        // Step 1: Get authentication token
+        setState((prev) => ({ ...prev, step: 'validating', progress: 10 }));
+        const supabase = await getAuthenticatedClient();
+
+        // Step 2: Create or get user
+        setState((prev) => ({ ...prev, step: 'creating-user', progress: 30 }));
+        let userId: string;
+
+        try {
+          const { data: existingUser, error: userError } = await supabase
+            .from('users')
+            .select('id')
+            .eq('clerk_id', user.id)
+            .single();
+
+          if (userError && userError.code !== 'PGRST116') {
+            // User doesn't exist, create them
+            const userEmail = user.emailAddresses[0]?.emailAddress;
+            if (!userEmail) throw new Error('Email address is required');
+
+            const { data: newUser, error: createUserError } = await supabase
+              .from('users')
+              .insert({
+                clerk_id: user.id,
+                email: userEmail,
+              })
+              .select('id')
+              .single();
+
+            if (createUserError) throw createUserError;
+            userId = newUser.id;
+          } else if (userError) {
+            throw userError;
+          } else {
+            userId = existingUser.id;
+          }
+        } catch (error) {
+          throw new Error(
+            `User creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+          );
+        }
+
+        // Step 3: Final handle availability check
+        setState((prev) => ({
+          ...prev,
+          step: 'checking-handle',
+          progress: 60,
+        }));
+        try {
+          const { data: existingArtist, error: checkError } = await supabase
+            .from('artists')
+            .select('id')
+            .eq('handle', handle.toLowerCase())
+            .single();
+
+          if (checkError && checkError.code !== 'PGRST116') throw checkError;
+          if (existingArtist) throw new Error('Handle is no longer available');
+        } catch (error) {
+          throw new Error(
+            `Handle validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+          );
+        }
+
+        // Step 4: Create artist profile
+        setState((prev) => ({
+          ...prev,
+          step: 'creating-artist',
+          progress: 80,
+        }));
+        try {
+          const { error: artistError } = await supabase
+            .from('artists')
+            .insert({
+              owner_user_id: userId,
+              handle: handle.toLowerCase(),
+              name: selectedArtist?.artistName || 'Your Artist Name',
+              spotify_id: selectedArtist?.spotifyId || 'placeholder',
+              image_url: selectedArtist?.imageUrl || null,
+              published: true,
+            })
+            .select('*')
+            .single();
+
+          if (artistError) throw artistError;
+
+          // Success!
+          setState((prev) => ({ ...prev, step: 'complete', progress: 100 }));
+
+          // Clear session data
+          sessionStorage.removeItem('selectedArtist');
+          sessionStorage.removeItem('pendingClaim');
+
+          // Redirect with a small delay to show completion
+          setTimeout(() => {
+            window.location.href = `/${handle.toLowerCase()}`;
+          }, 500);
+        } catch (error) {
+          throw new Error(
+            `Artist creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+          );
+        }
+      } catch (error) {
+        console.error('Onboarding error:', error);
+        setState((prev) => ({
+          ...prev,
+          error:
+            error instanceof Error
+              ? error.message
+              : 'An unexpected error occurred',
+          step: 'validating',
+          progress: 0,
+        }));
       }
+    },
+    [user, handle, selectedArtist, isFormValid, getAuthenticatedClient]
+  );
 
-      // Create artist profile
-      const { error: artistError } = await supabase
-        .from('artists')
-        .insert({
-          owner_user_id: userId,
-          handle: handle.toLowerCase(),
-          name: 'Your Artist Name',
-          published: true,
-        })
-        .select('*')
-        .single();
-
-      if (artistError) {
-        throw artistError;
-      }
-
-      // Clear pending claim
-      sessionStorage.removeItem('pendingClaim');
-
-      // Redirect to dashboard
-      router.push('/dashboard');
-    } catch (error) {
-      console.error('Error creating artist profile:', error);
-      setError('Failed to create artist profile. Please try again.');
-    } finally {
-      setLoading(false);
+  // Progress indicator
+  const getProgressText = () => {
+    switch (state.step) {
+      case 'validating':
+        return 'Validating...';
+      case 'creating-user':
+        return 'Setting up your account...';
+      case 'checking-handle':
+        return 'Securing your handle...';
+      case 'creating-artist':
+        return 'Creating your profile...';
+      case 'complete':
+        return 'Profile created successfully!';
+      default:
+        return 'Processing...';
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label className="block text-sm font-semibold text-white mb-2">
-          Choose your jov.ie handle
-        </label>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-white/50 font-medium">jov.ie/</span>
-          <Input
-            value={handle}
-            onChange={(e) => setHandle(e.target.value.toLowerCase())}
-            placeholder="yourname"
-            className="flex-1"
-            required
-          />
-        </div>
-        <p className="mt-2 text-xs text-white/50">
-          This will be your unique URL on Jovie
-        </p>
-      </div>
-
-      {error && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-          <p className="text-sm text-red-400">{error}</p>
+    <div className="space-y-6">
+      {/* Progress indicator */}
+      {state.step !== 'validating' && (
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+            <span>{getProgressText()}</span>
+            <span>{state.progress}%</span>
+          </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${state.progress}%` }}
+            />
+          </div>
         </div>
       )}
 
-      <Button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-white text-black hover:bg-white/90 font-semibold"
-      >
-        {loading ? 'Creating Profile...' : 'Create Profile'}
-      </Button>
-    </form>
+      {/* Selected artist info */}
+      {selectedArtist && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div className="flex items-center space-x-3">
+            {selectedArtist.imageUrl && (
+              <div className="w-12 h-12 rounded-full overflow-hidden">
+                <Image
+                  src={selectedArtist.imageUrl}
+                  alt={selectedArtist.artistName}
+                  width={48}
+                  height={48}
+                />
+              </div>
+            )}
+            <div>
+              <h3 className="font-medium text-blue-900 dark:text-blue-100">
+                {selectedArtist.artistName}
+              </h3>
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                Spotify Artist Profile
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error display */}
+      {state.error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <p className="text-red-800 dark:text-red-200 text-sm">
+              {state.error}
+            </p>
+            <Button
+              onClick={retryOperation}
+              variant="secondary"
+              size="sm"
+              disabled={state.retryCount >= 3}
+            >
+              {state.retryCount >= 3 ? 'Max retries' : 'Retry'}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <FormField
+          label="Handle"
+          error={handleError || handleValidation.error || undefined}
+        >
+          <div className="relative">
+            <Input
+              type="text"
+              value={handle}
+              onChange={(e) => setHandle(e.target.value)}
+              placeholder="your-handle"
+              required
+              disabled={state.step !== 'validating'}
+              className="font-mono pr-8"
+            />
+            {handleValidation.checking && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+              </div>
+            )}
+            {handleValidation.available && !handleValidation.checking && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-2.5 h-2.5 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Your profile will be live at jov.ie/{handle || 'your-handle'}
+          </p>
+        </FormField>
+
+        <Button
+          type="submit"
+          disabled={!isFormValid || state.step !== 'validating'}
+          variant="primary"
+          className="w-full"
+        >
+          {state.step === 'validating' ? 'Create Profile' : getProgressText()}
+        </Button>
+      </form>
+    </div>
   );
 }

@@ -42,7 +42,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
           check-regexp: >
-            (Code scanning results / CodeQL)
+            (CodeQL|pr-verify)
           allowed-conclusions: success
           timeout-minutes: 45
 

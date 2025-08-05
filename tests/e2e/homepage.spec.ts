@@ -1,8 +1,10 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './setup';
 
 test.describe('Homepage', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
+    // Wait for React to fully hydrate
+    await page.waitForLoadState('networkidle');
   });
 
   test('displays the main hero section', async ({ page }) => {
