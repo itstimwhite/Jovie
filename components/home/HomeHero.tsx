@@ -33,9 +33,11 @@ export function HomeHero() {
             id="hero-headline"
             className="text-6xl font-semibold tracking-[-0.02em] text-white sm:text-7xl lg:text-8xl"
           >
-            <span className="block leading-none">The fastest</span>
-            <span className="block leading-none text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text">
-              link-in-bio
+            <span className="block leading-none">
+              The fastest{' '}
+              <span className="text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text">
+                link-in-bio
+              </span>
             </span>
             <span className="block leading-none text-white/90">
               Built for musicians
