@@ -1,55 +1,34 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { FormField } from '@/components/ui/FormField';
+import { useSupabase } from '@/lib/supabase';
 
 export function OnboardingForm() {
   const { user } = useUser();
-  const router = useRouter();
+  const { getAuthenticatedClient } = useSupabase();
   const [handle, setHandle] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    // Check for pending claim
-    const pendingClaim = sessionStorage.getItem('pendingClaim');
-    if (pendingClaim) {
-      try {
-        const claim = JSON.parse(pendingClaim);
-        // Generate a handle from the artist name
-        const suggestedHandle = claim.artistName
-          .toLowerCase()
-          .replace(/[^a-z0-9]/g, '')
-          .substring(0, 20);
-        setHandle(suggestedHandle);
-      } catch (error) {
-        console.error('Error parsing pending claim:', error);
-      }
-    }
-  }, []);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!handle.trim()) return;
+    if (!user) return;
 
     setLoading(true);
-    setError('');
+    setError(null);
 
     try {
-      // Get or create user in database
-      if (!user?.id) {
-        setError('User not found. Please sign in again.');
-        setLoading(false);
-        return;
-      }
+      // Get authenticated Supabase client
+      const supabase = await getAuthenticatedClient();
 
       console.log('Creating artist profile for user:', user.id);
       console.log('Handle:', handle);
 
+      // First get the user's database ID
       const { data: existingUser, error: userError } = await supabase
         .from('users')
         .select('id')
@@ -62,8 +41,10 @@ export function OnboardingForm() {
         const { data: newUser, error: createUserError } = await supabase
           .from('users')
           .insert({
-            clerk_id: user?.id,
-            email: user?.primaryEmailAddress?.emailAddress || '',
+            clerk_id: user.id,
+            email: user.emailAddresses[0]?.emailAddress || '',
+            first_name: user.firstName || '',
+            last_name: user.lastName || '',
           })
           .select('id')
           .single();
@@ -126,11 +107,8 @@ export function OnboardingForm() {
 
       console.log('Successfully created artist:', newArtist);
 
-      // Clear pending claim
-      sessionStorage.removeItem('pendingClaim');
-
-      // Redirect to dashboard
-      router.push('/dashboard');
+      // Redirect to the new profile
+      window.location.href = `/${handle.toLowerCase()}`;
     } catch (error) {
       console.error('Error creating artist profile:', error);
       setError(
@@ -142,35 +120,23 @@ export function OnboardingForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label className="block text-sm font-semibold text-gray-900 dark:text-white mb-2 transition-colors">
-          Choose your jov.ie handle
-        </label>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-500 dark:text-white/50 font-medium transition-colors">
-            jov.ie/
-          </span>
-          <Input
-            value={handle}
-            onChange={(e) => setHandle(e.target.value.toLowerCase())}
-            placeholder="yourname"
-            className="flex-1"
-            required
-          />
-        </div>
-        <p className="mt-2 text-xs text-gray-500 dark:text-white/50 transition-colors">
-          This will be your unique URL on Jovie
-        </p>
-      </div>
-
-      {error && (
-        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-          <p className="text-sm text-red-600 dark:text-red-400 transition-colors">
-            {error}
-          </p>
-        </div>
-      )}
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <FormField
+        label="Handle"
+        description="This will be your jov.ie URL"
+        error={error}
+      >
+        <Input
+          type="text"
+          value={handle}
+          onChange={(e) => setHandle(e.target.value)}
+          placeholder="your-handle"
+          required
+          pattern="[a-zA-Z0-9-]+"
+          title="Only letters, numbers, and hyphens allowed"
+          className="font-mono"
+        />
+      </FormField>
 
       <Button
         type="submit"
