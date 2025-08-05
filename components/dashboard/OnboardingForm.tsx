@@ -39,12 +39,17 @@ export function OnboardingForm() {
 
       if (userError && userError.code !== 'PGRST116') {
         // User doesn't exist, create them
+        const userEmail = user.emailAddresses[0]?.emailAddress;
+        if (!userEmail) {
+          setError('Email address is required to create your profile');
+          return;
+        }
+
         const { data: newUser, error: createUserError } = await supabase
           .from('users')
           .insert({
             clerk_id: user.id,
-            email: user.emailAddresses[0]?.emailAddress,
-            name: user.fullName || user.firstName || 'Unknown',
+            email: userEmail,
           })
           .select('id')
           .single();
@@ -86,6 +91,7 @@ export function OnboardingForm() {
         owner_user_id: userId,
         handle: handle.toLowerCase(),
         name: 'Your Artist Name',
+        spotify_id: 'placeholder', // Required by schema, will be updated later
         published: true,
       });
 
@@ -95,6 +101,7 @@ export function OnboardingForm() {
           owner_user_id: userId,
           handle: handle.toLowerCase(),
           name: 'Your Artist Name',
+          spotify_id: 'placeholder', // Required by schema, will be updated later
           published: true,
         })
         .select('*')
