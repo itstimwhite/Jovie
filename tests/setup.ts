@@ -114,51 +114,241 @@ vi.mock('@/components/ui/PlaceholderImage', () => ({
   },
 }));
 
-// Mock @headlessui/react properly
-// Add display names to the mocked components
+// Mock @headlessui/react properly with all components
 const MockedComponents = {
-  Input: React.forwardRef<HTMLInputElement, React.ComponentProps<'input'>>(
+  // Dialog components
+  Dialog: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
     (props, ref) => {
-      const input = React.createElement('input', {
-        ...props,
-        ref,
-        role: 'textbox',
-      });
-
-      return input;
+      return React.createElement('div', { ...props, ref, role: 'dialog' });
     }
   ),
-  Select: React.forwardRef<HTMLSelectElement, React.ComponentProps<'select'>>(
+  DialogPanel: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
     (props, ref) => {
-      const select = React.createElement(
-        'select',
-        {
-          ...props,
-          ref,
-          role: 'combobox',
-        },
-        props.children
-      );
-
-      return select;
+      return React.createElement('div', { ...props, ref });
     }
   ),
-  Textarea: React.forwardRef<
-    HTMLTextAreaElement,
-    React.ComponentProps<'textarea'>
+  DialogTitle: React.forwardRef<HTMLHeadingElement, React.ComponentProps<'h2'>>(
+    (props, ref) => {
+      return React.createElement('h2', { ...props, ref });
+    }
+  ),
+  DialogDescription: React.forwardRef<
+    HTMLParagraphElement,
+    React.ComponentProps<'p'>
   >((props, ref) => {
-    const textarea = React.createElement('textarea', {
-      ...props,
-      ref,
-      role: 'textbox',
-    });
+    return React.createElement('p', { ...props, ref });
+  }),
+  DialogBackdrop: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref });
+    }
+  ),
 
-    return textarea;
+  // Combobox components
+  Combobox: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref });
+    }
+  ),
+  ComboboxInput: React.forwardRef<
+    HTMLInputElement,
+    React.ComponentProps<'input'>
+  >((props, ref) => {
+    return React.createElement('input', { ...props, ref, role: 'textbox' });
+  }),
+  ComboboxButton: React.forwardRef<
+    HTMLButtonElement,
+    React.ComponentProps<'button'>
+  >((props, ref) => {
+    return React.createElement('button', { ...props, ref });
+  }),
+  ComboboxOptions: React.forwardRef<
+    HTMLUListElement,
+    React.ComponentProps<'ul'>
+  >((props, ref) => {
+    return React.createElement('ul', { ...props, ref, role: 'listbox' });
+  }),
+  ComboboxOption: React.forwardRef<HTMLLIElement, React.ComponentProps<'li'>>(
+    (props, ref) => {
+      return React.createElement('li', { ...props, ref, role: 'option' });
+    }
+  ),
+
+  // Listbox components
+  Listbox: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref });
+    }
+  ),
+  ListboxButton: React.forwardRef<
+    HTMLButtonElement,
+    React.ComponentProps<'button'>
+  >((props, ref) => {
+    return React.createElement('button', { ...props, ref });
+  }),
+  ListboxOptions: React.forwardRef<
+    HTMLUListElement,
+    React.ComponentProps<'ul'>
+  >((props, ref) => {
+    return React.createElement('ul', { ...props, ref, role: 'listbox' });
+  }),
+  ListboxOption: React.forwardRef<HTMLLIElement, React.ComponentProps<'li'>>(
+    (props, ref) => {
+      return React.createElement('li', { ...props, ref, role: 'option' });
+    }
+  ),
+
+  // Menu components
+  Menu: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref });
+    }
+  ),
+  MenuButton: React.forwardRef<
+    HTMLButtonElement,
+    React.ComponentProps<'button'>
+  >((props, ref) => {
+    return React.createElement('button', { ...props, ref });
+  }),
+  MenuItems: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref, role: 'menu' });
+    }
+  ),
+  MenuItem: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref, role: 'menuitem' });
+    }
+  ),
+
+  // Popover components
+  Popover: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref });
+    }
+  ),
+  PopoverButton: React.forwardRef<
+    HTMLButtonElement,
+    React.ComponentProps<'button'>
+  >((props, ref) => {
+    return React.createElement('button', { ...props, ref });
+  }),
+  PopoverPanel: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref });
+    }
+  ),
+
+  // RadioGroup components
+  RadioGroup: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref, role: 'radiogroup' });
+    }
+  ),
+  RadioGroupOption: React.forwardRef<
+    HTMLDivElement,
+    React.ComponentProps<'div'>
+  >((props, ref) => {
+    return React.createElement('div', { ...props, ref, role: 'radio' });
+  }),
+
+  // Switch components
+  Switch: React.forwardRef<HTMLButtonElement, React.ComponentProps<'button'>>(
+    (props, ref) => {
+      return React.createElement('button', { ...props, ref, role: 'switch' });
+    }
+  ),
+
+  // Tab components
+  Tab: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref, role: 'tab' });
+    }
+  ),
+  TabGroup: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref, role: 'tablist' });
+    }
+  ),
+  TabList: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref });
+    }
+  ),
+  TabPanels: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref });
+    }
+  ),
+  TabPanel: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref, role: 'tabpanel' });
+    }
+  ),
+
+  // Transition components
+  Transition: React.forwardRef<HTMLDivElement, React.ComponentProps<'div'>>(
+    (props, ref) => {
+      return React.createElement('div', { ...props, ref });
+    }
+  ),
+  TransitionChild: React.forwardRef<
+    HTMLDivElement,
+    React.ComponentProps<'div'>
+  >((props, ref) => {
+    return React.createElement('div', { ...props, ref });
+  }),
+
+  // Description component
+  Description: React.forwardRef<
+    HTMLParagraphElement,
+    React.ComponentProps<'p'>
+  >((props, ref) => {
+    return React.createElement('p', { ...props, ref });
   }),
 };
 
-MockedComponents.Input.displayName = 'MockedInput';
-MockedComponents.Select.displayName = 'MockedSelect';
-MockedComponents.Textarea.displayName = 'MockedTextarea';
+// Add display names to all mocked components
+MockedComponents.Dialog.displayName = 'MockedDialog';
+MockedComponents.DialogPanel.displayName = 'MockedDialogPanel';
+MockedComponents.DialogTitle.displayName = 'MockedDialogTitle';
+MockedComponents.DialogDescription.displayName = 'MockedDialogDescription';
+MockedComponents.DialogBackdrop.displayName = 'MockedDialogBackdrop';
+
+MockedComponents.Combobox.displayName = 'MockedCombobox';
+MockedComponents.ComboboxInput.displayName = 'MockedComboboxInput';
+MockedComponents.ComboboxButton.displayName = 'MockedComboboxButton';
+MockedComponents.ComboboxOptions.displayName = 'MockedComboboxOptions';
+MockedComponents.ComboboxOption.displayName = 'MockedComboboxOption';
+
+MockedComponents.Listbox.displayName = 'MockedListbox';
+MockedComponents.ListboxButton.displayName = 'MockedListboxButton';
+MockedComponents.ListboxOptions.displayName = 'MockedListboxOptions';
+MockedComponents.ListboxOption.displayName = 'MockedListboxOption';
+
+MockedComponents.Menu.displayName = 'MockedMenu';
+MockedComponents.MenuButton.displayName = 'MockedMenuButton';
+MockedComponents.MenuItems.displayName = 'MockedMenuItems';
+MockedComponents.MenuItem.displayName = 'MockedMenuItem';
+
+MockedComponents.Popover.displayName = 'MockedPopover';
+MockedComponents.PopoverButton.displayName = 'MockedPopoverButton';
+MockedComponents.PopoverPanel.displayName = 'MockedPopoverPanel';
+
+MockedComponents.RadioGroup.displayName = 'MockedRadioGroup';
+MockedComponents.RadioGroupOption.displayName = 'MockedRadioGroupOption';
+
+MockedComponents.Switch.displayName = 'MockedSwitch';
+
+MockedComponents.Tab.displayName = 'MockedTab';
+MockedComponents.TabGroup.displayName = 'MockedTabGroup';
+MockedComponents.TabList.displayName = 'MockedTabList';
+MockedComponents.TabPanels.displayName = 'MockedTabPanels';
+MockedComponents.TabPanel.displayName = 'MockedTabPanel';
+
+MockedComponents.Transition.displayName = 'MockedTransition';
+MockedComponents.TransitionChild.displayName = 'MockedTransitionChild';
+
+MockedComponents.Description.displayName = 'MockedDescription';
 
 vi.mock('@headlessui/react', () => MockedComponents);
