@@ -1,57 +1,23 @@
-# CLAUDE.md
+# Claude AI Guidelines for Jovie Project
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Critical Rules
 
-## Branching Strategy (as of 2024-06)
+### ⚠️ **NEVER PUSH TO PREVIEW OR MAIN**
 
-- **develop**: The default branch. All new work, features, and bugfixes should be based on this branch. PRs should target develop unless merging up to preview or main.
-- **preview**: Staging branch. Used for pre-production testing and Vercel preview deployments. Promote from develop to preview as needed.
-- **main**: Production branch. Only production-ready code should be merged here. Promote from preview to main for releases.
+- **ONLY push to `develop` branch**
+- **NEVER push directly to `preview` or `main` branches**
+- The CI/CD pipeline handles all promotions automatically
+- If pipeline is stuck, fix issues on `develop` and let CI handle the rest
+- Direct pushes to protected branches will be rejected and can break the pipeline
 
-> **Note:** Always branch from and open PRs against `develop` unless you are promoting to `preview` or `main`.
+### 🔒 **Branch Protection**
 
-## Project Overview
+- `preview` and `main` are protected branches
+- All changes must go through the CI/CD pipeline
+- Auto-promote workflows handle `develop → preview → main` progression
+- Manual intervention should only be done on `develop` branch
 
-Jovie is a Next.js application that integrates with multiple services for authentication, data storage, and music functionality. The project uses the latest Clerk-Supabase integration method for secure authentication and data access.
-
-## Technology Stack
-
-- **Frontend**: Next.js 14 (App Router)
-- **Database**: Supabase (PostgreSQL with RLS)
-- **Authentication**: Clerk with native Supabase integration
-- **Music Integration**: Spotify OAuth
-- **Deployment**: Vercel
-
-## Environment Configuration
-
-The project uses environment variables stored in `.env.local` for:
-
-- App URL configuration (jov.ie)
-- Supabase database connection and API keys
-- Clerk authentication keys (publishable and secret)
-- Spotify OAuth credentials
-- Placeholder variables for analytics and billing (Segment, Stripe, RevenueCat)
-
-## Development Setup
-
-Standard Next.js development commands:
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run test` - Run tests
-
-## Architecture Notes
-
-The application is designed to:
-
-- Use Supabase for database operations with Row Level Security (RLS)
-- Handle user authentication through Clerk's native Supabase integration
-- Integrate with Spotify's API for music-related features
-- Support future analytics and billing integrations
-
-# Clerk-Supabase Integration Guidelines
+## Clerk-Supabase Integration (Primary Method)
 
 **Purpose:** Enforce the **current** and **correct** instructions for integrating Clerk with Supabase using the native integration method.  
 **Scope:** All AI-generated advice or code related to Clerk-Supabase integration must follow these guardrails.
