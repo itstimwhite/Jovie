@@ -135,7 +135,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-sans pt-8">
+      <body className="font-sans pt-12">
         <ClientProviders>{children}</ClientProviders>
       </body>
     </html>

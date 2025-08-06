@@ -232,6 +232,50 @@ export function DebugBanner() {
     }
   };
 
+  // Generate debug JSON for copying
+  const generateDebugJson = () => {
+    return JSON.stringify(
+      {
+        environment: debugInfo.environment,
+        githubEnvironment: debugInfo.githubEnvironment,
+        connectionStatus: debugInfo.connectionStatus,
+        connectionError: debugInfo.connectionError,
+        stripeMode: debugInfo.stripeMode,
+        environmentVariables: {
+          supabaseUrl: debugInfo.supabaseUrl ? 'SET' : 'NOT SET',
+          supabaseAnonKey: debugInfo.supabaseAnonKey ? 'SET' : 'NOT SET',
+          clerkPublishableKey: debugInfo.clerkPublishableKey
+            ? 'SET'
+            : 'NOT SET',
+          clerkSecretKey: debugInfo.clerkSecretKey ? 'SET' : 'NOT SET',
+          spotifyClientId: debugInfo.spotifyClientId ? 'SET' : 'NOT SET',
+          spotifyClientSecret: debugInfo.spotifyClientSecret
+            ? 'SET'
+            : 'NOT SET',
+          stripeSecretKey: debugInfo.stripeSecretKey ? 'SET' : 'NOT SET',
+          stripePricePro: debugInfo.stripePricePro ? 'SET' : 'NOT SET',
+          stripeWebhookSecret: debugInfo.stripeWebhookSecret
+            ? 'SET'
+            : 'NOT SET',
+        },
+        timestamp: new Date().toISOString(),
+        url: typeof window !== 'undefined' ? window.location.href : 'server',
+      },
+      null,
+      2
+    );
+  };
+
+  // Copy debug info to clipboard
+  const copyDebugInfo = async () => {
+    try {
+      await navigator.clipboard.writeText(generateDebugJson());
+      console.log('Debug info copied to clipboard');
+    } catch (error) {
+      console.error('Failed to copy debug info:', error);
+    }
+  };
+
   // Don't render if debug banner is disabled
   if (!shouldShowDebugBanner) {
     console.log('Debug banner disabled');
@@ -247,9 +291,9 @@ export function DebugBanner() {
   });
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-gray-900 text-white text-xs p-2 border-b border-gray-700">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-gray-900 text-white text-xs p-2 border-b border-gray-700 min-h-[40px]">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 flex-wrap">
           <span className="font-bold">🔧 DEBUG MODE</span>
 
           {/* Environment */}
@@ -309,7 +353,7 @@ export function DebugBanner() {
           {/* Environment Variables Status */}
           <div className="flex items-center space-x-2">
             <span>VARS:</span>
-            <div className="flex space-x-1">
+            <div className="flex space-x-1 flex-wrap">
               <span
                 className={`px-1 rounded ${
                   debugInfo.supabaseUrl ? 'bg-green-500' : 'bg-red-500'
@@ -386,12 +430,22 @@ export function DebugBanner() {
           </div>
         </div>
 
-        {/* Error Details */}
-        {debugInfo.connectionError && (
-          <div className="text-red-400 font-mono max-w-md truncate">
-            Error: {debugInfo.connectionError}
-          </div>
-        )}
+        {/* Copy Button and Error Details */}
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={copyDebugInfo}
+            className="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-mono"
+            title="Copy debug info to clipboard"
+          >
+            📋 COPY
+          </button>
+
+          {debugInfo.connectionError && (
+            <div className="text-red-400 font-mono max-w-md truncate">
+              Error: {debugInfo.connectionError}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
