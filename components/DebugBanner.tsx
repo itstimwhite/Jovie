@@ -17,11 +17,33 @@ export function DebugBanner() {
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     clerkPublishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-    environment: process.env.NODE_ENV || 'unknown',
+    environment: 'detecting',
     connectionStatus: 'checking',
   });
 
   useEffect(() => {
+    // Determine the actual environment more clearly
+    const determineEnvironment = () => {
+      if (typeof window !== 'undefined') {
+        const hostname = window.location.hostname;
+        if (hostname.includes('vercel.app')) {
+          return 'Vercel Preview';
+        } else if (hostname.includes('jov.ie')) {
+          return 'Production';
+        } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+          return 'Local Development';
+        } else {
+          return 'Unknown';
+        }
+      }
+      return 'Server';
+    };
+
+    setDebugInfo((prev) => ({
+      ...prev,
+      environment: determineEnvironment(),
+    }));
+
     const checkConnection = async () => {
       try {
         // Check if environment variables are set
@@ -105,12 +127,14 @@ export function DebugBanner() {
 
   const getEnvironmentColor = (env: string) => {
     switch (env) {
-      case 'production':
+      case 'Production':
         return 'text-red-600';
-      case 'preview':
+      case 'Vercel Preview':
         return 'text-orange-600';
-      case 'development':
+      case 'Local Development':
         return 'text-green-600';
+      case 'Server':
+        return 'text-purple-600';
       default:
         return 'text-gray-600';
     }
@@ -124,13 +148,13 @@ export function DebugBanner() {
 
           {/* Environment */}
           <div className="flex items-center space-x-1">
-            <span>ENV:</span>
+            <span>WHERE:</span>
             <span
               className={`font-mono ${getEnvironmentColor(
                 debugInfo.environment
               )}`}
             >
-              {debugInfo.environment.toUpperCase()}
+              {debugInfo.environment}
             </span>
           </div>
 
@@ -158,12 +182,13 @@ export function DebugBanner() {
 
           {/* Environment Variables Status */}
           <div className="flex items-center space-x-2">
-            <span>ENV VARS:</span>
+            <span>VARS:</span>
             <div className="flex space-x-1">
               <span
                 className={`px-1 rounded ${
                   debugInfo.supabaseUrl ? 'bg-green-500' : 'bg-red-500'
                 }`}
+                title={debugInfo.supabaseUrl || 'Not set'}
               >
                 DB_URL
               </span>
@@ -171,6 +196,7 @@ export function DebugBanner() {
                 className={`px-1 rounded ${
                   debugInfo.supabaseAnonKey ? 'bg-green-500' : 'bg-red-500'
                 }`}
+                title={debugInfo.supabaseAnonKey ? 'Set' : 'Not set'}
               >
                 DB_KEY
               </span>
@@ -178,6 +204,7 @@ export function DebugBanner() {
                 className={`px-1 rounded ${
                   debugInfo.clerkPublishableKey ? 'bg-green-500' : 'bg-red-500'
                 }`}
+                title={debugInfo.clerkPublishableKey ? 'Set' : 'Not set'}
               >
                 CLERK
               </span>
