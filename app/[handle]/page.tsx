@@ -5,7 +5,7 @@ import { Artist, SocialLink } from '@/types/db';
 import { Container } from '@/components/site/Container';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { ListenNow } from '@/components/profile/ListenNow';
-import { SocialBar } from '@/components/profile/SocialBar';
+import { SocialBar } from '@/components/organisms/SocialBar';
 import { ProfileFooter } from '@/components/profile/ProfileFooter';
 import { ArtistSEO } from '@/components/seo/ArtistSEO';
 import { ThemeToggle } from '@/components/site/ThemeToggle';

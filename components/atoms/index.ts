@@ -3,3 +3,4 @@
 
 export * from './LogoLink';
 export * from './NavLink';
+export * from './SocialIcon';
