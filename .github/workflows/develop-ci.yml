@@ -104,8 +104,8 @@ jobs:
         run: npx audit-ci --moderate --allowlist "npm:*" || npm audit --audit-level=high
 
   promote:
-    needs: deploy
-    if: ${{ success() && github.event_name == 'push' }}
+    needs: build
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
