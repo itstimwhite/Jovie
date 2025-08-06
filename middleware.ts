@@ -39,7 +39,8 @@ const CA_PROVINCES = ['QC'];
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId } = await auth();
-  const geo = (req as any).geo || {};
+  const geo =
+    (req as { geo?: { country?: string; region?: string } }).geo || {};
   const country = geo.country || '';
   const region = geo.region || '';
 

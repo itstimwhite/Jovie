@@ -12,7 +12,7 @@ describe('Atomic Design Structure', () => {
   describe('Atoms', () => {
     it('LogoLink component works correctly', () => {
       render(<LogoLink />);
-      
+
       const link = screen.getByRole('link');
       expect(link).toHaveAttribute('href', '/');
       expect(link).toHaveClass('flex', 'items-center', 'space-x-2');
@@ -20,7 +20,7 @@ describe('Atomic Design Structure', () => {
 
     it('NavLink component works correctly', () => {
       render(<NavLink href="/test">Test Link</NavLink>);
-      
+
       const link = screen.getByRole('link', { name: 'Test Link' });
       expect(link).toHaveAttribute('href', '/test');
     });
@@ -29,12 +29,20 @@ describe('Atomic Design Structure', () => {
   describe('Molecules', () => {
     it('AuthActions component works correctly', () => {
       render(<AuthActions />);
-      
-      expect(screen.getByRole('link', { name: 'Sign In' })).toHaveAttribute('href', '/sign-in');
-      expect(screen.getByRole('link', { name: 'Sign Up' })).toHaveAttribute('href', '/sign-up');
-      
+
+      expect(screen.getByRole('link', { name: 'Sign In' })).toHaveAttribute(
+        'href',
+        '/sign-in'
+      );
+      expect(screen.getByRole('link', { name: 'Sign Up' })).toHaveAttribute(
+        'href',
+        '/sign-up'
+      );
+
       // Check that it's properly structured
-      const container = screen.getByRole('link', { name: 'Sign In' }).parentElement;
+      const container = screen.getByRole('link', {
+        name: 'Sign In',
+      }).parentElement;
       expect(container).toHaveClass('flex', 'items-center', 'space-x-4');
     });
   });
@@ -48,9 +56,12 @@ describe('Atomic Design Structure', () => {
           <AuthActions />
         </div>
       );
-      
+
       // Should have logo, sign in, and sign up links
-      expect(screen.getByRole('link', { name: '' })).toHaveAttribute('href', '/'); // Logo link
+      expect(screen.getByRole('link', { name: '' })).toHaveAttribute(
+        'href',
+        '/'
+      ); // Logo link
       expect(screen.getByRole('link', { name: 'Sign In' })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: 'Sign Up' })).toBeInTheDocument();
     });
