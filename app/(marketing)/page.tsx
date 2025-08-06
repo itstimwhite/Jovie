@@ -7,7 +7,8 @@ import { HowItWorks } from '@/components/home/HowItWorks';
 import { BenefitsSection } from '@/components/home/BenefitsSection';
 import { SocialProofSection } from '@/components/home/ComparisonSection';
 import { PreFooterCTA } from '@/components/home/PreFooterCTA';
-import TipPromo from '@/components/TipPromo';
+import dynamic from 'next/dynamic';
+const TipPromo = dynamic(() => import('@/components/TipPromo'));
 import { APP_NAME, APP_URL } from '@/constants/app';
 
 // Root layout handles dynamic rendering
