@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { createServerClient } from '@/lib/supabase-server';
 import { LISTEN_COOKIE } from '@/constants/app';
 import { getAvailableDSPs, generateDSPButtonHTML } from '@/lib/dsp';
+import { generateFooterHTML } from '@/lib/footer';
 
 export const runtime = 'edge';
 
@@ -43,6 +44,8 @@ export async function GET(
 
   // If no DSPs available, show error
   if (availableDSPs.length === 0) {
+    const footerHTML = generateFooterHTML({ artist, utmSource: 'listen' });
+
     return new NextResponse(
       `
       <!DOCTYPE html>
@@ -53,12 +56,13 @@ export async function GET(
           <title>No Platforms Available - ${artist.name}</title>
           <script src="https://cdn.tailwindcss.com"></script>
         </head>
-        <body class="bg-white min-h-screen flex items-center justify-center">
+        <body class="bg-white min-h-screen flex flex-col items-center justify-center">
           <div class="text-center space-y-6 p-8">
             <h1 class="text-2xl font-bold text-gray-900">${artist.name}</h1>
             <p class="text-gray-600">No streaming platforms configured yet.</p>
             <p class="text-sm text-gray-500">Check back soon!</p>
           </div>
+          ${footerHTML}
         </body>
       </html>
     `,
@@ -82,6 +86,9 @@ export async function GET(
   // Generate HTML with all available DSPs
   const dspButtonsHTML = availableDSPs.map(generateDSPButtonHTML).join('');
 
+  // Generate footer HTML
+  const footerHTML = generateFooterHTML({ artist, utmSource: 'listen' });
+
   const html = `
     <!DOCTYPE html>
     <html lang="en">
@@ -98,7 +105,7 @@ export async function GET(
           .platform-button:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.15); }
         </style>
       </head>
-      <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center p-4">
+      <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
         <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
           <div class="text-center space-y-6">
             <div>
@@ -116,6 +123,8 @@ export async function GET(
             </div>
           </div>
         </div>
+
+        ${footerHTML}
 
         <script>
           // Add click tracking and preference saving
