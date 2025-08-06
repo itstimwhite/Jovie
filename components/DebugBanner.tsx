@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { useSession } from '@clerk/nextjs';
 
 interface DebugInfo {
   supabaseUrl: string | undefined;
@@ -18,9 +19,14 @@ interface DebugInfo {
   connectionStatus: 'checking' | 'connected' | 'error' | 'not-configured';
   connectionError?: string;
   stripeMode: 'test' | 'production' | 'not-configured';
+  clerkAuthStatus: 'checking' | 'authenticated' | 'unauthenticated' | 'error';
+  clerkAuthError?: string;
+  nativeIntegrationStatus: 'checking' | 'working' | 'error' | 'not-tested';
+  nativeIntegrationError?: string;
 }
 
 export function DebugBanner() {
+  const { session, isLoaded } = useSession();
   const [debugInfo, setDebugInfo] = useState<DebugInfo>({
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -35,10 +41,29 @@ export function DebugBanner() {
     githubEnvironment: 'detecting',
     connectionStatus: 'checking',
     stripeMode: 'not-configured',
+    clerkAuthStatus: 'checking',
+    nativeIntegrationStatus: 'checking',
   });
 
   // Check if debug banner should be shown
   const shouldShowDebugBanner = true; // Temporarily always show for debugging
+
+  useEffect(() => {
+    // Update Clerk auth status when session changes
+    if (isLoaded) {
+      if (session) {
+        setDebugInfo((prev) => ({
+          ...prev,
+          clerkAuthStatus: 'authenticated',
+        }));
+      } else {
+        setDebugInfo((prev) => ({
+          ...prev,
+          clerkAuthStatus: 'unauthenticated',
+        }));
+      }
+    }
+  }, [session, isLoaded]);
 
   useEffect(() => {
     // Determine the actual environment more clearly
@@ -137,8 +162,60 @@ export function DebugBanner() {
       }
     };
 
+    const testNativeIntegration = async () => {
+      try {
+        if (!session || !debugInfo.supabaseUrl || !debugInfo.supabaseAnonKey) {
+          setDebugInfo((prev) => ({
+            ...prev,
+            nativeIntegrationStatus: 'not-tested',
+            nativeIntegrationError: 'No session or missing Supabase config',
+          }));
+          return;
+        }
+
+        // Test the native integration by creating an authenticated client
+        const supabase = createClient(
+          debugInfo.supabaseUrl,
+          debugInfo.supabaseAnonKey,
+          {
+            async accessToken() {
+              return session.getToken() ?? null;
+            },
+          }
+        );
+
+        // Try to access user-specific data to test authentication
+        const { error } = await supabase
+          .from('users')
+          .select('id')
+          .limit(1)
+          .maybeSingle();
+
+        if (error) {
+          setDebugInfo((prev) => ({
+            ...prev,
+            nativeIntegrationStatus: 'error',
+            nativeIntegrationError: error.message,
+          }));
+        } else {
+          setDebugInfo((prev) => ({
+            ...prev,
+            nativeIntegrationStatus: 'working',
+          }));
+        }
+      } catch (error) {
+        setDebugInfo((prev) => ({
+          ...prev,
+          nativeIntegrationStatus: 'error',
+          nativeIntegrationError:
+            error instanceof Error ? error.message : 'Unknown error',
+        }));
+      }
+    };
+
     checkConnection();
-  }, [debugInfo.supabaseUrl, debugInfo.supabaseAnonKey]);
+    testNativeIntegration();
+  }, [debugInfo.supabaseUrl, debugInfo.supabaseAnonKey, session]);
 
   // Update Stripe mode when stripeSecretKey changes
   useEffect(() => {
@@ -182,6 +259,70 @@ export function DebugBanner() {
         return 'Not Configured';
       case 'checking':
         return 'Checking...';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  const getClerkAuthStatusColor = (status: DebugInfo['clerkAuthStatus']) => {
+    switch (status) {
+      case 'authenticated':
+        return 'bg-green-500';
+      case 'unauthenticated':
+        return 'bg-yellow-500';
+      case 'error':
+        return 'bg-red-500';
+      case 'checking':
+        return 'bg-blue-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const getClerkAuthStatusText = (status: DebugInfo['clerkAuthStatus']) => {
+    switch (status) {
+      case 'authenticated':
+        return 'Auth';
+      case 'unauthenticated':
+        return 'No Auth';
+      case 'error':
+        return 'Auth Error';
+      case 'checking':
+        return 'Checking...';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  const getNativeIntegrationStatusColor = (
+    status: DebugInfo['nativeIntegrationStatus']
+  ) => {
+    switch (status) {
+      case 'working':
+        return 'bg-green-500';
+      case 'error':
+        return 'bg-red-500';
+      case 'not-tested':
+        return 'bg-yellow-500';
+      case 'checking':
+        return 'bg-blue-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const getNativeIntegrationStatusText = (
+    status: DebugInfo['nativeIntegrationStatus']
+  ) => {
+    switch (status) {
+      case 'working':
+        return 'Native OK';
+      case 'error':
+        return 'Native Error';
+      case 'not-tested':
+        return 'Not Tested';
+      case 'checking':
+        return 'Testing...';
       default:
         return 'Unknown';
     }
@@ -241,6 +382,10 @@ export function DebugBanner() {
         connectionStatus: debugInfo.connectionStatus,
         connectionError: debugInfo.connectionError,
         stripeMode: debugInfo.stripeMode,
+        clerkAuthStatus: debugInfo.clerkAuthStatus,
+        clerkAuthError: debugInfo.clerkAuthError,
+        nativeIntegrationStatus: debugInfo.nativeIntegrationStatus,
+        nativeIntegrationError: debugInfo.nativeIntegrationError,
         environmentVariables: {
           supabaseUrl: debugInfo.supabaseUrl ? 'SET' : 'NOT SET',
           supabaseAnonKey: debugInfo.supabaseAnonKey ? 'SET' : 'NOT SET',
@@ -286,6 +431,8 @@ export function DebugBanner() {
     shouldShowDebugBanner,
     environment: debugInfo.environment,
     connectionStatus: debugInfo.connectionStatus,
+    clerkAuthStatus: debugInfo.clerkAuthStatus,
+    nativeIntegrationStatus: debugInfo.nativeIntegrationStatus,
     supabaseUrl: debugInfo.supabaseUrl ? 'SET' : 'NOT SET',
     supabaseAnonKey: debugInfo.supabaseAnonKey ? 'SET' : 'NOT SET',
   });
@@ -335,6 +482,32 @@ export function DebugBanner() {
               )}`}
             >
               {getStatusText(debugInfo.connectionStatus)}
+            </div>
+          </div>
+
+          {/* Clerk Auth Status */}
+          <div className="flex items-center space-x-1">
+            <span>AUTH:</span>
+            <div
+              className={`px-2 py-1 rounded text-white text-xs ${getClerkAuthStatusColor(
+                debugInfo.clerkAuthStatus
+              )}`}
+            >
+              {getClerkAuthStatusText(debugInfo.clerkAuthStatus)}
+            </div>
+          </div>
+
+          {/* Native Integration Status */}
+          <div className="flex items-center space-x-1">
+            <span>NATIVE:</span>
+            <div
+              className={`px-2 py-1 rounded text-white text-xs ${getNativeIntegrationStatusColor(
+                debugInfo.nativeIntegrationStatus
+              )}`}
+            >
+              {getNativeIntegrationStatusText(
+                debugInfo.nativeIntegrationStatus
+              )}
             </div>
           </div>
 
@@ -440,9 +613,15 @@ export function DebugBanner() {
             📋 COPY
           </button>
 
-          {debugInfo.connectionError && (
+          {(debugInfo.connectionError ||
+            debugInfo.clerkAuthError ||
+            debugInfo.nativeIntegrationError) && (
             <div className="text-red-400 font-mono max-w-md truncate">
-              Error: {debugInfo.connectionError}
+              {debugInfo.connectionError && `DB: ${debugInfo.connectionError}`}
+              {debugInfo.clerkAuthError &&
+                ` | Auth: ${debugInfo.clerkAuthError}`}
+              {debugInfo.nativeIntegrationError &&
+                ` | Native: ${debugInfo.nativeIntegrationError}`}
             </div>
           )}
         </div>
