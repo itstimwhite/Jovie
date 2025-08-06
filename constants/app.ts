@@ -38,6 +38,8 @@ export const SOCIAL_PLATFORMS = [
   'tiktok',
   'youtube',
   'facebook',
+  'spotify',
+  'apple_music',
   'website',
 ] as const;
 
