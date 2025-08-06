@@ -23,6 +23,41 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
     youtube_url: artist.youtube_url || '',
   });
 
+  const validateLinks = () => {
+    try {
+      if (formData.spotify_url) {
+        const url = new URL(formData.spotify_url);
+        if (!url.hostname.includes('open.spotify.com')) {
+          setError('Please enter a valid Spotify URL.');
+          return false;
+        }
+      }
+
+      if (formData.apple_music_url) {
+        const url = new URL(formData.apple_music_url);
+        if (!url.hostname.includes('music.apple.com')) {
+          setError('Please enter a valid Apple Music URL.');
+          return false;
+        }
+      }
+
+      if (formData.youtube_url) {
+        const url = new URL(formData.youtube_url);
+        if (
+          !url.hostname.includes('youtube.com') &&
+          !url.hostname.includes('youtu.be')
+        ) {
+          setError('Please enter a valid YouTube URL.');
+          return false;
+        }
+      }
+    } catch {
+      setError('Please enter valid streaming URLs.');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -35,6 +70,10 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
 
       if (!supabase) {
         setError('Database connection failed. Please try again later.');
+        return;
+      }
+
+      if (!validateLinks()) {
         return;
       }
 

@@ -53,6 +53,34 @@ export function SocialsForm({ artist }: SocialsFormProps) {
     fetchSocialLinks();
   }, [artist.id, getAuthenticatedClient]);
 
+  const validateLinks = () => {
+    const domainMap: Record<string, string | null> = {
+      instagram: 'instagram.com',
+      twitter: 'twitter.com',
+      tiktok: 'tiktok.com',
+      youtube: 'youtube.com',
+      facebook: 'facebook.com',
+      linkedin: 'linkedin.com',
+      website: null,
+    };
+
+    for (const link of socialLinks) {
+      if (!link.url.trim()) continue;
+      try {
+        const url = new URL(link.url);
+        const expected = domainMap[link.platform];
+        if (expected && !url.hostname.toLowerCase().includes(expected)) {
+          setError(`Please enter a valid ${link.platform} URL.`);
+          return false;
+        }
+      } catch {
+        setError('Please enter valid URLs.');
+        return false;
+      }
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -64,6 +92,10 @@ export function SocialsForm({ artist }: SocialsFormProps) {
 
       if (!supabase) {
         setError('Database connection failed. Please try again later.');
+        return;
+      }
+
+      if (!validateLinks()) {
         return;
       }
 
