@@ -42,6 +42,11 @@ create table if not exists social_links (
   created_at timestamptz default now()
 );
 
+-- Add unique constraint for ON CONFLICT to work
+ALTER TABLE social_links 
+ADD CONSTRAINT social_links_artist_id_platform_unique 
+UNIQUE (artist_id, platform);
+
 -- releases table
 create table if not exists releases (
   id uuid primary key default gen_random_uuid(),
