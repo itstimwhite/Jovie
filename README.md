@@ -262,6 +262,60 @@ for select to authenticated using (
 
 For more details, see [CLERK_SUPABASE_INTEGRATION.md](CLERK_SUPABASE_INTEGRATION.md).
 
+## Billing & Subscriptions
+
+Jovie includes a Pro subscription system that removes branding for $5/month. The billing system uses Stripe Checkout with Clerk for user management.
+
+### Setup
+
+1. **Stripe Configuration**:
+   - Create a Stripe account and get your secret key
+   - Create a Product "Jovie Pro" with Price ID `price_5BUCK_PRO` ($5/month recurring)
+   - Set up a webhook endpoint pointing to `/api/stripe/webhook`
+   - Add webhook events: `checkout.session.completed`, `customer.subscription.deleted`
+
+2. **Environment Variables**:
+
+   ```bash
+   STRIPE_SECRET_KEY=sk_test_...
+   STRIPE_PRICE_PRO=price_5BUCK_PRO
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   ```
+
+3. **Clerk Setup**:
+   - User plan information is stored in `publicMetadata.plan` ('free' or 'pro')
+   - The webhook automatically updates user metadata when subscriptions change
+
+### Features
+
+- **Free Plan**: Includes Jovie branding on profile pages
+- **Pro Plan** ($5/month): Removes all Jovie branding
+- **Payment Flow**: Stripe Checkout → Webhook → Clerk metadata update
+- **Branding Control**: `BrandingBadge` component automatically hides for Pro users
+
+### Testing
+
+```bash
+# Test the billing flow (requires Stripe test keys)
+npm run test:e2e -- --grep="billing"
+
+# Test subscription components
+npm run test -- billing
+```
+
+### Stripe Webhook Setup
+
+Your webhook endpoint should be configured to receive events at:
+
+```
+https://yourdomain.com/api/stripe/webhook
+```
+
+Required events:
+
+- `checkout.session.completed` - Upgrades user to Pro
+- `customer.subscription.deleted` - Downgrades user to Free
+
 ## Deployment
 
 ### Vercel Deployment

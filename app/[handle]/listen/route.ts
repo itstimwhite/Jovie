@@ -119,7 +119,6 @@ export async function GET(
 
             <div class="text-xs text-gray-500 space-y-1">
               <p>Your preference will be saved for next time</p>
-              <p>Powered by <a href="https://jovie.co" class="text-blue-600 hover:underline">Jovie</a></p>
             </div>
           </div>
         </div>
