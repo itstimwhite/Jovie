@@ -91,11 +91,11 @@ export function HowItWorks() {
             </div>
           </div>
 
-          <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <h2 className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl">
             From Spotify artist to fan conversion in 60 seconds
           </h2>
 
-          <p className="mt-6 text-xl text-white/70">
+          <p className="mt-6 text-xl text-gray-600 dark:text-white/70">
             Three simple steps to turn your Spotify profile into a conversion
             machine
           </p>
@@ -112,19 +112,19 @@ export function HowItWorks() {
 
                 <div className="relative">
                   <div className="absolute -inset-4 bg-gradient-to-r from-white/5 to-white/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:border-white/20 transition-all duration-300">
+                  <div className="relative bg-gray-50/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-white/10 rounded-2xl p-8 hover:border-gray-300 dark:hover:border-white/20 transition-all duration-300">
                     <div className="text-center">
                       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg">
                         {step.icon}
                       </div>
                       <div className="mt-6">
-                        <div className="text-xs font-semibold uppercase tracking-wider text-blue-400">
+                        <div className="text-xs font-semibold uppercase tracking-wider text-blue-500 dark:text-blue-400">
                           Step {step.number}
                         </div>
-                        <h3 className="mt-3 text-xl font-semibold text-white">
+                        <h3 className="mt-3 text-xl font-semibold text-gray-900 dark:text-white">
                           {step.title}
                         </h3>
-                        <p className="mt-3 text-white/70 leading-relaxed">
+                        <p className="mt-3 text-gray-600 dark:text-white/70 leading-relaxed">
                           {step.description}
                         </p>
                       </div>
