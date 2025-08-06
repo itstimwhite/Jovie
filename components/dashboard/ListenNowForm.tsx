@@ -27,7 +27,8 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
     try {
       if (formData.spotify_url) {
         const url = new URL(formData.spotify_url);
-        if (!url.hostname.includes('open.spotify.com')) {
+        const allowedSpotifyHosts = ['open.spotify.com', 'www.open.spotify.com'];
+        if (!allowedSpotifyHosts.includes(url.hostname)) {
           setError('Please enter a valid Spotify URL.');
           return false;
         }
@@ -35,7 +36,8 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
 
       if (formData.apple_music_url) {
         const url = new URL(formData.apple_music_url);
-        if (!url.hostname.includes('music.apple.com')) {
+        const allowedAppleMusicHosts = ['music.apple.com', 'www.music.apple.com'];
+        if (!allowedAppleMusicHosts.includes(url.hostname)) {
           setError('Please enter a valid Apple Music URL.');
           return false;
         }
@@ -43,10 +45,8 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
 
       if (formData.youtube_url) {
         const url = new URL(formData.youtube_url);
-        if (
-          !url.hostname.includes('youtube.com') &&
-          !url.hostname.includes('youtu.be')
-        ) {
+        const allowedYouTubeHosts = ['youtube.com', 'www.youtube.com', 'youtu.be', 'www.youtu.be'];
+        if (!allowedYouTubeHosts.includes(url.hostname)) {
           setError('Please enter a valid YouTube URL.');
           return false;
         }
