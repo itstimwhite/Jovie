@@ -22,11 +22,11 @@ export function ProblemStatement() {
             </div>
           </div>
 
-          <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
+          <h2 className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl">
             Musicians lose fans to bad link-in-bio experiences
           </h2>
 
-          <div className="mt-12 space-y-8 text-lg leading-relaxed text-white/70">
+          <div className="mt-12 space-y-8 text-lg leading-relaxed text-gray-600 dark:text-white/70">
             <p className="text-xl">
               73% of fans abandon music discovery when they hit slow, cluttered,
               or confusing link-in-bio pages.
@@ -35,19 +35,19 @@ export function ProblemStatement() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
               <div className="text-center">
                 <div className="text-3xl font-bold text-red-400">73%</div>
-                <div className="text-sm text-white/60">
+                <div className="text-sm text-gray-500 dark:text-white/60">
                   Abandon rate on slow pages
                 </div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-yellow-400">2.3s</div>
-                <div className="text-sm text-white/60">
+                <div className="text-sm text-gray-500 dark:text-white/60">
                   Average load time on competitors
                 </div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-green-400">3.2x</div>
-                <div className="text-sm text-white/60">
+                <div className="text-sm text-gray-500 dark:text-white/60">
                   Faster than Linktree
                 </div>
               </div>
