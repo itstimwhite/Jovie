@@ -7,10 +7,17 @@ interface DebugInfo {
   supabaseUrl: string | undefined;
   supabaseAnonKey: string | undefined;
   clerkPublishableKey: string | undefined;
+  clerkSecretKey: string | undefined;
+  spotifyClientId: string | undefined;
+  spotifyClientSecret: string | undefined;
+  stripeSecretKey: string | undefined;
+  stripePricePro: string | undefined;
+  stripeWebhookSecret: string | undefined;
   environment: string;
   githubEnvironment: string;
   connectionStatus: 'checking' | 'connected' | 'error' | 'not-configured';
   connectionError?: string;
+  stripeMode: 'test' | 'production' | 'not-configured';
 }
 
 export function DebugBanner() {
@@ -18,10 +25,22 @@ export function DebugBanner() {
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     clerkPublishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    clerkSecretKey: process.env.CLERK_SECRET_KEY,
+    spotifyClientId: process.env.SPOTIFY_CLIENT_ID,
+    spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+    stripePricePro: process.env.STRIPE_PRICE_PRO,
+    stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
     environment: 'detecting',
     githubEnvironment: 'detecting',
     connectionStatus: 'checking',
+    stripeMode: 'not-configured',
   });
+
+  // Check if debug banner should be shown
+  const shouldShowDebugBanner =
+    process.env.NEXT_PUBLIC_DEBUG_BANNER === 'true' ||
+    process.env.NODE_ENV === 'development';
 
   useEffect(() => {
     // Determine the actual environment more clearly
@@ -123,6 +142,23 @@ export function DebugBanner() {
     checkConnection();
   }, [debugInfo.supabaseUrl, debugInfo.supabaseAnonKey]);
 
+  // Update Stripe mode when stripeSecretKey changes
+  useEffect(() => {
+    const determineStripeMode = (stripeKey: string | undefined) => {
+      if (!stripeKey) return 'not-configured';
+      if (stripeKey.startsWith('sk_test_')) return 'test';
+      if (stripeKey.startsWith('sk_live_')) return 'production';
+      return 'not-configured';
+    };
+
+    const detectedStripeMode = determineStripeMode(debugInfo.stripeSecretKey);
+
+    setDebugInfo((prev) => ({
+      ...prev,
+      stripeMode: detectedStripeMode,
+    }));
+  }, [debugInfo.stripeSecretKey]);
+
   const getStatusColor = (status: DebugInfo['connectionStatus']) => {
     switch (status) {
       case 'connected':
@@ -172,6 +208,37 @@ export function DebugBanner() {
     }
   };
 
+  const getStripeModeColor = (mode: DebugInfo['stripeMode']) => {
+    switch (mode) {
+      case 'test':
+        return 'text-yellow-500';
+      case 'production':
+        return 'text-red-500';
+      case 'not-configured':
+        return 'text-gray-500';
+      default:
+        return 'text-gray-500';
+    }
+  };
+
+  const getStripeModeText = (mode: DebugInfo['stripeMode']) => {
+    switch (mode) {
+      case 'test':
+        return 'TEST';
+      case 'production':
+        return 'PROD';
+      case 'not-configured':
+        return 'NOT SET';
+      default:
+        return 'UNKNOWN';
+    }
+  };
+
+  // Don't render if debug banner is disabled
+  if (!shouldShowDebugBanner) {
+    return null;
+  }
+
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-gray-900 text-white text-xs p-2 border-b border-gray-700">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -220,6 +287,18 @@ export function DebugBanner() {
             </div>
           </div>
 
+          {/* Stripe Mode */}
+          <div className="flex items-center space-x-1">
+            <span>STRIPE:</span>
+            <span
+              className={`font-mono px-1 rounded ${getStripeModeColor(
+                debugInfo.stripeMode
+              )}`}
+            >
+              {getStripeModeText(debugInfo.stripeMode)}
+            </span>
+          </div>
+
           {/* Environment Variables Status */}
           <div className="flex items-center space-x-2">
             <span>VARS:</span>
@@ -247,6 +326,54 @@ export function DebugBanner() {
                 title={debugInfo.clerkPublishableKey ? 'Set' : 'Not set'}
               >
                 CLERK
+              </span>
+              <span
+                className={`px-1 rounded ${
+                  debugInfo.clerkSecretKey ? 'bg-green-500' : 'bg-red-500'
+                }`}
+                title={debugInfo.clerkSecretKey ? 'Set' : 'Not set'}
+              >
+                CLERK_SECRET
+              </span>
+              <span
+                className={`px-1 rounded ${
+                  debugInfo.spotifyClientId ? 'bg-green-500' : 'bg-red-500'
+                }`}
+                title={debugInfo.spotifyClientId ? 'Set' : 'Not set'}
+              >
+                SPOTIFY_ID
+              </span>
+              <span
+                className={`px-1 rounded ${
+                  debugInfo.spotifyClientSecret ? 'bg-green-500' : 'bg-red-500'
+                }`}
+                title={debugInfo.spotifyClientSecret ? 'Set' : 'Not set'}
+              >
+                SPOTIFY_SECRET
+              </span>
+              <span
+                className={`px-1 rounded ${
+                  debugInfo.stripeSecretKey ? 'bg-green-500' : 'bg-red-500'
+                }`}
+                title={debugInfo.stripeSecretKey ? 'Set' : 'Not set'}
+              >
+                STRIPE_KEY
+              </span>
+              <span
+                className={`px-1 rounded ${
+                  debugInfo.stripePricePro ? 'bg-green-500' : 'bg-red-500'
+                }`}
+                title={debugInfo.stripePricePro ? 'Set' : 'Not set'}
+              >
+                STRIPE_PRICE
+              </span>
+              <span
+                className={`px-1 rounded ${
+                  debugInfo.stripeWebhookSecret ? 'bg-green-500' : 'bg-red-500'
+                }`}
+                title={debugInfo.stripeWebhookSecret ? 'Set' : 'Not set'}
+              >
+                STRIPE_WEBHOOK
               </span>
             </div>
           </div>
