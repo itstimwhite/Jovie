@@ -8,7 +8,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: process.env.BASE_URL || 'http://localhost:3000',
     trace: 'on-first-retry',
     extraHTTPHeaders: {
       'x-vercel-ip-country': process.env.COUNTRY || 'US',
@@ -28,12 +28,17 @@ export default defineConfig({
       use: { ...devices['Desktop Safari'] },
     },
   ],
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000, // Increase timeout to 2 minutes
-  },
+  // Only start web server if not in CI (when BASE_URL is not set)
+  ...(process.env.CI && process.env.BASE_URL
+    ? {}
+    : {
+        webServer: {
+          command: 'npm run dev',
+          url: 'http://localhost:3000',
+          reuseExistingServer: !process.env.CI,
+          timeout: 120000, // Increase timeout to 2 minutes
+        },
+      }),
   // Add global setup to handle React context issues
   globalSetup: require.resolve('./tests/global-setup.ts'),
 });
