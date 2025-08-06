@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from 'next-themes';
 import { Analytics } from '@/components/Analytics';
+import { DebugBanner } from '@/components/DebugBanner';
 
 interface ClientProvidersProps {
   children: React.ReactNode;
@@ -47,6 +48,7 @@ export function ClientProviders({ children }: ClientProvidersProps) {
         disableTransitionOnChange
         storageKey="jovie-theme"
       >
+        <DebugBanner />
         {children}
         <Analytics />
       </ThemeProvider>
