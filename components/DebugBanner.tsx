@@ -40,11 +40,13 @@ export function DebugBanner() {
           debugInfo.supabaseAnonKey
         );
 
-        // Try a simple query to test connection
+        // Try a simple query to test connection (query published artists which are publicly accessible)
         const { error } = await supabase
           .from('artists')
-          .select('count')
-          .limit(1);
+          .select('id')
+          .eq('published', true)
+          .limit(1)
+          .maybeSingle();
 
         if (error) {
           setDebugInfo((prev) => ({
