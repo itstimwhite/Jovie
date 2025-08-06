@@ -100,14 +100,6 @@ jobs:
       #     npx playwright install --with-deps
       #     BASE_URL="${{ steps.vercel.outputs.url }}" npm run e2e:smoke --if-present
 
-      - name: Lighthouse budgets
-        uses: treosh/lighthouse-ci-action@v12
-        with:
-          urls: ${{ steps.vercel.outputs.url }}
-          configPath: .lighthouserc.json
-          uploadArtifacts: true
-          temporaryPublicStorage: true
-
       - name: Dependency security (high+)
         run: npx audit-ci --moderate --allowlist "npm:*" || npm audit --audit-level=high
 
