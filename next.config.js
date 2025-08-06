@@ -70,7 +70,8 @@ const nextConfig = {
     ];
   },
   experimental: {
-    optimizeCss: true,
+    // Disable optimizeCss to avoid critters dependency issues
+    // optimizeCss: true,
     optimizePackageImports: ['@headlessui/react', '@heroicons/react'],
     // Build optimizations
     forceSwcTransforms: true,
