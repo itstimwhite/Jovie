@@ -4,17 +4,22 @@ import { Artist } from '@/types/db';
 interface FooterOptions {
   artist: Artist;
   utmSource?: string;
+  userPlan?: string;
 }
 
 /**
  * Generates footer HTML for use in server-side rendered pages like /listen
  * This matches the styling and functionality of the ProfileFooter component
+ * Hides branding for Pro plan users or if explicitly set in artist settings
  */
 export function generateFooterHTML({
   artist,
   utmSource = 'listen',
+  userPlan = 'free',
 }: FooterOptions): string {
-  const hideBranding = artist.settings?.hide_branding || false;
+  // Hide branding for Pro users or if explicitly set in artist settings
+  const hideBranding =
+    userPlan === 'pro' || artist.settings?.hide_branding || false;
 
   if (hideBranding) {
     return '';
