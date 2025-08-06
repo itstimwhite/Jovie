@@ -112,7 +112,46 @@ jobs:
 
       - name: Analyze bundle size
         run: |
-          npx @next/bundle-analyzer .next/static/chunks/*.js --out-dir ./bundle-analysis
+          # Create bundle analysis directory
+          mkdir -p ./bundle-analysis
+          
+          # Analyze JavaScript bundle sizes
+          echo "Bundle Size Analysis" > ./bundle-analysis/analysis.md
+          echo "===================" >> ./bundle-analysis/analysis.md
+          echo "" >> ./bundle-analysis/analysis.md
+          echo "Generated: $(date)" >> ./bundle-analysis/analysis.md
+          echo "" >> ./bundle-analysis/analysis.md
+          
+          # List all JS chunks with their sizes
+          echo "JavaScript Chunks:" >> ./bundle-analysis/analysis.md
+          echo "----------------" >> ./bundle-analysis/analysis.md
+          for file in .next/static/chunks/*.js; do
+            if [ -f "$file" ]; then
+              size=$(du -h "$file" | cut -f1)
+              echo "- $(basename "$file"): $size" >> ./bundle-analysis/analysis.md
+            fi
+          done
+          
+          echo "" >> ./bundle-analysis/analysis.md
+          echo "CSS Files:" >> ./bundle-analysis/analysis.md
+          echo "----------" >> ./bundle-analysis/analysis.md
+          for file in .next/static/css/*.css; do
+            if [ -f "$file" ]; then
+              size=$(du -h "$file" | cut -f1)
+              echo "- $(basename "$file"): $size" >> ./bundle-analysis/analysis.md
+            fi
+          done
+          
+          echo "" >> ./bundle-analysis/analysis.md
+          echo "Total Bundle Size:" >> ./bundle-analysis/analysis.md
+          echo "-----------------" >> ./bundle-analysis/analysis.md
+          total_js=$(find .next/static/chunks -name "*.js" -exec du -ch {} + | tail -1 | cut -f1)
+          total_css=$(find .next/static/css -name "*.css" -exec du -ch {} + | tail -1 | cut -f1)
+          echo "- JavaScript: $total_js" >> ./bundle-analysis/analysis.md
+          echo "- CSS: $total_css" >> ./bundle-analysis/analysis.md
+          
+          echo "Bundle analysis completed successfully!"
+        continue-on-error: true
 
       - name: Upload bundle analysis
         uses: actions/upload-artifact@v4
