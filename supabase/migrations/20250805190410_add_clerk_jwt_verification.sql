@@ -12,7 +12,7 @@
 create extension if not exists "pg_net" with schema extensions;
 
 -- Create a function to verify Clerk JWT tokens
-create or replace function auth.verify_clerk_jwt(token text)
+create or replace function public.verify_clerk_jwt(token text)
 returns jsonb
 language plpgsql
 security definer
@@ -30,7 +30,7 @@ declare
   exp bigint;
   iat bigint;
   nbf bigint;
-  current_time bigint;
+  now_epoch bigint;
 begin
   -- Parse the JWT token
   if token is null or token = '' then
@@ -72,17 +72,17 @@ begin
   end if;
 
   -- Validate time claims
-  current_time := extract(epoch from now());
+  now_epoch := extract(epoch from now());
   
-  if exp is not null and current_time > exp then
+  if exp is not null and now_epoch > exp then
     raise exception 'JWT token has expired';
   end if;
 
-  if iat is not null and current_time < iat then
+  if iat is not null and now_epoch < iat then
     raise exception 'JWT token issued in the future';
   end if;
 
-  if nbf is not null and current_time < nbf then
+  if nbf is not null and now_epoch < nbf then
     raise exception 'JWT token not yet valid';
   end if;
 
@@ -98,23 +98,23 @@ end;
 $$;
 
 -- Create a function to get the current user ID from JWT
-create or replace function auth.current_user_id()
+create or replace function public.current_user_id()
 returns uuid
 language sql
 stable
 as $$
-  select (auth.verify_clerk_jwt(
+  select (public.verify_clerk_jwt(
     current_setting('request.jwt.claims', true)
   )->>'sub')::uuid;
 $$;
 
 -- Create a function to get the current user's Clerk ID
-create or replace function auth.current_clerk_id()
+create or replace function public.current_clerk_id()
 returns text
 language sql
 stable
 as $$
-  select auth.verify_clerk_jwt(
+  select public.verify_clerk_jwt(
     current_setting('request.jwt.claims', true)
   )->>'sub';
 $$;
@@ -133,35 +133,35 @@ drop policy if exists "subscriptions_user_access" on subscriptions;
 
 -- Create new policies using the Clerk integration
 create policy "users_self_access" on users
-  for select using (clerk_id = auth.current_clerk_id());
+  for select using (clerk_id = public.current_clerk_id());
 
 create policy "users_insert_self" on users
-  for insert with check (clerk_id = auth.current_clerk_id());
+  for insert with check (clerk_id = public.current_clerk_id());
 
 create policy "artists_owner_rw" on artists
   for all using (owner_user_id in (
     select id from users 
-    where clerk_id = auth.current_clerk_id()
+    where clerk_id = public.current_clerk_id()
   ));
 
 create policy "social_links_by_artist_owner" on social_links
   for all using (artist_id in (
     select a.id from artists a 
     join users u on a.owner_user_id = u.id 
-    where u.clerk_id = auth.current_clerk_id()
+    where u.clerk_id = public.current_clerk_id()
   ));
 
 create policy "releases_by_artist_owner" on releases
   for all using (artist_id in (
     select a.id from artists a 
     join users u on a.owner_user_id = u.id 
-    where u.clerk_id = auth.current_clerk_id()
+    where u.clerk_id = public.current_clerk_id()
   ));
 
 create policy "subscriptions_user_access" on subscriptions
   for all using (user_id in (
     select id from users 
-    where clerk_id = auth.current_clerk_id()
+    where clerk_id = public.current_clerk_id()
   ));
 
 -- =============================================================================
@@ -169,6 +169,6 @@ create policy "subscriptions_user_access" on subscriptions
 -- =============================================================================
 
 -- Grant execute permissions on the new functions
-grant execute on function auth.verify_clerk_jwt(text) to anon, authenticated;
-grant execute on function auth.current_user_id() to anon, authenticated;
-grant execute on function auth.current_clerk_id() to anon, authenticated; 
+grant execute on function public.verify_clerk_jwt(text) to anon, authenticated;
+grant execute on function public.current_user_id() to anon, authenticated;
+grant execute on function public.current_clerk_id() to anon, authenticated; 
