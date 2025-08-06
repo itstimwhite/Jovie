@@ -116,7 +116,7 @@ jobs:
         id: check-ahead
         run: |
           git fetch origin preview
-          if [ "$(git rev-list --count preview..develop)" -gt 0 ]; then
+          if [ "$(git rev-list --count origin/preview..develop)" -gt 0 ]; then
             echo "develop_ahead=true" >> $GITHUB_OUTPUT
             echo "✅ Develop is ahead of preview, proceeding with promotion"
           else
