@@ -2,20 +2,19 @@ import Link from 'next/link';
 import { APP_NAME, FEATURE_FLAGS } from '@/constants/app';
 import { Artist } from '@/types/db';
 import { Logo } from '@/components/ui/Logo';
+import BrandingBadge from '@/components/BrandingBadge';
 
 interface ProfileFooterProps {
   artist: Artist;
 }
 
 export function ProfileFooter({ artist }: ProfileFooterProps) {
-  const hideBranding = artist.settings?.hide_branding || false;
-
-  // Always render the footer container to prevent layout shift
   return (
-    <footer
-      className={`mt-auto border-t border-gray-200 pt-8 dark:border-gray-700 ${hideBranding ? 'hidden' : ''}`}
-    >
+    <footer className="mt-auto border-t border-gray-200 pt-8 dark:border-gray-700">
       <div className="flex flex-col items-center justify-center space-y-2">
+        {/* Branding badge controlled by Clerk plan */}
+        <BrandingBadge />
+
         <Link
           href={`/?utm_source=profile&utm_artist=${artist.handle}`}
           aria-label={`Create your own profile with ${APP_NAME}`}
