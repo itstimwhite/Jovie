@@ -8,6 +8,7 @@ interface DebugInfo {
   supabaseAnonKey: string | undefined;
   clerkPublishableKey: string | undefined;
   environment: string;
+  githubEnvironment: string;
   connectionStatus: 'checking' | 'connected' | 'error' | 'not-configured';
   connectionError?: string;
 }
@@ -18,6 +19,7 @@ export function DebugBanner() {
     supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     clerkPublishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     environment: 'detecting',
+    githubEnvironment: 'detecting',
     connectionStatus: 'checking',
   });
 
@@ -26,10 +28,14 @@ export function DebugBanner() {
     const determineEnvironment = () => {
       if (typeof window !== 'undefined') {
         const hostname = window.location.hostname;
-        if (hostname.includes('vercel.app')) {
+        if (hostname === 'jov.ie') {
+          return 'Production (jov.ie)';
+        } else if (hostname === 'preview.jov.ie') {
+          return 'Preview (preview.jov.ie)';
+        } else if (hostname === 'jovie-dev.vercel.app') {
+          return 'Develop (jovie-dev.vercel.app)';
+        } else if (hostname.includes('vercel.app')) {
           return 'Vercel Preview';
-        } else if (hostname.includes('jov.ie')) {
-          return 'Production';
         } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
           return 'Local Development';
         } else {
@@ -39,9 +45,31 @@ export function DebugBanner() {
       return 'Server';
     };
 
+    // Determine which GitHub environment secrets are being used
+    const determineGitHubEnvironment = (env: string) => {
+      switch (env) {
+        case 'Production (jov.ie)':
+          return 'Production GitHub Env';
+        case 'Preview (preview.jov.ie)':
+          return 'Preview GitHub Env';
+        case 'Develop (jovie-dev.vercel.app)':
+          return 'Develop GitHub Env';
+        case 'Local Development':
+          return 'Local (.env.local)';
+        case 'Vercel Preview':
+          return 'Vercel Env Vars';
+        default:
+          return 'Unknown';
+      }
+    };
+
+    const detectedEnvironment = determineEnvironment();
+    const detectedGitHubEnv = determineGitHubEnvironment(detectedEnvironment);
+
     setDebugInfo((prev) => ({
       ...prev,
-      environment: determineEnvironment(),
+      environment: detectedEnvironment,
+      githubEnvironment: detectedGitHubEnv,
     }));
 
     const checkConnection = async () => {
@@ -127,14 +155,18 @@ export function DebugBanner() {
 
   const getEnvironmentColor = (env: string) => {
     switch (env) {
-      case 'Production':
+      case 'Production (jov.ie)':
         return 'text-red-600';
-      case 'Vercel Preview':
+      case 'Preview (preview.jov.ie)':
         return 'text-orange-600';
-      case 'Local Development':
+      case 'Develop (jovie-dev.vercel.app)':
         return 'text-green-600';
-      case 'Server':
+      case 'Vercel Preview':
         return 'text-purple-600';
+      case 'Local Development':
+        return 'text-blue-600';
+      case 'Server':
+        return 'text-gray-600';
       default:
         return 'text-gray-600';
     }
@@ -155,6 +187,14 @@ export function DebugBanner() {
               )}`}
             >
               {debugInfo.environment}
+            </span>
+          </div>
+
+          {/* GitHub Environment */}
+          <div className="flex items-center space-x-1">
+            <span>SECRETS:</span>
+            <span className="font-mono text-cyan-400">
+              {debugInfo.githubEnvironment}
             </span>
           </div>
 
