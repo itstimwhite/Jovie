@@ -164,8 +164,10 @@ describe('FeaturedArtists', () => {
       optimizedImages.forEach((img) => {
         expect(img).toHaveClass(
           'ring-2',
-          'ring-white/20',
-          'group-hover:ring-white/40'
+          'ring-gray-300',
+          'dark:ring-white/20',
+          'group-hover:ring-gray-400',
+          'dark:group-hover:ring-white/40'
         );
       });
     });
