@@ -13,13 +13,16 @@ export const ANALYTICS = {
 };
 
 // Feature flags
+const waitlistEnabled = process.env.NEXT_PUBLIC_WAITLIST_ENABLED === 'true';
+const artistSearchEnabled = !waitlistEnabled;
+
 export const FEATURE_FLAGS = {
   // Control waitlist mode via environment variable
   // When WAITLIST_ENABLED=true: show waitlist page, hide artist search, convert sign-up buttons to waitlist buttons
   // When WAITLIST_ENABLED=false or not set: normal functionality with artist search and sign-up
-  waitlistEnabled: process.env.NEXT_PUBLIC_WAITLIST_ENABLED === 'true',
+  waitlistEnabled,
   // Artist search is enabled when waitlist mode is disabled
-  artistSearchEnabled: process.env.NEXT_PUBLIC_WAITLIST_ENABLED !== 'true',
+  artistSearchEnabled,
 };
 export const LEGAL = {
   privacyPath: '/legal/privacy',
