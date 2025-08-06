@@ -12,11 +12,35 @@ export async function GET(request: Request) {
     );
   }
 
-  const supabase = await createServerClient();
-  const { data } = await supabase
-    .from('artists')
-    .select('handle')
-    .eq('handle', handle);
+  try {
+    const supabase = await createServerClient();
 
-  return NextResponse.json({ available: !data || data.length === 0 });
+    if (!supabase) {
+      return NextResponse.json(
+        { available: false, error: 'Database connection failed' },
+        { status: 500 }
+      );
+    }
+
+    const { data, error } = await supabase
+      .from('artists')
+      .select('handle')
+      .eq('handle', handle);
+
+    if (error) {
+      console.error('Error checking handle availability:', error);
+      return NextResponse.json(
+        { available: false, error: 'Database error' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ available: !data || data.length === 0 });
+  } catch (error) {
+    console.error('Error checking handle availability:', error);
+    return NextResponse.json(
+      { available: false, error: 'Database connection failed' },
+      { status: 500 }
+    );
+  }
 }

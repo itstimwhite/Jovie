@@ -22,6 +22,12 @@ export async function generateMetadata({
   const { handle } = await params;
   const supabase = await createServerClient();
 
+  if (!supabase) {
+    return {
+      title: 'Artist Not Found',
+    };
+  }
+
   const { data: artist } = await supabase
     .from('artists')
     .select('name, tagline, image_url, is_verified')
@@ -73,6 +79,10 @@ export async function generateMetadata({
 
 export async function generateStaticParams() {
   const supabase = await createServerClient();
+
+  if (!supabase) {
+    return [];
+  }
 
   const { data: artists } = await supabase
     .from('artists')
@@ -126,6 +136,10 @@ function generateStructuredData(artist: Artist, socialLinks: SocialLink[]) {
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const { handle } = await params;
   const supabase = await createServerClient();
+
+  if (!supabase) {
+    notFound();
+  }
 
   // Fetch artist and social links in a single query to reduce latency
   const { data, error } = await supabase

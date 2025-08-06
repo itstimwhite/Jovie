@@ -84,6 +84,15 @@ export function OnboardingForm() {
       try {
         const supabase = await getAuthenticatedClient();
 
+        if (!supabase) {
+          setHandleValidation({
+            available: false,
+            checking: false,
+            error: 'Database connection failed',
+          });
+          return;
+        }
+
         const { data, error: validationError } = await supabase
           .from('artists')
           .select('id')
@@ -177,6 +186,10 @@ export function OnboardingForm() {
         // Step 1: Get authentication token
         setState((prev) => ({ ...prev, step: 'validating', progress: 10 }));
         const supabase = await getAuthenticatedClient();
+
+        if (!supabase) {
+          throw new Error('Database connection failed');
+        }
 
         // Step 2: Create or get user
         setState((prev) => ({ ...prev, step: 'creating-user', progress: 30 }));

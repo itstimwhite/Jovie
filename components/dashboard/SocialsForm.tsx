@@ -30,6 +30,11 @@ export function SocialsForm({ artist }: SocialsFormProps) {
       try {
         const supabase = await getAuthenticatedClient();
 
+        if (!supabase) {
+          console.error('Database connection failed');
+          return;
+        }
+
         const { data, error } = await supabase
           .from('social_links')
           .select('*')
@@ -56,6 +61,11 @@ export function SocialsForm({ artist }: SocialsFormProps) {
 
     try {
       const supabase = await getAuthenticatedClient();
+
+      if (!supabase) {
+        setError('Database connection failed. Please try again later.');
+        return;
+      }
 
       // Delete existing social links
       await supabase.from('social_links').delete().eq('artist_id', artist.id);

@@ -19,6 +19,13 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createAuthenticatedServerClient();
 
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 500 }
+      );
+    }
+
     const { data: artist, error: artistError } = await supabase
       .from('artists')
       .select('id')
