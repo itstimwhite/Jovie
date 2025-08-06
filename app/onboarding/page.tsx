@@ -1,4 +1,4 @@
-import { OnboardingForm } from '@/components/dashboard/OnboardingForm';
+import { OnboardingForm } from '@/components/dashboard';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { APP_NAME } from '@/constants/app';

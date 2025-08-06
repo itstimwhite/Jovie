@@ -5,12 +5,14 @@ import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
-import { ProfileLinkCard } from '@/components/dashboard/ProfileLinkCard';
-import { OnboardingForm } from '@/components/dashboard/OnboardingForm';
-import { ProfileForm } from '@/components/dashboard/ProfileForm';
-import { SocialsForm } from '@/components/dashboard/SocialsForm';
-import { ListenNowForm } from '@/components/dashboard/ListenNowForm';
-import { AnalyticsCards } from '@/components/dashboard/AnalyticsCards';
+import {
+  ProfileLinkCard,
+  OnboardingForm,
+  ProfileForm,
+  SocialsForm,
+  ListenNowForm,
+  AnalyticsCards,
+} from '@/components/dashboard';
 import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
 import { useAuthenticatedSupabase } from '@/lib/supabase';
 import { Artist } from '@/types/db';
