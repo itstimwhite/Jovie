@@ -32,22 +32,26 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   async headers() {
+    const securityHeaders = [
+      {
+        key: 'X-Frame-Options',
+        value: 'DENY',
+      },
+      {
+        key: 'X-Content-Type-Options',
+        value: 'nosniff',
+      },
+      {
+        key: 'Referrer-Policy',
+        value: 'origin-when-cross-origin',
+      },
+    ];
     return [
       {
-        source: '/(.*)',
+        source:
+          '/:path*\\.(?:js|css|svg|png|jpg|jpeg|gif|ico|webp|avif|woff|woff2|ttf|otf)',
         headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
+          ...securityHeaders,
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
@@ -57,9 +61,20 @@ const nextConfig = {
       {
         source: '/api/(.*)',
         headers: [
+          ...securityHeaders,
           {
             key: 'Cache-Control',
             value: 'public, max-age=300, s-maxage=300', // 5 minutes
+          },
+        ],
+      },
+      {
+        source: '/(.*)',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
           },
         ],
       },
