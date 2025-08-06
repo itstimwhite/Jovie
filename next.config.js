@@ -49,7 +49,7 @@ const nextConfig = {
     return [
       {
         source:
-          '/:path*\\.(?:js|css|svg|png|jpg|jpeg|gif|ico|webp|avif|woff|woff2|ttf|otf)',
+          '/:path*\\.(js|css|svg|png|jpg|jpeg|gif|ico|webp|avif|woff|woff2|ttf|otf)',
         headers: [
           ...securityHeaders,
           {
