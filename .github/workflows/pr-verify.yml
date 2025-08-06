@@ -78,3 +78,5 @@ jobs:
 
       - run: npm ci
       - run: npm run danger
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
