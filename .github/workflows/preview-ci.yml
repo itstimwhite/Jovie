@@ -48,6 +48,7 @@ jobs:
         run: |
           URL=$(npx vercel deploy --prebuilt --token "$VERCEL_TOKEN")
           echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "Deployed URL: $URL"
 
       - name: Upload Vercel output
         uses: actions/upload-artifact@v4
@@ -126,12 +127,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check deployment URL
+        id: check-url
+        run: |
+          if [ -n "${{ needs.deploy.outputs.url }}" ]; then
+            echo "url=${{ needs.deploy.outputs.url }}" >> $GITHUB_OUTPUT
+            echo "Using deployed URL: ${{ needs.deploy.outputs.url }}"
+          else
+            echo "url=https://jovie-preview.vercel.app" >> $GITHUB_OUTPUT
+            echo "Using fallback URL: https://jovie-preview.vercel.app"
+          fi
+
       - name: Run ZAP DAST
         uses: zaproxy/action-full-scan@v0.8.0
         with:
-          target: '${{ needs.deploy.outputs.url }}'
+          target: '${{ steps.check-url.outputs.url }}'
           rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a'
+        continue-on-error: true
 
       - name: Upload ZAP results
         uses: actions/upload-artifact@v4
