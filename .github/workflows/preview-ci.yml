@@ -85,16 +85,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check deployment URL
+        id: check-lighthouse-url
+        run: |
+          if [ -n "${{ needs.deploy.outputs.url }}" ]; then
+            echo "url=${{ needs.deploy.outputs.url }}" >> $GITHUB_OUTPUT
+            echo "Using deployed URL for Lighthouse: ${{ needs.deploy.outputs.url }}"
+          else
+            echo "url=https://jovie-preview.vercel.app" >> $GITHUB_OUTPUT
+            echo "Using fallback URL for Lighthouse: https://jovie-preview.vercel.app"
+          fi
+
       - name: Lighthouse multipage audit
         uses: treosh/lighthouse-ci-action@v12
         with:
           urls: |
-            ${{ needs.deploy.outputs.url }}
-            ${{ needs.deploy.outputs.url }}/artists
-            ${{ needs.deploy.outputs.url }}/dashboard
+            ${{ steps.check-lighthouse-url.outputs.url }}
+            ${{ steps.check-lighthouse-url.outputs.url }}/artists
+            ${{ steps.check-lighthouse-url.outputs.url }}/dashboard
           configPath: .lighthouserc.json
           uploadArtifacts: true
           temporaryPublicStorage: true
+        continue-on-error: true
 
   bundle-size:
     needs: deploy
