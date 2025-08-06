@@ -57,7 +57,7 @@ export function FeaturedArtists() {
             {Array.from({ length: 12 }).map((_, idx) => (
               <div
                 key={`loading-${idx}`}
-                className="h-16 w-16 rounded-full bg-white/10 animate-pulse ring-2 ring-white/20"
+                className="h-16 w-16 rounded-full bg-gray-200 dark:bg-white/10 animate-pulse ring-2 ring-gray-300 dark:ring-white/20"
               />
             ))}
           </div>
@@ -83,7 +83,7 @@ export function FeaturedArtists() {
                   alt={`${artist.name} - Music Artist`}
                   size="lg"
                   shape="circle"
-                  className="ring-2 ring-white/20 group-hover:ring-white/40 transition-all duration-200"
+                  className="ring-2 ring-gray-300 dark:ring-white/20 group-hover:ring-gray-400 dark:group-hover:ring-white/40 transition-all duration-200"
                 />
 
                 {/* Hover overlay with artist name */}
@@ -97,7 +97,9 @@ export function FeaturedArtists() {
           )) || (
             // Fallback if no artists are found
             <div className="flex items-center justify-center w-full">
-              <div className="text-white/60 text-sm">No artists available</div>
+              <div className="text-gray-500 dark:text-white/60 text-sm">
+                No artists available
+              </div>
             </div>
           )}
         </div>
