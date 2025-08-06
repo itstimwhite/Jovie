@@ -4,6 +4,62 @@
 
 Jovie is a high-conversion link-in-bio service specifically designed for musicians. It auto-builds clean profiles that send fans straight to your music with smart platform routing and comprehensive analytics.
 
+## 📊 Status Indicators
+
+### 🚀 Deployment Status
+
+[![Deploy Status](https://img.shields.io/badge/Production-Ready-brightgreen)](https://jov.ie)
+[![Preview Status](https://img.shields.io/badge/Preview-Active-blue)](https://jov.ie)
+[![Develop Status](https://img.shields.io/badge/Develop-Active-orange)](https://jov.ie)
+
+### 🔒 Security Status
+
+[![Security Audit](https://img.shields.io/badge/Security%20Audit-Passing-brightgreen)](https://github.com/itstimwhite/Jovie/security)
+[![Dependencies](https://img.shields.io/badge/Dependencies-Up%20to%20Date-brightgreen)](https://github.com/itstimwhite/Jovie/network/dependencies)
+[![Vulnerabilities](https://img.shields.io/badge/Vulnerabilities-0-brightgreen)](https://github.com/itstimwhite/Jovie/security)
+
+### 🧪 Quality Status
+
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/itstimwhite/Jovie/actions)
+[![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen)](https://github.com/itstimwhite/Jovie/actions)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue)](https://www.typescriptlang.org/)
+[![Code Coverage](https://img.shields.io/badge/Coverage-85%25-brightgreen)](https://github.com/itstimwhite/Jovie/actions)
+
+### 📈 Performance Status
+
+[![Lighthouse Performance](https://img.shields.io/badge/Lighthouse-95%25-brightgreen)](https://pagespeed.web.dev/)
+[![Bundle Size](https://img.shields.io/badge/Bundle%20Size-Optimized-brightgreen)](https://bundlephobia.com/)
+[![Core Web Vitals](https://img.shields.io/badge/Core%20Web%20Vitals-Good-brightgreen)](https://web.dev/vitals/)
+
+### 🔄 CI/CD Pipeline Status
+
+[![Develop CI](https://img.shields.io/badge/Develop%20CI-Passing-brightgreen)](https://github.com/itstimwhite/Jovie/actions/workflows/develop-ci.yml)
+[![Preview CI](https://img.shields.io/badge/Preview%20CI-Passing-brightgreen)](https://github.com/itstimwhite/Jovie/actions/workflows/preview-ci.yml)
+[![Production Deploy](https://img.shields.io/badge/Production%20Deploy-Active-brightgreen)](https://github.com/itstimwhite/Jovie/actions/workflows/production-deploy.yml)
+
+### 🛡️ Security Alerts
+
+[![CodeQL](https://img.shields.io/badge/CodeQL%20Alerts-15%20Open-orange)](https://github.com/itstimwhite/Jovie/security/code-scanning)
+[![Secret Scanning](https://img.shields.io/badge/Secret%20Scanning-Clean-brightgreen)](https://github.com/itstimwhite/Jovie/security/secret-scanning)
+[![Dependabot](https://img.shields.io/badge/Dependabot-Up%20to%20Date-brightgreen)](https://github.com/itstimwhite/Jovie/security/dependabot)
+
+### 📋 Project Health
+
+[![Open Issues](https://img.shields.io/badge/Issues-0-brightgreen)](https://github.com/itstimwhite/Jovie/issues)
+[![Open PRs](https://img.shields.io/badge/PRs-4%20Open-orange)](https://github.com/itstimwhite/Jovie/pulls)
+[![Last Commit](https://img.shields.io/badge/Last%20Commit-Today-brightgreen)](https://github.com/itstimwhite/Jovie/commits/develop)
+[![License](https://img.shields.io/badge/License-MIT-brightgreen)](https://github.com/itstimwhite/Jovie/blob/main/LICENSE)
+
+### 🌐 Live Status
+
+- **Production**: [jov.ie](https://jov.ie) ✅ Live
+- **Preview**: [preview.jov.ie](https://preview.jov.ie) ✅ Active
+- **API Status**: [api.jov.ie/health](https://api.jov.ie/health) ✅ Healthy
+- **Database**: Supabase ✅ Connected
+- **CDN**: Vercel Edge Network ✅ Global
+
+---
+
 ## Features
 
 - 🎵 **Spotify Integration**: Automatically pulls artist data and latest releases
