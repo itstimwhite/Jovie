@@ -30,8 +30,8 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
     setSuccess(false);
 
     try {
-      // Get authenticated Supabase client
-      const supabase = await getAuthenticatedClient();
+      // Get authenticated Supabase client using native integration
+      const supabase = getAuthenticatedClient();
 
       if (!supabase) {
         setError('Database connection failed. Please try again later.');

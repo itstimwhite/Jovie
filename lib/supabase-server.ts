@@ -15,7 +15,7 @@ export async function createServerClient() {
   return createClient(supabaseUrl, supabaseAnonKey);
 }
 
-// Server-side function to get authenticated Supabase client using new integration
+// Server-side function to get authenticated Supabase client using native integration
 export async function createAuthenticatedServerClient() {
   try {
     if (!supabaseUrl || !supabaseAnonKey) {
@@ -23,21 +23,15 @@ export async function createAuthenticatedServerClient() {
       return null;
     }
 
-    // Get the JWT token from Clerk using the new integration
-    const { getToken } = await auth();
-    const token = await getToken();
-
-    if (token) {
-      return createClient(supabaseUrl, supabaseAnonKey, {
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      });
-    }
+    return createClient(supabaseUrl, supabaseAnonKey, {
+      async accessToken() {
+        // For server-side, we need to get the token from the session
+        const { getToken } = await auth();
+        return (await getToken()) ?? null;
+      },
+    });
   } catch (error) {
-    console.error('Error getting server Supabase token:', error);
+    console.error('Error getting server Supabase client:', error);
   }
 
   // Fall back to anonymous client

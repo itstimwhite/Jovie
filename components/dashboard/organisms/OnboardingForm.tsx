@@ -185,7 +185,8 @@ export function OnboardingForm() {
       try {
         // Step 1: Get authentication token
         setState((prev) => ({ ...prev, step: 'validating', progress: 10 }));
-        const supabase = await getAuthenticatedClient();
+        // Get authenticated Supabase client using native integration
+        const supabase = getAuthenticatedClient();
 
         if (!supabase) {
           throw new Error('Database connection failed');

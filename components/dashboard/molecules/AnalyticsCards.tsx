@@ -25,10 +25,11 @@ export function AnalyticsCards() {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const supabase = await getAuthenticatedClient();
+        // Get authenticated Supabase client using native integration
+        const supabase = getAuthenticatedClient();
 
         if (!supabase) {
-          setError('Database connection failed. Please try again later.');
+          console.error('Failed to get authenticated Supabase client');
           return;
         }
 
