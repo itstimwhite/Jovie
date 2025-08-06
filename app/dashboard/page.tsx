@@ -57,11 +57,11 @@ export default function DashboardPage() {
     if (!user || !isLoaded || checkingClaims) return;
 
     try {
-      // Get authenticated Supabase client using the new integration
-      const supabase = await getAuthenticatedClient();
+      // Get authenticated Supabase client using native integration
+      const supabase = getAuthenticatedClient();
 
       if (!supabase) {
-        setError('Database connection failed. Please try again later.');
+        console.error('Failed to get authenticated Supabase client');
         return;
       }
 

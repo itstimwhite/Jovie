@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
-import { useAuth } from '@clerk/nextjs';
+import { useSession } from '@clerk/nextjs';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Create a single singleton instance
+// Create a single singleton instance for unauthenticated requests
 let supabaseClient: ReturnType<typeof createClient> | null = null;
 
 export function createBrowserClient() {
@@ -19,43 +19,46 @@ export function createBrowserClient() {
   return supabaseClient;
 }
 
-// Export the singleton instance
+// Export the singleton instance for unauthenticated requests
 export const supabase = createBrowserClient();
 
-// Hook to get authenticated client with Clerk integration
+// Hook to get authenticated client with native Clerk integration
 export function useAuthenticatedSupabase() {
-  const { getToken } = useAuth();
+  const { session } = useSession();
 
-  const getAuthenticatedClient = async () => {
-    try {
-      if (!supabaseUrl || !supabaseAnonKey) {
-        console.warn('Supabase environment variables are not set');
-        return null;
-      }
-
-      const token = await getToken({ template: 'supabase' });
-
-      if (token) {
-        return createClient(supabaseUrl, supabaseAnonKey, {
-          global: {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        });
-      }
-    } catch (error) {
-      console.error('Error getting authenticated Supabase client:', error);
+  const getAuthenticatedClient = () => {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Supabase environment variables are not set');
+      return null;
     }
 
-    // Fall back to base client
-    return supabaseClient;
+    return createClient(supabaseUrl, supabaseAnonKey, {
+      async accessToken() {
+        return session?.getToken() ?? null;
+      },
+    });
   };
 
   return { getAuthenticatedClient, supabase };
 }
 
-// Legacy function for backward compatibility
+// Function to create authenticated client with session
+export function createClerkSupabaseClient(
+  session: ReturnType<typeof useSession>['session']
+) {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.warn('Supabase environment variables are not set');
+    return null;
+  }
+
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    async accessToken() {
+      return session?.getToken() ?? null;
+    },
+  });
+}
+
+// Legacy function for backward compatibility (deprecated)
 export async function getAuthenticatedClient(token?: string | null) {
   try {
     if (!supabaseUrl || !supabaseAnonKey) {
@@ -79,7 +82,7 @@ export async function getAuthenticatedClient(token?: string | null) {
   }
 }
 
-// Legacy hook for backward compatibility
+// Legacy hook for backward compatibility (deprecated)
 export function useSupabase() {
   return { getAuthenticatedClient, supabase };
 }
