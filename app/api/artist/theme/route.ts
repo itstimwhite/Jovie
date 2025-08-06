@@ -22,25 +22,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createServerClient();
+    try {
+      const supabase = await createServerClient();
 
-    // Update the artist's theme preference
-    const { error } = await supabase
-      .from('artists')
-      .update({
-        theme: { mode: theme },
-      })
-      .eq('id', artistId);
+      if (!supabase) {
+        return NextResponse.json(
+          { error: 'Database connection failed' },
+          { status: 500 }
+        );
+      }
 
-    if (error) {
-      console.error('Error updating artist theme:', error);
+      // Update the artist's theme preference
+      const { error } = await supabase
+        .from('artists')
+        .update({
+          theme: { mode: theme },
+        })
+        .eq('id', artistId);
+
+      if (error) {
+        console.error('Error updating artist theme:', error);
+        return NextResponse.json(
+          { error: 'Failed to update theme' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({ success: true });
+    } catch (dbError) {
+      console.error('Database connection error:', dbError);
       return NextResponse.json(
-        { error: 'Failed to update theme' },
+        { error: 'Database connection failed' },
         { status: 500 }
       );
     }
-
-    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error in theme API:', error);
     return NextResponse.json(

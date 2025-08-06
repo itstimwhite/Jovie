@@ -93,8 +93,9 @@ describe('utils', () => {
         'windows'
       );
       expect(detectPlatformFromUA('Mozilla/5.0 (X11; Linux x86_64)')).toBe(
-        'web'
+        'linux'
       );
+      expect(detectPlatformFromUA('Mozilla/5.0')).toBe('web');
       expect(detectPlatformFromUA(undefined)).toBeNull();
       expect(detectPlatformFromUA('')).toBeNull();
     });

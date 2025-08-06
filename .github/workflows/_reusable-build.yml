@@ -50,9 +50,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-output
-          path: .next
+          path: .next/standalone
           retention-days: 1
         id: build
 
       - name: Set artifact path
-        run: echo "artifact-path=.next" >> $GITHUB_OUTPUT
+        run: echo "artifact-path=.next/standalone" >> $GITHUB_OUTPUT

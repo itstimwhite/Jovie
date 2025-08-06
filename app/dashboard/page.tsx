@@ -58,6 +58,11 @@ export default function DashboardPage() {
       // Get authenticated Supabase client using the new integration
       const supabase = await getAuthenticatedClient();
 
+      if (!supabase) {
+        setError('Database connection failed. Please try again later.');
+        return;
+      }
+
       // First get the user's database ID
       const { data: userData, error: userError } = await supabase
         .from('users')
