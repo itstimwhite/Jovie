@@ -48,17 +48,6 @@ const nextConfig = {
     ];
     return [
       {
-        source:
-          '/:path*\\.(js|css|svg|png|jpg|jpeg|gif|ico|webp|avif|woff|woff2|ttf|otf)',
-        headers: [
-          ...securityHeaders,
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
         source: '/api/(.*)',
         headers: [
           ...securityHeaders,
