@@ -5,7 +5,6 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
   output: 'standalone',
-  serverExternalPackages: ['@clerk/nextjs'],
   // Disable static generation to prevent Clerk context issues during build
   trailingSlash: false,
   // Build optimizations

@@ -13,7 +13,8 @@ export async function GET() {
   } as const;
 
   // Include any overrides cookie if present so Toolbar can reconcile
-  const overrideCookie = cookies().get('vercel-flag-overrides')?.value;
+  const cookieStore = await cookies();
+  const overrideCookie = cookieStore.get('vercel-flag-overrides')?.value;
 
   return NextResponse.json(
     {
