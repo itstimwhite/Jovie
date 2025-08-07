@@ -160,8 +160,6 @@ jobs:
           draft: false
           maintainer-can-modify: true
           path: .
-          committer-email: 41898282+github-actions[bot]@users.noreply.github.com
-          author-email: 35063371+itstimwhite@users.noreply.github.com
 
       - name: Debug PR creation
         if: steps.check-ahead.outputs.develop_ahead == 'true'
