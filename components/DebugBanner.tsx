@@ -67,6 +67,13 @@ export function DebugBanner() {
   // Check if debug banner should be shown based on feature flags
   const shouldShowDebugBanner = featureFlags.debugBannerEnabled;
 
+  // Add debugging
+  console.log('DebugBanner render:', {
+    shouldShowDebugBanner,
+    featureFlags,
+    NODE_ENV: process.env.NODE_ENV,
+  });
+
   // Update body padding based on debug banner state
   useEffect(() => {
     if (shouldShowDebugBanner) {
