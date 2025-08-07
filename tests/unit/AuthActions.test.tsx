@@ -42,7 +42,7 @@ describe('AuthActions', () => {
   it('renders with correct styling classes', () => {
     render(<AuthActions />);
 
-    const container = screen.getByText('Sign in').closest('div');
+    const container = screen.getByText('Sign in').closest('div')?.parentElement;
     expect(container).toHaveClass('flex', 'items-center', 'space-x-4');
   });
 });

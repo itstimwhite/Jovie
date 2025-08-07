@@ -13,7 +13,7 @@ describe('Atomic Design Structure', () => {
     it('LogoLink component works correctly', () => {
       render(<LogoLink />);
 
-      const link = screen.getByRole('link');
+      const link = screen.getByRole('link', { name: '' });
       expect(link).toHaveAttribute('href', '/');
       expect(link).toHaveClass('flex', 'items-center', 'space-x-2');
     });
@@ -30,18 +30,16 @@ describe('Atomic Design Structure', () => {
     it('AuthActions component works correctly', () => {
       render(<AuthActions />);
 
-      expect(screen.getByRole('link', { name: 'Sign In' })).toHaveAttribute(
-        'href',
-        '/sign-in'
-      );
-      expect(screen.getByRole('link', { name: 'Sign Up' })).toHaveAttribute(
-        'href',
-        '/sign-up'
-      );
+      expect(
+        screen.getByRole('button', { name: 'Sign in' })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Sign Up' })
+      ).toBeInTheDocument();
 
       // Check that it's properly structured
-      const container = screen.getByRole('link', {
-        name: 'Sign In',
+      const container = screen.getByRole('button', {
+        name: 'Sign in',
       }).parentElement;
       expect(container).toHaveClass('flex', 'items-center', 'space-x-4');
     });
@@ -62,8 +60,12 @@ describe('Atomic Design Structure', () => {
         'href',
         '/'
       ); // Logo link
-      expect(screen.getByRole('link', { name: 'Sign In' })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: 'Sign Up' })).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Sign in' })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: 'Sign Up' })
+      ).toBeInTheDocument();
     });
   });
 });

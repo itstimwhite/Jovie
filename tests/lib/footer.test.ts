@@ -17,8 +17,8 @@ describe('generateFooterHTML', () => {
     settings: {},
   };
 
-  it('generates footer HTML with correct structure', () => {
-    const html = generateFooterHTML({ artist: mockArtist });
+  it('generates footer HTML with correct structure', async () => {
+    const html = await generateFooterHTML({ artist: mockArtist });
 
     expect(html).toContain('<footer');
     expect(html).toContain('Jovie');
@@ -27,8 +27,8 @@ describe('generateFooterHTML', () => {
     expect(html).toContain(`utm_artist=${mockArtist.handle}`);
   });
 
-  it('includes correct UTM parameters with custom source', () => {
-    const html = generateFooterHTML({
+  it('includes correct UTM parameters with custom source', async () => {
+    const html = await generateFooterHTML({
       artist: mockArtist,
       utmSource: 'custom-source',
     });
@@ -37,33 +37,33 @@ describe('generateFooterHTML', () => {
     expect(html).toContain(`utm_artist=${mockArtist.handle}`);
   });
 
-  it('returns empty string when branding is hidden', () => {
+  it('returns empty string when branding is hidden', async () => {
     const artistWithHiddenBranding: Artist = {
       ...mockArtist,
       settings: { hide_branding: true },
     };
 
-    const html = generateFooterHTML({ artist: artistWithHiddenBranding });
+    const html = await generateFooterHTML({ artist: artistWithHiddenBranding });
 
     expect(html).toBe('');
   });
 
-  it('includes waitlist link when feature flag is enabled', () => {
+  it('includes waitlist link when feature flag is enabled', async () => {
     // We can't easily mock the feature flag here, but we can test that the link structure is correct
-    const html = generateFooterHTML({ artist: mockArtist });
+    const html = await generateFooterHTML({ artist: mockArtist });
 
     expect(html).toContain('/sign-up?utm_source=listen&utm_artist=test-artist');
   });
 
-  it('includes logo SVG', () => {
-    const html = generateFooterHTML({ artist: mockArtist });
+  it('includes logo SVG', async () => {
+    const html = await generateFooterHTML({ artist: mockArtist });
 
     expect(html).toContain('<svg');
     expect(html).toContain('viewBox="0 0 136 39"');
   });
 
-  it('has proper accessibility attributes', () => {
-    const html = generateFooterHTML({ artist: mockArtist });
+  it('has proper accessibility attributes', async () => {
+    const html = await generateFooterHTML({ artist: mockArtist });
 
     expect(html).toContain('aria-label="Create your own profile with Jovie"');
   });
