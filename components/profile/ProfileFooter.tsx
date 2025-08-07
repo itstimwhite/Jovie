@@ -1,25 +1,26 @@
 import Link from 'next/link';
-import { useAuth } from '@clerk/nextjs';
 import { APP_NAME } from '@/constants/app';
 import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
 
 interface ProfileFooterProps {
   artistHandle: string;
   hideBranding?: boolean;
+  artistSettings?: {
+    hide_branding?: boolean;
+  };
 }
 
 export function ProfileFooter({
   artistHandle,
   hideBranding = false,
+  artistSettings,
 }: ProfileFooterProps) {
   const { flags } = useFeatureFlags();
-  const { has } = useAuth();
 
-  // Check if user has the remove_branding feature
-  const hasRemoveBranding = has?.({ feature: 'remove_branding' }) ?? false;
+  // Use user's setting if available, otherwise fall back to hideBranding prop
+  const shouldHideBranding = artistSettings?.hide_branding ?? hideBranding;
 
-  // Hide branding if user has the feature or if explicitly hidden
-  if (hideBranding || hasRemoveBranding) {
+  if (shouldHideBranding) {
     return null;
   }
 

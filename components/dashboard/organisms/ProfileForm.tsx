@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useAuth } from '@clerk/nextjs';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -14,13 +15,20 @@ interface ProfileFormProps {
 
 export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
   const { getAuthenticatedClient } = useAuthenticatedSupabase();
+  const { has } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState(false);
+
+  // Check if user has the remove_branding feature
+  const hasRemoveBrandingFeature =
+    has?.({ feature: 'remove_branding' }) ?? false;
+
   const [formData, setFormData] = useState({
     name: artist.name || '',
     tagline: artist.tagline || '',
     image_url: artist.image_url || '',
+    hide_branding: artist.settings?.hide_branding ?? false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,6 +52,10 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
           name: formData.name,
           tagline: formData.tagline,
           image_url: formData.image_url || null,
+          settings: {
+            ...artist.settings,
+            hide_branding: formData.hide_branding,
+          },
         })
         .eq('id', artist.id)
         .select('*')
@@ -88,6 +100,43 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
           placeholder="Share your story, music journey, or what inspires you..."
         />
       </FormField>
+
+      {/* Branding Toggle - only show if user has the feature */}
+      {hasRemoveBrandingFeature && (
+        <FormField label="Branding" error={error}>
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Show Jovie branding
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                Display Jovie branding on your profile
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                setFormData({
+                  ...formData,
+                  hide_branding: !formData.hide_branding,
+                })
+              }
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                formData.hide_branding
+                  ? 'bg-gray-200 dark:bg-gray-700'
+                  : 'bg-indigo-600'
+              }`}
+              disabled={loading}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  formData.hide_branding ? 'translate-x-1' : 'translate-x-6'
+                }`}
+              />
+            </button>
+          </div>
+        </FormField>
+      )}
 
       <Button
         type="submit"

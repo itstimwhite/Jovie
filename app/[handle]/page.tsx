@@ -195,7 +195,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
             <div className="flex justify-center">
               <div className="w-full max-w-md">
-                <ProfileFooter artistHandle={artist.handle} />
+                <ProfileFooter
+                  artistHandle={artist.handle}
+                  artistSettings={artist.settings}
+                />
               </div>
             </div>
           </div>
