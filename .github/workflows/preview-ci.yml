@@ -120,54 +120,50 @@ jobs:
             echo "⚠️ Preview is not ahead of main, skipping promotion"
           fi
 
-      - name: Create/Update PR preview → main
+      - name: Create PR preview → main
         if: steps.check-ahead.outputs.preview_ahead == 'true'
-        id: create_pull_request
-        uses: peter-evans/create-pull-request@v7
-        with:
-          title: 'Auto-promote: preview → main'
-          body: |
-            🤖 **Automated Promotion**
-
-            This PR automatically promotes changes from `preview` to `main`.
-
-            **Changes included:**
-            - Latest preview branch changes
-            - All CI checks passed ✅
-            - Ready for production deployment
-
-            **Auto-merge enabled** - This PR will be automatically merged when all checks pass.
-
-            **Deployment URL:** ${{ steps.vercel.outputs.url }}
-          branch: auto-promote/main
-          base: main
-          delete-branch: true
-          labels: ci, promotion, auto-merge
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'Auto-promote: preview → main'
-          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-          author: itstimwhite <35063371+itstimwhite@users.noreply.github.com>
-          signoff: false
-          sign-commits: false
-          draft: false
-          maintainer-can-modify: true
-          path: .
-
-      - name: Debug PR creation
-        if: steps.check-ahead.outputs.preview_ahead == 'true'
+        id: create_pr
         run: |
-          echo "PR operation: ${{ steps.create_pull_request.outputs.pull-request-operation }}"
-          echo "PR number: ${{ steps.create_pull_request.outputs.pull-request-number }}"
-          echo "PR branch: ${{ steps.create_pull_request.outputs.pull-request-branch }}"
-          echo "PR head SHA: ${{ steps.create_pull_request.outputs.pull-request-head-sha }}"
+          # Configure git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Create promotion branch from preview
+          git checkout -b auto-promote/main
+          
+          # Push the branch
+          git push origin auto-promote/main
+          
+          # Create PR using GitHub CLI
+          PR_URL=$(gh pr create \
+            --title "Auto-promote: preview → main" \
+            --body "🤖 **Automated Promotion**
 
-      - name: Enable auto-merge (squash)
-        if: steps.check-ahead.outputs.preview_ahead == 'true' && steps.create_pull_request.outputs.pull-request-number != ''
-        uses: peter-evans/enable-pull-request-automerge@v3
-        with:
-          pull-request-number: ${{ steps.create_pull_request.outputs.pull-request-number }}
-          merge-method: squash
-          token: ${{ secrets.GITHUB_TOKEN }}
+          This PR automatically promotes changes from \`preview\` to \`main\`.
+
+          **Changes included:**
+          - Latest preview branch changes
+          - All CI checks passed ✅
+          - Ready for production deployment
+
+          **Auto-merge enabled** - This PR will be automatically merged when all checks pass." \
+            --base main \
+            --head auto-promote/main \
+            --label "ci,promotion,auto-merge" \
+            --json url --jq .url)
+          
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+          echo "PR created: $PR_URL"
+
+      - name: Enable auto-merge
+        if: steps.check-ahead.outputs.preview_ahead == 'true' && steps.create_pr.outputs.pr_url != ''
+        run: |
+          # Extract PR number from URL
+          PR_NUMBER=$(echo "${{ steps.create_pr.outputs.pr_url }}" | sed 's/.*\/pull\///')
+          echo "Enabling auto-merge for PR #$PR_NUMBER"
+          
+          # Enable auto-merge
+          gh pr merge $PR_NUMBER --auto --squash
 
       - name: Skip promotion - no changes
         if: steps.check-ahead.outputs.preview_ahead == 'false'
