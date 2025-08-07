@@ -69,12 +69,20 @@ export function DebugBanner() {
 
   // Update body padding based on debug banner state
   useEffect(() => {
-    const bannerHeight = isExpanded ? '8rem' : '3rem';
-    document.documentElement.style.setProperty(
-      '--debug-banner-height',
-      bannerHeight
-    );
-  }, [isExpanded]);
+    if (shouldShowDebugBanner) {
+      const bannerHeight = isExpanded ? '8rem' : '3rem';
+      document.documentElement.style.setProperty(
+        '--debug-banner-height',
+        bannerHeight
+      );
+    } else {
+      // Remove padding when debug banner is disabled
+      document.documentElement.style.setProperty(
+        '--debug-banner-height',
+        '0rem'
+      );
+    }
+  }, [isExpanded, shouldShowDebugBanner]);
 
   // Update feature flags in debug info
   useEffect(() => {
@@ -641,7 +649,7 @@ export function DebugBanner() {
 
   // Don't render if debug banner is disabled
   if (!shouldShowDebugBanner) {
-    console.log('Debug banner disabled');
+    console.log('Debug banner disabled - not rendering');
     return null;
   }
 
