@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useSession } from '@clerk/nextjs';
+import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
 
 interface DebugInfo {
   supabaseUrl: string | undefined;
@@ -26,10 +27,18 @@ interface DebugInfo {
   clerkSessionError?: string;
   clerkTokenStatus: 'checking' | 'available' | 'unavailable' | 'error';
   clerkTokenError?: string;
+  // Feature flags from Edge Config
+  featureFlags: {
+    waitlistEnabled: boolean;
+    artistSearchEnabled: boolean;
+    debugBannerEnabled: boolean;
+    tipPromoEnabled: boolean;
+  };
 }
 
 export function DebugBanner() {
   const { session, isLoaded } = useSession();
+  const { flags: featureFlags } = useFeatureFlags();
   const [isExpanded, setIsExpanded] = useState(true);
   const [debugInfo, setDebugInfo] = useState<DebugInfo>({
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -47,10 +56,16 @@ export function DebugBanner() {
     nativeIntegrationStatus: 'checking',
     clerkSessionStatus: 'checking',
     clerkTokenStatus: 'checking',
+    featureFlags: {
+      waitlistEnabled: false,
+      artistSearchEnabled: true,
+      debugBannerEnabled: process.env.NODE_ENV === 'development',
+      tipPromoEnabled: true,
+    },
   });
 
-  // Check if debug banner should be shown
-  const shouldShowDebugBanner = true; // Temporarily always show for debugging
+  // Check if debug banner should be shown based on feature flags
+  const shouldShowDebugBanner = featureFlags.debugBannerEnabled;
 
   // Update body padding based on debug banner state
   useEffect(() => {
@@ -60,6 +75,14 @@ export function DebugBanner() {
       bannerHeight
     );
   }, [isExpanded]);
+
+  // Update feature flags in debug info
+  useEffect(() => {
+    setDebugInfo((prev) => ({
+      ...prev,
+      featureFlags,
+    }));
+  }, [featureFlags]);
 
   useEffect(() => {
     // Update Clerk auth status when session changes
@@ -750,6 +773,53 @@ export function DebugBanner() {
                 )}`}
               >
                 {getClerkBillingGatewayText(debugInfo.clerkBillingGateway)}
+              </div>
+            </div>
+
+            {/* Feature Flags Status */}
+            <div className="flex items-center space-x-1">
+              <span>FLAGS:</span>
+              <div className="flex space-x-1">
+                <span
+                  className={`px-1 rounded text-xs ${
+                    debugInfo.featureFlags.waitlistEnabled
+                      ? 'bg-green-500'
+                      : 'bg-gray-500'
+                  }`}
+                  title="Waitlist enabled"
+                >
+                  WL
+                </span>
+                <span
+                  className={`px-1 rounded text-xs ${
+                    debugInfo.featureFlags.artistSearchEnabled
+                      ? 'bg-green-500'
+                      : 'bg-gray-500'
+                  }`}
+                  title="Artist search enabled"
+                >
+                  AS
+                </span>
+                <span
+                  className={`px-1 rounded text-xs ${
+                    debugInfo.featureFlags.debugBannerEnabled
+                      ? 'bg-green-500'
+                      : 'bg-gray-500'
+                  }`}
+                  title="Debug banner enabled"
+                >
+                  DB
+                </span>
+                <span
+                  className={`px-1 rounded text-xs ${
+                    debugInfo.featureFlags.tipPromoEnabled
+                      ? 'bg-green-500'
+                      : 'bg-gray-500'
+                  }`}
+                  title="Tip promo enabled"
+                >
+                  TP
+                </span>
               </div>
             </div>
           </div>

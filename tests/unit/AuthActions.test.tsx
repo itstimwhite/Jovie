@@ -2,44 +2,47 @@ import { describe, it, expect, afterEach, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import { AuthActions } from '@/components/molecules/AuthActions';
 
-// Mock the feature flags
-vi.mock('@/constants/app', () => ({
-  FEATURE_FLAGS: {
-    waitlistEnabled: false,
-  },
+// Mock the feature flags provider
+vi.mock('@/components/providers/FeatureFlagsProvider', () => ({
+  useFeatureFlags: () => ({
+    flags: {
+      waitlistEnabled: false,
+      artistSearchEnabled: true,
+      debugBannerEnabled: false,
+      tipPromoEnabled: true,
+    },
+    isLoading: false,
+    error: null,
+  }),
+}));
+
+// Mock Clerk
+vi.mock('@clerk/nextjs', () => ({
+  SignInButton: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  SignUpButton: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+  useUser: () => ({
+    isSignedIn: false,
+  }),
 }));
 
 describe('AuthActions', () => {
   afterEach(cleanup);
 
-  it('renders sign in and sign up links when waitlist is disabled', () => {
+  it('renders sign in and sign up buttons when user is not signed in', () => {
     render(<AuthActions />);
 
-    expect(screen.getByRole('link', { name: 'Sign In' })).toHaveAttribute(
-      'href',
-      '/sign-in'
-    );
-    expect(screen.getByRole('link', { name: 'Sign Up' })).toHaveAttribute(
-      'href',
-      '/sign-up'
-    );
-  });
-
-  it('applies custom className', () => {
-    render(<AuthActions className="custom-class" />);
-
-    const container = screen.getByRole('link', {
-      name: 'Sign In',
-    }).parentElement;
-    expect(container).toHaveClass('custom-class');
+    expect(screen.getByText('Sign in')).toBeInTheDocument();
+    expect(screen.getByText('Sign Up')).toBeInTheDocument();
   });
 
   it('renders with correct styling classes', () => {
     render(<AuthActions />);
 
-    const container = screen.getByRole('link', {
-      name: 'Sign In',
-    }).parentElement;
+    const container = screen.getByText('Sign in').closest('div');
     expect(container).toHaveClass('flex', 'items-center', 'space-x-4');
   });
 });

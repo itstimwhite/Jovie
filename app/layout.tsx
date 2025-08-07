@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { ClientProviders } from '@/components/providers/ClientProviders';
 import { APP_NAME, APP_URL } from '@/constants/app';
+import { getServerFeatureFlags } from '@/lib/feature-flags';
 import '@/styles/globals.css';
 
 // Bypass static rendering for now to fix build issues
@@ -88,11 +89,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Fetch feature flags server-side
+  const featureFlags = await getServerFeatureFlags();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -130,7 +134,9 @@ export default function RootLayout({
         className="font-sans"
         style={{ paddingTop: 'var(--debug-banner-height, 3rem)' }}
       >
-        <ClientProviders>{children}</ClientProviders>
+        <ClientProviders initialFeatureFlags={featureFlags}>
+          {children}
+        </ClientProviders>
       </body>
     </html>
   );

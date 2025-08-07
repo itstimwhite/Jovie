@@ -20,7 +20,8 @@ export const ANALYTICS = {
   segmentWriteKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY ?? '',
 };
 
-// Feature flags
+// Legacy feature flags (deprecated - use lib/feature-flags.ts instead)
+// These are kept for backward compatibility during migration
 const waitlistEnabled = process.env.NEXT_PUBLIC_WAITLIST_ENABLED === 'true';
 const artistSearchEnabled = !waitlistEnabled;
 
@@ -32,6 +33,7 @@ export const FEATURE_FLAGS = {
   // Artist search is enabled when waitlist mode is disabled
   artistSearchEnabled,
 };
+
 export const LEGAL = {
   privacyPath: '/legal/privacy',
   termsPath: '/legal/terms',

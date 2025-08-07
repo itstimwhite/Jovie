@@ -5,9 +5,12 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from 'next-themes';
 import { Analytics } from '@/components/Analytics';
 import { DebugBanner } from '@/components/DebugBanner';
+import { FeatureFlagsProvider } from './FeatureFlagsProvider';
+import { FeatureFlags } from '@/lib/feature-flags';
 
 interface ClientProvidersProps {
   children: React.ReactNode;
+  initialFeatureFlags?: FeatureFlags;
 }
 
 function ClerkWrapper({ children }: { children: React.ReactNode }) {
@@ -44,7 +47,10 @@ function ClerkWrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function ClientProviders({ children }: ClientProvidersProps) {
+export function ClientProviders({
+  children,
+  initialFeatureFlags,
+}: ClientProvidersProps) {
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -79,17 +85,19 @@ export function ClientProviders({ children }: ClientProvidersProps) {
 
   return (
     <ClerkWrapper>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="light"
-        enableSystem={false}
-        disableTransitionOnChange
-        storageKey="jovie-theme"
-      >
-        <DebugBanner />
-        {children}
-        <Analytics />
-      </ThemeProvider>
+      <FeatureFlagsProvider initialFlags={initialFeatureFlags}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+          storageKey="jovie-theme"
+        >
+          <DebugBanner />
+          {children}
+          <Analytics />
+        </ThemeProvider>
+      </FeatureFlagsProvider>
     </ClerkWrapper>
   );
 }
