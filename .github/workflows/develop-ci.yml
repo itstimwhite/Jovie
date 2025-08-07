@@ -138,7 +138,7 @@ jobs:
             echo "⚠️ Develop is not ahead of preview, skipping promotion"
           fi
 
-      - name: Create PR develop → preview
+      - name: Create or update PR develop → preview
         if: steps.check-ahead.outputs.develop_ahead == 'true'
         id: create_pr
         run: |
@@ -152,13 +152,15 @@ jobs:
           if [ -n "$EXISTING_PR" ]; then
             echo "PR #$EXISTING_PR already exists, updating branch..."
             # Update the existing branch
-            git checkout -b auto-promote/preview
+            git fetch origin auto-promote/preview || true
+            git checkout -B auto-promote/preview origin/preview
+            git reset --hard develop
             git push origin auto-promote/preview --force-with-lease
             echo "existing_pr=$EXISTING_PR" >> $GITHUB_OUTPUT
           else
             echo "No existing PR found, creating new one..."
             # Create promotion branch from develop
-            git checkout -b auto-promote/preview
+            git checkout -B auto-promote/preview develop
             
             # Push the branch
             git push origin auto-promote/preview
@@ -183,7 +185,7 @@ jobs:
             echo "PR created successfully"
           fi
 
-      - name: Enable auto-merge
+      - name: Enable auto-merge (squash)
         if: steps.check-ahead.outputs.develop_ahead == 'true'
         run: |
           # Get the PR number (either from existing or newly created)

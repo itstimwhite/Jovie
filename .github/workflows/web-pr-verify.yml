@@ -72,6 +72,63 @@ jobs:
 
           echo "✅ PR to main verified - comes from preview branch"
 
+  # Add required status checks on PRs so branch protection can auto-merge
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build --if-present
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run typecheck --if-present
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint --if-present
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test:ci --if-present
+
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+      - run: npm ci
+      - name: Dependency security audit
+        run: npx audit-ci --high --allowlist "npm:*"
+
   verify-required-checks:
     runs-on: ubuntu-latest
     steps:
