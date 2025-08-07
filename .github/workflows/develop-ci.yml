@@ -4,6 +4,10 @@ on:
   push:
     branches: [develop]
 
+permissions:
+  contents: read
+  pull-requests: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -34,27 +38,9 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: .next/standalone
-          retention-days: 1
-
-  deploy:
+  security-audit:
     needs: build
     runs-on: ubuntu-latest
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-      CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
-      SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
-      SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -65,11 +51,34 @@ jobs:
 
       - run: npm ci
 
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
+      - name: Dependency security audit
+        run: npx audit-ci --high --allowlist "npm:*"
+
+  deploy:
+    needs: [build, security-audit]
+    runs-on: ubuntu-latest
+    environment: preview
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+      CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+      STRIPE_PRICE_PRO: ${{ secrets.STRIPE_PRICE_PRO }}
+      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          name: build-output
-          path: .next/standalone
+          node-version: 20.17
+          cache: 'npm'
+
+      - run: npm ci
 
       - name: Vercel pull preview env
         run: npx vercel pull --environment=preview --yes --token "$VERCEL_TOKEN"
@@ -90,9 +99,8 @@ jobs:
           path: .vercel/output
           retention-days: 1
 
-      # Basic smoke test (1-2 happy paths)
-      # Temporarily disabled due to React context issues
-      # - name: Smoke test
+      # - name: E2E Tests (smoke)
+      #   if: ${{ steps.vercel.outputs.url }}
       #   run: |
       #     npx playwright install --with-deps
       #     BASE_URL="${{ steps.vercel.outputs.url }}" npm run e2e:smoke --if-present
@@ -101,9 +109,12 @@ jobs:
         run: npx audit-ci --moderate --allowlist "npm:*" || npm audit --audit-level=high
 
   promote:
-    needs: build
+    needs: [build, security-audit]
     if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
@@ -142,7 +153,7 @@ jobs:
             echo "PR #$EXISTING_PR already exists, updating branch..."
             # Update the existing branch
             git checkout -b auto-promote/preview
-            git push origin auto-promote/preview --force
+            git push origin auto-promote/preview --force-with-lease
             echo "existing_pr=$EXISTING_PR" >> $GITHUB_OUTPUT
           else
             echo "No existing PR found, creating new one..."
@@ -162,6 +173,7 @@ jobs:
             **Changes included:**
             - Latest develop branch changes
             - All CI checks passed ✅
+            - Security audit passed ✅
             - Ready for preview deployment
 
             **Auto-merge enabled** - This PR will be automatically merged when all checks pass." \
