@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useAuth } from '@clerk/nextjs';
 import { APP_NAME } from '@/constants/app';
 import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
 
@@ -12,8 +13,13 @@ export function ProfileFooter({
   hideBranding = false,
 }: ProfileFooterProps) {
   const { flags } = useFeatureFlags();
+  const { has } = useAuth();
 
-  if (hideBranding) {
+  // Check if user has the remove_branding feature
+  const hasRemoveBranding = has?.({ feature: 'remove_branding' }) ?? false;
+
+  // Hide branding if user has the feature or if explicitly hidden
+  if (hideBranding || hasRemoveBranding) {
     return null;
   }
 
