@@ -134,10 +134,10 @@ jobs:
           # Configure git
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
+
           # Check if PR already exists
           EXISTING_PR=$(gh pr list --head auto-promote/preview --base preview --json number --jq '.[0].number // empty')
-          
+
           if [ -n "$EXISTING_PR" ]; then
             echo "PR #$EXISTING_PR already exists, updating branch..."
             # Update the existing branch
@@ -182,9 +182,9 @@ jobs:
             PR_NUMBER=$(gh pr list --head auto-promote/preview --json number --jq '.[0].number')
             echo "Using newly created PR #$PR_NUMBER"
           fi
-          
+
           echo "Enabling auto-merge for PR #$PR_NUMBER"
-          
+
           # Enable auto-merge
           gh pr merge $PR_NUMBER --auto --squash
 
