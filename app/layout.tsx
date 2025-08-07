@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { ClientProviders } from '@/components/providers/ClientProviders';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
+import MyStatsig from './my-statsig';
 import '@/styles/globals.css';
 
 // Bypass static rendering for now to fix build issues
@@ -134,9 +135,11 @@ export default async function RootLayout({
         className="font-sans"
         style={{ paddingTop: 'var(--debug-banner-height, 3rem)' }}
       >
-        <ClientProviders initialFeatureFlags={featureFlags}>
-          {children}
-        </ClientProviders>
+        <MyStatsig>
+          <ClientProviders initialFeatureFlags={featureFlags}>
+            {children}
+          </ClientProviders>
+        </MyStatsig>
       </body>
     </html>
   );
