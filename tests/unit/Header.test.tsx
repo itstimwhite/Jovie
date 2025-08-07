@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, beforeEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 
 // Import the individual atomic components to test them directly
@@ -7,6 +7,7 @@ import { NavLink } from '@/components/atoms/NavLink';
 import { AuthActions } from '@/components/molecules/AuthActions';
 
 describe('Atomic Design Structure', () => {
+  beforeEach(cleanup);
   afterEach(cleanup);
 
   describe('Atoms', () => {

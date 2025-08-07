@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
-import { page } from '@/lib/analytics';
+import { useEffect, useRef } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { page, track } from '@/lib/analytics';
 
 // Type for Vercel Analytics
 declare global {
@@ -13,6 +13,8 @@ declare global {
 
 export function Analytics() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const trackedRef = useRef(false);
 
   useEffect(() => {
     try {
@@ -34,6 +36,25 @@ export function Analytics() {
       console.error('Analytics error:', error);
     }
   }, [pathname]);
+
+  useEffect(() => {
+    try {
+      if (typeof window === 'undefined') return;
+      if (trackedRef.current) return;
+      if (searchParams.get('src') === 'qr_desktop') {
+        const segments = pathname.split('/').filter(Boolean);
+        if (segments.length > 0) {
+          track('desktop_qr_scan_redirected', {
+            profile: segments[0],
+            route: pathname,
+          });
+          trackedRef.current = true;
+        }
+      }
+    } catch (error) {
+      console.error('Analytics redirect error:', error);
+    }
+  }, [pathname, searchParams]);
 
   return null;
 }

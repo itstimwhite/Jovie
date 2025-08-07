@@ -15,6 +15,7 @@ export const ANALYTICS = {
 // Feature flags
 const waitlistEnabled = process.env.NEXT_PUBLIC_WAITLIST_ENABLED === 'true';
 const artistSearchEnabled = !waitlistEnabled;
+const desktopQr = process.env.NEXT_PUBLIC_FEATURE_DESKTOP_QR === 'true';
 
 export const FEATURE_FLAGS = {
   // Control waitlist mode via environment variable
@@ -23,6 +24,7 @@ export const FEATURE_FLAGS = {
   waitlistEnabled,
   // Artist search is enabled when waitlist mode is disabled
   artistSearchEnabled,
+  desktopQr,
 };
 export const LEGAL = {
   privacyPath: '/legal/privacy',

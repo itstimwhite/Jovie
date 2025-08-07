@@ -3,3 +3,4 @@
 
 export * from './Header';
 export * from './SocialBar';
+export { default as DesktopQrOverlay } from './DesktopQrOverlay';
