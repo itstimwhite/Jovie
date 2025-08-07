@@ -14,10 +14,44 @@ const defaultFeatureFlags: FeatureFlags = {
   tipPromoEnabled: true,
 };
 
-// Get feature flags (simplified for now)
+// Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
 export async function getFeatureFlags(): Promise<FeatureFlags> {
-  // For now, return default flags
-  // In the future, we can integrate with Statsig or other feature flag services
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL || ''}/.well-known/vercel/flags`,
+      {
+        next: { revalidate: 60 },
+      }
+    );
+    if (res.ok) {
+      const data = (await res.json()) as {
+        version?: number;
+        flags?: Record<string, { default?: unknown }>;
+      };
+      if (typeof data?.version === 'number') {
+        return {
+          waitlistEnabled: Boolean(
+            data.flags?.waitlistEnabled?.default ??
+              defaultFeatureFlags.waitlistEnabled
+          ),
+          artistSearchEnabled: Boolean(
+            data.flags?.artistSearchEnabled?.default ??
+              defaultFeatureFlags.artistSearchEnabled
+          ),
+          debugBannerEnabled: Boolean(
+            data.flags?.debugBannerEnabled?.default ??
+              defaultFeatureFlags.debugBannerEnabled
+          ),
+          tipPromoEnabled: Boolean(
+            data.flags?.tipPromoEnabled?.default ??
+              defaultFeatureFlags.tipPromoEnabled
+          ),
+        };
+      }
+    }
+  } catch {
+    // Ignore and fall back
+  }
   return defaultFeatureFlags;
 }
 
