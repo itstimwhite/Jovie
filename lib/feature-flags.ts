@@ -1,7 +1,9 @@
 import { createClient } from '@vercel/edge-config';
 
-// Create Edge Config client
-const edgeConfig = createClient(process.env.EDGE_CONFIG);
+// Create Edge Config client only if connection string is available
+const edgeConfig = process.env.EDGE_CONFIG
+  ? createClient(process.env.EDGE_CONFIG)
+  : null;
 
 // Feature flags interface
 export interface FeatureFlags {

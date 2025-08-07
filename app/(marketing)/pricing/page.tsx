@@ -7,7 +7,10 @@ import { useEffect, useState } from 'react';
 // Extend Window interface to include Clerk
 declare global {
   interface Window {
-    Clerk?: any;
+    Clerk?: {
+      mountPricingTable?: () => void;
+      unmountPricingTable?: () => void;
+    };
   }
 }
 
