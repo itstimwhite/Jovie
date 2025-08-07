@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Container } from '@/components/site/Container';
 import { LogoLink } from '@/components/atoms/LogoLink';
 import { AuthActions } from '@/components/molecules/AuthActions';
@@ -15,6 +16,14 @@ export function Header() {
           </div>
 
           <div className="flex items-center space-x-4">
+            <nav className="hidden md:flex items-center space-x-6">
+              <Link
+                href="/pricing"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
+                Pricing
+              </Link>
+            </nav>
             <ThemeToggle />
             <AuthActions />
           </div>

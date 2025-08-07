@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Container } from '@/components/site/Container';
 import { FeatureFlaggedArtistSearch } from './FeatureFlaggedArtistSearch';
 
@@ -66,6 +67,16 @@ export function HomeHero() {
               <FeatureFlaggedArtistSearch />
             </div>
           </div>
+        </div>
+
+        {/* CTA buttons */}
+        <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <Link
+            href="/pricing"
+            className="inline-flex items-center px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+          >
+            View Pricing →
+          </Link>
         </div>
 
         {/* Trust indicators with Linear styling */}
