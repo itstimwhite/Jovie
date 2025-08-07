@@ -3,7 +3,8 @@ name: Develop CI/CD Pipeline
 on:
   push:
     branches: [develop]
-  workflow_dispatch: {}
+  pull_request:
+    branches: [preview]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
