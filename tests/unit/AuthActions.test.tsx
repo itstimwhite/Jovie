@@ -36,7 +36,7 @@ describe('AuthActions', () => {
     render(<AuthActions />);
 
     expect(screen.getByText('Sign in')).toBeInTheDocument();
-    expect(screen.getByText('Sign Up')).toBeInTheDocument();
+    // Sign up button intentionally removed from header
   });
 
   it('renders with correct styling classes', () => {
