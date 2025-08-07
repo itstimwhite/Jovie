@@ -135,7 +135,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-sans pt-12">
+      <body
+        className="font-sans"
+        style={{ paddingTop: 'var(--debug-banner-height, 3rem)' }}
+      >
         <ClientProviders>{children}</ClientProviders>
       </body>
     </html>
