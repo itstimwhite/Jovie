@@ -135,7 +135,7 @@ jobs:
           git push origin auto-promote/main
           
           # Create PR using GitHub CLI
-          PR_URL=$(gh pr create \
+          gh pr create \
             --title "Auto-promote: preview → main" \
             --body "🤖 **Automated Promotion**
 
@@ -149,17 +149,15 @@ jobs:
           **Auto-merge enabled** - This PR will be automatically merged when all checks pass." \
             --base main \
             --head auto-promote/main \
-            --label "ci,promotion,auto-merge" \
-            --json url --jq .url)
+            --label "ci,promotion,auto-merge"
           
-          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
-          echo "PR created: $PR_URL"
+          echo "PR created successfully"
 
       - name: Enable auto-merge
-        if: steps.check-ahead.outputs.preview_ahead == 'true' && steps.create_pr.outputs.pr_url != ''
+        if: steps.check-ahead.outputs.preview_ahead == 'true'
         run: |
-          # Extract PR number from URL
-          PR_NUMBER=$(echo "${{ steps.create_pr.outputs.pr_url }}" | sed 's/.*\/pull\///')
+          # Get the PR number for the auto-promote/main branch
+          PR_NUMBER=$(gh pr list --head auto-promote/main --json number --jq '.[0].number')
           echo "Enabling auto-merge for PR #$PR_NUMBER"
           
           # Enable auto-merge
