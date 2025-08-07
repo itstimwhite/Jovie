@@ -7,7 +7,6 @@ import { NavLink } from '@/components/atoms/NavLink';
 import { AuthActions } from '@/components/molecules/AuthActions';
 
 describe('Atomic Design Structure', () => {
-  beforeEach(cleanup);
   afterEach(cleanup);
 
   describe('Atoms', () => {
