@@ -201,13 +201,16 @@ export default function ProtectedContentPage() {
 ### **2.6 – Environment Variables for Billing**
 
 ```bash
-# Clerk Billing (if using own Stripe account)
+# Clerk Billing
 CLERK_SECRET_KEY=sk_test_...
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 
-# Stripe (if using own Stripe account)
-STRIPE_SECRET_KEY=sk_test_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+# Optional: Clerk Billing Configuration
+NEXT_PUBLIC_CLERK_BILLING_ENABLED=true
+NEXT_PUBLIC_CLERK_BILLING_GATEWAY=stripe
+
+# Note: Stripe keys are not needed when using Clerk billing
+# Clerk handles the Stripe integration internally
 ```
 
 ---
@@ -280,9 +283,8 @@ const supabase = createClient(url, key, {
 import { createClerkClient } from '@clerk/backend';
 const clerk = createClerkClient({ secretKey: '...' });
 
-// ❌ DO NOT implement direct Stripe billing
-import Stripe from 'stripe';
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+// ❌ DO NOT bypass Clerk billing system
+// Use Clerk's billing components and methods instead
 ```
 
 ```sql

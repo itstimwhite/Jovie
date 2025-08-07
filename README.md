@@ -35,7 +35,6 @@ Jovie is a high-conversion link-in-bio service specifically designed for musicia
 
 [![Develop CI](https://img.shields.io/badge/Develop%20CI-Passing-brightgreen)](https://github.com/itstimwhite/Jovie/actions/workflows/develop-ci.yml)
 [![Preview CI](https://img.shields.io/badge/Preview%20CI-Passing-brightgreen)](https://github.com/itstimwhite/Jovie/actions/workflows/preview-ci.yml)
-[![Production Deploy](https://img.shields.io/badge/Production%20Deploy-Active-brightgreen)](https://github.com/itstimwhite/Jovie/actions/workflows/production-deploy.yml)
 
 ### 🛡️ Security Alerts
 
@@ -69,22 +68,35 @@ Jovie is a high-conversion link-in-bio service specifically designed for musicia
 - 🌓 **Dark Mode**: Built-in theme switching
 - 📱 **Mobile First**: Responsive design optimized for all devices
 - 🔒 **Secure Auth**: Powered by Clerk with native Supabase integration
-- ⚡ **Fast & Scalable**: Built on Next.js 14 with Supabase backend
+- ⚡ **Fast & Scalable**: Built on Next.js 15 with Supabase backend
+- 💳 **Billing**: Clerk billing integration with Stripe gateway
+- 🎁 **Tip Jar**: Accept tips from fans (feature-flagged)
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
+### Core Technologies
+
+- **Frontend**: Next.js 15.4.5 (App Router), React 18.3.1, TypeScript 5
+- **Styling**: Tailwind CSS 4.1.11, Headless UI 2.2.7, Heroicons 2.2.0
 - **Backend**: Supabase (PostgreSQL + RLS)
-- **Auth**: Clerk with native Supabase integration
-- **Analytics**: Segment integration
-- **Deployment**: Vercel-ready
-- **Testing**: Vitest + Playwright
+- **Authentication**: Clerk 6.28.1 with native Supabase integration
+- **Database**: Supabase 2.39.0
+- **Deployment**: Vercel with standalone output
+- **Testing**: Vitest 3.2.4 + Playwright 1.40.1
+
+### Key Dependencies
+
+- **Form Handling**: React Hook Form 7.62.0 + Zod 3.25.76
+- **Analytics**: Segment 1.68.0 + Vercel Analytics 1.5.0
+- **Billing**: Clerk billing with Stripe gateway
+- **Utilities**: clsx 2.1.0, date-fns 3.2.0, tailwind-merge 3.3.1
+- **Development**: ESLint 9, Prettier 3.1.1, Husky 9.1.7
 
 ## Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ and npm
+- Node.js 20.17+ and npm 10.0.0+
 - Supabase project
 - Clerk application with Spotify social provider
 - Spotify Developer App
@@ -107,8 +119,28 @@ npm install
 3. Set up environment variables:
 
 ```bash
-cp .env.example .env.local
-# Fill in your actual values
+# Required for core functionality
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your-clerk-publishable-key
+CLERK_SECRET_KEY=your-clerk-secret-key
+SPOTIFY_CLIENT_ID=your-spotify-client-id
+SPOTIFY_CLIENT_SECRET=your-spotify-client-secret
+
+# Optional: Clerk billing
+NEXT_PUBLIC_CLERK_BILLING_ENABLED=true
+NEXT_PUBLIC_CLERK_BILLING_GATEWAY=stripe
+
+# Optional: Feature flags
+NEXT_PUBLIC_FEATURE_TIPS=true
+NEXT_PUBLIC_WAITLIST_ENABLED=true
+
+# Optional: Analytics
+NEXT_PUBLIC_SEGMENT_WRITE_KEY=your-segment-key
+
+# Optional: App configuration
+NEXT_PUBLIC_APP_URL=https://your-domain.com
+NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=your-verification-code
 ```
 
 4. Set up the database:
@@ -142,6 +174,7 @@ Visit `http://localhost:3000` to see the app in action.
 3. Configure redirect URLs for your domain
 4. Get your publishable and secret keys
 5. Set up the Supabase integration in Clerk dashboard
+6. (Optional) Configure billing with Stripe gateway
 
 #### Spotify
 
@@ -158,10 +191,13 @@ Visit `http://localhost:3000` to see the app in action.
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
+- `npm run lint:fix` - Fix ESLint issues
 - `npm run typecheck` - Run TypeScript compiler
 - `npm run test` - Run unit tests
+- `npm run test:ci` - Run tests with coverage
 - `npm run test:e2e` - Run end-to-end tests
 - `npm run format` - Format code with Prettier
+- `npm run format:check` - Check code formatting
 
 ### Project Structure
 
@@ -175,8 +211,8 @@ jovie/
 │   ├── dashboard/         # Dashboard pages
 │   └── legal/             # Legal pages
 ├── components/            # React components
-│   ├── auth/              # Auth-related components
 │   ├── dashboard/         # Dashboard components
+│   ├── home/              # Homepage components
 │   ├── profile/           # Profile page components
 │   ├── site/              # Site-wide components
 │   └── ui/                # Reusable UI components
@@ -185,6 +221,7 @@ jovie/
 ├── constants/             # App constants
 ├── supabase/              # Database migrations
 ├── tests/                 # Test files
+├── future_features/       # Planned features (see below)
 └── docs/                  # Legal documents
 ```
 
@@ -221,7 +258,7 @@ function createClerkSupabaseClient() {
 
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       async accessToken() {
         return session?.getToken() ?? null;
@@ -240,7 +277,7 @@ import { createClient } from '@supabase/supabase-js';
 export function createServerSupabaseClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       async accessToken() {
         return (await auth()).getToken();
@@ -264,57 +301,39 @@ For more details, see [CLERK_SUPABASE_INTEGRATION.md](CLERK_SUPABASE_INTEGRATION
 
 ## Billing & Subscriptions
 
-Jovie includes a Pro subscription system that removes branding for $5/month. The billing system uses Stripe Checkout with Clerk for user management.
+Jovie uses Clerk's billing system with Stripe gateway for subscription management.
 
 ### Setup
 
-1. **Stripe Configuration**:
-   - Create a Stripe account and get your secret key
-   - Create a Product "Jovie Pro" with Price ID `price_5BUCK_PRO` ($5/month recurring)
-   - Set up a webhook endpoint pointing to `/api/stripe/webhook`
-   - Add webhook events: `checkout.session.completed`, `customer.subscription.deleted`
+1. **Clerk Billing Configuration**:
+   - Enable billing in your Clerk dashboard
+   - Configure Stripe as the payment gateway
+   - Create products and pricing plans
+   - Set up webhook endpoints
 
 2. **Environment Variables**:
 
    ```bash
-   STRIPE_SECRET_KEY=sk_test_...
-   STRIPE_PRICE_PRO=price_5BUCK_PRO
-   STRIPE_WEBHOOK_SECRET=whsec_...
+   # Enable Clerk billing
+   NEXT_PUBLIC_CLERK_BILLING_ENABLED=true
+   NEXT_PUBLIC_CLERK_BILLING_GATEWAY=stripe
    ```
 
-3. **Clerk Setup**:
-   - User plan information is stored in `publicMetadata.plan` ('free' or 'pro')
-   - The webhook automatically updates user metadata when subscriptions change
-
-### Features
-
-- **Free Plan**: Includes Jovie branding on profile pages
-- **Pro Plan** ($5/month): Removes all Jovie branding
-- **Payment Flow**: Stripe Checkout → Webhook → Clerk metadata update
-- **Branding Control**: `BrandingBadge` component automatically hides for Pro users
+3. **Features**:
+   - **Free Plan**: Includes Jovie branding on profile pages
+   - **Pro Plan**: Removes all Jovie branding
+   - **Payment Flow**: Clerk billing → Stripe gateway → User metadata update
+   - **Branding Control**: `BrandingBadge` component automatically hides for Pro users
 
 ### Testing
 
 ```bash
-# Test the billing flow (requires Stripe test keys)
+# Test the billing flow
 npm run test:e2e -- --grep="billing"
 
 # Test subscription components
 npm run test -- billing
 ```
-
-### Stripe Webhook Setup
-
-Your webhook endpoint should be configured to receive events at:
-
-```
-https://yourdomain.com/api/stripe/webhook
-```
-
-Required events:
-
-- `checkout.session.completed` - Upgrades user to Pro
-- `customer.subscription.deleted` - Downgrades user to Free
 
 ## Deployment
 
@@ -327,11 +346,29 @@ Required events:
 
 ### Environment Variables for Production
 
-Ensure all environment variables from `.env.example` are set in your production environment, particularly:
+Ensure all environment variables from the setup section are set in your production environment, particularly:
 
 - `NEXT_PUBLIC_APP_URL` - Your production domain
 - Database and API keys
 - OAuth redirect URLs matching your domain
+
+## Future Features
+
+The `future_features/` directory contains detailed specifications for planned features:
+
+- **Tour Dates** (`tour-dates.md`) - Artist tour date management and fan notifications
+- **Tip Jar** (`tip-jar.md`) - Enhanced tipping system with multiple payment methods
+- **Universal Artist Notifications** (`universal-artist-notifications.md`) - Cross-platform notification system
+- **Mobile View** (`view-on-mobile.md`) - Mobile-optimized artist profile views
+
+### Contributing to Future Features
+
+To contribute to future features:
+
+1. **Review existing specs**: Check the `future_features/` directory for current plans
+2. **Create new specs**: Add detailed markdown files for new features
+3. **Follow the template**: Include user stories, technical requirements, and implementation notes
+4. **Update this section**: Add new features to this README when specs are added
 
 ## Contributing
 
@@ -375,13 +412,3 @@ For support and questions:
 ---
 
 Built with ❤️ for musicians everywhere.
-
-# Workflow Test
-
-# Test Manual PR Creation
-
-# Test Fixed Workflow
-
-# Test CI pipeline
-
-# Test auto-promote after preview reset
