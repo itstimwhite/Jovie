@@ -2,9 +2,12 @@
 
 import Link from 'next/link';
 import { Container } from '@/components/site/Container';
-import { FeatureFlaggedArtistSearch } from './FeatureFlaggedArtistSearch';
+import { ClaimHandleForm } from './ClaimHandleForm';
+import { WaitlistLink } from './WaitlistLink';
+import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
 
 export function HomeHero() {
+  const { flags } = useFeatureFlags();
   return (
     <section
       className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24"
@@ -58,13 +61,13 @@ export function HomeHero() {
           </p>
         </div>
 
-        {/* Artist Search with Linear-style container */}
+        {/* Claim Handle with Linear-style container */}
         <div className="w-full max-w-2xl" role="main">
           <div className="relative">
             {/* Subtle glow effect behind search */}
             <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-cyan-500/20 rounded-2xl blur-xl opacity-50" />
             <div className="relative">
-              <FeatureFlaggedArtistSearch />
+              {flags.waitlistEnabled ? <WaitlistLink /> : <ClaimHandleForm />}
             </div>
           </div>
         </div>
