@@ -53,7 +53,7 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
         console.error('Error updating music links:', error);
         setError('Failed to update music links');
       } else {
-        onUpdate(data as Artist);
+        onUpdate(data as unknown as Artist);
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       }

@@ -5,14 +5,26 @@ import { auth } from '@clerk/nextjs/server';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Server-side function to get anonymous Supabase client
-export async function createServerClient() {
+export function createServerClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
     console.warn('Supabase environment variables are not set');
     return null;
   }
 
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false, // Prevent multiple auth instances
+    },
+    async accessToken() {
+      try {
+        const { getToken } = await auth();
+        return (await getToken()) ?? null;
+      } catch (error) {
+        console.error('Error getting token:', error);
+        return null;
+      }
+    },
+  });
 }
 
 // Server-side function to get authenticated Supabase client using native integration
@@ -24,10 +36,18 @@ export async function createAuthenticatedServerClient() {
     }
 
     return createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false, // Prevent multiple auth instances
+      },
       async accessToken() {
         // For server-side, we need to get the token from the session
-        const { getToken } = await auth();
-        return (await getToken()) ?? null;
+        try {
+          const { getToken } = await auth();
+          return (await getToken()) ?? null;
+        } catch (error) {
+          console.error('Error getting token:', error);
+          return null;
+        }
       },
     });
   } catch (error) {
@@ -38,7 +58,11 @@ export async function createAuthenticatedServerClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
     return null;
   }
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false, // Prevent multiple auth instances
+    },
+  });
 }
 
 // Alias for backward compatibility

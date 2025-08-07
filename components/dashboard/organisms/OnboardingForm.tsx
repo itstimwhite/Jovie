@@ -218,11 +218,11 @@ export function OnboardingForm() {
               .single();
 
             if (createUserError) throw createUserError;
-            userId = newUser.id;
+            userId = newUser.id as string;
           } else if (userError) {
             throw userError;
           } else {
-            userId = existingUser.id;
+            userId = existingUser.id as string;
           }
         } catch (error) {
           throw new Error(

@@ -53,7 +53,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
         console.error('Error updating profile:', error);
         setError('Failed to update profile');
       } else {
-        onUpdate(data as Artist);
+        onUpdate(data as unknown as Artist);
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       }
