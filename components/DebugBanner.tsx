@@ -23,6 +23,10 @@ interface DebugInfo {
   clerkAuthError?: string;
   nativeIntegrationStatus: 'checking' | 'working' | 'error' | 'not-tested';
   nativeIntegrationError?: string;
+  clerkSessionStatus: 'checking' | 'available' | 'unavailable' | 'error';
+  clerkSessionError?: string;
+  clerkTokenStatus: 'checking' | 'available' | 'unavailable' | 'error';
+  clerkTokenError?: string;
 }
 
 export function DebugBanner() {
@@ -44,6 +48,8 @@ export function DebugBanner() {
     stripeMode: 'not-configured',
     clerkAuthStatus: 'checking',
     nativeIntegrationStatus: 'checking',
+    clerkSessionStatus: 'checking',
+    clerkTokenStatus: 'checking',
   });
 
   // Check if debug banner should be shown
@@ -74,6 +80,82 @@ export function DebugBanner() {
       }
     }
   }, [session, isLoaded]);
+
+  // Check Clerk session and token functionality
+  useEffect(() => {
+    const checkClerkMethods = async () => {
+      try {
+        // Check if Clerk environment variables are set
+        if (!debugInfo.clerkPublishableKey) {
+          setDebugInfo((prev) => ({
+            ...prev,
+            clerkSessionStatus: 'unavailable',
+            clerkSessionError: 'Missing NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',
+            clerkTokenStatus: 'unavailable',
+            clerkTokenError: 'Missing NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',
+          }));
+          return;
+        }
+
+        // Check session availability
+        if (isLoaded) {
+          if (session) {
+            setDebugInfo((prev) => ({
+              ...prev,
+              clerkSessionStatus: 'available',
+            }));
+
+            // Test token functionality
+            try {
+              const token = await session.getToken();
+              if (token) {
+                setDebugInfo((prev) => ({
+                  ...prev,
+                  clerkTokenStatus: 'available',
+                }));
+              } else {
+                setDebugInfo((prev) => ({
+                  ...prev,
+                  clerkTokenStatus: 'unavailable',
+                  clerkTokenError: 'Session exists but getToken() returned null',
+                }));
+              }
+            } catch (error) {
+              setDebugInfo((prev) => ({
+                ...prev,
+                clerkTokenStatus: 'error',
+                clerkTokenError: error instanceof Error ? error.message : 'Unknown token error',
+              }));
+            }
+          } else {
+            setDebugInfo((prev) => ({
+              ...prev,
+              clerkSessionStatus: 'unavailable',
+              clerkSessionError: 'No active session',
+              clerkTokenStatus: 'unavailable',
+              clerkTokenError: 'No session available for token',
+            }));
+          }
+        } else {
+          setDebugInfo((prev) => ({
+            ...prev,
+            clerkSessionStatus: 'checking',
+            clerkTokenStatus: 'checking',
+          }));
+        }
+      } catch (error) {
+        setDebugInfo((prev) => ({
+          ...prev,
+          clerkSessionStatus: 'error',
+          clerkSessionError: error instanceof Error ? error.message : 'Unknown session error',
+          clerkTokenStatus: 'error',
+          clerkTokenError: error instanceof Error ? error.message : 'Unknown token error',
+        }));
+      }
+    };
+
+    checkClerkMethods();
+  }, [session, isLoaded, debugInfo.clerkPublishableKey]);
 
   useEffect(() => {
     // Determine the actual environment more clearly
@@ -338,6 +420,66 @@ export function DebugBanner() {
     }
   };
 
+  const getClerkSessionStatusColor = (status: DebugInfo['clerkSessionStatus']) => {
+    switch (status) {
+      case 'available':
+        return 'bg-green-500';
+      case 'unavailable':
+        return 'bg-yellow-500';
+      case 'error':
+        return 'bg-red-500';
+      case 'checking':
+        return 'bg-blue-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const getClerkSessionStatusText = (status: DebugInfo['clerkSessionStatus']) => {
+    switch (status) {
+      case 'available':
+        return 'Session OK';
+      case 'unavailable':
+        return 'No Session';
+      case 'error':
+        return 'Session Error';
+      case 'checking':
+        return 'Checking...';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  const getClerkTokenStatusColor = (status: DebugInfo['clerkTokenStatus']) => {
+    switch (status) {
+      case 'available':
+        return 'bg-green-500';
+      case 'unavailable':
+        return 'bg-yellow-500';
+      case 'error':
+        return 'bg-red-500';
+      case 'checking':
+        return 'bg-blue-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  const getClerkTokenStatusText = (status: DebugInfo['clerkTokenStatus']) => {
+    switch (status) {
+      case 'available':
+        return 'Token OK';
+      case 'unavailable':
+        return 'No Token';
+      case 'error':
+        return 'Token Error';
+      case 'checking':
+        return 'Checking...';
+      default:
+        return 'Unknown';
+    }
+  };
+
   const getEnvironmentColor = (env: string) => {
     switch (env) {
       case 'Production (jov.ie)':
@@ -396,6 +538,10 @@ export function DebugBanner() {
         clerkAuthError: debugInfo.clerkAuthError,
         nativeIntegrationStatus: debugInfo.nativeIntegrationStatus,
         nativeIntegrationError: debugInfo.nativeIntegrationError,
+        clerkSessionStatus: debugInfo.clerkSessionStatus,
+        clerkSessionError: debugInfo.clerkSessionError,
+        clerkTokenStatus: debugInfo.clerkTokenStatus,
+        clerkTokenError: debugInfo.clerkTokenError,
         environmentVariables: {
           supabaseUrl: debugInfo.supabaseUrl ? 'SET' : 'NOT SET',
           supabaseAnonKey: debugInfo.supabaseAnonKey ? 'SET' : 'NOT SET',
@@ -532,6 +678,30 @@ export function DebugBanner() {
               </div>
             </div>
 
+            {/* Clerk Session Status */}
+            <div className="flex items-center space-x-1">
+              <span>SESSION:</span>
+              <div
+                className={`px-2 py-1 rounded text-white text-xs ${getClerkSessionStatusColor(
+                  debugInfo.clerkSessionStatus
+                )}`}
+              >
+                {getClerkSessionStatusText(debugInfo.clerkSessionStatus)}
+              </div>
+            </div>
+
+            {/* Clerk Token Status */}
+            <div className="flex items-center space-x-1">
+              <span>TOKEN:</span>
+              <div
+                className={`px-2 py-1 rounded text-white text-xs ${getClerkTokenStatusColor(
+                  debugInfo.clerkTokenStatus
+                )}`}
+              >
+                {getClerkTokenStatusText(debugInfo.clerkTokenStatus)}
+              </div>
+            </div>
+
             {/* Stripe Mode */}
             <div className="flex items-center space-x-1">
               <span>STRIPE:</span>
@@ -564,7 +734,9 @@ export function DebugBanner() {
           {/* Error Details Row */}
           {(debugInfo.connectionError ||
             debugInfo.clerkAuthError ||
-            debugInfo.nativeIntegrationError) && (
+            debugInfo.nativeIntegrationError ||
+            debugInfo.clerkSessionError ||
+            debugInfo.clerkTokenError) && (
             <div className="px-2 pb-2 border-t border-gray-700">
               <div className="max-w-7xl mx-auto">
                 <div className="text-red-400 font-mono text-xs break-all">
@@ -584,6 +756,18 @@ export function DebugBanner() {
                     <div className="mb-1">
                       <span className="text-red-300">Native Error:</span>{' '}
                       {debugInfo.nativeIntegrationError}
+                    </div>
+                  )}
+                  {debugInfo.clerkSessionError && (
+                    <div className="mb-1">
+                      <span className="text-red-300">Session Error:</span>{' '}
+                      {debugInfo.clerkSessionError}
+                    </div>
+                  )}
+                  {debugInfo.clerkTokenError && (
+                    <div className="mb-1">
+                      <span className="text-red-300">Token Error:</span>{' '}
+                      {debugInfo.clerkTokenError}
                     </div>
                   )}
                 </div>
