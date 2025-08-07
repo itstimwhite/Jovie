@@ -282,7 +282,7 @@ export function OnboardingForm() {
 
           // Redirect with a small delay to show completion
           setTimeout(() => {
-            window.location.href = `/${handle.toLowerCase()}`;
+            window.location.href = `/${encodeURIComponent(handle.toLowerCase())}`;
           }, 500);
         } catch (error) {
           throw new Error(
