@@ -3,13 +3,5 @@
     "app/api/**/*.ts": {
       "maxDuration": 30
     }
-  },
-  "edgeConfig": {
-    "featureFlags": {
-      "waitlistEnabled": false,
-      "artistSearchEnabled": true,
-      "debugBannerEnabled": true,
-      "tipPromoEnabled": true
-    }
   }
 }
