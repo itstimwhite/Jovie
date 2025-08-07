@@ -11,14 +11,13 @@ interface DebugInfo {
   clerkSecretKey: string | undefined;
   spotifyClientId: string | undefined;
   spotifyClientSecret: string | undefined;
-  stripeSecretKey: string | undefined;
-  stripePricePro: string | undefined;
-  stripeWebhookSecret: string | undefined;
+  // Clerk Billing (replaces direct Stripe integration)
+  clerkBillingEnabled: boolean;
+  clerkBillingGateway: 'development' | 'stripe' | 'not-configured';
   environment: string;
   githubEnvironment: string;
   connectionStatus: 'checking' | 'connected' | 'error' | 'not-configured';
   connectionError?: string;
-  stripeMode: 'test' | 'production' | 'not-configured';
   clerkAuthStatus: 'checking' | 'authenticated' | 'unauthenticated' | 'error';
   clerkAuthError?: string;
   nativeIntegrationStatus: 'checking' | 'working' | 'error' | 'not-tested';
@@ -39,13 +38,11 @@ export function DebugBanner() {
     clerkSecretKey: process.env.CLERK_SECRET_KEY,
     spotifyClientId: process.env.SPOTIFY_CLIENT_ID,
     spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-    stripeSecretKey: process.env.STRIPE_SECRET_KEY,
-    stripePricePro: process.env.STRIPE_PRICE_PRO,
-    stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+    clerkBillingEnabled: false, // Default to false
+    clerkBillingGateway: 'not-configured', // Default to not-configured
     environment: 'detecting',
     githubEnvironment: 'detecting',
     connectionStatus: 'checking',
-    stripeMode: 'not-configured',
     clerkAuthStatus: 'checking',
     nativeIntegrationStatus: 'checking',
     clerkSessionStatus: 'checking',
@@ -315,22 +312,39 @@ export function DebugBanner() {
     testNativeIntegration();
   }, [debugInfo.supabaseUrl, debugInfo.supabaseAnonKey, session]);
 
-  // Update Stripe mode when stripeSecretKey changes
+  // Update Clerk billing status
   useEffect(() => {
-    const determineStripeMode = (stripeKey: string | undefined) => {
-      if (!stripeKey) return 'not-configured';
-      if (stripeKey.startsWith('sk_test_')) return 'test';
-      if (stripeKey.startsWith('sk_live_')) return 'production';
+    const determineClerkBillingStatus = () => {
+      if (typeof window !== 'undefined') {
+        const clerkPublishableKey =
+          process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+        const clerkSecretKey = process.env.CLERK_SECRET_KEY;
+        const clerkBillingEnabled =
+          process.env.NEXT_PUBLIC_CLERK_BILLING_ENABLED === 'true';
+        const clerkBillingGateway =
+          process.env.NEXT_PUBLIC_CLERK_BILLING_GATEWAY;
+
+        if (clerkPublishableKey && clerkSecretKey && clerkBillingEnabled) {
+          if (clerkBillingGateway === 'stripe') {
+            return 'stripe';
+          } else {
+            return 'development';
+          }
+        }
+        return 'not-configured';
+      }
       return 'not-configured';
     };
 
-    const detectedStripeMode = determineStripeMode(debugInfo.stripeSecretKey);
+    const detectedClerkBillingStatus = determineClerkBillingStatus();
 
     setDebugInfo((prev) => ({
       ...prev,
-      stripeMode: detectedStripeMode,
+      clerkBillingEnabled:
+        process.env.NEXT_PUBLIC_CLERK_BILLING_ENABLED === 'true',
+      clerkBillingGateway: detectedClerkBillingStatus,
     }));
-  }, [debugInfo.stripeSecretKey]);
+  }, []);
 
   const getStatusColor = (status: DebugInfo['connectionStatus']) => {
     switch (status) {
@@ -509,12 +523,14 @@ export function DebugBanner() {
     }
   };
 
-  const getStripeModeColor = (mode: DebugInfo['stripeMode']) => {
-    switch (mode) {
-      case 'test':
-        return 'text-yellow-500';
-      case 'production':
-        return 'text-red-500';
+  const getClerkBillingGatewayColor = (
+    gateway: DebugInfo['clerkBillingGateway']
+  ) => {
+    switch (gateway) {
+      case 'stripe':
+        return 'text-green-500';
+      case 'development':
+        return 'text-blue-500';
       case 'not-configured':
         return 'text-gray-500';
       default:
@@ -522,16 +538,18 @@ export function DebugBanner() {
     }
   };
 
-  const getStripeModeText = (mode: DebugInfo['stripeMode']) => {
-    switch (mode) {
-      case 'test':
-        return 'TEST';
-      case 'production':
-        return 'PROD';
+  const getClerkBillingGatewayText = (
+    gateway: DebugInfo['clerkBillingGateway']
+  ) => {
+    switch (gateway) {
+      case 'stripe':
+        return 'Stripe';
+      case 'development':
+        return 'Development';
       case 'not-configured':
-        return 'NOT SET';
+        return 'Not Set';
       default:
-        return 'UNKNOWN';
+        return 'Unknown';
     }
   };
 
@@ -543,7 +561,6 @@ export function DebugBanner() {
         githubEnvironment: debugInfo.githubEnvironment,
         connectionStatus: debugInfo.connectionStatus,
         connectionError: debugInfo.connectionError,
-        stripeMode: debugInfo.stripeMode,
         clerkAuthStatus: debugInfo.clerkAuthStatus,
         clerkAuthError: debugInfo.clerkAuthError,
         nativeIntegrationStatus: debugInfo.nativeIntegrationStatus,
@@ -552,22 +569,34 @@ export function DebugBanner() {
         clerkSessionError: debugInfo.clerkSessionError,
         clerkTokenStatus: debugInfo.clerkTokenStatus,
         clerkTokenError: debugInfo.clerkTokenError,
+        clerkBillingEnabled: debugInfo.clerkBillingEnabled,
+        clerkBillingGateway: debugInfo.clerkBillingGateway,
         environmentVariables: {
+          // Required for Supabase integration
           supabaseUrl: debugInfo.supabaseUrl ? 'SET' : 'NOT SET',
           supabaseAnonKey: debugInfo.supabaseAnonKey ? 'SET' : 'NOT SET',
+
+          // Required for Clerk authentication
           clerkPublishableKey: debugInfo.clerkPublishableKey
             ? 'SET'
             : 'NOT SET',
           clerkSecretKey: debugInfo.clerkSecretKey ? 'SET' : 'NOT SET',
+
+          // Required for Spotify integration
           spotifyClientId: debugInfo.spotifyClientId ? 'SET' : 'NOT SET',
           spotifyClientSecret: debugInfo.spotifyClientSecret
             ? 'SET'
             : 'NOT SET',
-          stripeSecretKey: debugInfo.stripeSecretKey ? 'SET' : 'NOT SET',
-          stripePricePro: debugInfo.stripePricePro ? 'SET' : 'NOT SET',
-          stripeWebhookSecret: debugInfo.stripeWebhookSecret
-            ? 'SET'
-            : 'NOT SET',
+
+          // Clerk Billing (replaces direct Stripe integration)
+          clerkBillingEnabled: debugInfo.clerkBillingEnabled
+            ? 'ENABLED'
+            : 'DISABLED',
+          clerkBillingGateway: debugInfo.clerkBillingGateway,
+
+          // Optional: Stripe keys (only needed if using own Stripe account with Clerk billing)
+          // stripeSecretKey: 'NOT NEEDED (using Clerk billing)',
+          // stripePublishableKey: 'NOT NEEDED (using Clerk billing)',
         },
         timestamp: new Date().toISOString(),
         url: typeof window !== 'undefined' ? window.location.href : 'server',
@@ -712,16 +741,16 @@ export function DebugBanner() {
               </div>
             </div>
 
-            {/* Stripe Mode */}
+            {/* Clerk Billing Status */}
             <div className="flex items-center space-x-1">
-              <span>STRIPE:</span>
-              <span
-                className={`font-mono px-1 rounded ${getStripeModeColor(
-                  debugInfo.stripeMode
+              <span>BILLING:</span>
+              <div
+                className={`px-2 py-1 rounded text-white text-xs ${getClerkBillingGatewayColor(
+                  debugInfo.clerkBillingGateway
                 )}`}
               >
-                {getStripeModeText(debugInfo.stripeMode)}
-              </span>
+                {getClerkBillingGatewayText(debugInfo.clerkBillingGateway)}
+              </div>
             </div>
           </div>
 
@@ -791,6 +820,7 @@ export function DebugBanner() {
               <div className="flex items-center space-x-2 flex-wrap gap-y-1">
                 <span className="text-gray-300">VARS:</span>
                 <div className="flex space-x-1 flex-wrap gap-y-1">
+                  {/* Supabase */}
                   <span
                     className={`px-1 rounded text-xs ${
                       debugInfo.supabaseUrl ? 'bg-green-500' : 'bg-red-500'
@@ -807,6 +837,8 @@ export function DebugBanner() {
                   >
                     DB_KEY
                   </span>
+
+                  {/* Clerk Auth */}
                   <span
                     className={`px-1 rounded text-xs ${
                       debugInfo.clerkPublishableKey
@@ -815,7 +847,7 @@ export function DebugBanner() {
                     }`}
                     title={debugInfo.clerkPublishableKey ? 'Set' : 'Not set'}
                   >
-                    CLERK
+                    CLERK_PUB
                   </span>
                   <span
                     className={`px-1 rounded text-xs ${
@@ -825,6 +857,8 @@ export function DebugBanner() {
                   >
                     CLERK_SECRET
                   </span>
+
+                  {/* Spotify */}
                   <span
                     className={`px-1 rounded text-xs ${
                       debugInfo.spotifyClientId ? 'bg-green-500' : 'bg-red-500'
@@ -843,31 +877,37 @@ export function DebugBanner() {
                   >
                     SPOTIFY_SECRET
                   </span>
+
+                  {/* Clerk Billing */}
                   <span
                     className={`px-1 rounded text-xs ${
-                      debugInfo.stripeSecretKey ? 'bg-green-500' : 'bg-red-500'
-                    }`}
-                    title={debugInfo.stripeSecretKey ? 'Set' : 'Not set'}
-                  >
-                    STRIPE_KEY
-                  </span>
-                  <span
-                    className={`px-1 rounded text-xs ${
-                      debugInfo.stripePricePro ? 'bg-green-500' : 'bg-red-500'
-                    }`}
-                    title={debugInfo.stripePricePro ? 'Set' : 'Not set'}
-                  >
-                    STRIPE_PRICE
-                  </span>
-                  <span
-                    className={`px-1 rounded text-xs ${
-                      debugInfo.stripeWebhookSecret
+                      debugInfo.clerkBillingEnabled
                         ? 'bg-green-500'
-                        : 'bg-red-500'
+                        : 'bg-yellow-500'
                     }`}
-                    title={debugInfo.stripeWebhookSecret ? 'Set' : 'Not set'}
+                    title={
+                      debugInfo.clerkBillingEnabled ? 'Enabled' : 'Disabled'
+                    }
                   >
-                    STRIPE_WEBHOOK
+                    CLERK_BILLING
+                  </span>
+                  <span
+                    className={`px-1 rounded text-xs ${
+                      debugInfo.clerkBillingGateway === 'stripe'
+                        ? 'bg-green-500'
+                        : debugInfo.clerkBillingGateway === 'development'
+                          ? 'bg-blue-500'
+                          : 'bg-red-500'
+                    }`}
+                    title={
+                      debugInfo.clerkBillingGateway === 'stripe'
+                        ? 'Stripe Gateway'
+                        : debugInfo.clerkBillingGateway === 'development'
+                          ? 'Development Gateway'
+                          : 'Not configured'
+                    }
+                  >
+                    BILLING_GATEWAY
                   </span>
                 </div>
               </div>
