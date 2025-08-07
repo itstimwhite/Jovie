@@ -51,8 +51,8 @@ jobs:
 
       - run: npm ci
 
-      - name: Dependency security audit
-        run: npx audit-ci --high --allowlist "npm:*"
+      - name: Dependency security audit (fail on high+ only)
+        run: npx audit-ci --high
 
   deploy:
     needs: [build, security-audit]
