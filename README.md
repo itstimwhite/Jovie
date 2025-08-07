@@ -383,3 +383,5 @@ Built with ❤️ for musicians everywhere.
 # Test Fixed Workflow
 
 # Test CI pipeline
+
+# Test auto-promote after preview reset
