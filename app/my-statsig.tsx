@@ -2,25 +2,31 @@
 
 import React from 'react';
 import { LogLevel, StatsigProvider } from '@statsig/react-bindings';
+import { useUser } from '@clerk/nextjs';
 
 export default function MyStatsig({ children }: { children: React.ReactNode }) {
-  // For now, use a default user ID
-  // In the future, this can be replaced with actual user authentication
-  const userID = 'anonymous-user';
+  const { user } = useUser();
 
-  const user = {
-    userID: userID,
-    // Optional additional fields:
-    // email: 'user@example.com',
-    // customIDs: { internalID: 'internal-123' },
-    // custom: { plan: 'premium' }
+  // Create user object for Statsig
+  const statsigUser = {
+    userID: user?.id || 'anonymous-user',
+    email: user?.emailAddresses?.[0]?.emailAddress,
+    custom: {
+      plan: (user?.publicMetadata?.plan as string) || 'free',
+    },
   };
 
   return (
     <StatsigProvider
       sdkKey={process.env.NEXT_PUBLIC_STATSIG_CLIENT_KEY!}
-      user={user}
-      options={{ logLevel: LogLevel.Debug }}
+      user={statsigUser}
+      options={{
+        logLevel:
+          process.env.NODE_ENV === 'development'
+            ? LogLevel.Debug
+            : LogLevel.Warn,
+        environment: { tier: process.env.NODE_ENV || 'development' },
+      }}
     >
       {children}
     </StatsigProvider>
