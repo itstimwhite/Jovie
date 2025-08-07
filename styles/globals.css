@@ -1,8 +1,16 @@
 @import 'tailwindcss';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/700.css';
 
 @plugin '@tailwindcss/typography';
 
 @custom-variant dark (&:is(.dark *));
+
+@layer base {
+  :root {
+    --font-inter: 'Inter';
+  }
+}
 
 @theme {
   --font-sans:
