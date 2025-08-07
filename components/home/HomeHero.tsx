@@ -31,33 +31,27 @@ export function HomeHero() {
           </div>
         </div>
 
-        {/* Main headline with Linear's typography style */}
+        {/* Main headline with updated copy */}
         <div className="mb-12 space-y-6">
           <h1
             id="hero-headline"
             className="text-6xl font-semibold tracking-[-0.02em] text-gray-900 dark:text-white sm:text-7xl lg:text-8xl"
           >
             <span className="block leading-none">
-              The fastest{' '}
+              Claim your{' '}
               <span className="text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 dark:from-blue-400 dark:via-purple-400 dark:to-cyan-400 bg-clip-text">
-                link-in-bio
+                @handle
               </span>
-            </span>
-            <span className="block leading-none text-gray-800 dark:text-white/90">
-              for musicians
+              .
             </span>
           </h1>
 
-          {/* Subtitle with better hierarchy */}
+          {/* Subtitle */}
           <p
             className="mx-auto max-w-2xl text-xl text-gray-600 dark:text-white/70 font-light leading-relaxed sm:text-2xl"
             role="doc-subtitle"
           >
-            Turn your Spotify profile into a conversion machine.
-            <br />
-            <span className="text-gray-500 dark:text-white/50">
-              One link. All your music.
-            </span>
+            Turn followers into listeners in 60 seconds.
           </p>
         </div>
 
