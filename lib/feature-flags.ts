@@ -10,7 +10,7 @@ export interface FeatureFlags {
 const defaultFeatureFlags: FeatureFlags = {
   waitlistEnabled: false,
   artistSearchEnabled: true,
-  debugBannerEnabled: false, // Disabled by default
+  debugBannerEnabled: process.env.NODE_ENV === 'development', // Enable in development by default
   tipPromoEnabled: true,
 };
 
