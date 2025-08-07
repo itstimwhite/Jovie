@@ -3,8 +3,10 @@ name: Preview CI/CD Pipeline
 on:
   push:
     branches: [preview]
-  pull_request:
-    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -17,9 +19,20 @@ jobs:
           node-version: 20.17
           cache: 'npm'
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - run: npm run build
+      - name: Type check
+        run: npm run typecheck --if-present
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Test
+        run: npm run test:ci
+
+      - name: Build
+        run: npm run build
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
