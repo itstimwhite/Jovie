@@ -11,15 +11,33 @@ interface StatsigProviderWrapperProps {
 export function StatsigProviderWrapper({
   children,
 }: StatsigProviderWrapperProps) {
-  const { user } = useUser();
   const [isClient, setIsClient] = useState(false);
+  const [isUserLoaded, setIsUserLoaded] = useState(false);
+
+  // Wrap useUser in a try-catch to handle context not being available
+  let user = null;
+  let isLoaded = false;
+
+  try {
+    const userHook = useUser();
+    user = userHook.user;
+    isLoaded = userHook.isLoaded;
+  } catch (error) {
+    console.warn('Clerk context not available yet:', error);
+  }
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Don't render Statsig until we're on the client
-  if (!isClient) {
+  useEffect(() => {
+    if (isLoaded) {
+      setIsUserLoaded(true);
+    }
+  }, [isLoaded]);
+
+  // Don't render Statsig until we're on the client and user is loaded
+  if (!isClient || !isUserLoaded) {
     return <>{children}</>;
   }
 
