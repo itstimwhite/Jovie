@@ -129,4 +129,48 @@ describe('Button', () => {
     const button = screen.getByRole('button');
     expect(button).toHaveClass('cursor-pointer');
   });
+
+  it('renders with left icon', () => {
+    const TestIcon = () => <svg data-testid="test-icon" />;
+    render(<Button leftIcon={<TestIcon />}>Button Text</Button>);
+
+    const button = screen.getByRole('button');
+    expect(button).toBeInTheDocument();
+    expect(screen.getByTestId('test-icon')).toBeInTheDocument();
+    expect(screen.getByText('Button Text')).toBeInTheDocument();
+  });
+
+  it('renders with right icon', () => {
+    const TestIcon = () => <svg data-testid="test-icon" />;
+    render(<Button rightIcon={<TestIcon />}>Button Text</Button>);
+
+    const button = screen.getByRole('button');
+    expect(button).toBeInTheDocument();
+    expect(screen.getByTestId('test-icon')).toBeInTheDocument();
+    expect(screen.getByText('Button Text')).toBeInTheDocument();
+  });
+
+  it('renders with both left and right icons', () => {
+    const LeftIcon = () => <svg data-testid="left-icon" />;
+    const RightIcon = () => <svg data-testid="right-icon" />;
+    render(
+      <Button leftIcon={<LeftIcon />} rightIcon={<RightIcon />}>
+        Button Text
+      </Button>
+    );
+
+    const button = screen.getByRole('button');
+    expect(button).toBeInTheDocument();
+    expect(screen.getByTestId('left-icon')).toBeInTheDocument();
+    expect(screen.getByTestId('right-icon')).toBeInTheDocument();
+    expect(screen.getByText('Button Text')).toBeInTheDocument();
+  });
+
+  it('renders without icons when they are not provided', () => {
+    render(<Button>Button Text</Button>);
+
+    const button = screen.getByRole('button');
+    expect(button).toBeInTheDocument();
+    expect(screen.getByText('Button Text')).toBeInTheDocument();
+  });
 });

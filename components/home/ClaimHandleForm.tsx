@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { RocketLaunchIcon } from '@heroicons/react/24/outline';
 
 export function ClaimHandleForm() {
   const router = useRouter();
@@ -69,6 +70,7 @@ export function ClaimHandleForm() {
             variant="primary"
             size="sm"
             disabled={!!handleError || checking || !handle}
+            rightIcon={!checking ? <RocketLaunchIcon /> : undefined}
           >
             {checking ? 'Redirecting…' : 'Claim'}
           </Button>

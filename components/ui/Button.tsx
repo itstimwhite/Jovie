@@ -10,6 +10,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   as?: React.ElementType;
   outline?: boolean;
   plain?: boolean;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -23,6 +25,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       as: Component = 'button',
       outline = false,
       plain = false,
+      leftIcon,
+      rightIcon,
       ...props
     },
     ref
@@ -44,9 +48,15 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     const sizeClasses = {
-      sm: 'px-3 py-1.5 text-sm',
-      md: 'px-4 py-2 text-base',
-      lg: 'px-6 py-3 text-lg',
+      sm: 'px-3 py-1.5 text-sm gap-1.5',
+      md: 'px-4 py-2 text-base gap-2',
+      lg: 'px-6 py-3 text-lg gap-2.5',
+    };
+
+    const iconSizeClasses = {
+      sm: 'h-4 w-4',
+      md: 'h-4 w-4',
+      lg: 'h-5 w-5',
     };
 
     const colorClasses = {
@@ -68,7 +78,21 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <Component ref={ref} className={classes} {...props}>
-        {children}
+        {leftIcon && (
+          <span className={`flex-shrink-0 ${iconSizeClasses[size]}`}>
+            {React.cloneElement(leftIcon as React.ReactElement, {
+              className: iconSizeClasses[size],
+            })}
+          </span>
+        )}
+        <span className="flex-1">{children}</span>
+        {rightIcon && (
+          <span className={`flex-shrink-0 ${iconSizeClasses[size]}`}>
+            {React.cloneElement(rightIcon as React.ReactElement, {
+              className: iconSizeClasses[size],
+            })}
+          </span>
+        )}
       </Component>
     );
   }

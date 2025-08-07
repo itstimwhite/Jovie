@@ -3,6 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useAuthenticatedSupabase } from '@/lib/supabase';
 import { DataCard } from '@/components/ui/DataCard';
+import {
+  ChartBarIcon,
+  MusicalNoteIcon,
+  ShareIcon,
+  ClockIcon,
+} from '@heroicons/react/24/outline';
 
 interface AnalyticsData {
   total_clicks: number;
@@ -79,9 +85,19 @@ export function AnalyticsCards() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
-          <DataCard key={i} title="Loading..." subtitle="..." />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { icon: <ChartBarIcon />, title: 'Total Clicks' },
+          { icon: <MusicalNoteIcon />, title: 'Spotify Clicks' },
+          { icon: <ShareIcon />, title: 'Social Clicks' },
+          { icon: <ClockIcon />, title: 'Recent Activity' },
+        ].map((item, i) => (
+          <DataCard
+            key={i}
+            title={item.title}
+            subtitle="..."
+            icon={item.icon}
+          />
         ))}
       </div>
     );
@@ -96,26 +112,30 @@ export function AnalyticsCards() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <DataCard
         title="Total Clicks"
-        subtitle={data.total_clicks.toString()}
+        subtitle={data.total_clicks.toLocaleString()}
         metadata="Last 30 days"
+        icon={<ChartBarIcon />}
       />
       <DataCard
         title="Spotify Clicks"
-        subtitle={data.spotify_clicks.toString()}
+        subtitle={data.spotify_clicks.toLocaleString()}
         metadata="Music platform clicks"
+        icon={<MusicalNoteIcon />}
       />
       <DataCard
         title="Social Clicks"
-        subtitle={data.social_clicks.toString()}
+        subtitle={data.social_clicks.toLocaleString()}
         metadata="Social media clicks"
+        icon={<ShareIcon />}
       />
       <DataCard
         title="Recent Activity"
-        subtitle={data.recent_clicks.toString()}
+        subtitle={data.recent_clicks.toLocaleString()}
         metadata="Last 7 days"
+        icon={<ClockIcon />}
       />
     </div>
   );

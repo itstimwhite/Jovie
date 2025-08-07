@@ -5,6 +5,7 @@ import { Container } from '@/components/site/Container';
 import { ClaimHandleForm } from './ClaimHandleForm';
 import { WaitlistLink } from './WaitlistLink';
 import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
+import { ArrowRightIcon } from '@heroicons/react/24/outline';
 
 export function HomeHero() {
   const { flags } = useFeatureFlags();
@@ -76,9 +77,10 @@ export function HomeHero() {
         <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link
             href="/pricing"
-            className="inline-flex items-center px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors group"
           >
-            View Pricing →
+            <span>View Pricing</span>
+            <ArrowRightIcon className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
 

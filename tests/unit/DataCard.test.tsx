@@ -140,8 +140,9 @@ describe('DataCard', () => {
     expect(badge).toHaveClass(
       'inline-block',
       'px-2',
-      'py-1',
+      'py-0.5',
       'text-xs',
+      'font-medium',
       'rounded-full'
     );
   });
@@ -160,6 +161,21 @@ describe('DataCard', () => {
     render(<DataCard title="Test Card" metadata="Metadata text" />);
 
     const metadataElement = screen.getByText('Metadata text');
-    expect(metadataElement).toHaveClass('text-xs', 'text-gray-400');
+    expect(metadataElement).toHaveClass('text-sm', 'text-gray-500');
+  });
+
+  it('renders with icon', () => {
+    const TestIcon = () => <svg data-testid="test-icon" />;
+    render(<DataCard title="Test Card" icon={<TestIcon />} />);
+
+    expect(screen.getByTestId('test-icon')).toBeInTheDocument();
+    expect(screen.getByText('Test Card')).toBeInTheDocument();
+  });
+
+  it('renders without icon when not provided', () => {
+    render(<DataCard title="Test Card" />);
+
+    expect(screen.getByText('Test Card')).toBeInTheDocument();
+    expect(screen.queryByTestId('test-icon')).not.toBeInTheDocument();
   });
 });
