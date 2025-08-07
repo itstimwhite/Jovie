@@ -150,8 +150,7 @@ jobs:
 
           **Auto-merge enabled** - This PR will be automatically merged when all checks pass." \
             --base main \
-            --head auto-promote/main \
-            --label "ci,promotion,auto-merge"
+            --head auto-promote/main
           
           echo "PR created successfully"
 
