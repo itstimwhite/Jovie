@@ -218,11 +218,11 @@ export function OnboardingForm() {
               .single();
 
             if (createUserError) throw createUserError;
-            userId = newUser.id;
+            userId = newUser.id as string;
           } else if (userError) {
             throw userError;
           } else {
-            userId = existingUser.id;
+            userId = existingUser.id as string;
           }
         } catch (error) {
           throw new Error(
@@ -282,7 +282,7 @@ export function OnboardingForm() {
 
           // Redirect with a small delay to show completion
           setTimeout(() => {
-            window.location.href = `/${handle.toLowerCase()}`;
+            window.location.href = `/${encodeURIComponent(handle.toLowerCase())}`;
           }, 500);
         } catch (error) {
           throw new Error(

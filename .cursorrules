@@ -17,20 +17,47 @@
 
 ## Project Overview
 
-Jovie is a Next.js 14 application with Clerk authentication and Supabase database integration. The project uses the latest native Clerk-Supabase integration method.
+Jovie is a Next.js 14 application with Clerk authentication and Supabase database integration. The project uses the latest native Clerk-Supabase integration method and Statsig for feature flags.
 
 ## Technology Stack
 
 - **Frontend**: Next.js 14 (App Router)
 - **Database**: Supabase (PostgreSQL with RLS)
 - **Authentication**: Clerk with native Supabase integration
+- **Feature Flags**: Statsig for experimentation and feature management
 - **Styling**: Tailwind CSS
 - **Testing**: Vitest + Playwright
 - **Deployment**: Vercel
 
 ## Critical Guidelines
 
-### 1. Clerk-Supabase Integration
+### 1. Feature Flags with Statsig
+
+**ALWAYS use Statsig for feature flags:**
+
+```typescript
+// ✅ CORRECT: Use Statsig hooks for feature flags
+import { useFeatureFlags } from '@/lib/feature-flags';
+
+export function MyComponent() {
+  const { waitlistEnabled, debugBannerEnabled } = useFeatureFlags();
+  
+  return (
+    <div>
+      {waitlistEnabled && <WaitlistComponent />}
+      {debugBannerEnabled && <DebugBanner />}
+    </div>
+  );
+}
+```
+
+**Available feature flags:**
+- `waitlistEnabled` - Controls waitlist functionality
+- `debugBannerEnabled` - Controls debug banner visibility
+- `artistSearchEnabled` - Controls artist search functionality
+- `tipPromoEnabled` - Controls tip promotion features
+
+### 2. Clerk-Supabase Integration
 
 **ALWAYS use the native integration method:**
 
@@ -61,7 +88,7 @@ function createClerkSupabaseClient() {
 const token = await getToken({ template: 'supabase' });
 ```
 
-### 2. RLS Policies
+### 3. RLS Policies
 
 **ALWAYS use auth.jwt() for user identification:**
 
@@ -73,7 +100,7 @@ for select to authenticated using (
 );
 ```
 
-### 3. Component Patterns
+### 4. Component Patterns
 
 **Use the established patterns:**
 
@@ -100,7 +127,7 @@ export function MyComponent() {
 }
 ```
 
-### 4. Error Handling
+### 5. Error Handling
 
 **Always handle errors gracefully:**
 
@@ -114,7 +141,7 @@ if (error) {
 }
 ```
 
-### 5. TypeScript
+### 6. TypeScript
 
 **Use proper typing:**
 
@@ -154,6 +181,9 @@ CLERK_SECRET_KEY=sk_test_...
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_KEY=your-anon-key
 
+# Statsig
+NEXT_PUBLIC_STATSIG_CLIENT_KEY=client-<your-statsig-client-key>
+
 # Spotify
 SPOTIFY_CLIENT_ID=your-spotify-client-id
 SPOTIFY_CLIENT_SECRET=your-spotify-client-secret
@@ -175,6 +205,7 @@ Key tables:
 2. **E2E Tests**: Use Playwright for end-to-end testing
 3. **Database Tests**: Test RLS policies with multiple users
 4. **Authentication Tests**: Verify Clerk integration works correctly
+5. **Feature Flag Tests**: Test components with different flag states
 
 ## Code Style
 
@@ -203,6 +234,23 @@ When updating Clerk-Supabase integration:
 5. **Verify data isolation** between users
 
 ## Common Patterns
+
+### Feature Flag Usage
+
+```typescript
+import { useFeatureFlags } from '@/lib/feature-flags';
+
+export function MyComponent() {
+  const { waitlistEnabled, debugBannerEnabled } = useFeatureFlags();
+  
+  return (
+    <div>
+      {waitlistEnabled && <WaitlistComponent />}
+      {debugBannerEnabled && <DebugBanner />}
+    </div>
+  );
+}
+```
 
 ### Form Handling
 
@@ -258,6 +306,7 @@ useEffect(() => {
 
 - [Clerk Supabase Integration](https://clerk.com/docs/raw/integrations/databases/supabase.mdx)
 - [Supabase RLS Documentation](https://supabase.com/docs/guides/auth/row-level-security)
+- [Statsig Documentation](https://docs.statsig.com/)
 - [Next.js App Router](https://nextjs.org/docs/app)
 - [Tailwind CSS](https://tailwindcss.com/docs)
 
@@ -266,8 +315,9 @@ useEffect(() => {
 Before suggesting code changes, verify:
 
 1. ✅ Uses native Clerk-Supabase integration
-2. ✅ Implements proper RLS policies
-3. ✅ Handles errors gracefully
-4. ✅ Uses TypeScript types
-5. ✅ Follows existing patterns
-6. ✅ Maintains security best practices
+2. ✅ Uses Statsig for feature flags
+3. ✅ Implements proper RLS policies
+4. ✅ Handles errors gracefully
+5. ✅ Uses TypeScript types
+6. ✅ Follows existing patterns
+7. ✅ Maintains security best practices

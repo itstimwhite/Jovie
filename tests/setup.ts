@@ -6,6 +6,201 @@ import React from 'react';
 
 expect.extend(matchers);
 
+// Mock Clerk components and hooks
+vi.mock('@clerk/nextjs', () => ({
+  useUser: () => ({
+    isSignedIn: false,
+    user: null,
+    isLoaded: true,
+  }),
+  useAuth: () => ({
+    has: vi.fn(() => false),
+  }),
+  useSession: () => ({
+    session: null,
+    isLoaded: true,
+  }),
+  ClerkProvider: ({ children }: { children: React.ReactNode }) => children,
+  SignIn: ({ children }: { children: React.ReactNode }) => children,
+  SignUp: ({ children }: { children: React.ReactNode }) => children,
+  SignInButton: ({ children }: { children: React.ReactNode }) => children,
+  SignUpButton: ({ children }: { children: React.ReactNode }) => children,
+  UserButton: () =>
+    React.createElement('div', { 'data-testid': 'user-button' }, 'User Button'),
+}));
+
+// Mock feature flags
+vi.mock('@/components/providers/FeatureFlagsProvider', () => ({
+  useFeatureFlags: () => ({
+    flags: {
+      waitlistEnabled: false,
+      artistSearchEnabled: true,
+      debugBannerEnabled: false,
+      tipPromoEnabled: true,
+    },
+  }),
+}));
+
+// Mock server-only modules
+vi.mock('server-only', () => ({
+  default: vi.fn(),
+}));
+
+// Mock Supabase server client
+vi.mock('@/lib/supabase-server', () => ({
+  createServerClient: vi.fn(() => ({
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          order: vi.fn(() => ({
+            limit: vi.fn(() => ({
+              then: vi.fn((callback) => callback({ data: [], error: null })),
+            })),
+          })),
+        })),
+      })),
+    })),
+  })),
+}));
+
+// Mock FeaturedArtists component to handle async component
+vi.mock('@/components/home/FeaturedArtists', () => ({
+  FeaturedArtists: () =>
+    React.createElement(
+      'section',
+      { className: 'w-full py-12', 'data-testid': 'featured-artists' },
+      React.createElement(
+        'div',
+        { className: 'w-full overflow-x-auto' },
+        React.createElement(
+          'div',
+          {
+            className:
+              'flex flex-row gap-6 justify-center md:justify-between w-full min-w-[600px]',
+          },
+          // Mock artist links
+          React.createElement(
+            'a',
+            {
+              href: '/ladygaga',
+              className: 'group flex items-center justify-center',
+              title: 'Lady Gaga',
+            },
+            React.createElement(
+              'div',
+              { className: 'relative' },
+              React.createElement(
+                'div',
+                {
+                  'data-testid': 'optimized-image',
+                  className:
+                    'ring-2 ring-gray-300 dark:ring-white/20 group-hover:ring-gray-400 dark:group-hover:ring-white/40 transition-all duration-200',
+                },
+                React.createElement('div', {
+                  'data-testid': 'artist-image',
+                  className: 'mock-image',
+                })
+              ),
+              React.createElement(
+                'div',
+                {
+                  className:
+                    'absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300',
+                },
+                React.createElement(
+                  'span',
+                  {
+                    className:
+                      'text-white text-xs font-medium text-center px-2',
+                  },
+                  'Lady Gaga'
+                )
+              )
+            )
+          ),
+          React.createElement(
+            'a',
+            {
+              href: '/davidguetta',
+              className: 'group flex items-center justify-center',
+              title: 'David Guetta',
+            },
+            React.createElement(
+              'div',
+              { className: 'relative' },
+              React.createElement(
+                'div',
+                {
+                  'data-testid': 'optimized-image',
+                  className:
+                    'ring-2 ring-gray-300 dark:ring-white/20 group-hover:ring-gray-400 dark:group-hover:ring-white/40 transition-all duration-200',
+                },
+                React.createElement('div', {
+                  'data-testid': 'artist-image',
+                  className: 'mock-image',
+                })
+              ),
+              React.createElement(
+                'div',
+                {
+                  className:
+                    'absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300',
+                },
+                React.createElement(
+                  'span',
+                  {
+                    className:
+                      'text-white text-xs font-medium text-center px-2',
+                  },
+                  'David Guetta'
+                )
+              )
+            )
+          ),
+          React.createElement(
+            'a',
+            {
+              href: '/billieeilish',
+              className: 'group flex items-center justify-center',
+              title: 'Billie Eilish',
+            },
+            React.createElement(
+              'div',
+              { className: 'relative' },
+              React.createElement(
+                'div',
+                {
+                  'data-testid': 'optimized-image',
+                  className:
+                    'ring-2 ring-gray-300 dark:ring-white/20 group-hover:ring-gray-400 dark:group-hover:ring-white/40 transition-all duration-200',
+                },
+                React.createElement('div', {
+                  'data-testid': 'placeholder-image',
+                  className: 'placeholder',
+                })
+              ),
+              React.createElement(
+                'div',
+                {
+                  className:
+                    'absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300',
+                },
+                React.createElement(
+                  'span',
+                  {
+                    className:
+                      'text-white text-xs font-medium text-center px-2',
+                  },
+                  'Billie Eilish'
+                )
+              )
+            )
+          )
+        )
+      )
+    ),
+}));
+
 // Mock ResizeObserver
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),

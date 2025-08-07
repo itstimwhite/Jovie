@@ -6,15 +6,19 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Create a single singleton instance for unauthenticated requests
 let supabaseClient: ReturnType<typeof createClient> | null = null;
+let authenticatedClient: ReturnType<typeof createClient> | null = null;
 
 export function createBrowserClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('Supabase environment variables are not set');
     return null;
   }
 
   if (!supabaseClient) {
-    supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+    supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false, // Prevent multiple auth instances
+      },
+    });
   }
   return supabaseClient;
 }
@@ -28,15 +32,24 @@ export function useAuthenticatedSupabase() {
 
   const getAuthenticatedClient = () => {
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn('Supabase environment variables are not set');
       return null;
     }
 
-    return createClient(supabaseUrl, supabaseAnonKey, {
+    // Return the same authenticated client instance if session hasn't changed
+    if (authenticatedClient) {
+      return authenticatedClient;
+    }
+
+    authenticatedClient = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false, // Prevent multiple auth instances
+      },
       async accessToken() {
         return session?.getToken() ?? null;
       },
     });
+
+    return authenticatedClient;
   };
 
   return { getAuthenticatedClient, supabase };
@@ -47,11 +60,13 @@ export function createClerkSupabaseClient(
   session: ReturnType<typeof useSession>['session']
 ) {
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('Supabase environment variables are not set');
     return null;
   }
 
   return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false, // Prevent multiple auth instances
+    },
     async accessToken() {
       return session?.getToken() ?? null;
     },
@@ -62,12 +77,14 @@ export function createClerkSupabaseClient(
 export async function getAuthenticatedClient(token?: string | null) {
   try {
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn('Supabase environment variables are not set');
       return null;
     }
 
     if (token) {
       return createClient(supabaseUrl, supabaseAnonKey, {
+        auth: {
+          persistSession: false, // Prevent multiple auth instances
+        },
         global: {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -76,8 +93,7 @@ export async function getAuthenticatedClient(token?: string | null) {
       });
     }
     return supabaseClient;
-  } catch (error) {
-    console.error('Error getting Supabase client:', error);
+  } catch {
     return supabaseClient;
   }
 }

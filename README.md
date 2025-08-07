@@ -71,6 +71,7 @@ Jovie is a high-conversion link-in-bio service specifically designed for musicia
 - ⚡ **Fast & Scalable**: Built on Next.js 15 with Supabase backend
 - 💳 **Billing**: Clerk billing integration with Stripe gateway
 - 🎁 **Tip Jar**: Accept tips from fans (feature-flagged)
+- 🚀 **Feature Flags**: Statsig-powered experimentation and feature management
 
 ## Tech Stack
 
@@ -83,12 +84,14 @@ Jovie is a high-conversion link-in-bio service specifically designed for musicia
 - **Database**: Supabase 2.39.0
 - **Deployment**: Vercel with standalone output
 - **Testing**: Vitest 3.2.4 + Playwright 1.40.1
+- **Feature Flags**: Statsig for experimentation and feature management
 
 ### Key Dependencies
 
 - **Form Handling**: React Hook Form 7.62.0 + Zod 3.25.76
 - **Analytics**: Segment 1.68.0 + Vercel Analytics 1.5.0
 - **Billing**: Clerk billing with Stripe gateway
+- **Feature Flags**: Statsig React Bindings 3.21.1
 - **Utilities**: clsx 2.1.0, date-fns 3.2.0, tailwind-merge 3.3.1
 - **Development**: ESLint 9, Prettier 3.1.1, Husky 9.1.7
 
@@ -100,6 +103,7 @@ Jovie is a high-conversion link-in-bio service specifically designed for musicia
 - Supabase project
 - Clerk application with Spotify social provider
 - Spotify Developer App
+- Statsig account (for feature flags)
 
 ### Installation
 
@@ -127,13 +131,12 @@ CLERK_SECRET_KEY=your-clerk-secret-key
 SPOTIFY_CLIENT_ID=your-spotify-client-id
 SPOTIFY_CLIENT_SECRET=your-spotify-client-secret
 
+# Feature flags (Statsig)
+NEXT_PUBLIC_STATSIG_CLIENT_KEY=client-<your-statsig-client-key>
+
 # Optional: Clerk billing
 NEXT_PUBLIC_CLERK_BILLING_ENABLED=true
 NEXT_PUBLIC_CLERK_BILLING_GATEWAY=stripe
-
-# Optional: Feature flags
-NEXT_PUBLIC_FEATURE_TIPS=true
-NEXT_PUBLIC_WAITLIST_ENABLED=true
 
 # Optional: Analytics
 NEXT_PUBLIC_SEGMENT_WRITE_KEY=your-segment-key
@@ -183,6 +186,45 @@ Visit `http://localhost:3000` to see the app in action.
 3. Get your Client ID and Client Secret
 4. Grant necessary scopes for artist data access
 
+#### Statsig (Feature Flags)
+
+1. Create a Statsig account at [statsig.com](https://statsig.com)
+2. Create a new project
+3. Get your client key from the project settings
+4. Configure feature flags in the Statsig dashboard (see [Feature Flags Documentation](docs/feature-flags.md))
+
+## Feature Flags
+
+Jovie uses [Statsig](https://statsig.com/) for feature flag management and experimentation. This provides real-time feature control and A/B testing capabilities.
+
+### Current Feature Flags
+
+| Flag                   | Type   | Description                      | Default             |
+| ---------------------- | ------ | -------------------------------- | ------------------- |
+| `waitlist_enabled`     | Gate   | Controls waitlist functionality  | `false`             |
+| `debug_banner_enabled` | Gate   | Controls debug banner visibility | `development`       |
+| `artist_search_config` | Config | Artist search configuration      | `{ enabled: true }` |
+| `tip_promo_config`     | Config | Tip promotion configuration      | `{ enabled: true }` |
+
+### Usage in Components
+
+```typescript
+import { useFeatureFlags } from '@/lib/feature-flags';
+
+export function MyComponent() {
+  const { waitlistEnabled, debugBannerEnabled } = useFeatureFlags();
+
+  return (
+    <div>
+      {waitlistEnabled && <WaitlistComponent />}
+      {debugBannerEnabled && <DebugBanner />}
+    </div>
+  );
+}
+```
+
+For detailed documentation, see [Feature Flags Documentation](docs/feature-flags.md).
+
 ## Development
 
 ### Available Scripts
@@ -221,6 +263,8 @@ jovie/
 ├── constants/             # App constants
 ├── supabase/              # Database migrations
 ├── tests/                 # Test files
+├── docs/                  # Documentation
+│   └── feature-flags.md   # Feature flags documentation
 ├── future_features/       # Planned features (see below)
 └── docs/                  # Legal documents
 ```
@@ -349,6 +393,7 @@ npm run test -- billing
 Ensure all environment variables from the setup section are set in your production environment, particularly:
 
 - `NEXT_PUBLIC_APP_URL` - Your production domain
+- `NEXT_PUBLIC_STATSIG_CLIENT_KEY` - Your Statsig client key
 - Database and API keys
 - OAuth redirect URLs matching your domain
 
@@ -388,6 +433,7 @@ To contribute to future features:
 - Write tests for new features
 - Follow the established component and naming patterns
 - Use the native Clerk-Supabase integration (see `.cursorrules` for guidelines)
+- Use Statsig for feature flags (see [Feature Flags Documentation](docs/feature-flags.md))
 
 ## AI Development Guidelines
 
@@ -396,6 +442,7 @@ This project includes comprehensive guidelines for AI coding tools:
 - **CLAUDE.md** - Guidelines for Claude Code
 - **.cursorrules** - Guidelines for Cursor and other AI tools
 - **CLERK_SUPABASE_INTEGRATION.md** - Detailed integration documentation
+- **docs/feature-flags.md** - Feature flags documentation
 
 ## License
 

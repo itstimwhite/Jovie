@@ -55,7 +55,7 @@ export function AnalyticsCards() {
           const recentClicks =
             analyticsData?.filter(
               (e) =>
-                new Date(e.created_at) >
+                new Date(e.created_at as string) >
                 new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
             ).length || 0;
 
