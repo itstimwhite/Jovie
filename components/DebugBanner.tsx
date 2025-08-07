@@ -117,14 +117,18 @@ export function DebugBanner() {
                 setDebugInfo((prev) => ({
                   ...prev,
                   clerkTokenStatus: 'unavailable',
-                  clerkTokenError: 'Session exists but getToken() returned null',
+                  clerkTokenError:
+                    'Session exists but getToken() returned null',
                 }));
               }
             } catch (error) {
               setDebugInfo((prev) => ({
                 ...prev,
                 clerkTokenStatus: 'error',
-                clerkTokenError: error instanceof Error ? error.message : 'Unknown token error',
+                clerkTokenError:
+                  error instanceof Error
+                    ? error.message
+                    : 'Unknown token error',
               }));
             }
           } else {
@@ -147,9 +151,11 @@ export function DebugBanner() {
         setDebugInfo((prev) => ({
           ...prev,
           clerkSessionStatus: 'error',
-          clerkSessionError: error instanceof Error ? error.message : 'Unknown session error',
+          clerkSessionError:
+            error instanceof Error ? error.message : 'Unknown session error',
           clerkTokenStatus: 'error',
-          clerkTokenError: error instanceof Error ? error.message : 'Unknown token error',
+          clerkTokenError:
+            error instanceof Error ? error.message : 'Unknown token error',
         }));
       }
     };
@@ -420,7 +426,9 @@ export function DebugBanner() {
     }
   };
 
-  const getClerkSessionStatusColor = (status: DebugInfo['clerkSessionStatus']) => {
+  const getClerkSessionStatusColor = (
+    status: DebugInfo['clerkSessionStatus']
+  ) => {
     switch (status) {
       case 'available':
         return 'bg-green-500';
@@ -435,7 +443,9 @@ export function DebugBanner() {
     }
   };
 
-  const getClerkSessionStatusText = (status: DebugInfo['clerkSessionStatus']) => {
+  const getClerkSessionStatusText = (
+    status: DebugInfo['clerkSessionStatus']
+  ) => {
     switch (status) {
       case 'available':
         return 'Session OK';
