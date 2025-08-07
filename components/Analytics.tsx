@@ -38,9 +38,9 @@ export function Analytics() {
   }, [pathname]);
 
   useEffect(() => {
+    if (trackedRef.current) return;
     try {
       if (typeof window === 'undefined') return;
-      if (trackedRef.current) return;
       if (searchParams.get('src') === 'qr_desktop') {
         const segments = pathname.split('/').filter(Boolean);
         if (segments.length > 0) {
