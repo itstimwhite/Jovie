@@ -72,19 +72,22 @@ export default function DesktopQrOverlay({ handle }: DesktopQrOverlayProps) {
       }
     };
 
-    let timer: ReturnType<typeof window.requestIdleCallback> | ReturnType<typeof window.setTimeout>;
+    // Track both the timer id and the method used
+    let timerInfo:
+      | { type: 'idle'; id: ReturnType<typeof window.requestIdleCallback> }
+      | { type: 'timeout'; id: ReturnType<typeof window.setTimeout> };
     if (window.requestIdleCallback) {
-      timer = window.requestIdleCallback(show);
+      timerInfo = { type: 'idle', id: window.requestIdleCallback(show) };
     } else {
-      timer = window.setTimeout(show, 1500);
+      timerInfo = { type: 'timeout', id: window.setTimeout(show, 1500) };
     }
     window.addEventListener('scroll', scrollHandler);
 
     return () => {
-      if (window.cancelIdleCallback) {
-        window.cancelIdleCallback(timer);
-      } else {
-        clearTimeout(timer);
+      if (timerInfo.type === 'idle' && window.cancelIdleCallback) {
+        window.cancelIdleCallback(timerInfo.id);
+      } else if (timerInfo.type === 'timeout') {
+        clearTimeout(timerInfo.id);
       }
       window.removeEventListener('scroll', scrollHandler);
       window.removeEventListener('touchstart', touchHandler);
