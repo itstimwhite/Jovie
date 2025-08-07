@@ -26,11 +26,12 @@ export default function DesktopQrOverlay({ handle }: DesktopQrOverlayProps) {
     url.searchParams.set('src', 'qr_desktop');
     return url.toString();
   }, []);
-  const qrSize =
-    typeof window !== 'undefined' &&
-    window.matchMedia('(min-width:1024px)').matches
-      ? 120
-      : 96;
+  const qrSize = useMemo(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(min-width:1024px)').matches) {
+      return 120;
+    }
+    return 96;
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
