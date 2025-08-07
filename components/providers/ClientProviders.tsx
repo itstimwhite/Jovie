@@ -7,6 +7,7 @@ import { Analytics } from '@/components/Analytics';
 import { DebugBanner } from '@/components/DebugBanner';
 import { FeatureFlagsProvider } from './FeatureFlagsProvider';
 import { FeatureFlags } from '@/lib/feature-flags';
+// import { Toolbar } from '@vercel/toolbar/next';
 
 interface ClientProvidersProps {
   children: React.ReactNode;
@@ -90,6 +91,7 @@ export function ClientProviders({
           <DebugBanner />
           {children}
           <Analytics />
+          {/* <Toolbar /> */}
         </ThemeProvider>
       </FeatureFlagsProvider>
     </ClerkWrapper>
