@@ -44,7 +44,6 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment: Develop
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -53,9 +52,8 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
       CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
-      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-      STRIPE_PRICE_PRO: ${{ secrets.STRIPE_PRICE_PRO }}
-      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+      SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+      SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
 
     steps:
       - uses: actions/checkout@v4
@@ -137,35 +135,54 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          # Create promotion branch from develop
-          git checkout -b auto-promote/preview
+          # Check if PR already exists
+          EXISTING_PR=$(gh pr list --head auto-promote/preview --base preview --json number --jq '.[0].number // empty')
           
-          # Push the branch
-          git push origin auto-promote/preview
-          
-          # Create PR using GitHub CLI
-          gh pr create \
-            --title "Auto-promote: develop → preview" \
-            --body "🤖 **Automated Promotion**
+          if [ -n "$EXISTING_PR" ]; then
+            echo "PR #$EXISTING_PR already exists, updating branch..."
+            # Update the existing branch
+            git checkout -b auto-promote/preview
+            git push origin auto-promote/preview --force
+            echo "existing_pr=$EXISTING_PR" >> $GITHUB_OUTPUT
+          else
+            echo "No existing PR found, creating new one..."
+            # Create promotion branch from develop
+            git checkout -b auto-promote/preview
+            
+            # Push the branch
+            git push origin auto-promote/preview
+            
+            # Create PR using GitHub CLI
+            gh pr create \
+              --title "Auto-promote: develop → preview" \
+              --body "🤖 **Automated Promotion**
 
-          This PR automatically promotes changes from \`develop\` to \`preview\`.
+            This PR automatically promotes changes from \`develop\` to \`preview\`.
 
-          **Changes included:**
-          - Latest develop branch changes
-          - All CI checks passed ✅
-          - Ready for preview deployment
+            **Changes included:**
+            - Latest develop branch changes
+            - All CI checks passed ✅
+            - Ready for preview deployment
 
-          **Auto-merge enabled** - This PR will be automatically merged when all checks pass." \
-            --base preview \
-            --head auto-promote/preview
-          
-          echo "PR created successfully"
+            **Auto-merge enabled** - This PR will be automatically merged when all checks pass." \
+              --base preview \
+              --head auto-promote/preview
+            
+            echo "PR created successfully"
+          fi
 
       - name: Enable auto-merge
         if: steps.check-ahead.outputs.develop_ahead == 'true'
         run: |
-          # Get the PR number for the auto-promote/preview branch
-          PR_NUMBER=$(gh pr list --head auto-promote/preview --json number --jq '.[0].number')
+          # Get the PR number (either from existing or newly created)
+          if [ -n "${{ steps.create_pr.outputs.existing_pr }}" ]; then
+            PR_NUMBER="${{ steps.create_pr.outputs.existing_pr }}"
+            echo "Using existing PR #$PR_NUMBER"
+          else
+            PR_NUMBER=$(gh pr list --head auto-promote/preview --json number --jq '.[0].number')
+            echo "Using newly created PR #$PR_NUMBER"
+          fi
+          
           echo "Enabling auto-merge for PR #$PR_NUMBER"
           
           # Enable auto-merge
