@@ -6,6 +6,14 @@ export const DSPS = {
   spotify: 'spotify',
   apple_music: 'apple_music',
   youtube: 'youtube',
+  soundcloud: 'soundcloud',
+  deezer: 'deezer',
+  tidal: 'tidal',
+  bandcamp: 'bandcamp',
+  amazon_music: 'amazon_music',
+  pandora: 'pandora',
+  napster: 'napster',
+  iheartradio: 'iheartradio',
 } as const;
 export const DEFAULT_PROFILE_TAGLINE = 'Artist';
 export const ANALYTICS = {

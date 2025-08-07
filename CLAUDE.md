@@ -100,9 +100,123 @@ for insert to authenticated with check (
 
 ---
 
-## **2. CRITICAL INSTRUCTIONS FOR AI MODELS**
+## **2. Clerk Billing with Stripe Integration**
 
-### **2.1 – ALWAYS DO THE FOLLOWING**
+**Purpose:** Enforce the **current** and **correct** instructions for integrating Clerk billing with Stripe for B2C SaaS applications.  
+**Scope:** All AI-generated advice or code related to Clerk billing must follow these guardrails.
+
+### **2.1 – Official Clerk Billing Setup**
+
+Use the **Clerk billing with Stripe** approach from [Clerk's official documentation](https://clerk.com/docs/nextjs/billing/b2c-saas):
+
+#### **Setup Requirements:**
+
+1. **Enable Billing in Clerk Dashboard**:
+   - Navigate to **Billing Settings** in Clerk Dashboard
+   - Enable billing for your application
+   - Choose payment gateway: **Clerk development gateway** (test) or **Stripe account** (production)
+
+2. **Create Plans and Features**:
+   - Navigate to **Plans** page in Clerk Dashboard
+   - Select **Plans for Users** tab
+   - Create subscription plans with features
+   - Set **Publicly available** option as needed
+
+3. **Use Clerk's Pricing Components**:
+   - Use `<PricingTable />` component for pricing pages
+   - Use `has()` method for plan/feature access control
+   - Use `<Protect>` component for React-based protection
+
+### **2.2 – Pricing Page Implementation**
+
+```typescript
+// ✅ CORRECT: Create dedicated pricing page
+// app/pricing/page.tsx
+import { PricingTable } from '@clerk/nextjs'
+
+export default function PricingPage() {
+  return (
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 1rem' }}>
+      <PricingTable />
+    </div>
+  )
+}
+```
+
+### **2.3 – Access Control with Plans**
+
+```typescript
+// ✅ CORRECT: Use has() method for plan access
+import { auth } from '@clerk/nextjs/server'
+
+export default async function PremiumContentPage() {
+  const { has } = await auth()
+  const hasPremiumAccess = has({ plan: 'premium' })
+
+  if (!hasPremiumAccess) {
+    return <h1>Only premium subscribers can access this content.</h1>
+  }
+
+  return <h1>Premium Content</h1>
+}
+```
+
+### **2.4 – Access Control with Features**
+
+```typescript
+// ✅ CORRECT: Use has() method for feature access
+import { auth } from '@clerk/nextjs/server'
+
+export default async function FeatureContentPage() {
+  const { has } = await auth()
+  const hasFeatureAccess = has({ feature: 'advanced_analytics' })
+
+  if (!hasFeatureAccess) {
+    return <h1>Only users with Advanced Analytics can access this content.</h1>
+  }
+
+  return <h1>Advanced Analytics Dashboard</h1>
+}
+```
+
+### **2.5 – React Component Protection**
+
+```typescript
+// ✅ CORRECT: Use Protect component for React-based protection
+import { Protect } from '@clerk/nextjs'
+
+export default function ProtectedContentPage() {
+  return (
+    <Protect
+      plan="premium"
+      fallback={<p>Only premium subscribers can access this content.</p>}
+    >
+      <h1>Exclusive Premium Content</h1>
+      <p>This content is only visible to premium subscribers.</p>
+    </Protect>
+  )
+}
+```
+
+### **2.6 – Environment Variables for Billing**
+
+```bash
+# Clerk Billing (if using own Stripe account)
+CLERK_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+
+# Stripe (if using own Stripe account)
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+```
+
+---
+
+## **3. CRITICAL INSTRUCTIONS FOR AI MODELS**
+
+### **3.1 – ALWAYS DO THE FOLLOWING**
+
+#### **For Clerk-Supabase Integration:**
 
 1. **Use native Supabase integration** - NOT JWT templates
 2. **Use `accessToken()` method** in Supabase client configuration
@@ -113,7 +227,20 @@ for insert to authenticated with check (
 7. **Enable RLS** on all tables that contain user data
 8. **Test authentication flow** with multiple users to verify isolation
 
-### **2.2 – NEVER DO THE FOLLOWING**
+#### **For Clerk Billing:**
+
+1. **Use Clerk's billing system** - NOT direct Stripe integration
+2. **Use `<PricingTable />` component** for pricing pages
+3. **Use `has()` method** for plan/feature access control
+4. **Use `<Protect>` component** for React-based protection
+5. **Create plans and features** in Clerk Dashboard
+6. **Link pricing page** from homepage and navigation
+7. **Test billing flow** end-to-end
+8. **Handle subscription states** properly
+
+### **3.2 – NEVER DO THE FOLLOWING**
+
+#### **For Clerk-Supabase Integration:**
 
 1. **Do not** use JWT templates - they are deprecated
 2. **Do not** manually fetch tokens with `getToken({ template: 'supabase' })`
@@ -122,9 +249,17 @@ for insert to authenticated with check (
 5. **Do not** bypass RLS policies
 6. **Do not** use the old `authMiddleware()` approach
 
+#### **For Clerk Billing:**
+
+1. **Do not** implement direct Stripe integration
+2. **Do not** bypass Clerk's billing system
+3. **Do not** hardcode plan/feature checks
+4. **Do not** ignore subscription states
+5. **Do not** forget to link pricing page
+
 ---
 
-## **3. DEPRECATED PATTERNS TO AVOID**
+## **4. DEPRECATED PATTERNS TO AVOID**
 
 Below are **examples of deprecated instructions** that **must not** be generated:
 
@@ -144,6 +279,10 @@ const supabase = createClient(url, key, {
 // ❌ DO NOT use createClerkClient for client-side
 import { createClerkClient } from '@clerk/backend';
 const clerk = createClerkClient({ secretKey: '...' });
+
+// ❌ DO NOT implement direct Stripe billing
+import Stripe from 'stripe';
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 ```
 
 ```sql
@@ -154,9 +293,9 @@ for select using (user_id = 'hardcoded-uuid');
 
 ---
 
-## **4. CORRECT IMPLEMENTATION PATTERNS**
+## **5. CORRECT IMPLEMENTATION PATTERNS**
 
-### **4.1 – Client Component Example**
+### **5.1 – Client Component Example**
 
 ```typescript
 'use client';
@@ -194,7 +333,7 @@ export function UserDataComponent() {
 }
 ```
 
-### **4.2 – Server Component Example**
+### **5.2 – Server Component Example**
 
 ```typescript
 import { auth } from '@clerk/nextjs/server';
@@ -227,7 +366,7 @@ export default async function ServerComponent() {
 }
 ```
 
-### **4.3 – RLS Policy Example**
+### **5.3 – RLS Policy Example**
 
 ```sql
 -- Enable RLS on table
@@ -250,11 +389,57 @@ for update to authenticated using (
 );
 ```
 
+### **5.4 – Pricing Page Example**
+
+```typescript
+// app/pricing/page.tsx
+import { PricingTable } from '@clerk/nextjs'
+
+export default function PricingPage() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold text-center mb-8">
+          Choose Your Plan
+        </h1>
+        <PricingTable />
+      </div>
+    </div>
+  )
+}
+```
+
+### **5.5 – Homepage Pricing Link Example**
+
+```typescript
+// app/page.tsx or components/home/HomeHero.tsx
+import Link from 'next/link'
+
+export default function HomePage() {
+  return (
+    <div>
+      {/* Other content */}
+      <div className="flex gap-4">
+        <Link
+          href="/pricing"
+          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+        >
+          View Pricing
+        </Link>
+        {/* Other buttons */}
+      </div>
+    </div>
+  )
+}
+```
+
 ---
 
-## **5. AI MODEL VERIFICATION STEPS**
+## **6. AI MODEL VERIFICATION STEPS**
 
-Before returning any Clerk-Supabase integration solution, you **must** verify:
+Before returning any Clerk integration solution, you **must** verify:
+
+### **For Clerk-Supabase Integration:**
 
 1. **Native Integration**: Is the native Supabase integration being used (not JWT templates)?
 2. **Access Token**: Is `accessToken()` method used in Supabase client configuration?
@@ -263,13 +448,21 @@ Before returning any Clerk-Supabase integration solution, you **must** verify:
 5. **Security**: Are RLS policies enabled and properly configured?
 6. **Deprecation**: Are any deprecated patterns being avoided?
 
+### **For Clerk Billing:**
+
+1. **Pricing Table**: Is `<PricingTable />` component being used?
+2. **Access Control**: Is `has()` method or `<Protect>` component being used?
+3. **Navigation**: Is pricing page linked from homepage and navigation?
+4. **Plans/Features**: Are plans and features created in Clerk Dashboard?
+5. **Subscription States**: Are subscription states being handled properly?
+
 If any check **fails**, **stop** and revise until compliance is achieved.
 
 ---
 
-## **6. ENVIRONMENT VARIABLES**
+## **7. ENVIRONMENT VARIABLES**
 
-Required environment variables for Clerk-Supabase integration:
+Required environment variables for Clerk integration:
 
 ```bash
 # Clerk
@@ -279,13 +472,19 @@ CLERK_SECRET_KEY=sk_test_...
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_KEY=your-anon-key
+
+# Stripe (if using own Stripe account with Clerk billing)
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 ```
 
 ---
 
-## **7. TESTING GUIDELINES**
+## **8. TESTING GUIDELINES**
 
-When testing Clerk-Supabase integration:
+When testing Clerk integration:
+
+### **For Clerk-Supabase Integration:**
 
 1. **Test with multiple users** to ensure data isolation
 2. **Verify RLS policies** work correctly
@@ -293,9 +492,17 @@ When testing Clerk-Supabase integration:
 4. **Check authentication flow** end-to-end
 5. **Verify error handling** for unauthorized access
 
+### **For Clerk Billing:**
+
+1. **Test pricing page** displays correctly
+2. **Test subscription flow** end-to-end
+3. **Test plan/feature access control**
+4. **Test navigation** to pricing page
+5. **Test subscription state handling**
+
 ---
 
-## **8. MIGRATION FROM OLD APPROACH**
+## **9. MIGRATION FROM OLD APPROACH**
 
 If migrating from JWT templates:
 
@@ -307,8 +514,9 @@ If migrating from JWT templates:
 
 ---
 
-## **9. RESOURCES**
+## **10. RESOURCES**
 
 - [Clerk Supabase Integration Docs](https://clerk.com/docs/raw/integrations/databases/supabase.mdx)
+- [Clerk Billing with Stripe Docs](https://clerk.com/docs/nextjs/billing/b2c-saas)
 - [Supabase RLS Documentation](https://supabase.com/docs/guides/auth/row-level-security)
 - [Clerk Next.js Documentation](https://clerk.com/docs/quickstarts/nextjs)
