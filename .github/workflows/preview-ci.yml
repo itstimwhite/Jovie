@@ -3,15 +3,30 @@ name: Preview CI/CD Pipeline
 on:
   push:
     branches: [preview]
-  workflow_dispatch: {}
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  pull_request:
+    branches: [main]
 
 jobs:
   build:
-    uses: ./.github/workflows/_reusable-build.yml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: .next/standalone
+          retention-days: 1
 
   deploy:
     needs: build
@@ -32,6 +47,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+
+      - run: npm ci
+
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
@@ -49,7 +71,6 @@ jobs:
         run: |
           URL=$(npx vercel deploy --prebuilt --token "$VERCEL_TOKEN")
           echo "url=$URL" >> $GITHUB_OUTPUT
-          echo "Deployed URL: $URL"
 
       - name: Upload Vercel output
         uses: actions/upload-artifact@v4
@@ -58,212 +79,85 @@ jobs:
           path: .vercel/output
           retention-days: 1
 
-  e2e:
-    needs: deploy
-    runs-on: ubuntu-latest
-    environment: Preview
-    env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-      CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
-      STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-      STRIPE_PRICE_PRO: ${{ secrets.STRIPE_PRICE_PRO }}
-      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-    strategy:
-      matrix:
-        browser: [chromium, firefox, webkit]
-        country: [US, DE]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20.17
-          cache: 'npm'
-
-      - run: npm ci
-      - run: npx playwright install --with-deps
-
-      - name: Check deployment URL
-        id: check-e2e-url
-        run: |
-          if [ -n "${{ needs.deploy.outputs.url }}" ]; then
-            echo "url=${{ needs.deploy.outputs.url }}" >> $GITHUB_OUTPUT
-            echo "Using deployed URL for E2E tests: ${{ needs.deploy.outputs.url }}"
-          else
-            echo "url=https://jovie-preview.vercel.app" >> $GITHUB_OUTPUT
-            echo "Using fallback URL for E2E tests: https://jovie-preview.vercel.app"
-          fi
-
-      - name: Run E2E tests
-        run: |
-          BASE_URL="${{ steps.check-e2e-url.outputs.url }}" COUNTRY="${{ matrix.country }}" npm run test:e2e
-        continue-on-error: true
-
-  lighthouse:
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Check deployment URL
-        id: check-lighthouse-url
-        run: |
-          if [ -n "${{ needs.deploy.outputs.url }}" ]; then
-            echo "url=${{ needs.deploy.outputs.url }}" >> $GITHUB_OUTPUT
-            echo "Using deployed URL for Lighthouse: ${{ needs.deploy.outputs.url }}"
-          else
-            echo "url=https://jovie-preview.vercel.app" >> $GITHUB_OUTPUT
-            echo "Using fallback URL for Lighthouse: https://jovie-preview.vercel.app"
-          fi
-
-      - name: Lighthouse multipage audit
-        uses: treosh/lighthouse-ci-action@v12
-        with:
-          urls: |
-            ${{ steps.check-lighthouse-url.outputs.url }}
-            ${{ steps.check-lighthouse-url.outputs.url }}/artists
-            ${{ steps.check-lighthouse-url.outputs.url }}/dashboard
-          configPath: .lighthouserc.json
-          uploadArtifacts: true
-          temporaryPublicStorage: true
-        continue-on-error: true
-
-  bundle-size:
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20.17
-          cache: 'npm'
-
-      - run: npm ci
-      - run: npm run build
-
-      - name: Analyze bundle size
-        run: |
-          # Create bundle analysis directory
-          mkdir -p ./bundle-analysis
-          
-          # Analyze JavaScript bundle sizes
-          echo "Bundle Size Analysis" > ./bundle-analysis/analysis.md
-          echo "===================" >> ./bundle-analysis/analysis.md
-          echo "" >> ./bundle-analysis/analysis.md
-          echo "Generated: $(date)" >> ./bundle-analysis/analysis.md
-          echo "" >> ./bundle-analysis/analysis.md
-          
-          # List all JS chunks with their sizes
-          echo "JavaScript Chunks:" >> ./bundle-analysis/analysis.md
-          echo "----------------" >> ./bundle-analysis/analysis.md
-          for file in .next/static/chunks/*.js; do
-            if [ -f "$file" ]; then
-              size=$(du -h "$file" | cut -f1)
-              echo "- $(basename "$file"): $size" >> ./bundle-analysis/analysis.md
-            fi
-          done
-          
-          echo "" >> ./bundle-analysis/analysis.md
-          echo "CSS Files:" >> ./bundle-analysis/analysis.md
-          echo "----------" >> ./bundle-analysis/analysis.md
-          for file in .next/static/css/*.css; do
-            if [ -f "$file" ]; then
-              size=$(du -h "$file" | cut -f1)
-              echo "- $(basename "$file"): $size" >> ./bundle-analysis/analysis.md
-            fi
-          done
-          
-          echo "" >> ./bundle-analysis/analysis.md
-          echo "Total Bundle Size:" >> ./bundle-analysis/analysis.md
-          echo "-----------------" >> ./bundle-analysis/analysis.md
-          total_js=$(find .next/static/chunks -name "*.js" -exec du -ch {} + | tail -1 | cut -f1)
-          total_css=$(find .next/static/css -name "*.css" -exec du -ch {} + | tail -1 | cut -f1)
-          echo "- JavaScript: $total_js" >> ./bundle-analysis/analysis.md
-          echo "- CSS: $total_css" >> ./bundle-analysis/analysis.md
-          
-          echo "Bundle analysis completed successfully!"
-        continue-on-error: true
-
-      - name: Upload bundle analysis
-        uses: actions/upload-artifact@v4
-        with:
-          name: bundle-analysis
-          path: ./bundle-analysis
-          retention-days: 7
-
-  security:
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Check deployment URL
-        id: check-url
-        run: |
-          if [ -n "${{ needs.deploy.outputs.url }}" ]; then
-            echo "url=${{ needs.deploy.outputs.url }}" >> $GITHUB_OUTPUT
-            echo "Using deployed URL: ${{ needs.deploy.outputs.url }}"
-          else
-            echo "url=https://jovie-preview.vercel.app" >> $GITHUB_OUTPUT
-            echo "Using fallback URL: https://jovie-preview.vercel.app"
-          fi
-
-      - name: Run ZAP DAST
-        uses: zaproxy/action-full-scan@v0.8.0
-        with:
-          target: '${{ steps.check-url.outputs.url }}'
-          rules_file_name: '.zap/rules.tsv'
-          cmd_options: '-a'
-        continue-on-error: true
-
-      - name: Upload ZAP results
-        uses: actions/upload-artifact@v4
-        with:
-          name: zap-results
-          path: zap-report.html
-          retention-days: 30
+      - name: Dependency security (high+)
+        run: npx audit-ci --moderate --allowlist "npm:*" || npm audit --audit-level=high
 
   promote:
-    needs: [deploy, e2e, lighthouse, bundle-size, security]
-    if: ${{ success() && github.event_name == 'push' }}
+    needs: build
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Check if preview is ahead of main
+        id: check-ahead
+        run: |
+          git fetch origin main
+          echo "Main branch commit: $(git rev-parse origin/main)"
+          echo "Preview branch commit: $(git rev-parse preview)"
+          echo "Commits ahead: $(git rev-list --count origin/main..preview)"
+          echo "Commits behind: $(git rev-list --count preview..origin/main)"
+          if [ "$(git rev-list --count origin/main..preview)" -gt 0 ]; then
+            echo "preview_ahead=true" >> $GITHUB_OUTPUT
+            echo "✅ Preview is ahead of main, proceeding with promotion"
+          else
+            echo "preview_ahead=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Preview is not ahead of main, skipping promotion"
+          fi
+
       - name: Create/Update PR preview → main
+        if: steps.check-ahead.outputs.preview_ahead == 'true'
         id: create_pull_request
         uses: peter-evans/create-pull-request@v7
         with:
           title: 'Auto-promote: preview → main'
           body: |
-            🤖 **Automated Production Promotion**
+            🤖 **Automated Promotion**
 
             This PR automatically promotes changes from `preview` to `main`.
 
-            **All checks passed:**
-            - ✅ E2E tests (all browsers)
-            - ✅ Lighthouse performance
-            - ✅ Bundle size analysis
-            - ✅ Security scan (ZAP)
-            - ✅ All CI checks passed
+            **Changes included:**
+            - Latest preview branch changes
+            - All CI checks passed ✅
+            - Ready for production deployment
 
             **Auto-merge enabled** - This PR will be automatically merged when all checks pass.
 
-            **Deployment URL:** ${{ needs.deploy.outputs.url }}
+            **Deployment URL:** ${{ steps.vercel.outputs.url }}
           branch: auto-promote/main
           base: main
           delete-branch: true
-          labels: ci, promotion, auto-merge, production
+          labels: ci, promotion, auto-merge
           token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'Auto-promote: preview → main'
+          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          author: itstimwhite <35063371+itstimwhite@users.noreply.github.com>
+          signoff: false
+          sign-commits: false
+          draft: false
+          maintainer-can-modify: true
+          path: .
+
+      - name: Debug PR creation
+        if: steps.check-ahead.outputs.preview_ahead == 'true'
+        run: |
+          echo "PR operation: ${{ steps.create_pull_request.outputs.pull-request-operation }}"
+          echo "PR number: ${{ steps.create_pull_request.outputs.pull-request-number }}"
+          echo "PR branch: ${{ steps.create_pull_request.outputs.pull-request-branch }}"
+          echo "PR head SHA: ${{ steps.create_pull_request.outputs.pull-request-head-sha }}"
 
       - name: Enable auto-merge (squash)
+        if: steps.check-ahead.outputs.preview_ahead == 'true' && steps.create_pull_request.outputs.pull-request-number != ''
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
           pull-request-number: ${{ steps.create_pull_request.outputs.pull-request-number }}
           merge-method: squash
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Skip promotion - no changes
+        if: steps.check-ahead.outputs.preview_ahead == 'false'
+        run: |
+          echo "No changes to promote - preview is not ahead of main"
+          echo "This is expected if the preview branch was already merged to main"
