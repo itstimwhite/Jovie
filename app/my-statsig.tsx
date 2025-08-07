@@ -16,6 +16,14 @@ export default function MyStatsig({ children }: { children: React.ReactNode }) {
     },
   };
 
+  // Check if we're in a browser environment
+  const isBrowser = typeof window !== 'undefined';
+
+  // If not in browser, render children without Statsig
+  if (!isBrowser) {
+    return <>{children}</>;
+  }
+
   return (
     <StatsigProvider
       sdkKey={process.env.NEXT_PUBLIC_STATSIG_CLIENT_KEY!}

@@ -129,13 +129,13 @@ jobs:
           # Configure git
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          
+
           # Create promotion branch from preview
           git checkout -b auto-promote/main
-          
+
           # Push the branch
           git push origin auto-promote/main
-          
+
           # Create PR using GitHub CLI
           gh pr create \
             --title "Auto-promote: preview → main" \
@@ -151,7 +151,7 @@ jobs:
           **Auto-merge enabled** - This PR will be automatically merged when all checks pass." \
             --base main \
             --head auto-promote/main
-          
+
           echo "PR created successfully"
 
       - name: Enable auto-merge
@@ -160,7 +160,7 @@ jobs:
           # Get the PR number for the auto-promote/main branch
           PR_NUMBER=$(gh pr list --head auto-promote/main --json number --jq '.[0].number')
           echo "Enabling auto-merge for PR #$PR_NUMBER"
-          
+
           # Enable auto-merge
           gh pr merge $PR_NUMBER --auto --squash
 
