@@ -57,7 +57,7 @@ jobs:
   deploy:
     needs: [build]
     runs-on: ubuntu-latest
-    environment: preview
+    environment: Preview
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
