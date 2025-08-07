@@ -72,7 +72,7 @@ export default function DesktopQrOverlay({ handle }: DesktopQrOverlayProps) {
       }
     };
 
-    let timer: number;
+    let timer: ReturnType<typeof window.requestIdleCallback> | ReturnType<typeof window.setTimeout>;
     if (window.requestIdleCallback) {
       timer = window.requestIdleCallback(show);
     } else {
