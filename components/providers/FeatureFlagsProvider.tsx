@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { FeatureFlags, getFeatureFlags } from '@/lib/feature-flags';
+import { FeatureFlags } from '@/lib/feature-flags';
 
 interface FeatureFlagsContextType {
   flags: FeatureFlags;
@@ -42,35 +42,21 @@ export function FeatureFlagsProvider({
     }
   );
   const [isLoading, setIsLoading] = useState(!initialFlags);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialFlags) {
       // If we have initial flags from server, use them
       setFlags(initialFlags);
       setIsLoading(false);
-      return;
+    } else {
+      // For now, use default flags on client side
+      // In the future, we can implement real-time Statsig updates
+      setIsLoading(false);
     }
-
-    // Otherwise, fetch flags on client side
-    const fetchFlags = async () => {
-      try {
-        const fetchedFlags = await getFeatureFlags();
-        setFlags(fetchedFlags);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching feature flags:', err);
-        setError('Failed to load feature flags');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchFlags();
   }, [initialFlags]);
 
   return (
-    <FeatureFlagsContext.Provider value={{ flags, isLoading, error }}>
+    <FeatureFlagsContext.Provider value={{ flags, isLoading, error: null }}>
       {children}
     </FeatureFlagsContext.Provider>
   );

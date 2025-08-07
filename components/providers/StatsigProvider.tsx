@@ -36,6 +36,16 @@ export function StatsigProviderWrapper({
     }
   }, [isLoaded]);
 
+  // Check if Statsig key is available
+  const statsigKey = process.env.NEXT_PUBLIC_STATSIG_CLIENT_KEY;
+
+  if (!statsigKey) {
+    console.warn(
+      'Statsig client key not found, feature flags will use defaults'
+    );
+    return <>{children}</>;
+  }
+
   // Don't render Statsig until we're on the client and user is loaded
   if (!isClient || !isUserLoaded) {
     return <>{children}</>;
@@ -52,7 +62,7 @@ export function StatsigProviderWrapper({
 
   return (
     <StatsigProvider
-      sdkKey={process.env.NEXT_PUBLIC_STATSIG_CLIENT_KEY!}
+      sdkKey={statsigKey}
       user={statsigUser}
       options={{
         logLevel:

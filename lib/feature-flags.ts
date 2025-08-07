@@ -1,10 +1,3 @@
-import { createClient } from '@vercel/edge-config';
-
-// Create Edge Config client only if connection string is available
-const edgeConfig = process.env.EDGE_CONFIG
-  ? createClient(process.env.EDGE_CONFIG)
-  : null;
-
 // Feature flags interface
 export interface FeatureFlags {
   waitlistEnabled: boolean;
@@ -21,32 +14,10 @@ const defaultFeatureFlags: FeatureFlags = {
   tipPromoEnabled: true,
 };
 
-// Get feature flags from Edge Config
+// Get feature flags (simplified for now)
 export async function getFeatureFlags(): Promise<FeatureFlags> {
-  try {
-    if (!edgeConfig) {
-      return defaultFeatureFlags;
-    }
-
-    const flags = await edgeConfig.get<FeatureFlags>('featureFlags');
-
-    if (!flags) {
-      return defaultFeatureFlags;
-    }
-
-    return {
-      ...defaultFeatureFlags,
-      ...flags,
-    };
-  } catch {
-    return defaultFeatureFlags;
-  }
-}
-
-// Client-side hook for feature flags (for components that need real-time updates)
-export function useFeatureFlags(): FeatureFlags {
-  // For now, return default flags on client side
-  // In the future, we could implement real-time updates via Edge Config
+  // For now, return default flags
+  // In the future, we can integrate with Statsig or other feature flag services
   return defaultFeatureFlags;
 }
 
