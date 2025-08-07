@@ -4,6 +4,10 @@ on:
   push:
     branches: [preview]
 
+permissions:
+  contents: read
+  pull-requests: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -34,17 +38,26 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: .next/standalone
-          retention-days: 1
-
-  deploy:
+  security-audit:
     needs: build
     runs-on: ubuntu-latest
-    environment: Preview
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Dependency security audit
+        run: npx audit-ci --high --allowlist "npm:*"
+
+  deploy:
+    needs: [build, security-audit]
+    runs-on: ubuntu-latest
+    environment: preview
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -67,12 +80,6 @@ jobs:
 
       - run: npm ci
 
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-output
-          path: .next/standalone
-
       - name: Vercel pull preview env
         run: npx vercel pull --environment=preview --yes --token "$VERCEL_TOKEN"
 
@@ -92,13 +99,13 @@ jobs:
           path: .vercel/output
           retention-days: 1
 
-      - name: Dependency security (high+)
-        run: npx audit-ci --moderate --allowlist "npm:*" || npm audit --audit-level=high
-
   promote:
-    needs: build
+    needs: [build, security-audit]
     if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
@@ -130,35 +137,55 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # Create promotion branch from preview
-          git checkout -b auto-promote/main
+          # Check if PR already exists
+          EXISTING_PR=$(gh pr list --head auto-promote/main --base main --json number --jq '.[0].number // empty')
 
-          # Push the branch
-          git push origin auto-promote/main
+          if [ -n "$EXISTING_PR" ]; then
+            echo "PR #$EXISTING_PR already exists, updating branch..."
+            # Update the existing branch
+            git checkout -b auto-promote/main
+            git push origin auto-promote/main --force-with-lease
+            echo "existing_pr=$EXISTING_PR" >> $GITHUB_OUTPUT
+          else
+            echo "No existing PR found, creating new one..."
+            # Create promotion branch from preview
+            git checkout -b auto-promote/main
+            
+            # Push the branch
+            git push origin auto-promote/main
+            
+            # Create PR using GitHub CLI
+            gh pr create \
+              --title "Auto-promote: preview → main" \
+              --body "🤖 **Automated Promotion**
 
-          # Create PR using GitHub CLI
-          gh pr create \
-            --title "Auto-promote: preview → main" \
-            --body "🤖 **Automated Promotion**
+            This PR automatically promotes changes from \`preview\` to \`main\`.
 
-          This PR automatically promotes changes from \`preview\` to \`main\`.
+            **Changes included:**
+            - Latest preview branch changes
+            - All CI checks passed ✅
+            - Security audit passed ✅
+            - Ready for production deployment
 
-          **Changes included:**
-          - Latest preview branch changes
-          - All CI checks passed ✅
-          - Ready for production deployment
-
-          **Auto-merge enabled** - This PR will be automatically merged when all checks pass." \
-            --base main \
-            --head auto-promote/main
-
-          echo "PR created successfully"
+            **Auto-merge enabled** - This PR will be automatically merged when all checks pass." \
+              --base main \
+              --head auto-promote/main
+            
+            echo "PR created successfully"
+          fi
 
       - name: Enable auto-merge
         if: steps.check-ahead.outputs.preview_ahead == 'true'
         run: |
-          # Get the PR number for the auto-promote/main branch
-          PR_NUMBER=$(gh pr list --head auto-promote/main --json number --jq '.[0].number')
+          # Get the PR number (either from existing or newly created)
+          if [ -n "${{ steps.create_pr.outputs.existing_pr }}" ]; then
+            PR_NUMBER="${{ steps.create_pr.outputs.existing_pr }}"
+            echo "Using existing PR #$PR_NUMBER"
+          else
+            PR_NUMBER=$(gh pr list --head auto-promote/main --json number --jq '.[0].number')
+            echo "Using newly created PR #$PR_NUMBER"
+          fi
+
           echo "Enabling auto-merge for PR #$PR_NUMBER"
 
           # Enable auto-merge

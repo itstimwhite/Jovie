@@ -26,9 +26,8 @@ rules:
         require_code_owner_reviews: false
         require_last_push_approval: true
       required_workflows:
-        - 'web-release-loop.yml'
         - 'web-pr-verify.yml'
-        - 'codeql-analysis.yml'
+        - 'codeql.yml'
       required_deployments:
         required_environments:
           - 'production'
