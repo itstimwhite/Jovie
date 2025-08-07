@@ -27,6 +27,7 @@ interface DebugInfo {
 
 export function DebugBanner() {
   const { session, isLoaded } = useSession();
+  const [isExpanded, setIsExpanded] = useState(true);
   const [debugInfo, setDebugInfo] = useState<DebugInfo>({
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -47,6 +48,15 @@ export function DebugBanner() {
 
   // Check if debug banner should be shown
   const shouldShowDebugBanner = true; // Temporarily always show for debugging
+
+  // Update body padding based on debug banner state
+  useEffect(() => {
+    const bannerHeight = isExpanded ? '8rem' : '3rem';
+    document.documentElement.style.setProperty(
+      '--debug-banner-height',
+      bannerHeight
+    );
+  }, [isExpanded]);
 
   useEffect(() => {
     // Update Clerk auth status when session changes
@@ -438,194 +448,239 @@ export function DebugBanner() {
   });
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-gray-900 text-white text-xs p-2 border-b border-gray-700 min-h-[40px]">
-      <div className="flex items-center justify-between max-w-7xl mx-auto">
-        <div className="flex items-center space-x-4 flex-wrap">
-          <span className="font-bold">🔧 DEBUG MODE</span>
+    <div className="fixed top-0 left-0 right-0 z-50 bg-gray-900 text-white text-xs border-b border-gray-700 shadow-lg">
+      {/* Main Debug Banner */}
+      <div className="p-2">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center space-x-4 flex-wrap gap-y-1">
+            <div className="flex items-center space-x-2">
+              <span className="font-bold text-sm">🔧 DEBUG MODE</span>
+              <button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="px-1 py-0.5 bg-gray-700 hover:bg-gray-600 rounded text-xs transition-colors"
+                title={isExpanded ? 'Collapse debug info' : 'Expand debug info'}
+              >
+                {isExpanded ? '−' : '+'}
+              </button>
+            </div>
 
-          {/* Environment */}
-          <div className="flex items-center space-x-1">
-            <span>WHERE:</span>
-            <span
-              className={`font-mono ${getEnvironmentColor(
-                debugInfo.environment
-              )}`}
-            >
-              {debugInfo.environment}
-            </span>
-          </div>
+            {/* Environment */}
+            <div className="flex items-center space-x-1">
+              <span>WHERE:</span>
+              <span
+                className={`font-mono ${getEnvironmentColor(
+                  debugInfo.environment
+                )}`}
+              >
+                {debugInfo.environment}
+              </span>
+            </div>
 
-          {/* GitHub Environment */}
-          <div className="flex items-center space-x-1">
-            <span>SECRETS:</span>
-            <span className="font-mono text-cyan-400">
-              {debugInfo.githubEnvironment}
-            </span>
-          </div>
+            {/* GitHub Environment */}
+            <div className="flex items-center space-x-1">
+              <span>SECRETS:</span>
+              <span className="font-mono text-cyan-400">
+                {debugInfo.githubEnvironment}
+              </span>
+            </div>
 
-          {/* Supabase URL */}
-          <div className="flex items-center space-x-1">
-            <span>DB:</span>
-            <span className="font-mono text-blue-400">
-              {debugInfo.supabaseUrl
-                ? new URL(debugInfo.supabaseUrl).hostname
-                : 'NOT SET'}
-            </span>
-          </div>
+            {/* Supabase URL */}
+            <div className="flex items-center space-x-1">
+              <span>DB:</span>
+              <span className="font-mono text-blue-400">
+                {debugInfo.supabaseUrl
+                  ? new URL(debugInfo.supabaseUrl).hostname
+                  : 'NOT SET'}
+              </span>
+            </div>
 
-          {/* Connection Status */}
-          <div className="flex items-center space-x-1">
-            <span>STATUS:</span>
-            <div
-              className={`px-2 py-1 rounded text-white text-xs ${getStatusColor(
-                debugInfo.connectionStatus
-              )}`}
-            >
-              {getStatusText(debugInfo.connectionStatus)}
+            {/* Connection Status */}
+            <div className="flex items-center space-x-1">
+              <span>STATUS:</span>
+              <div
+                className={`px-2 py-1 rounded text-white text-xs ${getStatusColor(
+                  debugInfo.connectionStatus
+                )}`}
+              >
+                {getStatusText(debugInfo.connectionStatus)}
+              </div>
+            </div>
+
+            {/* Clerk Auth Status */}
+            <div className="flex items-center space-x-1">
+              <span>AUTH:</span>
+              <div
+                className={`px-2 py-1 rounded text-white text-xs ${getClerkAuthStatusColor(
+                  debugInfo.clerkAuthStatus
+                )}`}
+              >
+                {getClerkAuthStatusText(debugInfo.clerkAuthStatus)}
+              </div>
+            </div>
+
+            {/* Native Integration Status */}
+            <div className="flex items-center space-x-1">
+              <span>NATIVE:</span>
+              <div
+                className={`px-2 py-1 rounded text-white text-xs ${getNativeIntegrationStatusColor(
+                  debugInfo.nativeIntegrationStatus
+                )}`}
+              >
+                {getNativeIntegrationStatusText(
+                  debugInfo.nativeIntegrationStatus
+                )}
+              </div>
+            </div>
+
+            {/* Stripe Mode */}
+            <div className="flex items-center space-x-1">
+              <span>STRIPE:</span>
+              <span
+                className={`font-mono px-1 rounded ${getStripeModeColor(
+                  debugInfo.stripeMode
+                )}`}
+              >
+                {getStripeModeText(debugInfo.stripeMode)}
+              </span>
             </div>
           </div>
 
-          {/* Clerk Auth Status */}
-          <div className="flex items-center space-x-1">
-            <span>AUTH:</span>
-            <div
-              className={`px-2 py-1 rounded text-white text-xs ${getClerkAuthStatusColor(
-                debugInfo.clerkAuthStatus
-              )}`}
-            >
-              {getClerkAuthStatusText(debugInfo.clerkAuthStatus)}
-            </div>
-          </div>
-
-          {/* Native Integration Status */}
-          <div className="flex items-center space-x-1">
-            <span>NATIVE:</span>
-            <div
-              className={`px-2 py-1 rounded text-white text-xs ${getNativeIntegrationStatusColor(
-                debugInfo.nativeIntegrationStatus
-              )}`}
-            >
-              {getNativeIntegrationStatusText(
-                debugInfo.nativeIntegrationStatus
-              )}
-            </div>
-          </div>
-
-          {/* Stripe Mode */}
-          <div className="flex items-center space-x-1">
-            <span>STRIPE:</span>
-            <span
-              className={`font-mono px-1 rounded ${getStripeModeColor(
-                debugInfo.stripeMode
-              )}`}
-            >
-              {getStripeModeText(debugInfo.stripeMode)}
-            </span>
-          </div>
-
-          {/* Environment Variables Status */}
+          {/* Copy Button */}
           <div className="flex items-center space-x-2">
-            <span>VARS:</span>
-            <div className="flex space-x-1 flex-wrap">
-              <span
-                className={`px-1 rounded ${
-                  debugInfo.supabaseUrl ? 'bg-green-500' : 'bg-red-500'
-                }`}
-                title={debugInfo.supabaseUrl || 'Not set'}
-              >
-                DB_URL
-              </span>
-              <span
-                className={`px-1 rounded ${
-                  debugInfo.supabaseAnonKey ? 'bg-green-500' : 'bg-red-500'
-                }`}
-                title={debugInfo.supabaseAnonKey ? 'Set' : 'Not set'}
-              >
-                DB_KEY
-              </span>
-              <span
-                className={`px-1 rounded ${
-                  debugInfo.clerkPublishableKey ? 'bg-green-500' : 'bg-red-500'
-                }`}
-                title={debugInfo.clerkPublishableKey ? 'Set' : 'Not set'}
-              >
-                CLERK
-              </span>
-              <span
-                className={`px-1 rounded ${
-                  debugInfo.clerkSecretKey ? 'bg-green-500' : 'bg-red-500'
-                }`}
-                title={debugInfo.clerkSecretKey ? 'Set' : 'Not set'}
-              >
-                CLERK_SECRET
-              </span>
-              <span
-                className={`px-1 rounded ${
-                  debugInfo.spotifyClientId ? 'bg-green-500' : 'bg-red-500'
-                }`}
-                title={debugInfo.spotifyClientId ? 'Set' : 'Not set'}
-              >
-                SPOTIFY_ID
-              </span>
-              <span
-                className={`px-1 rounded ${
-                  debugInfo.spotifyClientSecret ? 'bg-green-500' : 'bg-red-500'
-                }`}
-                title={debugInfo.spotifyClientSecret ? 'Set' : 'Not set'}
-              >
-                SPOTIFY_SECRET
-              </span>
-              <span
-                className={`px-1 rounded ${
-                  debugInfo.stripeSecretKey ? 'bg-green-500' : 'bg-red-500'
-                }`}
-                title={debugInfo.stripeSecretKey ? 'Set' : 'Not set'}
-              >
-                STRIPE_KEY
-              </span>
-              <span
-                className={`px-1 rounded ${
-                  debugInfo.stripePricePro ? 'bg-green-500' : 'bg-red-500'
-                }`}
-                title={debugInfo.stripePricePro ? 'Set' : 'Not set'}
-              >
-                STRIPE_PRICE
-              </span>
-              <span
-                className={`px-1 rounded ${
-                  debugInfo.stripeWebhookSecret ? 'bg-green-500' : 'bg-red-500'
-                }`}
-                title={debugInfo.stripeWebhookSecret ? 'Set' : 'Not set'}
-              >
-                STRIPE_WEBHOOK
-              </span>
-            </div>
+            <button
+              onClick={copyDebugInfo}
+              className="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-mono transition-colors"
+              title="Copy debug info to clipboard"
+            >
+              📋 COPY
+            </button>
           </div>
         </div>
+      </div>
 
-        {/* Copy Button and Error Details */}
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={copyDebugInfo}
-            className="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-mono"
-            title="Copy debug info to clipboard"
-          >
-            📋 COPY
-          </button>
-
+      {/* Expanded Details */}
+      {isExpanded && (
+        <>
+          {/* Error Details Row */}
           {(debugInfo.connectionError ||
             debugInfo.clerkAuthError ||
             debugInfo.nativeIntegrationError) && (
-            <div className="text-red-400 font-mono max-w-md truncate">
-              {debugInfo.connectionError && `DB: ${debugInfo.connectionError}`}
-              {debugInfo.clerkAuthError &&
-                ` | Auth: ${debugInfo.clerkAuthError}`}
-              {debugInfo.nativeIntegrationError &&
-                ` | Native: ${debugInfo.nativeIntegrationError}`}
+            <div className="px-2 pb-2 border-t border-gray-700">
+              <div className="max-w-7xl mx-auto">
+                <div className="text-red-400 font-mono text-xs break-all">
+                  {debugInfo.connectionError && (
+                    <div className="mb-1">
+                      <span className="text-red-300">DB Error:</span>{' '}
+                      {debugInfo.connectionError}
+                    </div>
+                  )}
+                  {debugInfo.clerkAuthError && (
+                    <div className="mb-1">
+                      <span className="text-red-300">Auth Error:</span>{' '}
+                      {debugInfo.clerkAuthError}
+                    </div>
+                  )}
+                  {debugInfo.nativeIntegrationError && (
+                    <div className="mb-1">
+                      <span className="text-red-300">Native Error:</span>{' '}
+                      {debugInfo.nativeIntegrationError}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
-        </div>
-      </div>
+
+          {/* Environment Variables Status Row */}
+          <div className="px-2 pb-2 border-t border-gray-700">
+            <div className="max-w-7xl mx-auto">
+              <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                <span className="text-gray-300">VARS:</span>
+                <div className="flex space-x-1 flex-wrap gap-y-1">
+                  <span
+                    className={`px-1 rounded text-xs ${
+                      debugInfo.supabaseUrl ? 'bg-green-500' : 'bg-red-500'
+                    }`}
+                    title={debugInfo.supabaseUrl || 'Not set'}
+                  >
+                    DB_URL
+                  </span>
+                  <span
+                    className={`px-1 rounded text-xs ${
+                      debugInfo.supabaseAnonKey ? 'bg-green-500' : 'bg-red-500'
+                    }`}
+                    title={debugInfo.supabaseAnonKey ? 'Set' : 'Not set'}
+                  >
+                    DB_KEY
+                  </span>
+                  <span
+                    className={`px-1 rounded text-xs ${
+                      debugInfo.clerkPublishableKey
+                        ? 'bg-green-500'
+                        : 'bg-red-500'
+                    }`}
+                    title={debugInfo.clerkPublishableKey ? 'Set' : 'Not set'}
+                  >
+                    CLERK
+                  </span>
+                  <span
+                    className={`px-1 rounded text-xs ${
+                      debugInfo.clerkSecretKey ? 'bg-green-500' : 'bg-red-500'
+                    }`}
+                    title={debugInfo.clerkSecretKey ? 'Set' : 'Not set'}
+                  >
+                    CLERK_SECRET
+                  </span>
+                  <span
+                    className={`px-1 rounded text-xs ${
+                      debugInfo.spotifyClientId ? 'bg-green-500' : 'bg-red-500'
+                    }`}
+                    title={debugInfo.spotifyClientId ? 'Set' : 'Not set'}
+                  >
+                    SPOTIFY_ID
+                  </span>
+                  <span
+                    className={`px-1 rounded text-xs ${
+                      debugInfo.spotifyClientSecret
+                        ? 'bg-green-500'
+                        : 'bg-red-500'
+                    }`}
+                    title={debugInfo.spotifyClientSecret ? 'Set' : 'Not set'}
+                  >
+                    SPOTIFY_SECRET
+                  </span>
+                  <span
+                    className={`px-1 rounded text-xs ${
+                      debugInfo.stripeSecretKey ? 'bg-green-500' : 'bg-red-500'
+                    }`}
+                    title={debugInfo.stripeSecretKey ? 'Set' : 'Not set'}
+                  >
+                    STRIPE_KEY
+                  </span>
+                  <span
+                    className={`px-1 rounded text-xs ${
+                      debugInfo.stripePricePro ? 'bg-green-500' : 'bg-red-500'
+                    }`}
+                    title={debugInfo.stripePricePro ? 'Set' : 'Not set'}
+                  >
+                    STRIPE_PRICE
+                  </span>
+                  <span
+                    className={`px-1 rounded text-xs ${
+                      debugInfo.stripeWebhookSecret
+                        ? 'bg-green-500'
+                        : 'bg-red-500'
+                    }`}
+                    title={debugInfo.stripeWebhookSecret ? 'Set' : 'Not set'}
+                  >
+                    STRIPE_WEBHOOK
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
