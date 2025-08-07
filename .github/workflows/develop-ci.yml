@@ -160,6 +160,8 @@ jobs:
           draft: false
           maintainer-can-modify: true
           path: .
+          committer-email: 41898282+github-actions[bot]@users.noreply.github.com
+          author-email: 35063371+itstimwhite@users.noreply.github.com
 
       - name: Debug PR creation
         if: steps.check-ahead.outputs.develop_ahead == 'true'
@@ -170,7 +172,7 @@ jobs:
           echo "PR head SHA: ${{ steps.create_pull_request.outputs.pull-request-head-sha }}"
 
       - name: Enable auto-merge (squash)
-        if: steps.check-ahead.outputs.develop_ahead == 'true'
+        if: steps.check-ahead.outputs.develop_ahead == 'true' && steps.create_pull_request.outputs.pull-request-number != ''
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
           pull-request-number: ${{ steps.create_pull_request.outputs.pull-request-number }}
