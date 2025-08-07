@@ -32,11 +32,11 @@ vi.mock('@clerk/nextjs', () => ({
 describe('AuthActions', () => {
   afterEach(cleanup);
 
-  it('renders sign in and sign up buttons when user is not signed in', () => {
+  it('renders sign in button when user is not signed in', () => {
     render(<AuthActions />);
 
     expect(screen.getByText('Sign in')).toBeInTheDocument();
-    expect(screen.getByText('Sign Up')).toBeInTheDocument();
+    // Sign Up removed from header intentionally
   });
 
   it('renders with correct styling classes', () => {
