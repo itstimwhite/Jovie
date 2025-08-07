@@ -43,7 +43,8 @@ export function ClaimHandleForm() {
 
       if (!isSignedIn) {
         setChecking(true);
-        router.push(`/sign-in?redirect_url=${encodeURIComponent(target)}`);
+        // Send users to sign up, not sign in; include redirect to onboarding with handle
+        router.push(`/sign-up?redirect_url=${encodeURIComponent(target)}`);
         return;
       }
 
