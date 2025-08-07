@@ -7,7 +7,6 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export function createServerClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('Supabase environment variables are not set');
     return null;
   }
 
@@ -19,8 +18,7 @@ export function createServerClient() {
       try {
         const { getToken } = await auth();
         return (await getToken()) ?? null;
-      } catch (error) {
-        console.error('Error getting token:', error);
+      } catch {
         return null;
       }
     },
@@ -31,7 +29,6 @@ export function createServerClient() {
 export async function createAuthenticatedServerClient() {
   try {
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn('Supabase environment variables are not set');
       return null;
     }
 
@@ -44,25 +41,22 @@ export async function createAuthenticatedServerClient() {
         try {
           const { getToken } = await auth();
           return (await getToken()) ?? null;
-        } catch (error) {
-          console.error('Error getting token:', error);
+        } catch {
           return null;
         }
       },
     });
-  } catch (error) {
-    console.error('Error getting server Supabase client:', error);
+  } catch {
+    // Fall back to anonymous client
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return null;
+    }
+    return createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false, // Prevent multiple auth instances
+      },
+    });
   }
-
-  // Fall back to anonymous client
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return null;
-  }
-  return createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: false, // Prevent multiple auth instances
-    },
-  });
 }
 
 // Alias for backward compatibility
@@ -75,8 +69,7 @@ export async function getClerkUserId() {
   try {
     const { userId } = await auth();
     return userId;
-  } catch (error) {
-    console.error('Error getting Clerk user ID:', error);
+  } catch {
     return null;
   }
 }

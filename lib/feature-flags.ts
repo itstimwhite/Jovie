@@ -25,14 +25,12 @@ const defaultFeatureFlags: FeatureFlags = {
 export async function getFeatureFlags(): Promise<FeatureFlags> {
   try {
     if (!edgeConfig) {
-      console.warn('Edge Config not available, using default feature flags');
       return defaultFeatureFlags;
     }
 
     const flags = await edgeConfig.get<FeatureFlags>('featureFlags');
 
     if (!flags) {
-      console.warn('No feature flags found in Edge Config, using defaults');
       return defaultFeatureFlags;
     }
 
@@ -40,8 +38,7 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
       ...defaultFeatureFlags,
       ...flags,
     };
-  } catch (error) {
-    console.error('Error fetching feature flags from Edge Config:', error);
+  } catch {
     return defaultFeatureFlags;
   }
 }

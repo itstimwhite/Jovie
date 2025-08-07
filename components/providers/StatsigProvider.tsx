@@ -22,8 +22,8 @@ export function StatsigProviderWrapper({
     const userHook = useUser();
     user = userHook.user;
     isLoaded = userHook.isLoaded;
-  } catch (error) {
-    console.warn('Clerk context not available yet:', error);
+  } catch {
+    // Clerk context not available yet
   }
 
   useEffect(() => {

@@ -649,19 +649,8 @@ export function DebugBanner() {
 
   // Don't render if debug banner is disabled
   if (!shouldShowDebugBanner) {
-    console.log('Debug banner disabled - not rendering');
     return null;
   }
-
-  console.log('Debug banner should show:', {
-    shouldShowDebugBanner,
-    environment: debugInfo.environment,
-    connectionStatus: debugInfo.connectionStatus,
-    clerkAuthStatus: debugInfo.clerkAuthStatus,
-    nativeIntegrationStatus: debugInfo.nativeIntegrationStatus,
-    supabaseUrl: debugInfo.supabaseUrl ? 'SET' : 'NOT SET',
-    supabaseAnonKey: debugInfo.supabaseAnonKey ? 'SET' : 'NOT SET',
-  });
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-gray-900 text-white text-xs border-b border-gray-700 shadow-lg">
