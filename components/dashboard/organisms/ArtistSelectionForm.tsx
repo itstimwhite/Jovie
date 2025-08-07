@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Combobox } from '@/components/ui/Combobox';
 import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
-import { SpotifyArtist } from '@/types/common';
 import { Button } from '@/components/ui/Button';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
@@ -21,9 +20,18 @@ interface SelectionState {
   retryCount: number;
 }
 
+interface SearchResult {
+  id: string;
+  name: string;
+  imageUrl?: string;
+  popularity: number;
+  followers?: number;
+  spotifyUrl: string;
+}
+
 export function ArtistSelectionForm() {
   const router = useRouter();
-  const [selectedArtist, setSelectedArtist] = useState<SpotifyArtist | null>(
+  const [selectedArtist, setSelectedArtist] = useState<SearchResult | null>(
     null
   );
   const [pendingClaim, setPendingClaim] = useState<PendingClaim | null>(null);
@@ -34,15 +42,12 @@ export function ArtistSelectionForm() {
   });
 
   const {
-    results,
+    searchResults,
     isLoading,
     error: searchError,
-    updateQuery,
-  } = useArtistSearch({
-    debounceMs: 300,
-    minQueryLength: 2,
-    maxResults: 8,
-  });
+    searchArtists,
+    clearResults,
+  } = useArtistSearch();
 
   // Check for pending claim in sessionStorage
   useEffect(() => {
@@ -53,19 +58,18 @@ export function ArtistSelectionForm() {
         setPendingClaim(claim);
 
         // Auto-populate the search with the pending artist name
-        updateQuery(claim.artistName);
-      } catch (error) {
-        console.error('Error parsing pending claim:', error);
+        searchArtists(claim.artistName);
+      } catch {
         setState((prev) => ({ ...prev, error: 'Invalid pending claim data' }));
       }
     }
-  }, [updateQuery]);
+  }, [searchArtists]);
 
   const handleArtistSelect = useCallback(
     (option: { id: string; name: string; imageUrl?: string } | null) => {
       if (option) {
         // Find the full artist data from results
-        const artist = results.find((a) => a.id === option.id);
+        const artist = searchResults.find((a) => a.id === option.id);
         if (artist) {
           setSelectedArtist(artist);
         }
@@ -73,14 +77,18 @@ export function ArtistSelectionForm() {
         setSelectedArtist(null);
       }
     },
-    [results]
+    [searchResults]
   );
 
   const handleInputChange = useCallback(
     (value: string) => {
-      updateQuery(value);
+      if (value.trim()) {
+        searchArtists(value);
+      } else {
+        clearResults();
+      }
     },
-    [updateQuery]
+    [searchArtists, clearResults]
   );
 
   const handleSubmit = useCallback(
@@ -97,7 +105,7 @@ export function ArtistSelectionForm() {
           JSON.stringify({
             spotifyId: selectedArtist.id,
             artistName: selectedArtist.name,
-            imageUrl: selectedArtist.images?.[0]?.url,
+            imageUrl: selectedArtist.imageUrl,
             timestamp: Date.now(),
           })
         );
@@ -107,8 +115,7 @@ export function ArtistSelectionForm() {
 
         // Redirect to onboarding
         router.push('/onboarding');
-      } catch (error) {
-        console.error('Error saving artist selection:', error);
+      } catch {
         setState((prev) => ({
           ...prev,
           error: 'Failed to save artist selection. Please try again.',
@@ -137,18 +144,18 @@ export function ArtistSelectionForm() {
   // Convert Spotify artists to Combobox options
   const options = useMemo(
     () =>
-      results.map((artist) => ({
+      searchResults.map((artist) => ({
         id: artist.id,
         name: artist.name,
-        imageUrl: artist.images?.[0]?.url,
+        imageUrl: artist.imageUrl,
       })),
-    [results]
+    [searchResults]
   );
 
   // Auto-select the pending claim artist if found in results
   useEffect(() => {
-    if (pendingClaim && results.length > 0 && !selectedArtist) {
-      const matchingArtist = results.find(
+    if (pendingClaim && searchResults.length > 0 && !selectedArtist) {
+      const matchingArtist = searchResults.find(
         (artist) =>
           artist.name.toLowerCase() === pendingClaim.artistName.toLowerCase() ||
           artist.id === pendingClaim.spotifyId
@@ -157,7 +164,7 @@ export function ArtistSelectionForm() {
         setSelectedArtist(matchingArtist);
       }
     }
-  }, [pendingClaim, results, selectedArtist]);
+  }, [pendingClaim, searchResults, selectedArtist]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0D0E12] transition-colors">
@@ -218,7 +225,7 @@ export function ArtistSelectionForm() {
                         ? {
                             id: selectedArtist.id,
                             name: selectedArtist.name,
-                            imageUrl: selectedArtist.images?.[0]?.url,
+                            imageUrl: selectedArtist.imageUrl,
                           }
                         : null
                     }

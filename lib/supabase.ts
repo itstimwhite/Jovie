@@ -10,7 +10,6 @@ let authenticatedClient: ReturnType<typeof createClient> | null = null;
 
 export function createBrowserClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('Supabase environment variables are not set');
     return null;
   }
 
@@ -33,7 +32,6 @@ export function useAuthenticatedSupabase() {
 
   const getAuthenticatedClient = () => {
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn('Supabase environment variables are not set');
       return null;
     }
 
@@ -62,7 +60,6 @@ export function createClerkSupabaseClient(
   session: ReturnType<typeof useSession>['session']
 ) {
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn('Supabase environment variables are not set');
     return null;
   }
 
@@ -80,7 +77,6 @@ export function createClerkSupabaseClient(
 export async function getAuthenticatedClient(token?: string | null) {
   try {
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn('Supabase environment variables are not set');
       return null;
     }
 
@@ -97,8 +93,7 @@ export async function getAuthenticatedClient(token?: string | null) {
       });
     }
     return supabaseClient;
-  } catch (error) {
-    console.error('Error getting Supabase client:', error);
+  } catch {
     return supabaseClient;
   }
 }

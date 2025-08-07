@@ -5,28 +5,33 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Combobox } from '@/components/ui/Combobox';
 import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
-import { SpotifyArtist } from '@/types/common';
 import { Container } from '@/components/site/Container';
 import { Logo } from '@/components/ui/Logo';
 
+interface SearchResult {
+  id: string;
+  name: string;
+  imageUrl?: string;
+  popularity: number;
+  followers?: number;
+  spotifyUrl: string;
+}
+
 export default function SignUpPage() {
   const router = useRouter();
-  const [selectedArtist, setSelectedArtist] = useState<SpotifyArtist | null>(
+  const [selectedArtist, setSelectedArtist] = useState<SearchResult | null>(
     null
   );
   const [showSignUp, setShowSignUp] = useState(false);
-  const { results, isLoading, error, updateQuery } = useArtistSearch({
-    debounceMs: 300,
-    minQueryLength: 2,
-    maxResults: 8,
-  });
+  const { searchResults, isLoading, error, searchArtists, clearResults } =
+    useArtistSearch();
 
   const handleArtistSelect = (
     option: { id: string; name: string; imageUrl?: string } | null
   ) => {
     if (option) {
       // Find the full artist data from results
-      const artist = results.find((a) => a.id === option.id);
+      const artist = searchResults.find((a) => a.id === option.id);
       if (artist) {
         setSelectedArtist(artist);
         // Store the selected artist in sessionStorage for the claim process
@@ -48,14 +53,18 @@ export default function SignUpPage() {
   };
 
   const handleInputChange = (value: string) => {
-    updateQuery(value);
+    if (value.trim()) {
+      searchArtists(value);
+    } else {
+      clearResults();
+    }
   };
 
-  // Convert Spotify artists to Combobox options
-  const options = results.map((artist) => ({
+  // Convert search results to Combobox options
+  const options = searchResults.map((artist) => ({
     id: artist.id,
     name: artist.name,
-    imageUrl: artist.images?.[0]?.url,
+    imageUrl: artist.imageUrl,
   }));
 
   const handleSubmit = () => {
@@ -63,7 +72,7 @@ export default function SignUpPage() {
       handleArtistSelect({
         id: selectedArtist.id,
         name: selectedArtist.name,
-        imageUrl: selectedArtist.images?.[0]?.url,
+        imageUrl: selectedArtist.imageUrl,
       });
     }
   };
@@ -115,7 +124,7 @@ export default function SignUpPage() {
                     ? {
                         id: selectedArtist.id,
                         name: selectedArtist.name,
-                        imageUrl: selectedArtist.images?.[0]?.url,
+                        imageUrl: selectedArtist.imageUrl,
                       }
                     : null
                 }

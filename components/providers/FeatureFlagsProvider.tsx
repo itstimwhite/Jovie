@@ -13,7 +13,7 @@ const FeatureFlagsContext = createContext<FeatureFlagsContextType>({
   flags: {
     waitlistEnabled: false,
     artistSearchEnabled: true,
-    debugBannerEnabled: process.env.NODE_ENV === 'development',
+    debugBannerEnabled: false, // Disabled by default
     tipPromoEnabled: true,
   },
   isLoading: true,
@@ -37,7 +37,7 @@ export function FeatureFlagsProvider({
     initialFlags || {
       waitlistEnabled: false,
       artistSearchEnabled: true,
-      debugBannerEnabled: process.env.NODE_ENV === 'development',
+      debugBannerEnabled: false, // Disabled by default
       tipPromoEnabled: true,
     }
   );

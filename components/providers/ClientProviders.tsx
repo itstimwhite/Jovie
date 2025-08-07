@@ -55,12 +55,6 @@ export function ClientProviders({
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Debug: Check if we're in the browser
-    console.log('ClientProviders: Browser environment detected');
-    console.log(
-      'Clerk publishable key:',
-      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? 'Set' : 'Not set'
-    );
     setIsClient(true);
 
     // Add a small delay to ensure proper hydration

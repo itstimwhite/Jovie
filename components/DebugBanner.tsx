@@ -69,12 +69,20 @@ export function DebugBanner() {
 
   // Update body padding based on debug banner state
   useEffect(() => {
-    const bannerHeight = isExpanded ? '8rem' : '3rem';
-    document.documentElement.style.setProperty(
-      '--debug-banner-height',
-      bannerHeight
-    );
-  }, [isExpanded]);
+    if (shouldShowDebugBanner) {
+      const bannerHeight = isExpanded ? '8rem' : '3rem';
+      document.documentElement.style.setProperty(
+        '--debug-banner-height',
+        bannerHeight
+      );
+    } else {
+      // Remove padding when debug banner is disabled
+      document.documentElement.style.setProperty(
+        '--debug-banner-height',
+        '0rem'
+      );
+    }
+  }, [isExpanded, shouldShowDebugBanner]);
 
   // Update feature flags in debug info
   useEffect(() => {
@@ -641,19 +649,8 @@ export function DebugBanner() {
 
   // Don't render if debug banner is disabled
   if (!shouldShowDebugBanner) {
-    console.log('Debug banner disabled');
     return null;
   }
-
-  console.log('Debug banner should show:', {
-    shouldShowDebugBanner,
-    environment: debugInfo.environment,
-    connectionStatus: debugInfo.connectionStatus,
-    clerkAuthStatus: debugInfo.clerkAuthStatus,
-    nativeIntegrationStatus: debugInfo.nativeIntegrationStatus,
-    supabaseUrl: debugInfo.supabaseUrl ? 'SET' : 'NOT SET',
-    supabaseAnonKey: debugInfo.supabaseAnonKey ? 'SET' : 'NOT SET',
-  });
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 bg-gray-900 text-white text-xs border-b border-gray-700 shadow-lg">

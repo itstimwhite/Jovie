@@ -1,4 +1,9 @@
-import { useFeatureGate, useDynamicConfig } from '@statsig/react-bindings';
+import { createClient } from '@vercel/edge-config';
+
+// Create Edge Config client only if connection string is available
+const edgeConfig = process.env.EDGE_CONFIG
+  ? createClient(process.env.EDGE_CONFIG)
+  : null;
 
 // Feature flags interface
 export interface FeatureFlags {
@@ -12,34 +17,40 @@ export interface FeatureFlags {
 const defaultFeatureFlags: FeatureFlags = {
   waitlistEnabled: false,
   artistSearchEnabled: true,
-  debugBannerEnabled: process.env.NODE_ENV === 'development',
+  debugBannerEnabled: false, // Disabled by default
   tipPromoEnabled: true,
 };
 
-// Hook for using feature flags with Statsig
-export function useFeatureFlags(): FeatureFlags {
-  // Use Statsig gates and configs
-  const waitlistGate = useFeatureGate('waitlist_enabled');
-  const debugBannerGate = useFeatureGate('debug_banner_enabled');
-  const artistSearchConfig = useDynamicConfig('artist_search_config');
-  const tipPromoConfig = useDynamicConfig('tip_promo_config');
+// Get feature flags from Edge Config
+export async function getFeatureFlags(): Promise<FeatureFlags> {
+  try {
+    if (!edgeConfig) {
+      return defaultFeatureFlags;
+    }
 
-  return {
-    waitlistEnabled: waitlistGate.value,
-    debugBannerEnabled: debugBannerGate.value,
-    artistSearchEnabled: artistSearchConfig.get('enabled', true),
-    tipPromoEnabled: tipPromoConfig.get('enabled', true),
-  };
+    const flags = await edgeConfig.get<FeatureFlags>('featureFlags');
+
+    if (!flags) {
+      return defaultFeatureFlags;
+    }
+
+    return {
+      ...defaultFeatureFlags,
+      ...flags,
+    };
+  } catch {
+    return defaultFeatureFlags;
+  }
 }
 
-// Server-side function to get feature flags (for SSR)
-export async function getServerFeatureFlags(): Promise<FeatureFlags> {
-  // For server-side, we'll use the default flags
-  // In a production setup, you might want to use Statsig's server SDK
+// Client-side hook for feature flags (for components that need real-time updates)
+export function useFeatureFlags(): FeatureFlags {
+  // For now, return default flags on client side
+  // In the future, we could implement real-time updates via Edge Config
   return defaultFeatureFlags;
 }
 
-// Legacy function for backward compatibility
-export async function getFeatureFlags(): Promise<FeatureFlags> {
-  return getServerFeatureFlags();
+// Server-side function to get feature flags
+export async function getServerFeatureFlags(): Promise<FeatureFlags> {
+  return getFeatureFlags();
 }

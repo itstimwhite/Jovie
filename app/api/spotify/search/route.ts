@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchSpotifyArtists } from '@/lib/spotify';
-import { SpotifyArtist } from '@/types/common';
 
 // API routes should be dynamic
 export const dynamic = 'force-dynamic';
+
+interface SpotifyArtist {
+  id: string;
+  name: string;
+  images?: Array<{ url: string; height: number; width: number }>;
+  popularity: number;
+  followers?: { total: number };
+}
 
 // Simple in-memory cache for API responses
 const searchCache = new Map<
@@ -49,11 +56,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(artists);
-  } catch (err) {
-    console.error('Spotify search error:', err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Search failed' },
-      { status: 500 }
-    );
+  } catch {
+    return NextResponse.json({ error: 'Search failed' }, { status: 500 });
   }
 }

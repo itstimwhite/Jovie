@@ -38,44 +38,59 @@ const US_STATES = ['CA', 'CO', 'VA', 'CT', 'UT'];
 const CA_PROVINCES = ['QC'];
 
 export default clerkMiddleware(async (auth, req) => {
-  const { userId } = await auth();
-  const geo =
-    (req as { geo?: { country?: string; region?: string } }).geo || {};
-  const country = geo.country || '';
-  const region = geo.region || '';
+  try {
+    const { userId } = await auth();
 
-  let showBanner = false;
-  if (EU_EEA_UK.includes(country)) showBanner = true;
-  else if (country === 'US' && US_STATES.includes(region)) showBanner = true;
-  else if (country === 'CA' && CA_PROVINCES.includes(region)) showBanner = true;
-
-  let res: NextResponse;
-
-  // Handle authenticated user redirects
-  if (userId) {
-    if (req.nextUrl.pathname === '/') {
-      res = NextResponse.redirect(new URL('/dashboard', req.url));
-    } else if (req.nextUrl.pathname === '/billing/success') {
-      // Allow access to billing success page for authenticated users
-      res = NextResponse.next();
-    } else {
-      res = NextResponse.next();
+    // Safely access geo information
+    let country = '';
+    let region = '';
+    try {
+      const geo = (req as { geo?: { country?: string; region?: string } }).geo;
+      if (geo && typeof geo === 'object') {
+        country = geo.country || '';
+        region = geo.region || '';
+      }
+    } catch {
+      // Ignore geo errors
     }
-  } else {
-    // Handle unauthenticated users
-    if (req.nextUrl.pathname === '/billing/success') {
-      // Redirect non-authenticated users away from billing success
-      res = NextResponse.redirect(new URL('/dashboard', req.url));
+
+    let showBanner = false;
+    if (EU_EEA_UK.includes(country)) showBanner = true;
+    else if (country === 'US' && US_STATES.includes(region)) showBanner = true;
+    else if (country === 'CA' && CA_PROVINCES.includes(region))
+      showBanner = true;
+
+    let res: NextResponse;
+
+    // Handle authenticated user redirects
+    if (userId) {
+      if (req.nextUrl.pathname === '/') {
+        res = NextResponse.redirect(new URL('/dashboard', req.url));
+      } else if (req.nextUrl.pathname === '/billing/success') {
+        // Allow access to billing success page for authenticated users
+        res = NextResponse.next();
+      } else {
+        res = NextResponse.next();
+      }
     } else {
-      res = NextResponse.next();
+      // Handle unauthenticated users
+      if (req.nextUrl.pathname === '/billing/success') {
+        // Redirect non-authenticated users away from billing success
+        res = NextResponse.redirect(new URL('/dashboard', req.url));
+      } else {
+        res = NextResponse.next();
+      }
     }
-  }
 
-  if (showBanner) {
-    res.headers.set('x-show-cookie-banner', '1');
-  }
+    if (showBanner) {
+      res.headers.set('x-show-cookie-banner', '1');
+    }
 
-  return res;
+    return res;
+  } catch {
+    // Fallback to basic middleware behavior if Clerk auth fails
+    return NextResponse.next();
+  }
 });
 
 export const config = {
