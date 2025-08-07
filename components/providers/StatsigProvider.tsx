@@ -1,11 +1,27 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { LogLevel, StatsigProvider } from '@statsig/react-bindings';
 import { useUser } from '@clerk/nextjs';
 
-export default function MyStatsig({ children }: { children: React.ReactNode }) {
+interface StatsigProviderWrapperProps {
+  children: React.ReactNode;
+}
+
+export function StatsigProviderWrapper({
+  children,
+}: StatsigProviderWrapperProps) {
   const { user } = useUser();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Don't render Statsig until we're on the client
+  if (!isClient) {
+    return <>{children}</>;
+  }
 
   // Create user object for Statsig
   const statsigUser = {
@@ -15,14 +31,6 @@ export default function MyStatsig({ children }: { children: React.ReactNode }) {
       plan: (user?.publicMetadata?.plan as string) || 'free',
     },
   };
-
-  // Check if we're in a browser environment
-  const isBrowser = typeof window !== 'undefined';
-
-  // If not in browser, render children without Statsig
-  if (!isBrowser) {
-    return <>{children}</>;
-  }
 
   return (
     <StatsigProvider
