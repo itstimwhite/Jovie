@@ -15,6 +15,41 @@
 - Auto-promote workflows handle `develop → preview → main` progression
 - Manual intervention should only be done on `develop` branch
 
+### **BRANCH PROTECTION ENFORCEMENT**
+
+**🚨 CRITICAL: NEVER ALLOW DIRECT CHANGES TO PROTECTED BRANCHES**
+
+**Protected Branches:**
+- `preview` - Only auto-promotion from `develop` allowed
+- `main` - Only auto-promotion from `preview` allowed
+
+**Branch Flow (ENFORCE THIS):**
+```
+develop → [auto-promote] → preview → [auto-promote] → main
+```
+
+**NEVER ALLOW:**
+- ❌ Direct commits to `preview` or `main`
+- ❌ Manual merges to protected branches
+- ❌ Direct pushes to protected branches
+- ❌ Manual PRs to protected branches (except auto-promote PRs)
+
+**ONLY ALLOW:**
+- ✅ Auto-promotion PRs from CI/CD pipeline
+- ✅ Emergency fixes through `develop` branch only
+- ✅ Manual intervention only on `develop` branch
+
+**If Protected Branch Issues Occur:**
+1. **NEVER fix directly on protected branch**
+2. **ALWAYS create fix on `develop` branch**
+3. **Let CI/CD auto-promote the fix**
+4. **If auto-promotion fails, reset protected branch to match source**
+
+**Emergency Reset Process:**
+- Create PR to reset protected branch to exact match of source
+- Use squash merge to maintain clean history
+- Ensure auto-promotion workflow resumes correctly
+
 ## Project Overview
 
 Jovie is a Next.js 14 application with Clerk authentication and Supabase database integration. The project uses the latest native Clerk-Supabase integration method and Statsig for feature flags.
@@ -321,3 +356,20 @@ Before suggesting code changes, verify:
 5. ✅ Uses TypeScript types
 6. ✅ Follows existing patterns
 7. ✅ Maintains security best practices
+
+### **Branch Protection Verification**
+
+**BEFORE suggesting any git operations, verify:**
+
+1. ✅ **NEVER suggest direct pushes to `preview` or `main`**
+2. ✅ **NEVER suggest manual merges to protected branches**
+3. ✅ **ALWAYS suggest changes go through `develop` branch first**
+4. ✅ **If protected branch issues exist, suggest reset PRs only**
+5. ✅ **Verify auto-promotion workflow is working correctly**
+6. ✅ **Ensure branch protection rules are enforced**
+
+**If user asks to merge/push to protected branch:**
+- ❌ **REJECT the request**
+- ✅ **Suggest using `develop` branch instead**
+- ✅ **Explain the proper branch flow**
+- ✅ **Offer to help with the correct approach**
