@@ -32,7 +32,7 @@ jobs:
           # Verify the PR is from develop branch
           git fetch origin develop
           DEVELOP_COMMIT=$(git rev-parse origin/develop)
-          PR_COMMIT=$(git rev-parse ${{ github.head_sha }})
+          PR_COMMIT=$(git rev-parse ${{ github.event.pull_request.head.sha }})
 
           # Check if PR commit is in develop history
           if ! git merge-base --is-ancestor $PR_COMMIT $DEVELOP_COMMIT; then
@@ -61,7 +61,7 @@ jobs:
           # Verify the PR is from preview branch
           git fetch origin preview
           PREVIEW_COMMIT=$(git rev-parse origin/preview)
-          PR_COMMIT=$(git rev-parse ${{ github.head_sha }})
+          PR_COMMIT=$(git rev-parse ${{ github.event.pull_request.head.sha }})
 
           # Check if PR commit is in preview history
           if ! git merge-base --is-ancestor $PR_COMMIT $PREVIEW_COMMIT; then
