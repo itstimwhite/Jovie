@@ -33,9 +33,7 @@ describe('Atomic Design Structure', () => {
       expect(
         screen.getByRole('button', { name: 'Sign in' })
       ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Sign Up' })
-      ).toBeInTheDocument();
+      // Sign up removed from header
 
       // Check that it's properly structured
       const container = screen.getByRole('button', {
@@ -55,7 +53,7 @@ describe('Atomic Design Structure', () => {
         </div>
       );
 
-      // Should have logo, sign in, and sign up links
+      // Should have logo and sign in button (sign up removed)
       expect(screen.getByRole('link', { name: '' })).toHaveAttribute(
         'href',
         '/'
@@ -63,9 +61,7 @@ describe('Atomic Design Structure', () => {
       expect(
         screen.getByRole('button', { name: 'Sign in' })
       ).toBeInTheDocument();
-      expect(
-        screen.getByRole('button', { name: 'Sign Up' })
-      ).toBeInTheDocument();
+      // Sign up removed from header
     });
   });
 });

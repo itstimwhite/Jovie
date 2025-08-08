@@ -37,3 +37,7 @@ next-env.d.ts
 
 
 .env.local
+
+# Ignore generated sitemaps
+public/sitemap*.xml
+public/sitemap*.xml.gz

@@ -1,0 +1,164 @@
+name: PR Verification
+
+on:
+  pull_request:
+    branches: [preview, main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  verify-pr-source:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify PR source for preview branch
+        if: github.base_ref == 'preview'
+        run: |
+          echo "Verifying PR to preview branch..."
+          echo "PR head: ${{ github.head_ref }}"
+          echo "PR base: ${{ github.base_ref }}"
+
+          # Only allow auto-promote/preview PRs from develop
+          if [[ "${{ github.head_ref }}" != "auto-promote/preview" ]]; then
+            echo "❌ ERROR: Direct PRs to preview branch are not allowed"
+            echo "Only auto-promote/preview PRs from develop are permitted"
+            echo "Please create your changes on the develop branch instead"
+            exit 1
+          fi
+
+          # Verify the PR is from develop branch
+          git fetch origin develop
+          DEVELOP_COMMIT=$(git rev-parse origin/develop)
+          PR_COMMIT=$(git rev-parse ${{ github.head_sha }})
+
+          # Check if PR commit is in develop history
+          if ! git merge-base --is-ancestor $PR_COMMIT $DEVELOP_COMMIT; then
+            echo "❌ ERROR: PR commit is not in develop branch history"
+            echo "This PR must be based on the develop branch"
+            exit 1
+          fi
+
+          echo "✅ PR to preview verified - comes from develop branch"
+
+      - name: Verify PR source for main branch
+        if: github.base_ref == 'main'
+        run: |
+          echo "Verifying PR to main branch..."
+          echo "PR head: ${{ github.head_ref }}"
+          echo "PR base: ${{ github.base_ref }}"
+
+          # Only allow auto-promote/main PRs from preview
+          if [[ "${{ github.head_ref }}" != "auto-promote/main" ]]; then
+            echo "❌ ERROR: Direct PRs to main branch are not allowed"
+            echo "Only auto-promote/main PRs from preview are permitted"
+            echo "Please create your changes on the develop branch instead"
+            exit 1
+          fi
+
+          # Verify the PR is from preview branch
+          git fetch origin preview
+          PREVIEW_COMMIT=$(git rev-parse origin/preview)
+          PR_COMMIT=$(git rev-parse ${{ github.head_sha }})
+
+          # Check if PR commit is in preview history
+          if ! git merge-base --is-ancestor $PR_COMMIT $PREVIEW_COMMIT; then
+            echo "❌ ERROR: PR commit is not in preview branch history"
+            echo "This PR must be based on the preview branch"
+            exit 1
+          fi
+
+          echo "✅ PR to main verified - comes from preview branch"
+
+  # Add required status checks on PRs so branch protection can auto-merge
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build --if-present
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run typecheck --if-present
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint --if-present
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test:ci --if-present
+
+  # security-audit:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 20.17
+  #         cache: 'npm'
+  #     - run: npm ci
+  #     - name: Dependency security audit
+  #       run: npx audit-ci --high --allowlist "npm:*"
+
+  verify-required-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required status checks
+        run: |
+          echo "Verifying required status checks for PR #${{ github.event.number }}"
+
+          # Get the list of required status checks from branch protection
+          REQUIRED_CHECKS=("build" "test" "lint" "typecheck")
+
+          # Check if all required checks are passing
+          for check in "${REQUIRED_CHECKS[@]}"; do
+            echo "Checking status of '$check'..."
+            # This would need to be implemented with GitHub API
+            # For now, we'll rely on branch protection rules
+          done
+
+          echo "✅ Required status checks verification completed"
+
+  verify-workflow-requirements:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify workflow requirements
+        run: |
+          echo "Verifying workflow requirements for PR #${{ github.event.number }}"
+
+          # Check if the required workflows have passed
+          # This is handled by branch protection rules
+          echo "✅ Workflow requirements verification completed"

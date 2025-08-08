@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { ClientProviders } from '@/components/providers/ClientProviders';
+import { VercelToolbar } from '@vercel/toolbar/next';
 import { StatsigProviderWrapper } from '@/components/providers/StatsigProvider';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
@@ -97,6 +98,7 @@ export default async function RootLayout({
 }) {
   // Fetch feature flags server-side
   const featureFlags = await getServerFeatureFlags();
+  const shouldInjectToolbar = process.env.NODE_ENV === 'development';
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -140,6 +142,7 @@ export default async function RootLayout({
             {children}
           </ClientProviders>
         </StatsigProviderWrapper>
+        {shouldInjectToolbar && <VercelToolbar />}
       </body>
     </html>
   );

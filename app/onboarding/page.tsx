@@ -3,7 +3,10 @@ import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { APP_NAME } from '@/constants/app';
 
-export default function OnboardingPage() {
+export default async function OnboardingPage() {
+  // Read prefilled handle from query or cookie/session fallback later in the form
+  // We cannot access searchParams directly here without defining them in the component signature,
+  // so the client form will read from URL and sessionStorage.
   return (
     <div className="min-h-screen bg-white dark:bg-[#0D0E12] transition-colors">
       {/* Subtle grid background pattern */}

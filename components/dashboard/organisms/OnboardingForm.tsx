@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import { FormField } from '@/components/ui/FormField';
@@ -36,6 +37,7 @@ interface SelectedArtist {
 export function OnboardingForm() {
   const { user } = useUser();
   const { getAuthenticatedClient } = useAuthenticatedSupabase();
+  const searchParams = useSearchParams();
 
   // Form state
   const [handle, setHandle] = useState('');
@@ -58,8 +60,22 @@ export function OnboardingForm() {
     error: null,
   });
 
-  // Check for selected artist data
+  // Prefill handle and selected artist data
   useEffect(() => {
+    // Prefill handle from URL
+    const urlHandle = searchParams?.get('handle');
+    if (urlHandle) {
+      setHandle(urlHandle);
+    } else {
+      try {
+        const pending = sessionStorage.getItem('pendingClaim');
+        if (pending) {
+          const parsed = JSON.parse(pending) as { handle?: string };
+          if (parsed.handle) setHandle(parsed.handle);
+        }
+      } catch {}
+    }
+
     const stored = sessionStorage.getItem('selectedArtist');
     if (stored) {
       try {
@@ -69,7 +85,7 @@ export function OnboardingForm() {
         console.error('Error parsing selected artist:', error);
       }
     }
-  }, []);
+  }, [searchParams]);
 
   // Debounced handle validation
   const validateHandle = useCallback(

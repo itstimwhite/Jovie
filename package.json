@@ -29,6 +29,7 @@
     "verify-artist-images": "node scripts/verify-artist-images.js",
     "update-artist-images": "node scripts/update-artist-images.js",
     "ensure-valid-artist-images": "node scripts/ensure-valid-artist-images.js",
+    "statsig-setup": "node scripts/statsig-setup.js",
     "prepare": "husky",
     "danger": "danger ci --fail-on-errors --verbose"
   },
@@ -42,6 +43,7 @@
     "@segment/analytics-next": "^1.68.0",
     "@statsig/react-bindings": "^3.21.1",
     "@statsig/session-replay": "^3.21.1",
+    "@statsig/siggy": "^0.0.4",
     "@statsig/web-analytics": "^3.21.1",
     "@stripe/stripe-js": "^7.8.0",
     "@supabase/supabase-js": "^2.39.0",
@@ -60,6 +62,7 @@
     "remark": "^15.0.1",
     "remark-html": "^16.0.1",
     "simple-icons": "^15.9.0",
+    "statsig-node-vercel": "^0.7.0",
     "stripe": "^18.4.0",
     "tailwind-merge": "^3.3.1",
     "zod": "^3.25.76"
@@ -77,6 +80,7 @@
     "@types/react-dom": "^18.3.7",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
+    "@vercel/toolbar": "^0.1.38",
     "@vitejs/plugin-react": "^4.2.1",
     "@vitest/coverage-v8": "^3.2.4",
     "danger": "^13.0.4",

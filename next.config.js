@@ -5,7 +5,6 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
   output: 'standalone',
-  serverExternalPackages: ['@clerk/nextjs'],
   // Disable static generation to prevent Clerk context issues during build
   trailingSlash: false,
   // Build optimizations
@@ -74,7 +73,8 @@ const nextConfig = {
     // optimizeCss: true,
     optimizePackageImports: ['@headlessui/react', '@heroicons/react'],
     // Build optimizations
-    forceSwcTransforms: true,
+    // Turbopack: remove unsupported option
+    // forceSwcTransforms: true,
     swcTraceProfiling: false,
   },
   compiler: {
@@ -102,4 +102,7 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+// Enable Vercel Toolbar in Next.js (local/dev)
+const withVercelToolbar = require('@vercel/toolbar/plugins/next')();
+
+module.exports = withVercelToolbar(nextConfig);

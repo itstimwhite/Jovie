@@ -2,9 +2,12 @@
 
 import Link from 'next/link';
 import { Container } from '@/components/site/Container';
-import { FeatureFlaggedArtistSearch } from './FeatureFlaggedArtistSearch';
+import { ClaimHandleForm } from './ClaimHandleForm';
+import { WaitlistLink } from './WaitlistLink';
+import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
 
 export function HomeHero() {
+  const { flags } = useFeatureFlags();
   return (
     <section
       className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24"
@@ -28,43 +31,37 @@ export function HomeHero() {
           </div>
         </div>
 
-        {/* Main headline with Linear's typography style */}
+        {/* Main headline with updated copy */}
         <div className="mb-12 space-y-6">
           <h1
             id="hero-headline"
             className="text-6xl font-semibold tracking-[-0.02em] text-gray-900 dark:text-white sm:text-7xl lg:text-8xl"
           >
             <span className="block leading-none">
-              The fastest{' '}
+              Claim your{' '}
               <span className="text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 dark:from-blue-400 dark:via-purple-400 dark:to-cyan-400 bg-clip-text">
-                link-in-bio
+                @handle
               </span>
-            </span>
-            <span className="block leading-none text-gray-800 dark:text-white/90">
-              for musicians
+              .
             </span>
           </h1>
 
-          {/* Subtitle with better hierarchy */}
+          {/* Subtitle */}
           <p
             className="mx-auto max-w-2xl text-xl text-gray-600 dark:text-white/70 font-light leading-relaxed sm:text-2xl"
             role="doc-subtitle"
           >
-            Turn your Spotify profile into a conversion machine.
-            <br />
-            <span className="text-gray-500 dark:text-white/50">
-              One link. All your music.
-            </span>
+            Turn followers into listeners in 60 seconds.
           </p>
         </div>
 
-        {/* Artist Search with Linear-style container */}
+        {/* Claim Handle with Linear-style container */}
         <div className="w-full max-w-2xl" role="main">
           <div className="relative">
             {/* Subtle glow effect behind search */}
             <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-cyan-500/20 rounded-2xl blur-xl opacity-50" />
             <div className="relative">
-              <FeatureFlaggedArtistSearch />
+              {flags.waitlistEnabled ? <WaitlistLink /> : <ClaimHandleForm />}
             </div>
           </div>
         </div>

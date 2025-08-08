@@ -1,10 +1,3 @@
-import { createClient } from '@vercel/edge-config';
-
-// Create Edge Config client only if connection string is available
-const edgeConfig = process.env.EDGE_CONFIG
-  ? createClient(process.env.EDGE_CONFIG)
-  : null;
-
 // Feature flags interface
 export interface FeatureFlags {
   waitlistEnabled: boolean;
@@ -17,36 +10,48 @@ export interface FeatureFlags {
 const defaultFeatureFlags: FeatureFlags = {
   waitlistEnabled: false,
   artistSearchEnabled: true,
-  debugBannerEnabled: false, // Disabled by default
+  debugBannerEnabled: process.env.NODE_ENV === 'development', // Enable in development by default
   tipPromoEnabled: true,
 };
 
-// Get feature flags from Edge Config
+// Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
 export async function getFeatureFlags(): Promise<FeatureFlags> {
   try {
-    if (!edgeConfig) {
-      return defaultFeatureFlags;
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL || ''}/.well-known/vercel/flags`,
+      {
+        next: { revalidate: 60 },
+      }
+    );
+    if (res.ok) {
+      const data = (await res.json()) as {
+        version?: number;
+        flags?: Record<string, { default?: unknown }>;
+      };
+      if (typeof data?.version === 'number') {
+        return {
+          waitlistEnabled: Boolean(
+            data.flags?.waitlistEnabled?.default ??
+              defaultFeatureFlags.waitlistEnabled
+          ),
+          artistSearchEnabled: Boolean(
+            data.flags?.artistSearchEnabled?.default ??
+              defaultFeatureFlags.artistSearchEnabled
+          ),
+          debugBannerEnabled: Boolean(
+            data.flags?.debugBannerEnabled?.default ??
+              defaultFeatureFlags.debugBannerEnabled
+          ),
+          tipPromoEnabled: Boolean(
+            data.flags?.tipPromoEnabled?.default ??
+              defaultFeatureFlags.tipPromoEnabled
+          ),
+        };
+      }
     }
-
-    const flags = await edgeConfig.get<FeatureFlags>('featureFlags');
-
-    if (!flags) {
-      return defaultFeatureFlags;
-    }
-
-    return {
-      ...defaultFeatureFlags,
-      ...flags,
-    };
   } catch {
-    return defaultFeatureFlags;
+    // Ignore and fall back
   }
-}
-
-// Client-side hook for feature flags (for components that need real-time updates)
-export function useFeatureFlags(): FeatureFlags {
-  // For now, return default flags on client side
-  // In the future, we could implement real-time updates via Edge Config
   return defaultFeatureFlags;
 }
 

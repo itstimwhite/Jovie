@@ -12,23 +12,32 @@ rules:
       required_status_checks:
         strict: true
         contexts:
+          # Core CI checks
           - 'build'
           - 'test'
           - 'lint'
           - 'typecheck'
+          - 'security-audit'
+          # PR verification
+          - 'verify-pr-source'
+          - 'verify-required-checks'
+          - 'verify-workflow-requirements'
+          # Security and quality
+          - 'codeql'
+          # E2E tests (when enabled)
           - 'e2e:smoke'
           - 'e2e:full'
           - 'a11y:ci'
-          - 'security'
       required_pull_request_reviews:
         required_approving_review_count: 1
         dismiss_stale_reviews_on_push: true
         require_code_owner_reviews: false
         require_last_push_approval: true
       required_workflows:
-        - 'web-release-loop.yml'
         - 'web-pr-verify.yml'
-        - 'codeql-analysis.yml'
+        - 'codeql.yml'
+        - 'develop-ci.yml'
+        - 'preview-ci.yml'
       required_deployments:
         required_environments:
           - 'production'
