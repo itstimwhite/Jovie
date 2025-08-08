@@ -142,14 +142,18 @@ jobs:
 
           if [ -n "$EXISTING_PR" ]; then
             echo "PR #$EXISTING_PR already exists, updating branch..."
-            # Update the existing branch
-            git checkout -b auto-promote/main
+            # Fetch latest and reset branch properly
+            git fetch origin main preview
+            git checkout -B auto-promote/main origin/main
+            git reset --hard origin/preview
             git push origin auto-promote/main --force-with-lease
             echo "existing_pr=$EXISTING_PR" >> $GITHUB_OUTPUT
           else
             echo "No existing PR found, creating new one..."
-            # Create promotion branch from preview
-            git checkout -b auto-promote/main
+            # Create promotion branch from main, then reset to preview
+            git fetch origin main preview
+            git checkout -B auto-promote/main origin/main
+            git reset --hard origin/preview
             
             # Push the branch
             git push origin auto-promote/main
