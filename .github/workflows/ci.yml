@@ -119,16 +119,30 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr view --head develop --base preview >/dev/null 2>&1 || \
+          # Check if PR already exists
+          existing_pr=$(gh pr list --head develop --base preview --json number --jq '.[0].number // empty')
+          if [ -z "$existing_pr" ]; then
+            echo "Creating new PR: develop → preview"
             gh pr create --base preview --head develop --title "Auto-promote: develop → preview" --body "Automated promotion PR"
-          num=$(gh pr view --json number -q .number --head develop --base preview)
-          gh pr merge "$num" --squash --auto
+            existing_pr=$(gh pr list --head develop --base preview --json number --jq '.[0].number')
+          else
+            echo "PR already exists: #$existing_pr"
+          fi
+          echo "Enabling auto-merge for PR #$existing_pr"
+          gh pr merge "$existing_pr" --squash --auto
       - name: Promote preview → main
         if: ${{ github.ref == 'refs/heads/preview' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr view --head preview --base main >/dev/null 2>&1 || \
+          # Check if PR already exists
+          existing_pr=$(gh pr list --head preview --base main --json number --jq '.[0].number // empty')
+          if [ -z "$existing_pr" ]; then
+            echo "Creating new PR: preview → main"
             gh pr create --base main --head preview --title "Auto-promote: preview → main" --body "Automated promotion PR"
-          num=$(gh pr view --json number -q .number --head preview --base main)
-          gh pr merge "$num" --squash --auto
+            existing_pr=$(gh pr list --head preview --base main --json number --jq '.[0].number')
+          else
+            echo "PR already exists: #$existing_pr"
+          fi
+          echo "Enabling auto-merge for PR #$existing_pr"
+          gh pr merge "$existing_pr" --squash --auto
