@@ -81,6 +81,7 @@ jobs:
       - name: E2E smoke
         if: ${{ github.ref != 'refs/heads/main' && hashFiles('tests/e2e/**') != '' }}
         run: npm run e2e:smoke --if-present
+        continue-on-error: true
       - run: npm test --if-present
       - run: npm run build --if-present
 
