@@ -161,7 +161,7 @@ jobs:
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     environment:
-      name: Main
+      name: Production
       url: https://jov.ie
     steps:
       - uses: actions/checkout@v4
