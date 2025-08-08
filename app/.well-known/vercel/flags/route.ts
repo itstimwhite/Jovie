@@ -21,7 +21,7 @@ export async function GET() {
       },
       debugBannerEnabled: {
         type: 'boolean',
-        default: isDevelopment, // Enable in development by default
+        default: true, // Show on all environments by default
         description: 'Show debug banner in the UI',
       },
       tipPromoEnabled: {

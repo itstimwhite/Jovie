@@ -9,9 +9,7 @@ interface DebugInfo {
   supabaseUrl: string | undefined;
   supabaseAnonKey: string | undefined;
   clerkPublishableKey: string | undefined;
-  clerkSecretKey: string | undefined;
   spotifyClientId: string | undefined;
-  spotifyClientSecret: string | undefined;
   // Clerk Billing (replaces direct Stripe integration)
   clerkBillingEnabled: boolean;
   clerkBillingGateway: 'development' | 'stripe' | 'not-configured';
@@ -39,14 +37,12 @@ interface DebugInfo {
 export function DebugBanner() {
   const { session, isLoaded } = useSession();
   const { flags: featureFlags } = useFeatureFlags();
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [debugInfo, setDebugInfo] = useState<DebugInfo>({
     supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     clerkPublishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-    clerkSecretKey: process.env.CLERK_SECRET_KEY,
     spotifyClientId: process.env.SPOTIFY_CLIENT_ID,
-    spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET,
     clerkBillingEnabled: false, // Default to false
     clerkBillingGateway: 'not-configured', // Default to not-configured
     environment: 'detecting',
@@ -67,12 +63,7 @@ export function DebugBanner() {
   // Check if debug banner should be shown based on feature flags
   const shouldShowDebugBanner = featureFlags.debugBannerEnabled;
 
-  // Add debugging
-  console.log('DebugBanner render:', {
-    shouldShowDebugBanner,
-    featureFlags,
-    NODE_ENV: process.env.NODE_ENV,
-  });
+  // No noisy console logs in production
 
   // Update body padding based on debug banner state
   useEffect(() => {
@@ -356,13 +347,12 @@ export function DebugBanner() {
       if (typeof window !== 'undefined') {
         const clerkPublishableKey =
           process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-        const clerkSecretKey = process.env.CLERK_SECRET_KEY;
         const clerkBillingEnabled =
           process.env.NEXT_PUBLIC_CLERK_BILLING_ENABLED === 'true';
         const clerkBillingGateway =
           process.env.NEXT_PUBLIC_CLERK_BILLING_GATEWAY;
 
-        if (clerkPublishableKey && clerkSecretKey && clerkBillingEnabled) {
+        if (clerkPublishableKey && clerkBillingEnabled) {
           if (clerkBillingGateway === 'stripe') {
             return 'stripe';
           } else {
@@ -618,13 +608,9 @@ export function DebugBanner() {
           clerkPublishableKey: debugInfo.clerkPublishableKey
             ? 'SET'
             : 'NOT SET',
-          clerkSecretKey: debugInfo.clerkSecretKey ? 'SET' : 'NOT SET',
 
           // Required for Spotify integration
           spotifyClientId: debugInfo.spotifyClientId ? 'SET' : 'NOT SET',
-          spotifyClientSecret: debugInfo.spotifyClientSecret
-            ? 'SET'
-            : 'NOT SET',
 
           // Clerk Billing (replaces direct Stripe integration)
           clerkBillingEnabled: debugInfo.clerkBillingEnabled
@@ -923,14 +909,6 @@ export function DebugBanner() {
                   >
                     CLERK_PUB
                   </span>
-                  <span
-                    className={`px-1 rounded text-xs ${
-                      debugInfo.clerkSecretKey ? 'bg-green-500' : 'bg-red-500'
-                    }`}
-                    title={debugInfo.clerkSecretKey ? 'Set' : 'Not set'}
-                  >
-                    CLERK_SECRET
-                  </span>
 
                   {/* Spotify */}
                   <span
@@ -940,16 +918,6 @@ export function DebugBanner() {
                     title={debugInfo.spotifyClientId ? 'Set' : 'Not set'}
                   >
                     SPOTIFY_ID
-                  </span>
-                  <span
-                    className={`px-1 rounded text-xs ${
-                      debugInfo.spotifyClientSecret
-                        ? 'bg-green-500'
-                        : 'bg-red-500'
-                    }`}
-                    title={debugInfo.spotifyClientSecret ? 'Set' : 'Not set'}
-                  >
-                    SPOTIFY_SECRET
                   </span>
 
                   {/* Clerk Billing */}
