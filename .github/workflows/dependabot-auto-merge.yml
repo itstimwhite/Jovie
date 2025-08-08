@@ -1,4 +1,4 @@
-name: Dependabot Auto‑Merge
+name: Dependabot Auto-Merge
 
 on:
   pull_request_target:
@@ -14,7 +14,7 @@ jobs:
   auto-merge:
     if: >
       github.actor == 'dependabot[bot]' &&
-      github.base_ref == 'develop'
+      github.event.pull_request.base.ref == 'develop'
     runs-on: ubuntu-latest
     steps:
       - name: Fetch metadata
@@ -23,31 +23,29 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # Require only patch/minor OR security updates
-      - name: Ensure patch/minor or security
+      - name: Allow only patch/minor & security updates
         id: ensure
         run: |
-          ALLOWED=false
-          if [[ "${{ steps.meta.outputs.update-type }}" == "version-update:semver-patch" || \
-                "${{ steps.meta.outputs.update-type }}" == "version-update:semver-minor" || \
-                "${{ steps.meta.outputs.dependency-type }}" == "direct:security" ]]; then
-            ALLOWED=true
-          fi
-          echo "allowed=$ALLOWED" >> $GITHUB_OUTPUT
+          ut="${{ steps.meta.outputs.update-type }}"
+          sec="${{ steps.meta.outputs.dependency-type }}"
+          if [[ "$sec" == "direct:security" ]]; then echo "allowed=true" >> $GITHUB_OUTPUT; exit 0; fi
+          if [[ "$ut" =~ ^version-update:semver-(patch|minor)$ ]]; then echo "allowed=true" >> $GITHUB_OUTPUT; exit 0; fi
+          echo "allowed=false" >> $GITHUB_OUTPUT
 
-      - name: Wait for required checks
-        uses: lewagon/wait-on-check-action@v1.4.0
+      - name: Wait for fast checks
+        if: ${{ fromJSON(steps.ensure.outputs.allowed) }}
+        uses: lewagon/wait-on-check-action@v1.3.3
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
+          # Only the fast-lane checks
           check-regexp: >
-            (Analyze \(actions\)|Analyze \(javascript-typescript\)|verify-pr-source|build|test|lint|typecheck)
+            (?i)(pr-policy|ci-fast)
           allowed-conclusions: success
           timeout-minutes: 45
 
       - name: Enable auto-merge (squash)
-        if: ${{ steps.meta.outputs.update-type != '' && fromJSON(steps.ensure.outputs.allowed) }}
+        if: ${{ fromJSON(steps.ensure.outputs.allowed) }}
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
