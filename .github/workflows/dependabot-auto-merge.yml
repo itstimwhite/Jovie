@@ -42,7 +42,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
           check-regexp: >
-            (analyze|verify-pr-source|build|test|lint|typecheck)
+            (Analyze \(actions\)|Analyze \(javascript-typescript\)|verify-pr-source|build|test|lint|typecheck)
           allowed-conclusions: success
           timeout-minutes: 45
 

@@ -2,7 +2,7 @@ name: PR Verification
 
 on:
   pull_request:
-    branches: [preview, main]
+    branches: [develop, preview, main]
 
 permissions:
   contents: read
@@ -13,6 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Verify PR source for develop branch
+        if: github.base_ref == 'develop'
+        run: |
+          echo "Verifying PR to develop branch..."
+          echo "PR head: ${{ github.head_ref }}"
+          echo "PR base: ${{ github.base_ref }}"
+          echo "✅ PR to develop verified - all PRs to develop are allowed"
 
       - name: Verify PR source for preview branch
         if: github.base_ref == 'preview'
