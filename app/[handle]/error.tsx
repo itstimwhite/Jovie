@@ -51,7 +51,7 @@ export default function Error({ error, reset }: ErrorProps) {
                   <summary className="cursor-pointer text-sm text-gray-500 dark:text-gray-400">
                     Error details
                   </summary>
-                  <pre className="mt-2 rounded bg-gray-100 p-4 text-xs text-gray-800 dark:bg-gray-800 dark:text-gray-200">
+                  <pre className="mt-2 rounded-sm bg-gray-100 p-4 text-xs text-gray-800 dark:bg-gray-800 dark:text-gray-200">
                     {error.message}
                     {error.digest && `\nDigest: ${error.digest}`}
                   </pre>

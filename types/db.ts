@@ -17,6 +17,9 @@ export interface Artist {
   settings?: {
     hide_branding?: boolean;
   };
+  spotify_url?: string;
+  apple_music_url?: string;
+  youtube_url?: string;
   published: boolean;
   is_verified: boolean;
   created_at: string;
@@ -57,5 +60,16 @@ export interface Subscription {
   plan: string;
   status: string;
   revenuecat_id?: string;
+  created_at: string;
+}
+
+export interface Tip {
+  id: string;
+  artist_id: string;
+  contact_email?: string;
+  contact_phone?: string;
+  amount_cents: number;
+  currency: string;
+  payment_intent: string;
   created_at: string;
 }

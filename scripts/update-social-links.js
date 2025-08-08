@@ -87,7 +87,7 @@ const artistSocialLinks = {
     instagram: 'https://instagram.com/itstimwhite',
     twitter: 'https://x.com/itstimwhite',
     tiktok: 'https://tiktok.com/@itstimwhite',
-    youtube: 'https://youtube.com/@itstimwhite',
+    youtube: 'https://youtube.com/@timwhite',
     spotify: 'https://open.spotify.com/artist/4Uwpa6zW3zzCSQvooQNksm',
     website: 'https://timwhite.co/',
   },

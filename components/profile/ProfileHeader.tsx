@@ -20,13 +20,6 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
           priority
           fill
         />
-
-        {/* Verification badge overlay */}
-        {artist.is_verified && (
-          <div className="absolute -bottom-1 -right-1">
-            <VerifiedBadge size="md" />
-          </div>
-        )}
       </div>
 
       <div className="space-y-2">
@@ -36,6 +29,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
         >
           <span className="flex items-center justify-center gap-2">
             {artist.name}
+            {artist.is_verified && <VerifiedBadge size="sm" />}
           </span>
         </h1>
         <p

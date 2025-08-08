@@ -1,29 +1,25 @@
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config({ path: '.env.local' });
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Missing Supabase environment variables');
+  process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 // Spotify API credentials
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 
-// Supabase credentials
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey =
-  process.env.SUPABASE_SERVICE_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
-
 if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) {
-  console.error('Missing Spotify credentials in .env.local');
+  console.error('Missing Spotify environment variables');
   process.exit(1);
 }
 
-if (!supabaseUrl) {
-  console.error('Missing Supabase URL in .env.local');
-  process.exit(1);
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-// Get Spotify access token
 async function getSpotifyToken() {
   const response = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
@@ -38,120 +34,94 @@ async function getSpotifyToken() {
     body: 'grant_type=client_credentials',
   });
 
-  if (!response.ok) {
-    throw new Error(`Failed to get Spotify token: ${response.status}`);
-  }
-
   const data = await response.json();
   return data.access_token;
 }
 
-// Get artist data from Spotify
-async function getSpotifyArtist(artistId, token) {
-  const response = await fetch(
-    `https://api.spotify.com/v1/artists/${artistId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch artist from Spotify: ${response.status}`);
-  }
-
-  return response.json();
-}
-
-// Get artist's latest release
-async function getArtistLatestRelease(artistId, token) {
-  const response = await fetch(
-    `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&limit=1&market=US`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch albums from Spotify: ${response.status}`);
-  }
-
-  const data = await response.json();
-  return data.items[0] || null;
-}
-
-// Update artist in database
-async function updateArtist(handle, spotifyData, latestRelease) {
-  const { error } = await supabase
-    .from('artists')
-    .update({
-      image_url: spotifyData.images[0]?.url || null,
-      tagline: latestRelease
-        ? `${latestRelease.name} - ${latestRelease.album_type}`
-        : spotifyData.name,
-    })
-    .eq('handle', handle);
-
-  if (error) {
-    console.error(`Error updating ${handle}:`, error);
-    return false;
-  }
-
-  console.log(`✅ Updated ${handle} with image: ${spotifyData.images[0]?.url}`);
-  return true;
-}
-
-// Main function
-async function updateAllArtists() {
+async function getArtistImage(spotifyId, token) {
   try {
-    console.log('🎵 Fetching Spotify access token...');
-    const token = await getSpotifyToken();
-    console.log('✅ Got Spotify token');
+    const response = await fetch(
+      `https://api.spotify.com/v1/artists/${spotifyId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-    // Get all artists from database
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const artist = await response.json();
+
+    // Get the highest quality image
+    if (artist.images && artist.images.length > 0) {
+      // Sort by width to get the highest quality image
+      const sortedImages = artist.images.sort((a, b) => b.width - a.width);
+      return sortedImages[0].url;
+    }
+
+    return null;
+  } catch (error) {
+    console.error(
+      `Error fetching image for artist ${spotifyId}:`,
+      error.message
+    );
+    return null;
+  }
+}
+
+async function updateArtistImages() {
+  try {
+    console.log('Getting Spotify access token...');
+    const token = await getSpotifyToken();
+
+    console.log('Fetching artists from database...');
     const { data: artists, error } = await supabase
       .from('artists')
-      .select('handle, spotify_id, name, is_verified')
-      .eq('published', true);
+      .select('id, handle, spotify_id, name')
+      .not('spotify_id', 'is', null);
 
     if (error) {
-      console.error('Error fetching artists:', error);
-      return;
+      throw error;
     }
 
-    console.log(`📝 Found ${artists.length} artists to update`);
+    console.log(`Found ${artists.length} artists to update`);
 
     for (const artist of artists) {
-      try {
-        console.log(`\n🔄 Processing ${artist.name} (${artist.handle})...`);
+      console.log(
+        `Fetching image for ${artist.name} (${artist.spotify_id})...`
+      );
 
-        // Get Spotify data
-        const spotifyData = await getSpotifyArtist(artist.spotify_id, token);
+      const imageUrl = await getArtistImage(artist.spotify_id, token);
 
-        // Get latest release
-        const latestRelease = await getArtistLatestRelease(
-          artist.spotify_id,
-          token
-        );
+      if (imageUrl) {
+        console.log(`Updating ${artist.name} with image: ${imageUrl}`);
 
-        // Update database
-        await updateArtist(artist.handle, spotifyData, latestRelease);
+        const { error: updateError } = await supabase
+          .from('artists')
+          .update({ image_url: imageUrl })
+          .eq('id', artist.id);
 
-        // Small delay to avoid rate limiting
-        await new Promise((resolve) => setTimeout(resolve, 100));
-      } catch (error) {
-        console.error(`❌ Error processing ${artist.handle}:`, error.message);
+        if (updateError) {
+          console.error(`Error updating ${artist.name}:`, updateError);
+        } else {
+          console.log(`✅ Updated ${artist.name}`);
+        }
+      } else {
+        console.log(`⚠️  No image found for ${artist.name}`);
       }
+
+      // Rate limiting - wait 100ms between requests
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
-    console.log('\n🎉 Finished updating all artists!');
+    console.log('✅ Artist image update complete!');
   } catch (error) {
-    console.error('❌ Script failed:', error);
+    console.error('Error updating artist images:', error);
+    process.exit(1);
   }
 }
 
-// Run the script
-updateAllArtists();
+updateArtistImages();

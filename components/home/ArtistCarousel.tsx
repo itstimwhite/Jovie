@@ -21,7 +21,7 @@ export function ArtistCarousel({ artists }: ArtistCarouselProps) {
   }
 
   return (
-    <section className="relative w-full bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950 dark:via-purple-950 dark:to-pink-950 py-16">
+    <section className="relative w-full bg-linear-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950 dark:via-purple-950 dark:to-pink-950 py-16">
       {/* Full-width horizontal scroll container */}
       <div className="relative overflow-x-auto overflow-y-hidden">
         {/* Artist images row */}
@@ -30,7 +30,7 @@ export function ArtistCarousel({ artists }: ArtistCarouselProps) {
             <Link
               key={artist.id}
               href={`/${artist.handle}`}
-              className="group flex-shrink-0 transition-transform duration-300 hover:scale-110"
+              className="group shrink-0 transition-transform duration-300 hover:scale-110"
             >
               <div className="relative">
                 {/* Artist image */}

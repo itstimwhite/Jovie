@@ -1,85 +1,98 @@
 'use client';
 
-import { Button } from '@/components/ui/Button';
+import Link from 'next/link';
 import { Container } from '@/components/site/Container';
+import { ClaimHandleForm } from './ClaimHandleForm';
+import { WaitlistLink } from './WaitlistLink';
+import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
 
 export function HomeHero() {
+  const { flags } = useFeatureFlags();
   return (
     <section
-      className="relative flex min-h-screen flex-col items-center justify-center px-4 py-16"
+      className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24"
       role="banner"
       aria-labelledby="hero-headline"
     >
-      <Container className="flex max-w-4xl flex-col items-center text-center">
-        {/* Hero Section - Above the fold */}
-        <div className="mb-12 space-y-6">
-          {/* Badge */}
+      <Container className="relative flex max-w-6xl flex-col items-center text-center">
+        {/* Linear-style badge with subtle glass morphism */}
+        <div className="mb-8">
           <div
-            className="inline-flex items-center rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-sm ring-1 ring-white/20"
+            className="inline-flex items-center gap-2 rounded-full bg-gray-100/80 dark:bg-white/5 px-4 py-2 text-sm font-medium text-gray-700 dark:text-white/80 backdrop-blur-sm border border-gray-200 dark:border-white/10"
             role="status"
-            aria-label="Setup time"
-          >
-            <span
-              className="mr-2 h-2 w-2 rounded-full bg-green-400"
-              aria-hidden="true"
-            />
-            90-second setup
-          </div>
-
-          {/* Main Headline */}
-          <h1
-            id="hero-headline"
-            className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl"
-          >
-            <span className="block">Link in bio</span>
-            <span className="block bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              for music artists
-            </span>
-          </h1>
-
-          {/* Subheadline */}
-          <p
-            className="mx-auto max-w-2xl text-xl text-white/80 sm:text-2xl"
-            role="doc-subtitle"
-          >
-            Connect your music, social media, and merch in one link.
-            <span className="font-semibold text-white"> No design needed.</span>
-          </p>
-
-          {/* Social Proof */}
-          <div
-            className="flex items-center justify-center space-x-8 text-sm text-white/60"
-            role="complementary"
             aria-label="Key benefits"
           >
+            <div className="flex h-2 w-2 items-center justify-center">
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            </div>
+            <span>60-second setup</span>
+            <div className="h-1 w-1 rounded-full bg-gray-400 dark:bg-white/30" />
             <span>Free forever</span>
-            <span aria-hidden="true">•</span>
-            <span>High converting</span>
           </div>
         </div>
 
-        {/* Simple CTA */}
-        <div className="w-full max-w-2xl space-y-6" role="main">
-          <div className="flex justify-center">
-            <Button
-              onClick={() => (window.location.href = '/sign-in')}
-              variant="primary"
-              size="lg"
-              className="px-8 py-4 text-lg font-semibold"
-            >
-              Get Started
-            </Button>
-          </div>
+        {/* Main headline with updated copy */}
+        <div className="mb-12 space-y-6">
+          <h1
+            id="hero-headline"
+            className="text-6xl font-semibold tracking-[-0.02em] text-gray-900 dark:text-white sm:text-7xl lg:text-8xl"
+          >
+            <span className="block leading-none">
+              Claim your{' '}
+              <span className="text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 dark:from-blue-400 dark:via-purple-400 dark:to-cyan-400 bg-clip-text">
+                @handle
+              </span>
+              .
+            </span>
+          </h1>
 
-          {/* Trust Indicators */}
-          <div className="mt-8 text-center">
-            <p
-              className="text-sm text-white/50"
-              role="complementary"
-              aria-label="Security and payment information"
-            >
-              Secure • No credit card
-            </p>
+          {/* Subtitle */}
+          <p
+            className="mx-auto max-w-2xl text-xl text-gray-600 dark:text-white/70 font-light leading-relaxed sm:text-2xl"
+            role="doc-subtitle"
+          >
+            Turn followers into listeners in 60 seconds.
+          </p>
+        </div>
+
+        {/* Claim Handle with Linear-style container */}
+        <div className="w-full max-w-2xl" role="main">
+          <div className="relative">
+            {/* Subtle glow effect behind search */}
+            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-cyan-500/20 rounded-2xl blur-xl opacity-50" />
+            <div className="relative">
+              {flags.waitlistEnabled ? <WaitlistLink /> : <ClaimHandleForm />}
+            </div>
+          </div>
+        </div>
+
+        {/* CTA buttons */}
+        <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <Link
+            href="/pricing"
+            className="inline-flex items-center px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+          >
+            View Pricing →
+          </Link>
+        </div>
+
+        {/* Trust indicators with Linear styling */}
+        <div className="mt-16 flex flex-col items-center space-y-4">
+          <p className="text-sm text-gray-500 dark:text-white/50 font-medium">
+            Trusted by musicians worldwide
+          </p>
+          <div className="flex items-center space-x-8 opacity-60">
+            <div className="text-xs text-gray-400 dark:text-white/40 font-mono">
+              10,000+ artists
+            </div>
+            <div className="h-1 w-1 rounded-full bg-gray-300 dark:bg-white/20" />
+            <div className="text-xs text-gray-400 dark:text-white/40 font-mono">
+              1M+ clicks
+            </div>
+            <div className="h-1 w-1 rounded-full bg-gray-300 dark:bg-white/20" />
+            <div className="text-xs text-gray-400 dark:text-white/40 font-mono">
+              99.9% uptime
+            </div>
           </div>
         </div>
       </Container>

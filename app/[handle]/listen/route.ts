@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createServerClient } from '@/lib/supabase-server';
-import { buildSpotifyArtistUrl } from '@/lib/spotify';
 import { LISTEN_COOKIE } from '@/constants/app';
-import { Artist, Release } from '@/types/db';
+import { getAvailableDSPs, generateDSPButtonHTML } from '@/lib/dsp';
+import { generateFooterHTML } from '@/lib/footer';
 
 export const runtime = 'edge';
 
@@ -17,6 +17,11 @@ export async function GET(
 
   const supabase = await createServerClient();
 
+  if (!supabase) {
+    return new NextResponse('Database connection failed', { status: 500 });
+  }
+
+  // Fetch artist data
   const { data: artist, error: artistError } = await supabase
     .from('artists')
     .select('*')
@@ -28,25 +33,61 @@ export async function GET(
     return new NextResponse('Artist not found', { status: 404 });
   }
 
-  const artistData = artist as Artist;
+  // Fetch releases for this specific artist
+  const { data: releases } = await supabase
+    .from('releases')
+    .select('*')
+    .eq('artist_id', artist.id)
+    .order('release_date', { ascending: false });
 
-  if (preference === 'spotify') {
-    const { data: release } = await supabase
-      .from('releases')
-      .select('*')
-      .eq('artist_id', artistData.id)
-      .eq('dsp', 'spotify')
-      .order('release_date', { ascending: false })
-      .limit(1)
-      .single();
+  const availableDSPs = getAvailableDSPs(artist, releases || []);
 
-    const releaseData = release as Release | null;
-    const redirectUrl = releaseData
-      ? releaseData.url
-      : buildSpotifyArtistUrl(artistData.spotify_id);
+  // If no DSPs available, show error
+  if (availableDSPs.length === 0) {
+    const footerHTML = generateFooterHTML({ artist, utmSource: 'listen' });
 
-    return NextResponse.redirect(redirectUrl);
+    return new NextResponse(
+      `
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>No Platforms Available - ${artist.name}</title>
+          <script src="https://cdn.tailwindcss.com"></script>
+        </head>
+        <body class="bg-white min-h-screen flex flex-col items-center justify-center">
+          <div class="text-center space-y-6 p-8">
+            <h1 class="text-2xl font-bold text-gray-900">${artist.name}</h1>
+            <p class="text-gray-600">No streaming platforms configured yet.</p>
+            <p class="text-sm text-gray-500">Check back soon!</p>
+          </div>
+          ${footerHTML}
+        </body>
+      </html>
+    `,
+      {
+        headers: {
+          'Content-Type': 'text/html',
+          'Cache-Control': 'public, max-age=300, s-maxage=300',
+        },
+      }
+    );
   }
+
+  // Check for preference and redirect if valid
+  if (preference) {
+    const preferredDSP = availableDSPs.find((dsp) => dsp.key === preference);
+    if (preferredDSP) {
+      return NextResponse.redirect(preferredDSP.url);
+    }
+  }
+
+  // Generate HTML with all available DSPs
+  const dspButtonsHTML = availableDSPs.map(generateDSPButtonHTML).join('');
+
+  // Generate footer HTML
+  const footerHTML = generateFooterHTML({ artist, utmSource: 'listen' });
 
   const html = `
     <!DOCTYPE html>
@@ -54,30 +95,64 @@ export async function GET(
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Choose Platform - ${artistData.name}</title>
+        <title>Listen to ${artist.name}</title>
+        <meta name="description" content="Choose your preferred streaming platform to listen to ${artist.name}">
+        <meta name="robots" content="noindex, nofollow">
+        <link rel="preconnect" href="https://cdn.tailwindcss.com">
         <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+          .platform-button:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.15); }
+        </style>
       </head>
-      <body class="bg-white min-h-screen flex items-center justify-center">
-        <div class="text-center space-y-6 p-8">
-          <h1 class="text-2xl font-bold">Listen to ${artistData.name}</h1>
-          <p class="text-gray-600">Choose your preferred streaming platform</p>
-          
-          <button
-            id="spotify-btn"
-            class="w-full max-w-xs mx-auto bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors"
-          >
-            Open in Spotify
-          </button>
+      <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex flex-col items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+          <div class="text-center space-y-6">
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900">${artist.name}</h1>
+              <p class="text-gray-600 mt-2">Choose your streaming platform</p>
+            </div>
+            
+            <div class="space-y-3">
+              ${dspButtonsHTML}
+            </div>
+
+            <div class="text-xs text-gray-500 space-y-1">
+              <p>Your preference will be saved for next time</p>
+            </div>
+          </div>
         </div>
 
+        ${footerHTML}
+
         <script>
-          document.getElementById('spotify-btn').addEventListener('click', async () => {
-            // Set cookie and localStorage
-            document.cookie = '${LISTEN_COOKIE}=spotify; path=/; max-age=${60 * 60 * 24 * 365}';
-            localStorage.setItem('${LISTEN_COOKIE}', 'spotify');
-            
-            // Redirect
-            window.location.href = '/${handle}/listen';
+          // Add click tracking and preference saving
+          document.querySelectorAll('[data-dsp]').forEach(button => {
+            button.addEventListener('click', async (e) => {
+              e.preventDefault();
+              const dsp = button.dataset.dsp;
+              const url = button.dataset.url;
+              
+              if (!dsp || !url) return;
+              
+              // Save preference
+              document.cookie = \`${LISTEN_COOKIE}=\${dsp}; path=/; max-age=\${60 * 60 * 24 * 365}; SameSite=Lax\`;
+              localStorage.setItem('${LISTEN_COOKIE}', dsp);
+              
+              // Track click (fire and forget)
+              fetch('/api/track', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  handle: '${handle}',
+                  linkType: 'listen',
+                  target: dsp,
+                }),
+              }).catch(() => {}); // Ignore tracking errors
+              
+              // Open link
+              window.open(url, '_blank', 'noopener,noreferrer');
+            });
           });
         </script>
       </body>
@@ -87,6 +162,9 @@ export async function GET(
   return new NextResponse(html, {
     headers: {
       'Content-Type': 'text/html',
+      'Cache-Control': 'public, max-age=300, s-maxage=300',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
     },
   });
 }

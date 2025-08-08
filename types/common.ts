@@ -3,7 +3,7 @@ import { SocialPlatform } from '@/constants/app';
 export interface SpotifyArtist {
   id: string;
   name: string;
-  images: Array<{
+  images?: Array<{
     url: string;
     height: number;
     width: number;
@@ -11,6 +11,7 @@ export interface SpotifyArtist {
   external_urls: {
     spotify: string;
   };
+  popularity?: number;
 }
 
 export interface SpotifyAlbum {

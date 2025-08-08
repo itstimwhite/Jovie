@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://jov.ie
+
+# Sitemaps
+Sitemap: https://jov.ie/sitemap.xml

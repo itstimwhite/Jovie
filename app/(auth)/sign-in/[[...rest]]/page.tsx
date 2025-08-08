@@ -9,7 +9,7 @@ export default function SignInPage() {
   const destination = `/dashboard${artistId ? `?artistId=${artistId}` : ''}`;
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-[#0D0E12] transition-colors">
       <SignIn
         redirectUrl={destination}
         afterSignInUrl={destination}

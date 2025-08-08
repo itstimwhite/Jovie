@@ -5,7 +5,10 @@ interface LoadingSpinnerProps {
   className?: string;
 }
 
-export function LoadingSpinner({ size = 'md', className = '' }: LoadingSpinnerProps) {
+export function LoadingSpinner({
+  size = 'md',
+  className = '',
+}: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: 'h-4 w-4',
     md: 'h-5 w-5',
@@ -26,12 +29,12 @@ export function LoadingSpinner({ size = 'md', className = '' }: LoadingSpinnerPr
         aria-hidden="true"
       >
         {/* Jovie Music Note Icon */}
-        <circle cx="8" cy="24" r="4" fill="currentColor"/>
-        <circle cx="20" cy="20" r="4" fill="currentColor"/>
-        <rect x="10" y="12" width="2" height="16" fill="currentColor"/>
-        <rect x="22" y="8" width="2" height="16" fill="currentColor"/>
-        <path d="M10 12h12v4H10z" fill="currentColor"/>
+        <circle cx="8" cy="24" r="4" fill="currentColor" />
+        <circle cx="20" cy="20" r="4" fill="currentColor" />
+        <rect x="10" y="12" width="2" height="16" fill="currentColor" />
+        <rect x="22" y="8" width="2" height="16" fill="currentColor" />
+        <path d="M10 12h12v4H10z" fill="currentColor" />
       </svg>
     </div>
   );
-} 
+}

@@ -65,17 +65,17 @@ describe('Input', () => {
   });
 
   it('renders with different sizes', () => {
-    const { rerender } = render(<Input size="sm" placeholder="Small" />);
+    const { rerender } = render(<Input placeholder="Small" />);
     expect(screen.getByPlaceholderText('Small')).toBeInTheDocument();
 
-    rerender(<Input size="md" placeholder="Medium" />);
+    rerender(<Input placeholder="Medium" />);
     expect(screen.getByPlaceholderText('Medium')).toBeInTheDocument();
 
-    rerender(<Input size="lg" placeholder="Large" />);
+    rerender(<Input placeholder="Large" />);
     expect(screen.getByPlaceholderText('Large')).toBeInTheDocument();
   });
 
-  it('handles focus and blur events', () => {
+  it('handles focus and blur-sm events', () => {
     const handleFocus = vi.fn();
     const handleBlur = vi.fn();
 

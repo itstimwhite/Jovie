@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAuthenticatedServerClient } from '@/lib/supabase-server';
 import { detectPlatformFromUA } from '@/lib/utils';
 
+// API routes should be dynamic
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -15,6 +18,13 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createAuthenticatedServerClient();
+
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 500 }
+      );
+    }
 
     const { data: artist, error: artistError } = await supabase
       .from('artists')

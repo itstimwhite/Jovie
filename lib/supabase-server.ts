@@ -1,36 +1,75 @@
 import 'server-only';
 import { createClient } from '@supabase/supabase-js';
+import { auth } from '@clerk/nextjs/server';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export async function createServerClient() {
-  // For public pages, just return anonymous client
-  // This allows static generation to work
-  return createClient(supabaseUrl, supabaseAnonKey);
-}
-
-export async function createAuthenticatedServerClient() {
-  // This would be used in server actions/API routes that need auth
-  // But we'll import auth there directly to avoid static generation issues
-  const { auth } = await import('@clerk/nextjs/server');
-
-  try {
-    const { getToken } = await auth();
-    const token = await getToken({ template: 'supabase' });
-
-    if (token) {
-      return createClient(supabaseUrl, supabaseAnonKey, {
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      });
-    }
-  } catch (error) {
-    // Fall back to anonymous client
+export function createServerClient() {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null;
   }
 
-  return createClient(supabaseUrl, supabaseAnonKey);
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false, // Prevent multiple auth instances
+    },
+    async accessToken() {
+      try {
+        const { getToken } = await auth();
+        return (await getToken()) ?? null;
+      } catch {
+        return null;
+      }
+    },
+  });
+}
+
+// Server-side function to get authenticated Supabase client using native integration
+export async function createAuthenticatedServerClient() {
+  try {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return null;
+    }
+
+    return createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false, // Prevent multiple auth instances
+      },
+      async accessToken() {
+        // For server-side, we need to get the token from the session
+        try {
+          const { getToken } = await auth();
+          return (await getToken()) ?? null;
+        } catch {
+          return null;
+        }
+      },
+    });
+  } catch {
+    // Fall back to anonymous client
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return null;
+    }
+    return createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false, // Prevent multiple auth instances
+      },
+    });
+  }
+}
+
+// Alias for backward compatibility
+export async function getAuthenticatedServerClient() {
+  return createAuthenticatedServerClient();
+}
+
+// Helper function to get user ID from Clerk session
+export async function getClerkUserId() {
+  try {
+    const { userId } = await auth();
+    return userId;
+  } catch {
+    return null;
+  }
 }

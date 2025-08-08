@@ -21,7 +21,7 @@ export default function Loading() {
 
             <div className="mt-12 border-t border-gray-200 pt-8 dark:border-gray-700">
               <div className="flex items-center justify-center">
-                <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+                <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse" />
               </div>
             </div>
           </div>

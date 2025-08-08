@@ -1,13 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   turbopack: {},
-  eslint: {
-    ignoreDuringBuilds: true,
+  typescript: {
+    ignoreBuildErrors: false,
   },
   output: 'standalone',
-  serverExternalPackages: ['@clerk/nextjs'],
   // Disable static generation to prevent Clerk context issues during build
   trailingSlash: false,
+  // Build optimizations
+  poweredByHeader: false,
+  compress: true,
   images: {
     remotePatterns: [
       {
@@ -29,46 +31,78 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   async headers() {
-    return [
+    const securityHeaders = [
       {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
+        key: 'X-Frame-Options',
+        value: 'DENY',
       },
+      {
+        key: 'X-Content-Type-Options',
+        value: 'nosniff',
+      },
+      {
+        key: 'Referrer-Policy',
+        value: 'origin-when-cross-origin',
+      },
+    ];
+    return [
       {
         source: '/api/(.*)',
         headers: [
+          ...securityHeaders,
           {
             key: 'Cache-Control',
             value: 'public, max-age=300, s-maxage=300', // 5 minutes
           },
         ],
       },
+      {
+        source: '/(.*)',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+        ],
+      },
     ];
   },
   experimental: {
-    optimizeCss: true,
+    // Disable optimizeCss to avoid critters dependency issues
+    // optimizeCss: true,
     optimizePackageImports: ['@headlessui/react', '@heroicons/react'],
+    // Build optimizations
+    // Turbopack: remove unsupported option
+    // forceSwcTransforms: true,
+    swcTraceProfiling: false,
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
+  // Webpack optimizations
+  webpack: (config, { dev, isServer }) => {
+    if (!dev && !isServer) {
+      // Optimize bundle size
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+            },
+          },
+        },
+      };
+    }
+    return config;
+  },
 };
 
-module.exports = nextConfig;
+// Enable Vercel Toolbar in Next.js (local/dev)
+const withVercelToolbar = require('@vercel/toolbar/plugins/next')();
+
+module.exports = withVercelToolbar(nextConfig);
