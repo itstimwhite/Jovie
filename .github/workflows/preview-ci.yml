@@ -3,6 +3,7 @@ name: Preview CI/CD Pipeline
 on:
   push:
     branches: [preview]
+  workflow_dispatch:
 
 permissions:
   contents: read
