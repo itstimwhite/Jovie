@@ -8,7 +8,7 @@ on:
       - 'docs/**'
       - '.vscode/**'
   push:
-    branches: [develop, preview]
+    branches: [develop, preview, main]
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
@@ -75,6 +75,12 @@ jobs:
           cache: npm
           cache-dependency-path: '**/package-lock.json'
       - run: npm ci
+      - name: Install Playwright
+        if: ${{ hashFiles('tests/e2e/**') != '' }}
+        run: npx playwright install --with-deps
+      - name: E2E smoke
+        if: ${{ github.ref != 'refs/heads/main' && hashFiles('tests/e2e/**') != '' }}
+        run: npm run e2e:smoke --if-present
       - run: npm test --if-present
       - run: npm run build --if-present
 
@@ -82,6 +88,9 @@ jobs:
     needs: [ci-fast] # change to [ci-full] if you want build/tests first
     if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/preview') }}
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ (github.ref == 'refs/heads/develop' && 'Develop') || 'Preview' }}
+      url: ${{ (github.ref == 'refs/heads/develop' && 'https://dev.jov.ie') || 'https://preview.jov.ie' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -119,16 +128,60 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr view --head develop --base preview >/dev/null 2>&1 || \
+          # Check if PR already exists
+          existing_pr=$(gh pr list --head develop --base preview --json number --jq '.[0].number // empty')
+          if [ -z "$existing_pr" ]; then
+            echo "Creating new PR: develop → preview"
             gh pr create --base preview --head develop --title "Auto-promote: develop → preview" --body "Automated promotion PR"
-          num=$(gh pr view --json number -q .number --head develop --base preview)
-          gh pr merge "$num" --squash --auto
+            existing_pr=$(gh pr list --head develop --base preview --json number --jq '.[0].number')
+          else
+            echo "PR already exists: #$existing_pr"
+          fi
+          echo "Enabling auto-merge for PR #$existing_pr"
+          gh pr merge "$existing_pr" --squash --auto
       - name: Promote preview → main
         if: ${{ github.ref == 'refs/heads/preview' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr view --head preview --base main >/dev/null 2>&1 || \
+          # Check if PR already exists
+          existing_pr=$(gh pr list --head preview --base main --json number --jq '.[0].number // empty')
+          if [ -z "$existing_pr" ]; then
+            echo "Creating new PR: preview → main"
             gh pr create --base main --head preview --title "Auto-promote: preview → main" --body "Automated promotion PR"
-          num=$(gh pr view --json number -q .number --head preview --base main)
-          gh pr merge "$num" --squash --auto
+            existing_pr=$(gh pr list --head preview --base main --json number --jq '.[0].number')
+          else
+            echo "PR already exists: #$existing_pr"
+          fi
+          echo "Enabling auto-merge for PR #$existing_pr"
+          gh pr merge "$existing_pr" --squash --auto
+  
+  deploy-prod:
+    needs: [ci-fast]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: Main
+      url: https://jov.ie
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+      - name: Pull env (production)
+        run: vercel pull --yes --environment=production --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Build (production)
+        run: vercel build --prod --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Deploy (production, prebuilt)
+        run: vercel deploy --prebuilt --prod --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
