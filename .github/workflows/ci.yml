@@ -12,10 +12,12 @@ on:
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
+  workflow_dispatch:
 
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -156,10 +158,12 @@ jobs:
           fi
           echo "Enabling auto-merge for PR #$existing_pr"
           gh pr merge "$existing_pr" --squash --auto
+          echo "Triggering CI on main via workflow_dispatch to run production deploy"
+          gh workflow run CI --ref main || echo "Note: ensure workflow_dispatch is enabled on CI workflow"
   
   deploy-prod:
     needs: [ci-fast]
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     environment:
       name: Production
