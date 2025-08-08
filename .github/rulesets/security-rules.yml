@@ -1,3 +1,6 @@
+# EXAMPLE ONLY - NOT APPLIED
+# This ruleset references many contexts we don't emit yet and would block merges
+# Move to docs/ruleset-examples/ or uncomment when we implement these checks
 name: 'Security Rules'
 description: 'Security-focused rules for vulnerability scanning and code security'
 target:
