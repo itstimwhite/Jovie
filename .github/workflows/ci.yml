@@ -76,6 +76,7 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
       - run: npm ci
       - name: Install Playwright
+        if: ${{ hashFiles('tests/e2e/**') != '' }}
         run: npx playwright install --with-deps
       - name: E2E smoke
         if: ${{ github.ref != 'refs/heads/main' && hashFiles('tests/e2e/**') != '' }}
