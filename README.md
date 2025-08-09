@@ -150,7 +150,16 @@ NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=your-verification-code
 4. Set up the database:
 
 ```bash
-# Run the Supabase migrations
+# Install Supabase CLI (if not already installed)
+# See: https://supabase.com/docs/guides/cli/getting-started#installing-the-supabase-cli
+
+# Initialize and start local Supabase services
+supabase start
+
+# Run the migrations and seed data
+supabase db reset
+
+# OR run just migrations without seeding
 supabase db push
 ```
 
@@ -167,9 +176,30 @@ Visit `http://localhost:3000` to see the app in action.
 #### Supabase
 
 1. Create a new Supabase project
-2. Run the migrations: `supabase db push`
+2. Run the migrations and seed data: `supabase db reset`
 3. Get your URL and anon key from the project settings
 4. Configure Clerk as a third-party auth provider in Supabase dashboard
+
+**Local Development with Seed Data:**
+
+The project includes comprehensive seed data with 10 published artists and their social links for testing artist profile pages (`/[handle]`). To set up your local Supabase instance with seed data:
+
+```bash
+# Start local Supabase services
+supabase start
+
+# Reset database with migrations and seed data
+supabase db reset
+```
+
+This will populate your local database with:
+
+- 10 published artists (Lady Gaga, David Guetta, Billie Eilish, etc.)
+- Social links for each artist (Instagram, Twitter, TikTok, Spotify, Apple Music)
+- Sample releases and analytics data
+- Tim White as a verified artist for testing
+
+Test artist profiles at: `http://localhost:3000/ladygaga`, `http://localhost:3000/tim`, etc.
 
 #### Clerk
 
@@ -279,6 +309,69 @@ The app uses Supabase with Row Level Security (RLS) enabled. Key tables:
 - `social_links` - Social media links with click tracking
 - `releases` - Music releases from Spotify
 - `click_events` - Analytics and tracking data
+
+### Local Database Setup & Seeding
+
+The project includes comprehensive seed data for local development and testing.
+
+#### Quick Setup
+
+```bash
+# Start local Supabase (includes PostgreSQL, Auth, etc.)
+supabase start
+
+# Apply migrations and seed data
+supabase db reset
+```
+
+#### Seed Data Contents
+
+The seed data (`supabase/seed.sql`) includes:
+
+**10 Published Artists:**
+
+- Lady Gaga (`/ladygaga`)
+- David Guetta (`/davidguetta`)
+- Billie Eilish (`/billieeilish`)
+- Marshmello (`/marshmello`)
+- Rihanna (`/rihanna`)
+- Calvin Harris (`/calvinharris`)
+- Sabrina Carpenter (`/sabrinacarpenter`)
+- The Chainsmokers (`/thechainsmokers`)
+- Dua Lipa (`/dualipa`)
+- Tim White (`/tim`) - _Verified artist_
+
+**Social Links for Each Artist:**
+
+- Spotify (real artist links)
+- Apple Music (real artist links)
+- Instagram, Twitter, TikTok (demo links)
+- Tim White includes additional platforms (YouTube, Website)
+
+**Sample Data:**
+
+- Music releases for each artist
+- Click tracking events for analytics testing
+
+#### Manual Seeding
+
+If you need to run seeds manually:
+
+```bash
+# Connect to your local Supabase database
+supabase db reset --no-seed  # Run migrations only
+psql -h localhost -p 54322 -U postgres -d postgres -f supabase/seed.sql
+```
+
+#### Verifying Seed Data
+
+Test that seeding worked by visiting these local URLs:
+
+- http://localhost:3000/tim - Verified artist
+- http://localhost:3000/ladygaga - Popular artist with all social links
+- http://localhost:3000/billieeilish - Another well-populated profile
+
+The seed data is designed to provide realistic testing scenarios for the `/[handle]` artist profile pages.
 
 ### Authentication Flow
 
