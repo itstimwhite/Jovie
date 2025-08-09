@@ -12,20 +12,14 @@ export function PreFooterCTA() {
           id="cta-heading"
           className="text-neutral-700 dark:text-white/80 text-base md:text-lg"
         >
-          Stop designing. Start converting.
+          Launch your artist page in minutes. Convert visitors into fans.
         </p>
         <div className="flex items-center gap-3">
           <Link
-            href="/onboarding"
+            href="/sign-up"
             className="inline-flex items-center rounded-xl px-4 py-2 font-medium bg-neutral-900 text-white dark:bg-white dark:text-black focus:outline-none focus-visible:ring"
           >
             Claim your handle →
-          </Link>
-          <Link
-            href="/support"
-            className="text-sm text-neutral-500 hover:text-neutral-800 dark:text-white/60 dark:hover:text-white"
-          >
-            Support
           </Link>
         </div>
       </div>
