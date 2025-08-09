@@ -1,3 +1,9 @@
+import {
+  debugBannerEnabled,
+  artistSearchEnabled,
+  tipPromoEnabled,
+} from './flags';
+
 // Feature flags interface
 export interface FeatureFlags {
   artistSearchEnabled: boolean;
@@ -12,32 +18,32 @@ const defaultFeatureFlags: FeatureFlags = {
   tipPromoEnabled: true,
 };
 
-// Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
+// Get feature flags (v4-compatible: uses the flags SDK response format)
 export async function getFeatureFlags(): Promise<FeatureFlags> {
-  // On the server, delegate to the robust absolute-URL variant
+  // On the server, delegate to the robust server-side variant
   if (typeof window === 'undefined') {
     return getServerFeatureFlags();
   }
-  // On the client, fetch relative to current origin
+  // On the client, fetch from the discovery endpoint for consistency
   try {
     const res = await fetch('/.well-known/vercel/flags');
     if (res.ok) {
       const data = (await res.json()) as {
         version?: number;
-        flags?: Record<string, { default?: unknown }>;
+        definitions?: Record<string, { defaultValue?: unknown }>;
       };
-      if (typeof data?.version === 'number') {
+      if (typeof data?.version === 'number' && data.definitions) {
         return {
           artistSearchEnabled: Boolean(
-            data.flags?.artistSearchEnabled?.default ??
+            data.definitions.artistSearchEnabled?.defaultValue ??
               defaultFeatureFlags.artistSearchEnabled
           ),
           debugBannerEnabled: Boolean(
-            data.flags?.debugBannerEnabled?.default ??
+            data.definitions.debugBannerEnabled?.defaultValue ??
               defaultFeatureFlags.debugBannerEnabled
           ),
           tipPromoEnabled: Boolean(
-            data.flags?.tipPromoEnabled?.default ??
+            data.definitions.tipPromoEnabled?.defaultValue ??
               defaultFeatureFlags.tipPromoEnabled
           ),
         };
@@ -49,47 +55,23 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
   return defaultFeatureFlags;
 }
 
-// Server-side function to get feature flags
+// Server-side function to get feature flags using the flags SDK
 export async function getServerFeatureFlags(): Promise<FeatureFlags> {
   try {
-    // Dynamically import to avoid bundling in client
-    const { headers } = await import('next/headers');
-    const h = await headers();
-    const host = h.get('x-forwarded-host') ?? h.get('host');
-    const proto =
-      h.get('x-forwarded-proto') ??
-      (host && host.includes('localhost') ? 'http' : 'https');
+    const [artistSearch, debugBanner, tipPromo] = await Promise.all([
+      artistSearchEnabled(),
+      debugBannerEnabled(),
+      tipPromoEnabled(),
+    ]);
 
-    if (!host) {
-      return defaultFeatureFlags;
-    }
-
-    const url = `${proto}://${host}/.well-known/vercel/flags`;
-    const res = await fetch(url, { next: { revalidate: 60 } });
-    if (res.ok) {
-      const data = (await res.json()) as {
-        version?: number;
-        flags?: Record<string, { default?: unknown }>;
-      };
-      if (typeof data?.version === 'number') {
-        return {
-          artistSearchEnabled: Boolean(
-            data.flags?.artistSearchEnabled?.default ??
-              defaultFeatureFlags.artistSearchEnabled
-          ),
-          debugBannerEnabled: Boolean(
-            data.flags?.debugBannerEnabled?.default ??
-              defaultFeatureFlags.debugBannerEnabled
-          ),
-          tipPromoEnabled: Boolean(
-            data.flags?.tipPromoEnabled?.default ??
-              defaultFeatureFlags.tipPromoEnabled
-          ),
-        };
-      }
-    }
-  } catch {
-    // fallthrough to defaults
+    return {
+      artistSearchEnabled: artistSearch,
+      debugBannerEnabled: debugBanner,
+      tipPromoEnabled: tipPromo,
+    };
+  } catch (error) {
+    // Log the error but fall back to defaults
+    console.warn('Failed to evaluate feature flags:', error);
+    return defaultFeatureFlags;
   }
-  return defaultFeatureFlags;
 }

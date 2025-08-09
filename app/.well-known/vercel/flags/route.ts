@@ -1,41 +1,21 @@
 import { NextResponse } from 'next/server';
+import { getProviderData } from 'flags/next';
+import * as flags from '@/lib/flags';
 
 // Vercel Flags v4 discovery endpoint
 // Returns versioned flag definitions so the Toolbar/Flags Explorer can detect the SDK
 export async function GET() {
-  // Enable debug banner in development by default
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const providerData = getProviderData(flags);
 
   const response = {
-    version: 4,
-    flags: {
-      waitlistEnabled: {
-        type: 'boolean',
-        default: false,
-        description: 'Controls waitlist flow visibility',
-      },
-      artistSearchEnabled: {
-        type: 'boolean',
-        default: true,
-        description: 'Enable artist search UI (replaced by claim flow)',
-      },
-      debugBannerEnabled: {
-        type: 'boolean',
-        default: true, // Show on all environments by default
-        description: 'Show debug banner in the UI',
-      },
-      tipPromoEnabled: {
-        type: 'boolean',
-        default: true,
-        description: 'Enable tip promotion features',
-      },
-    },
+    version: 4, // Required for v4 compatibility
+    ...providerData,
     metadata: {
       app: 'jovie',
       framework: 'next',
-      source: 'static-defaults',
+      source: 'flags-sdk-v4',
     },
-  } as const;
+  };
 
   return NextResponse.json(response, {
     headers: { 'Cache-Control': 'no-store' },
