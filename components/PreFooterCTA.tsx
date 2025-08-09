@@ -7,10 +7,10 @@ export function PreFooterCTA() {
       aria-labelledby="cta-heading"
       className="border-t border-white/10 dark:border-white/10 bg-white dark:bg-black"
     >
-      <div className="mx-auto max-w-7xl px-4 py-8 md:py-10 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="mx-auto max-w-7xl px-4 py-10 md:py-12 flex flex-col md:flex-row items-center justify-between gap-6">
         <p
           id="cta-heading"
-          className="text-neutral-700 dark:text-white/80 text-base md:text-lg"
+          className="text-neutral-700 dark:text-white/80 text-lg md:text-xl font-semibold"
         >
           Launch your artist page in minutes. Convert visitors into fans.
         </p>
