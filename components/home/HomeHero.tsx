@@ -1,13 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { Container } from '@/components/site/Container';
 import { ClaimHandleForm } from './ClaimHandleForm';
-import { WaitlistLink } from './WaitlistLink';
-import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
 
-export function HomeHero() {
-  const { flags } = useFeatureFlags();
+export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
+  // Feature flags currently unused in hero; keep hook available for future use
   return (
     <section
       className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24"
@@ -51,7 +50,7 @@ export function HomeHero() {
             className="mx-auto max-w-2xl text-xl text-gray-600 dark:text-white/70 font-light leading-relaxed sm:text-2xl"
             role="doc-subtitle"
           >
-            Turn followers into listeners in 60 seconds.
+            {subtitle ?? 'Turn followers into listeners in 60 seconds.'}
           </p>
         </div>
 
@@ -61,7 +60,7 @@ export function HomeHero() {
             {/* Subtle glow effect behind search */}
             <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-cyan-500/20 rounded-2xl blur-xl opacity-50" />
             <div className="relative">
-              {flags.waitlistEnabled ? <WaitlistLink /> : <ClaimHandleForm />}
+              <ClaimHandleForm />
             </div>
           </div>
         </div>

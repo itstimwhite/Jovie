@@ -5,8 +5,10 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from 'next-themes';
 import { Analytics } from '@/components/Analytics';
 import { DebugBanner } from '@/components/DebugBanner';
+import MVPBanner from '@/components/MVPBanner';
 import { FeatureFlagsProvider } from './FeatureFlagsProvider';
 import { FeatureFlags } from '@/lib/feature-flags';
+import { Spinner } from '@/components/ui';
 // import { Toolbar } from '@vercel/toolbar/next';
 
 interface ClientProvidersProps {
@@ -71,7 +73,7 @@ export function ClientProviders({
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+          <Spinner size="lg" />
           <p className="mt-2 text-gray-600">Loading...</p>
         </div>
       </div>
@@ -89,6 +91,7 @@ export function ClientProviders({
           storageKey="jovie-theme"
         >
           <DebugBanner />
+          <MVPBanner />
           {children}
           <Analytics />
           {/* <Toolbar /> */}

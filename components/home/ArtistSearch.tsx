@@ -2,13 +2,12 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
+import { Spinner } from '@/components/ui';
 
 export function ArtistSearch() {
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const router = useRouter();
-  const { flags } = useFeatureFlags();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,8 +19,8 @@ export function ArtistSearch() {
       // Simulate search delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // For now, just redirect to claim page or waitlist based on feature flag
-      router.push(flags.waitlistEnabled ? '/waitlist' : '/sign-up');
+      // For now, just redirect to sign-up
+      router.push('/sign-up');
     } catch (error) {
       console.error('Search error:', error);
     } finally {
@@ -60,11 +59,7 @@ export function ArtistSearch() {
           disabled={isSearching || !query.trim()}
           className="absolute inset-y-0 right-0 px-4 flex items-center bg-blue-600 hover:bg-blue-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white font-semibold rounded-r-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSearching ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-          ) : (
-            'Search'
-          )}
+          {isSearching ? <Spinner size="sm" variant="dark" /> : 'Search'}
         </button>
       </div>
     </form>

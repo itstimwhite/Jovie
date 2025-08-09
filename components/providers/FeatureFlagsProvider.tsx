@@ -11,7 +11,6 @@ interface FeatureFlagsContextType {
 
 const FeatureFlagsContext = createContext<FeatureFlagsContextType>({
   flags: {
-    waitlistEnabled: false,
     artistSearchEnabled: true,
     debugBannerEnabled: true, // Show on all environments by default
     tipPromoEnabled: true,
@@ -35,7 +34,6 @@ export function FeatureFlagsProvider({
 }: FeatureFlagsProviderProps) {
   const [flags, setFlags] = useState<FeatureFlags>(
     initialFlags || {
-      waitlistEnabled: false,
       artistSearchEnabled: true,
       debugBannerEnabled: true, // Show on all environments by default
       tipPromoEnabled: true,

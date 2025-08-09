@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import { useSession } from '@clerk/nextjs';
+import { env } from '@/lib/env';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Create a single singleton instance for unauthenticated requests
 let supabaseClient: ReturnType<typeof createClient> | null = null;
@@ -45,7 +46,8 @@ export function useAuthenticatedSupabase() {
         persistSession: false, // Prevent multiple auth instances
       },
       async accessToken() {
-        return session?.getToken() ?? null;
+        // Use Clerk template for Supabase to obtain a Supabase-compatible JWT
+        return (await session?.getToken({ template: 'supabase' })) ?? null;
       },
     });
 
@@ -68,7 +70,8 @@ export function createClerkSupabaseClient(
       persistSession: false, // Prevent multiple auth instances
     },
     async accessToken() {
-      return session?.getToken() ?? null;
+      // Use Clerk template for Supabase to obtain a Supabase-compatible JWT
+      return (await session?.getToken({ template: 'supabase' })) ?? null;
     },
   });
 }

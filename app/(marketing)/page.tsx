@@ -2,11 +2,11 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { HomeHero } from '@/components/home/HomeHero';
 import { FeaturedArtists } from '@/components/home/FeaturedArtists';
-import { ProblemStatement } from '@/components/home/ProblemStatement';
+import { ProblemSolutionSection } from '@/components/home/ProblemSolutionSection';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { BenefitsSection } from '@/components/home/BenefitsSection';
 import { SocialProofSection } from '@/components/home/ComparisonSection';
-import { PreFooterCTA } from '@/components/home/PreFooterCTA';
+import { PreFooterCTA } from '@/components/PreFooterCTA';
 import dynamic from 'next/dynamic';
 const TipPromo = dynamic(() => import('@/components/TipPromo'));
 import { APP_NAME, APP_URL } from '@/constants/app';
@@ -167,10 +167,8 @@ export default function HomePage() {
             </Suspense>
           </section>
 
-          {/* Problem Statement with Linear-style cards */}
-          <section className="py-24 border-t border-gray-200 dark:border-white/5">
-            <ProblemStatement />
-          </section>
+          {/* Problem & Solution section */}
+          <ProblemSolutionSection />
 
           {/* How It Works with step indicators */}
           <section className="py-24 border-t border-gray-200 dark:border-white/5">

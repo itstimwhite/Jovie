@@ -64,6 +64,23 @@ test.describe('Homepage', () => {
     await expect(carousel).toBeVisible();
   });
 
+  test('shows problem and solution sections', async ({ page }) => {
+    const section = page.locator('#problem');
+    await expect(section.getByRole('heading', { level: 2 })).toContainText(
+      'Your bio link is a speed bump.'
+    );
+    await expect(section).toContainText('Every extra tap taxes attention.');
+    await expect(section.getByRole('heading', { level: 3 })).toContainText(
+      'Stop designing. Start converting.'
+    );
+    await expect(section).toContainText(
+      'Jovie ships a locked, elite artist page in seconds'
+    );
+    await expect(
+      section.getByRole('link', { name: /Claim your handle/ })
+    ).toBeVisible();
+  });
+
   test('has proper navigation elements', async ({ page }) => {
     // Check header navigation
     await expect(page.getByRole('link', { name: 'Jovie' })).toBeVisible();

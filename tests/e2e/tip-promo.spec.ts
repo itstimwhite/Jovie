@@ -67,7 +67,7 @@ test.describe('TipPromo Feature Flag', () => {
         .filter({ hasText: 'Tip, instantly' });
       const preFooterCTA = page
         .locator('section')
-        .filter({ hasText: 'Ready to turn fans' });
+        .filter({ hasText: 'Stop designing. Start converting.' });
 
       await expect(tipSection).toBeVisible();
       await expect(preFooterCTA).toBeVisible();
@@ -138,7 +138,9 @@ test.describe('TipPromo Feature Flag', () => {
       // Ensure other sections are still visible
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
       await expect(
-        page.locator('section').filter({ hasText: 'Ready to turn fans' })
+        page
+          .locator('section')
+          .filter({ hasText: 'Stop designing. Start converting.' })
       ).toBeVisible();
 
       // Check that page doesn't have JavaScript errors

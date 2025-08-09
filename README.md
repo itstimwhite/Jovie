@@ -137,6 +137,7 @@ NEXT_PUBLIC_STATSIG_CLIENT_KEY=client-<your-statsig-client-key>
 # Optional: Clerk billing
 NEXT_PUBLIC_CLERK_BILLING_ENABLED=true
 NEXT_PUBLIC_CLERK_BILLING_GATEWAY=stripe
+NEXT_PUBLIC_CLERK_PRICING_TABLE_ID=your-clerk-pricing-table-id
 
 # Optional: Analytics
 NEXT_PUBLIC_SEGMENT_WRITE_KEY=your-segment-key
