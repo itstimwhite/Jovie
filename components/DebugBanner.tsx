@@ -89,6 +89,9 @@ export function DebugBanner() {
   // No noisy console logs in production
 
   // Update body padding based on debug banner state
+  // We deliberately omit `supabaseClient` from deps to keep dependency array size stable
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (shouldShowDebugBanner) {
       const bannerHeight = isExpanded ? '8rem' : '3rem';
@@ -367,12 +370,7 @@ export function DebugBanner() {
 
     checkConnection();
     testNativeIntegration();
-  }, [
-    debugInfo.supabaseUrl,
-    debugInfo.supabaseAnonKey,
-    session,
-    supabaseClient,
-  ]);
+  }, [debugInfo.supabaseUrl, debugInfo.supabaseAnonKey, session]);
 
   // Update Clerk billing status
   useEffect(() => {
