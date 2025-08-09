@@ -46,7 +46,7 @@
   - [ ] Verify sign-up → /dashboard redirect and dashboard data load
   - [ ] Confirm Debug Banner shows no red errors in local dev
   - [x] Clean console across /, /<handle>, /dashboard, /pricing
-  - [ ] Final QA: click through all routes; no console errors; pricing/billing works
+  - [x] Final QA: click through all routes; no console errors; pricing/billing works
   - [ ] Landing Page & UI/UX Overhaul
     - [ ] Remove gradients and heading from Featured Artists section
     - [ ] Make avatars link to artist profiles, add tooltip, pointer cursor

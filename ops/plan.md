@@ -2,7 +2,6 @@
 
 ## Queue
 
-
 ```task
 id: JOV-PL-001
 source: INBOX-001
