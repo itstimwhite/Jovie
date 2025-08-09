@@ -62,6 +62,8 @@ export default function DashboardPage() {
 
       if (!supabase) {
         console.error('Failed to get authenticated Supabase client');
+        setError('Configuration error: Supabase client not available');
+        setLoading(false);
         return;
       }
 
@@ -70,22 +72,17 @@ export default function DashboardPage() {
         .from('users')
         .select('id')
         .eq('clerk_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (userError) {
         console.error('Error fetching user:', userError);
-        if (userError.code === 'PGRST116') {
-          // User doesn't exist in database, redirect to onboarding
-          router.push('/onboarding');
-          return;
-        }
         setError('Failed to load user data');
         return;
       }
 
       if (!userData?.id) {
-        console.error('No user ID found');
-        setError('User data is incomplete');
+        // No user row yet → send to onboarding to create user/artist
+        router.push('/onboarding');
         return;
       }
 
@@ -94,18 +91,22 @@ export default function DashboardPage() {
         .from('artists')
         .select('*')
         .eq('owner_user_id', userData.id)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error fetching artist:', error);
         setError('Failed to load artist data');
-      } else if (error && error.code === 'PGRST116') {
-        // No artist found, redirect to onboarding
+        return;
+      }
+
+      if (!data) {
+        // No artist yet → onboarding
         router.push('/onboarding');
         return;
-      } else {
-        setArtist(data as Artist | null);
       }
+
+      // Supabase client returns untyped data; cast via unknown before Artist to satisfy TS
+      setArtist(data as unknown as Artist | null);
     } catch (error) {
       console.error('Error:', error);
       setError('Failed to load dashboard data');
