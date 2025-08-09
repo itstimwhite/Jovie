@@ -5,6 +5,7 @@ import { Container } from '@/components/site/Container';
 
 // Clerk's PricingTable typings currently omit required configuration props.
 // Cast to any so we can supply them directly until official types are updated.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ClerkPricingTable = PricingTable as any;
 
 const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '';

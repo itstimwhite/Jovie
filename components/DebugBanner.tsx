@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useSession } from '@clerk/nextjs';
 import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
@@ -62,6 +62,26 @@ export function DebugBanner() {
       tipPromoEnabled: true,
     },
   });
+
+  // Reuse a single Supabase client to avoid multiple GoTrueClient instances warning
+  const supabaseClient = useMemo(() => {
+    if (!debugInfo.supabaseUrl || !debugInfo.supabaseAnonKey) return null;
+
+    const auth = {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      storageKey: session ? 'jovie-debug-native' : 'jovie-debug-conn',
+    } as const;
+
+    return createClient(debugInfo.supabaseUrl, debugInfo.supabaseAnonKey, {
+      auth,
+      // Provide token function only when we have a session
+      ...(session && {
+        accessToken: async () => (await session.getToken()) ?? null,
+      }),
+    });
+  }, [debugInfo.supabaseUrl, debugInfo.supabaseAnonKey, session]);
 
   // Check if debug banner should be shown based on feature flags
   const shouldShowDebugBanner = featureFlags.debugBannerEnabled;
@@ -253,19 +273,16 @@ export function DebugBanner() {
           return;
         }
 
-        // Test Supabase connection
-        const supabase = createClient(
-          debugInfo.supabaseUrl,
-          debugInfo.supabaseAnonKey,
-          {
-            auth: {
-              persistSession: false,
-              autoRefreshToken: false,
-              detectSessionInUrl: false,
-              storageKey: 'jovie-debug-conn',
-            },
-          }
-        );
+        // Test Supabase connection using the memoized client
+        const supabase = supabaseClient;
+        if (!supabase) {
+          setDebugInfo((prev) => ({
+            ...prev,
+            connectionStatus: 'error',
+            connectionError: 'Supabase client not initialized',
+          }));
+          return;
+        }
 
         // Try a simple query to test connection (query published artists which are publicly accessible)
         const { error } = await supabase
@@ -308,22 +325,16 @@ export function DebugBanner() {
           return;
         }
 
-        // Test the native integration by creating an authenticated client
-        const supabase = createClient(
-          debugInfo.supabaseUrl,
-          debugInfo.supabaseAnonKey,
-          {
-            auth: {
-              persistSession: false,
-              autoRefreshToken: false,
-              detectSessionInUrl: false,
-              storageKey: 'jovie-debug-native',
-            },
-            async accessToken() {
-              return session.getToken() ?? null;
-            },
-          }
-        );
+        // Test the native integration using the memoized authenticated client
+        const supabase = supabaseClient;
+        if (!supabase) {
+          setDebugInfo((prev) => ({
+            ...prev,
+            nativeIntegrationStatus: 'error',
+            nativeIntegrationError: 'Supabase client not initialized',
+          }));
+          return;
+        }
 
         // Try to access user-specific data to test authentication
         const { error } = await supabase
@@ -356,7 +367,12 @@ export function DebugBanner() {
 
     checkConnection();
     testNativeIntegration();
-  }, [debugInfo.supabaseUrl, debugInfo.supabaseAnonKey, session]);
+  }, [
+    debugInfo.supabaseUrl,
+    debugInfo.supabaseAnonKey,
+    session,
+    supabaseClient,
+  ]);
 
   // Update Clerk billing status
   useEffect(() => {
