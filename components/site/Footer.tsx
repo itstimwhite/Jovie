@@ -5,15 +5,12 @@ export function Footer() {
     <footer className="bg-neutral-950 text-white dark:bg-black">
       <div className="mx-auto max-w-7xl px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="text-sm text-white/70">© 2025 Jovie</div>
-        <nav className="flex items-center gap-6 text-sm">
+        <nav className="flex items-center gap-4 text-xs">
           <Link href="/privacy" className="text-white/60 hover:text-white">
             Privacy
           </Link>
           <Link href="/terms" className="text-white/60 hover:text-white">
             Terms
-          </Link>
-          <Link href="/support" className="text-white/60 hover:text-white">
-            Support
           </Link>
         </nav>
       </div>
