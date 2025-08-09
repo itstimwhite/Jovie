@@ -9,6 +9,7 @@ import { SocialBar } from '@/components/organisms/SocialBar';
 import { ProfileFooter } from '@/components/profile/ProfileFooter';
 import { ArtistSEO } from '@/components/seo/ArtistSEO';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
+import { DesktopQrOverlay } from '@/components/profile/DesktopQrOverlay';
 
 interface ProfilePageProps {
   params: Promise<{
@@ -203,6 +204,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </div>
           </div>
         </Container>
+        <DesktopQrOverlay handle={artist.handle} />
       </div>
     </>
   );
