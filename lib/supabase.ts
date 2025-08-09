@@ -46,7 +46,8 @@ export function useAuthenticatedSupabase() {
         persistSession: false, // Prevent multiple auth instances
       },
       async accessToken() {
-        return session?.getToken() ?? null;
+        // Use Clerk template for Supabase to obtain a Supabase-compatible JWT
+        return (await session?.getToken({ template: 'supabase' })) ?? null;
       },
     });
 
@@ -69,7 +70,8 @@ export function createClerkSupabaseClient(
       persistSession: false, // Prevent multiple auth instances
     },
     async accessToken() {
-      return session?.getToken() ?? null;
+      // Use Clerk template for Supabase to obtain a Supabase-compatible JWT
+      return (await session?.getToken({ template: 'supabase' })) ?? null;
     },
   });
 }
