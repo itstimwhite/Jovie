@@ -7,6 +7,7 @@ export { Select } from './Select';
 export { Dialog } from './Dialog';
 export { Combobox } from './Combobox';
 export { LoadingSpinner } from './LoadingSpinner';
+export { Spinner } from './Spinner';
 export { LoadingSkeleton } from './LoadingSkeleton';
 export { OptimizedImage } from './OptimizedImage';
 export { PlaceholderImage } from './PlaceholderImage';

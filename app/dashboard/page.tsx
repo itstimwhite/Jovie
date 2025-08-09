@@ -5,6 +5,7 @@ import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
+import { Spinner } from '@/components/ui';
 import {
   ProfileLinkCard,
   OnboardingForm,
@@ -130,7 +131,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-white dark:bg-[#0D0E12] flex items-center justify-center">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 dark:border-white/20 border-t-gray-600 dark:border-t-white"></div>
+          <Spinner size="lg" />
           <p className="mt-4 text-gray-600 dark:text-white/70">Loading...</p>
         </div>
       </div>
@@ -165,7 +166,7 @@ export default function DashboardPage() {
 
         <div className="flex min-h-screen items-center justify-center relative z-10">
           <div className="text-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 dark:border-white/20 border-t-gray-600 dark:border-t-white"></div>
+            <Spinner size="lg" />
             <p className="mt-4 text-gray-600 dark:text-white/70 transition-colors">
               Loading...
             </p>

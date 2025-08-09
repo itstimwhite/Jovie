@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Spinner } from '@/components/ui';
 import { useAuthenticatedSupabase } from '@/lib/supabase';
 
 interface OnboardingState {
@@ -420,7 +421,7 @@ export function OnboardingForm() {
             />
             {handleValidation.checking && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+                <Spinner size="sm" />
               </div>
             )}
             {handleValidation.available && !handleValidation.checking && (
