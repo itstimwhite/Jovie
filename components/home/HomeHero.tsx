@@ -9,7 +9,7 @@ export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
   // Feature flags currently unused in hero; keep hook available for future use
   return (
     <section
-      className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24"
+      className="relative flex min-h-screen flex-col items-center justify-center px-6 py-16"
       role="banner"
       aria-labelledby="hero-headline"
     >
@@ -31,7 +31,7 @@ export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
         </div>
 
         {/* Main headline with updated copy */}
-        <div className="mb-12 space-y-6">
+        <div className="mb-8 space-y-6">
           <h1
             id="hero-headline"
             className="text-6xl font-semibold tracking-[-0.02em] text-gray-900 dark:text-white sm:text-7xl lg:text-8xl"
@@ -76,7 +76,7 @@ export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
         </div>
 
         {/* Trust indicators with Linear styling */}
-        <div className="mt-16 flex flex-col items-center space-y-4">
+        <div className="mt-12 flex flex-col items-center space-y-4">
           <p className="text-sm text-gray-500 dark:text-white/50 font-medium">
             Trusted by musicians worldwide
           </p>

@@ -34,9 +34,9 @@ export function SocialProofSection() {
   ];
 
   return (
-    <section className="relative py-24 sm:py-32">
+    <section className="relative py-16">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center mb-16">
+        <div className="mx-auto max-w-3xl text-center mb-12">
           <div className="mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-sm font-medium text-blue-400">
               <svg
@@ -67,7 +67,7 @@ export function SocialProofSection() {
         </div>
 
         {/* Stats */}
-        <div className="mx-auto max-w-4xl mb-16">
+        <div className="mx-auto max-w-4xl mb-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">

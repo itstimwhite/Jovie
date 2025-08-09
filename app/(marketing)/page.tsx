@@ -150,13 +150,13 @@ export default function HomePage() {
         {/* Hero Section */}
         <HomeHero />
 
-        {/* Content sections with Linear-style spacing */}
+        {/* Content sections with tightened spacing */}
         <div className="relative z-10">
           {/* Featured Artists with glass morphism */}
-          <section className="py-24">
+          <section className="py-16">
             <Suspense
               fallback={
-                <div className="flex items-center justify-center py-16">
+                <div className="flex items-center justify-center py-12">
                   <div className="animate-pulse text-gray-600 dark:text-white/60">
                     Loading featured artists...
                   </div>
@@ -171,17 +171,17 @@ export default function HomePage() {
           <ProblemSolutionSection />
 
           {/* How It Works with step indicators */}
-          <section className="py-24 border-t border-gray-200 dark:border-white/5">
+          <section className="py-16 border-t border-gray-200 dark:border-white/5">
             <HowItWorks />
           </section>
 
           {/* Benefits with grid layout */}
-          <section className="py-24 border-t border-gray-200 dark:border-white/5">
+          <section className="py-16 border-t border-gray-200 dark:border-white/5">
             <BenefitsSection />
           </section>
 
           {/* Comparison with modern table design */}
-          <section className="py-24 border-t border-gray-200 dark:border-white/5">
+          <section className="py-16 border-t border-gray-200 dark:border-white/5">
             <SocialProofSection />
           </section>
 

@@ -14,7 +14,7 @@ export function ProblemSolutionSection() {
       aria-labelledby="problem-heading"
       className="relative border-t border-white/10"
     >
-      <div className="mx-auto max-w-5xl px-4 py-20 md:py-24 text-center">
+      <div className="mx-auto max-w-5xl px-4 py-16 text-center">
         <span className="inline-flex items-center rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-wide text-white/60">
           Problem
         </span>

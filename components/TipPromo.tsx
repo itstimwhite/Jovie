@@ -5,8 +5,8 @@ export default function TipPromo() {
   if (process.env.NEXT_PUBLIC_FEATURE_TIPS !== 'true') return null;
 
   return (
-    <section className="bg-zinc-900 text-white py-20">
-      <div className="mx-auto max-w-4xl px-6 text-center space-y-8">
+    <section className="bg-zinc-900 text-white py-16">
+      <div className="mx-auto max-w-4xl px-6 text-center space-y-6">
         <h2 className="text-4xl sm:text-5xl font-semibold tracking-tight">
           Tip, <span className="text-indigo-400">instantly.</span>
         </h2>
