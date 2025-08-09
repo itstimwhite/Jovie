@@ -11,8 +11,16 @@ import { ArtistSEO } from '@/components/seo/ArtistSEO';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { DesktopQrOverlay } from '@/components/profile/DesktopQrOverlay';
 
-export async function generateMetadata({ params }: any): Promise<Metadata> {
-  const { handle } = params;
+interface ProfilePageProps {
+  params: Promise<{
+    handle: string;
+  }>;
+}
+
+export async function generateMetadata({
+  params,
+}: ProfilePageProps): Promise<Metadata> {
+  const { handle } = await params;
   const supabase = await createServerClient();
 
   if (!supabase) {
@@ -126,8 +134,8 @@ function generateStructuredData(artist: Artist, socialLinks: SocialLink[]) {
   return structuredData;
 }
 
-export default async function ProfilePage({ params }: any) {
-  const { handle } = params;
+export default async function ProfilePage({ params }: ProfilePageProps) {
+  const { handle } = await params;
   const supabase = await createServerClient();
 
   if (!supabase) {

@@ -37,11 +37,11 @@
   - [x] Implement Zod-based env validation in lib/env.ts and refactor consumers
   - [ ] Seed local Supabase with at least one published artist + social links
   - [ ] Verify RLS/permissions for public read on artists, social_links
-  - [ ] Fix profile pages rendering locally without hydration errors
+  - [x] Fix profile pages rendering locally without hydration errors
   - [x] Fix Supabase client duplication warning in DebugBanner.tsx
   - [x] Fix DebugBanner exhaustive-deps warning
   - [x] DebugBanner: eliminate false/irrelevant errors, ensure checks are accurate/actionable
-  - [ ] Fix artist profile pages (/handle): ensure local render, no hydration/client errors
+  - [x] Fix artist profile pages (/handle): ensure local render, no hydration/client errors
   - [ ] Streamline sign-up/handle claim flow: avoid redundant handle entry, fix errors, ensure dashboard loads after claim
   - [ ] Verify sign-up → /dashboard redirect and dashboard data load
   - [ ] Confirm Debug Banner shows no red errors in local dev
