@@ -370,6 +370,7 @@ export function DebugBanner() {
 
     checkConnection();
     testNativeIntegration();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debugInfo.supabaseUrl, debugInfo.supabaseAnonKey, session]);
 
   // Update Clerk billing status
