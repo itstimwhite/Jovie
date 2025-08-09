@@ -65,24 +65,19 @@ test.describe('Homepage', () => {
   });
 
   test('shows problem and solution sections', async ({ page }) => {
-    await expect(page.locator('#problem h2')).toContainText(
+    const section = page.locator('#problem');
+    await expect(section.getByRole('heading', { level: 2 })).toContainText(
       'Your bio link is a speed bump.'
     );
-    await expect(page.locator('#problem')).toContainText(
-      'Every extra tap taxes attention.'
-    );
-    await expect(
-      page.locator('#problem').getByRole('link', { name: /Claim your handle/ })
-    ).toBeVisible();
-
-    await expect(page.locator('#solution h2')).toContainText(
+    await expect(section).toContainText('Every extra tap taxes attention.');
+    await expect(section.getByRole('heading', { level: 3 })).toContainText(
       'Stop designing. Start converting.'
     );
-    await expect(page.locator('#solution')).toContainText(
+    await expect(section).toContainText(
       'Jovie ships a locked, elite artist page in seconds'
     );
     await expect(
-      page.locator('#solution').getByRole('link', { name: /Claim your handle/ })
+      section.getByRole('link', { name: /Claim your handle/ })
     ).toBeVisible();
   });
 
