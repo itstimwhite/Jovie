@@ -2,7 +2,8 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { HomeHero } from '@/components/home/HomeHero';
 import { FeaturedArtists } from '@/components/home/FeaturedArtists';
-import { ProblemStatement } from '@/components/home/ProblemStatement';
+import { ProblemSection } from '@/components/home/ProblemSection';
+import { SolutionSection } from '@/components/home/SolutionSection';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { BenefitsSection } from '@/components/home/BenefitsSection';
 import { SocialProofSection } from '@/components/home/ComparisonSection';
@@ -167,9 +168,20 @@ export default function HomePage() {
             </Suspense>
           </section>
 
-          {/* Problem Statement with Linear-style cards */}
-          <section className="py-24 border-t border-gray-200 dark:border-white/5">
-            <ProblemStatement />
+          {/* Problem section */}
+          <section
+            id="problem"
+            className="py-24 border-t border-gray-200 dark:border-white/5"
+          >
+            <ProblemSection />
+          </section>
+
+          {/* Solution section */}
+          <section
+            id="solution"
+            className="py-24 border-t border-gray-200 dark:border-white/5"
+          >
+            <SolutionSection />
           </section>
 
           {/* How It Works with step indicators */}
