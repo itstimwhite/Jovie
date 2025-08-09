@@ -43,7 +43,7 @@
   - [x] DebugBanner: eliminate false/irrelevant errors, ensure checks are accurate/actionable
   - [ ] Fix artist profile pages (/handle): ensure local render, no hydration/client errors
   - [ ] Streamline sign-up/handle claim flow: avoid redundant handle entry, fix errors, ensure dashboard loads after claim
-  - [ ] Verify sign-up → /dashboard redirect and dashboard data load
+  - [x] Verify sign-up → /dashboard redirect and dashboard data load
   - [ ] Confirm Debug Banner shows no red errors in local dev
   - [x] Clean console across /, /<handle>, /dashboard, /pricing
   - [ ] Final QA: click through all routes; no console errors; pricing/billing works
