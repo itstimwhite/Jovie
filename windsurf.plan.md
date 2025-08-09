@@ -27,11 +27,11 @@
   - [x] Debug banner shows no red errors and env vars pass validation
   - [ ] No console errors/warnings on key routes
   - [x] /pricing displays Clerk billing table with correct plan info
-- [ ] Section 1: Diagnosis
-  - [ ] Audit routes, especially app/[handle]/page.tsx
-  - [ ] Identify browser console errors/warnings and Debug Banner red statuses
-  - [ ] Check Clerk, Supabase, and billing integration health
-  - [ ] Verify seeded artist data exists and is queryable locally
+- [x] Section 1: Diagnosis
+  - [x] Audit routes, especially app/[handle]/page.tsx
+  - [x] Identify browser console errors/warnings and Debug Banner red statuses
+  - [x] Check Clerk, Supabase, and billing integration health
+  - [x] Verify seeded artist data exists and is queryable locally
 - [ ] Section 2: Step-by-Step Fix Plan
   - [ ] Validate .env.local and add missing keys
   - [x] Implement Zod-based env validation in lib/env.ts and refactor consumers
