@@ -3,6 +3,13 @@
 import { PricingTable } from '@clerk/nextjs';
 import { Container } from '@/components/site/Container';
 
+// Clerk's PricingTable typings currently omit required configuration props.
+// Cast to any so we can supply them directly until official types are updated.
+const ClerkPricingTable = PricingTable as any;
+
+const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '';
+const pricingTableId = process.env.NEXT_PUBLIC_CLERK_PRICING_TABLE_ID || '';
+
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
@@ -19,7 +26,14 @@ export default function PricingPage() {
           </div>
 
           <div className="max-w-4xl mx-auto">
-            <PricingTable />
+            <ClerkPricingTable
+              publishableKey={publishableKey}
+              pricingTableId={pricingTableId}
+              path="/pricing"
+              redirectUrl="/billing/success"
+              signInUrl="/sign-in"
+              signUpUrl="/sign-up"
+            />
           </div>
 
           <div className="mt-16 text-center">
