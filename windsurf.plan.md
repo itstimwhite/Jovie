@@ -31,7 +31,7 @@
   - [ ] Audit routes, especially app/[handle]/page.tsx
   - [ ] Identify browser console errors/warnings and Debug Banner red statuses
   - [ ] Check Clerk, Supabase, and billing integration health
-  - [ ] Verify seeded artist data exists and is queryable locally
+  - [x] Verify seeded artist data exists and is queryable locally
 - [ ] Section 2: Step-by-Step Fix Plan
   - [ ] Validate .env.local and add missing keys
   - [x] Implement Zod-based env validation in lib/env.ts and refactor consumers
