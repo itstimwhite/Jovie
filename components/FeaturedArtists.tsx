@@ -75,7 +75,7 @@ export default function FeaturedArtists({
           </motion.ul>
 
           {/* Mobile: swipe */}
-          <ul className="mt-4 md:hidden flex items-center gap-6 overflow-x-auto px-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <ul className="mt-4 md:hidden flex items-center gap-6 overflow-x-auto scroll-smooth px-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {artists.map((a) => (
               <li key={a.id} className="shrink-0 first:ml-2 last:mr-2">
                 <Link
