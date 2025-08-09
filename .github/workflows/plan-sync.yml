@@ -1,0 +1,37 @@
+name: Plan → Issues → Copilot
+
+on:
+  push:
+    paths:
+      - "windsurf.plan.md"
+      - "plan.md"
+      - "PLAN.md"
+      - ".github/scripts/plan2issues.mjs"
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+# Defaults (can be overridden in repo → Settings → Actions → Variables)
+env:
+  PLAN_PATH: ${{ vars.PLAN_PATH || 'windsurf.plan.md' }}
+  COPILOT_ASSIGNEE: ${{ vars.COPILOT_ASSIGNEE || 'github-copilot' }}
+
+jobs:
+  sync:
+    permissions:
+      contents: read
+      issues: write
+    runs-on: ubuntu-latest
+    concurrency:
+      group: plan-sync
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Sync plan to issues and assign Copilot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node .github/scripts/plan2issues.mjs
