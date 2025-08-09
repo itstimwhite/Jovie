@@ -143,16 +143,12 @@ export default function HomePage() {
         {/* Subtle grid background pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
 
-        {/* Gradient orbs - more subtle like Linear */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full blur-3xl" />
-
         {/* Hero Section */}
         <HomeHero />
 
         {/* Content sections with Linear-style spacing */}
         <div className="relative z-10">
-          {/* Featured Artists with glass morphism */}
+          {/* Featured Artists */}
           <section className="py-24">
             <Suspense
               fallback={
