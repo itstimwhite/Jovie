@@ -61,18 +61,25 @@ export function OnboardingForm() {
     error: null,
   });
 
+  // Track whether handle was pre-filled (should not be editable)
+  const [handlePreFilled, setHandlePreFilled] = useState(false);
+
   // Prefill handle and selected artist data
   useEffect(() => {
     // Prefill handle from URL
     const urlHandle = searchParams?.get('handle');
     if (urlHandle) {
       setHandle(urlHandle);
+      setHandlePreFilled(true);
     } else {
       try {
         const pending = sessionStorage.getItem('pendingClaim');
         if (pending) {
           const parsed = JSON.parse(pending) as { handle?: string };
-          if (parsed.handle) setHandle(parsed.handle);
+          if (parsed.handle) {
+            setHandle(parsed.handle);
+            setHandlePreFilled(true);
+          }
         }
       } catch {}
     }
@@ -147,14 +154,24 @@ export function OnboardingForm() {
     [getAuthenticatedClient]
   );
 
-  // Validate handle when it changes
+  // Validate handle when it changes (skip if pre-filled)
   useEffect(() => {
+    if (handlePreFilled) {
+      // For pre-filled handles, assume they're already validated and available
+      setHandleValidation({
+        available: true,
+        checking: false,
+        error: null,
+      });
+      return;
+    }
+
     const timeoutId = setTimeout(() => {
       validateHandle(handle);
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [handle, validateHandle]);
+  }, [handle, validateHandle, handlePreFilled]);
 
   // Handle validation rules
   const handleError = useMemo(() => {
@@ -172,10 +189,10 @@ export function OnboardingForm() {
       handle.length >= 3 &&
       handle.length <= 30 &&
       /^[a-zA-Z0-9-]+$/.test(handle) &&
-      handleValidation.available &&
+      (handlePreFilled || handleValidation.available) &&
       !state.error
     );
-  }, [handle, handleValidation.available, state.error]);
+  }, [handle, handleValidation.available, handlePreFilled, state.error]);
 
   // Retry mechanism
   const retryOperation = useCallback(() => {
@@ -299,7 +316,7 @@ export function OnboardingForm() {
 
           // Redirect with a small delay to show completion
           setTimeout(() => {
-            window.location.href = `/${encodeURIComponent(handle.toLowerCase())}`;
+            window.location.href = '/dashboard';
           }, 500);
         } catch (error) {
           throw new Error(
@@ -405,27 +422,57 @@ export function OnboardingForm() {
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <FormField
-          label="Handle"
-          error={handleError || handleValidation.error || undefined}
-        >
-          <div className="relative">
-            <Input
-              type="text"
-              value={handle}
-              onChange={(e) => setHandle(e.target.value)}
-              placeholder="your-handle"
-              required
-              disabled={state.step !== 'validating'}
-              className="font-mono pr-8"
-            />
-            {handleValidation.checking && (
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <Spinner size="sm" />
-              </div>
-            )}
-            {handleValidation.available && !handleValidation.checking && (
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+        {!handlePreFilled ? (
+          // Show handle input only if not pre-filled
+          <FormField
+            label="Handle"
+            error={handleError || handleValidation.error || undefined}
+          >
+            <div className="relative">
+              <Input
+                type="text"
+                value={handle}
+                onChange={(e) => setHandle(e.target.value)}
+                placeholder="your-handle"
+                required
+                disabled={state.step !== 'validating'}
+                className="font-mono pr-8"
+              />
+              {handleValidation.checking && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <Spinner size="sm" />
+                </div>
+              )}
+              {handleValidation.available && !handleValidation.checking && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg
+                      className="w-2.5 h-2.5 text-white"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              )}
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Your profile will be live at jov.ie/{handle || 'your-handle'}
+            </p>
+          </FormField>
+        ) : (
+          // Show handle confirmation when pre-filled
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Handle
+            </label>
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+              <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
                   <svg
                     className="w-2.5 h-2.5 text-white"
@@ -439,13 +486,19 @@ export function OnboardingForm() {
                     />
                   </svg>
                 </div>
+                <span className="font-mono font-medium text-green-800 dark:text-green-200">
+                  {handle}
+                </span>
+                <span className="text-sm text-green-600 dark:text-green-400">
+                  (claimed)
+                </span>
               </div>
-            )}
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Your profile will be live at jov.ie/{handle}
+            </p>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Your profile will be live at jov.ie/{handle || 'your-handle'}
-          </p>
-        </FormField>
+        )}
 
         <Button
           type="submit"
