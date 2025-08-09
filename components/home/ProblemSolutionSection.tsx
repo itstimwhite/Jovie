@@ -5,7 +5,7 @@ import { track } from '@/lib/analytics';
 
 export function ProblemSolutionSection() {
   const handleClick = () => {
-    track('claim_handle_click', { section: 'solution' });
+    track('claim_handle_click', { section: 'problem-solution' });
   };
 
   return (
