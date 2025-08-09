@@ -47,13 +47,13 @@ export function ProblemSolutionSection() {
         </p>
 
         <div className="mt-10">
-          <Link
+          <Button
             href="/onboarding"
             onClick={handleClick}
-            className="btn btn-primary"
+            variant="primary"
           >
             Claim your handle → Go live in 60s
-          </Link>
+          </Button>
         </div>
       </div>
     </section>
