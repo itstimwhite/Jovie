@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useSession } from '@clerk/nextjs';
 import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
+import { env, flags as envFlags } from '@/lib/env';
 
 interface DebugInfo {
   supabaseUrl: string | undefined;
@@ -27,7 +28,6 @@ interface DebugInfo {
   clerkTokenError?: string;
   // Feature flags from Edge Config
   featureFlags: {
-    waitlistEnabled: boolean;
     artistSearchEnabled: boolean;
     debugBannerEnabled: boolean;
     tipPromoEnabled: boolean;
@@ -39,12 +39,16 @@ export function DebugBanner() {
   const { flags: featureFlags } = useFeatureFlags();
   const [isExpanded, setIsExpanded] = useState(false);
   const [debugInfo, setDebugInfo] = useState<DebugInfo>({
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    clerkPublishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-    spotifyClientId: process.env.SPOTIFY_CLIENT_ID,
-    clerkBillingEnabled: false, // Default to false
-    clerkBillingGateway: 'not-configured', // Default to not-configured
+    supabaseUrl: env.NEXT_PUBLIC_SUPABASE_URL,
+    supabaseAnonKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    clerkPublishableKey: env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    spotifyClientId: env.SPOTIFY_CLIENT_ID,
+    clerkBillingEnabled: envFlags.clerkBillingEnabled,
+    clerkBillingGateway:
+      envFlags.clerkBillingGateway === 'development' ||
+      envFlags.clerkBillingGateway === 'stripe'
+        ? envFlags.clerkBillingGateway
+        : 'not-configured',
     environment: 'detecting',
     githubEnvironment: 'detecting',
     connectionStatus: 'checking',
@@ -53,7 +57,6 @@ export function DebugBanner() {
     clerkSessionStatus: 'checking',
     clerkTokenStatus: 'checking',
     featureFlags: {
-      waitlistEnabled: false,
       artistSearchEnabled: true,
       debugBannerEnabled: process.env.NODE_ENV === 'development',
       tipPromoEnabled: true,
@@ -253,7 +256,15 @@ export function DebugBanner() {
         // Test Supabase connection
         const supabase = createClient(
           debugInfo.supabaseUrl,
-          debugInfo.supabaseAnonKey
+          debugInfo.supabaseAnonKey,
+          {
+            auth: {
+              persistSession: false,
+              autoRefreshToken: false,
+              detectSessionInUrl: false,
+              storageKey: 'jovie-debug-conn',
+            },
+          }
         );
 
         // Try a simple query to test connection (query published artists which are publicly accessible)
@@ -302,6 +313,12 @@ export function DebugBanner() {
           debugInfo.supabaseUrl,
           debugInfo.supabaseAnonKey,
           {
+            auth: {
+              persistSession: false,
+              autoRefreshToken: false,
+              detectSessionInUrl: false,
+              storageKey: 'jovie-debug-native',
+            },
             async accessToken() {
               return session.getToken() ?? null;
             },
@@ -343,34 +360,17 @@ export function DebugBanner() {
 
   // Update Clerk billing status
   useEffect(() => {
-    const determineClerkBillingStatus = () => {
-      if (typeof window !== 'undefined') {
-        const clerkPublishableKey =
-          process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-        const clerkBillingEnabled =
-          process.env.NEXT_PUBLIC_CLERK_BILLING_ENABLED === 'true';
-        const clerkBillingGateway =
-          process.env.NEXT_PUBLIC_CLERK_BILLING_GATEWAY;
-
-        if (clerkPublishableKey && clerkBillingEnabled) {
-          if (clerkBillingGateway === 'stripe') {
-            return 'stripe';
-          } else {
-            return 'development';
-          }
-        }
-        return 'not-configured';
-      }
-      return 'not-configured';
-    };
-
-    const detectedClerkBillingStatus = determineClerkBillingStatus();
+    const isBillingConfigured = envFlags.clerkBillingEnabled;
+    const hasGateway = envFlags.clerkBillingGateway !== 'not-configured';
+    const gateway =
+      isBillingConfigured && hasGateway
+        ? envFlags.clerkBillingGateway
+        : 'not-configured';
 
     setDebugInfo((prev) => ({
       ...prev,
-      clerkBillingEnabled:
-        process.env.NEXT_PUBLIC_CLERK_BILLING_ENABLED === 'true',
-      clerkBillingGateway: detectedClerkBillingStatus,
+      clerkBillingEnabled: envFlags.clerkBillingEnabled,
+      clerkBillingGateway: gateway,
     }));
   }, []);
 
@@ -770,16 +770,6 @@ export function DebugBanner() {
             <div className="flex items-center space-x-1">
               <span>FLAGS:</span>
               <div className="flex space-x-1">
-                <span
-                  className={`px-1 rounded text-xs ${
-                    debugInfo.featureFlags.waitlistEnabled
-                      ? 'bg-green-500'
-                      : 'bg-gray-500'
-                  }`}
-                  title="Waitlist enabled"
-                >
-                  WL
-                </span>
                 <span
                   className={`px-1 rounded text-xs ${
                     debugInfo.featureFlags.artistSearchEnabled

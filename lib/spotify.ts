@@ -1,11 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
+import { env } from '@/lib/env';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Spotify API configuration
-const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
-const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
+const SPOTIFY_CLIENT_ID = env.SPOTIFY_CLIENT_ID;
+const SPOTIFY_CLIENT_SECRET = env.SPOTIFY_CLIENT_SECRET;
 
 interface SpotifyTokenResponse {
   access_token: string;

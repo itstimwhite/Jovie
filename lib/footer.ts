@@ -1,6 +1,5 @@
 import { APP_NAME } from '@/constants/app';
 import { Artist } from '@/types/db';
-import { getFeatureFlags } from '@/lib/feature-flags';
 
 interface FooterOptions {
   artist: Artist;
@@ -18,8 +17,7 @@ export async function generateFooterHTML({
   utmSource = 'listen',
   userPlan = 'free',
 }: FooterOptions): Promise<string> {
-  // Get feature flags from Edge Config
-  const featureFlags = await getFeatureFlags();
+  // Feature flags not needed; waitlist removed
 
   // Hide branding for Pro users or if explicitly set in artist settings
   const hideBranding =
@@ -44,9 +42,7 @@ export async function generateFooterHTML({
     </svg>
   `;
 
-  const signUpLink = featureFlags.waitlistEnabled
-    ? `/waitlist?utm_source=${utmSource}&utm_artist=${artist.handle}`
-    : `/sign-up?utm_source=${utmSource}&utm_artist=${artist.handle}`;
+  const signUpLink = `/sign-up?utm_source=${utmSource}&utm_artist=${artist.handle}`;
 
   return `
     <footer class="mt-8 border-t border-gray-200 pt-6">
