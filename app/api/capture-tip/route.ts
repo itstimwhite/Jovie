@@ -2,20 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { createServerClient } from '@/lib/supabase-server';
+import { env } from '@/lib/env';
 
 export async function POST(req: NextRequest) {
   try {
-    if (
-      !process.env.STRIPE_SECRET_KEY ||
-      !process.env.STRIPE_TIP_WEBHOOK_SECRET
-    ) {
+    if (!env.STRIPE_SECRET_KEY || !env.STRIPE_TIP_WEBHOOK_SECRET) {
       return NextResponse.json(
         { error: 'Stripe not configured' },
         { status: 500 }
       );
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY);
     const body = await req.text();
     const headersList = await headers();
     const signature = headersList.get('stripe-signature');
@@ -30,7 +28,7 @@ export async function POST(req: NextRequest) {
       event = stripe.webhooks.constructEvent(
         body,
         signature,
-        process.env.STRIPE_TIP_WEBHOOK_SECRET
+        env.STRIPE_TIP_WEBHOOK_SECRET
       );
     } catch (err) {
       console.error('Invalid signature', err);

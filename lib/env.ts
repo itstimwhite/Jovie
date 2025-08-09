@@ -17,6 +17,14 @@ const EnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().default('https://jov.ie'),
   NEXT_PUBLIC_SEGMENT_WRITE_KEY: z.string().optional(),
 
+  // Server-side authentication and API keys
+  CLERK_SECRET_KEY: z.string().optional(),
+
+  // Stripe configuration
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  STRIPE_TIP_WEBHOOK_SECRET: z.string().optional(),
+
   // Server or build-time envs (may be undefined locally)
   SPOTIFY_CLIENT_ID: z.string().optional(),
   SPOTIFY_CLIENT_SECRET: z.string().optional(),
@@ -36,6 +44,10 @@ const rawEnv = {
     process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? 'https://jov.ie',
   NEXT_PUBLIC_SEGMENT_WRITE_KEY: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY,
+  CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+  STRIPE_TIP_WEBHOOK_SECRET: process.env.STRIPE_TIP_WEBHOOK_SECRET,
   SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
   SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
   NEXT_PUBLIC_CLERK_BILLING_ENABLED:
@@ -70,6 +82,18 @@ export const env = {
   NEXT_PUBLIC_SEGMENT_WRITE_KEY: parsed.success
     ? parsed.data.NEXT_PUBLIC_SEGMENT_WRITE_KEY
     : process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY,
+  CLERK_SECRET_KEY: parsed.success
+    ? parsed.data.CLERK_SECRET_KEY
+    : process.env.CLERK_SECRET_KEY,
+  STRIPE_SECRET_KEY: parsed.success
+    ? parsed.data.STRIPE_SECRET_KEY
+    : process.env.STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET: parsed.success
+    ? parsed.data.STRIPE_WEBHOOK_SECRET
+    : process.env.STRIPE_WEBHOOK_SECRET,
+  STRIPE_TIP_WEBHOOK_SECRET: parsed.success
+    ? parsed.data.STRIPE_TIP_WEBHOOK_SECRET
+    : process.env.STRIPE_TIP_WEBHOOK_SECRET,
   SPOTIFY_CLIENT_ID: parsed.success
     ? parsed.data.SPOTIFY_CLIENT_ID
     : process.env.SPOTIFY_CLIENT_ID,

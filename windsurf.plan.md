@@ -33,7 +33,7 @@
   - [ ] Check Clerk, Supabase, and billing integration health
   - [ ] Verify seeded artist data exists and is queryable locally
 - [ ] Section 2: Step-by-Step Fix Plan
-  - [ ] Validate .env.local and add missing keys
+  - [x] Validate .env.local and add missing keys
   - [x] Implement Zod-based env validation in lib/env.ts and refactor consumers
   - [ ] Seed local Supabase with at least one published artist + social links
   - [ ] Verify RLS/permissions for public read on artists, social_links

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { env } from '@/lib/env';
 
 export async function POST(req: NextRequest) {
   try {
-    if (!process.env.STRIPE_SECRET_KEY) {
+    if (!env.STRIPE_SECRET_KEY) {
       return NextResponse.json(
         { error: 'Stripe not configured' },
         { status: 500 }
@@ -11,7 +12,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { amount, handle } = await req.json();
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY);
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amount * 100,

@@ -2,17 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { createClerkClient } from '@clerk/nextjs/server';
+import { env } from '@/lib/env';
 
 export async function POST(request: NextRequest) {
   try {
-    if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+    if (!env.STRIPE_SECRET_KEY || !env.STRIPE_WEBHOOK_SECRET) {
       return NextResponse.json(
         { error: 'Stripe not configured' },
         { status: 500 }
       );
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY);
     const body = await request.text();
     const headersList = await headers();
     const signature = headersList.get('stripe-signature');
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
       event = stripe.webhooks.constructEvent(
         body,
         signature,
-        process.env.STRIPE_WEBHOOK_SECRET
+        env.STRIPE_WEBHOOK_SECRET
       );
     } catch (err) {
       console.error('Webhook signature verification failed:', err);
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     const clerkClient = createClerkClient({
-      secretKey: process.env.CLERK_SECRET_KEY,
+      secretKey: env.CLERK_SECRET_KEY,
     });
 
     // Handle the event
