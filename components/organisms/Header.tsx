@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { Container } from '@/components/site/Container';
 import { LogoLink } from '@/components/atoms/LogoLink';
 import { AuthActions } from '@/components/molecules/AuthActions';
-import { ThemeToggle } from '@/components/site/ThemeToggle';
 
 export function Header() {
   return (
@@ -24,7 +23,6 @@ export function Header() {
                 Pricing
               </Link>
             </nav>
-            <ThemeToggle />
             <AuthActions />
           </div>
         </div>

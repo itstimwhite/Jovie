@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ThemeToggle } from '@/components/site/ThemeToggle';
 
 export function Footer() {
   return (
@@ -15,6 +16,7 @@ export function Footer() {
           <Link href="/support" className="text-white/60 hover:text-white">
             Support
           </Link>
+          <ThemeToggle />
         </nav>
       </div>
     </footer>
