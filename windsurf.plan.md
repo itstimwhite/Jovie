@@ -29,7 +29,7 @@
   - [x] /pricing displays Clerk billing table with correct plan info
 - [ ] Section 1: Diagnosis
   - [ ] Audit routes, especially app/[handle]/page.tsx
-  - [ ] Identify browser console errors/warnings and Debug Banner red statuses
+  - [x] Identify browser console errors/warnings and Debug Banner red statuses
   - [ ] Check Clerk, Supabase, and billing integration health
   - [ ] Verify seeded artist data exists and is queryable locally
 - [ ] Section 2: Step-by-Step Fix Plan

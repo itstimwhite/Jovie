@@ -39,6 +39,11 @@ const CA_PROVINCES = ['QC'];
 
 export default clerkMiddleware(async (auth, req) => {
   try {
+    // Skip auth validation in development for diagnosis purposes
+    if (process.env.NODE_ENV === 'development') {
+      return NextResponse.next();
+    }
+
     const { userId } = await auth();
 
     // Safely access geo information

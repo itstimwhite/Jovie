@@ -19,6 +19,11 @@ interface ClientProvidersProps {
 function ClerkWrapper({ children }: { children: React.ReactNode }) {
   const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
+  // For development diagnosis, bypass Clerk validation temporarily
+  if (process.env.NODE_ENV === 'development' && !publishableKey) {
+    return <>{children}</>;
+  }
+
   if (!publishableKey) {
     return (
       <div className="flex items-center justify-center min-h-screen">
