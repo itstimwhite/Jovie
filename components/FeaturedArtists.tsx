@@ -87,8 +87,8 @@ export default function FeaturedArtists({ artists }: { artists: Artist[] }) {
           </ul>
 
           {/* Edge fades */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[rgb(16,16,16)]/80 to-transparent hidden md:block" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[rgb(16,16,16)]/80 to-transparent hidden md:block" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-neutral-900/80 to-transparent hidden md:block" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-neutral-900/80 to-transparent hidden md:block" />
         </div>
       </div>
     </section>
