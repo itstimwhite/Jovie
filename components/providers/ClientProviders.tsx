@@ -9,6 +9,7 @@ import MVPBanner from '@/components/MVPBanner';
 import { FeatureFlagsProvider } from './FeatureFlagsProvider';
 import { FeatureFlags } from '@/lib/feature-flags';
 import { Spinner } from '@/components/ui';
+import { env } from '@/lib/env';
 // import { Toolbar } from '@vercel/toolbar/next';
 
 interface ClientProvidersProps {
@@ -17,7 +18,7 @@ interface ClientProvidersProps {
 }
 
 function ClerkWrapper({ children }: { children: React.ReactNode }) {
-  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const publishableKey = env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
   if (!publishableKey) {
     return (
