@@ -1,9 +1,10 @@
 import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 import { auth } from '@clerk/nextjs/server';
+import { env } from '@/lib/env';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export function createServerClient() {
   if (!supabaseUrl || !supabaseAnonKey) {
@@ -17,7 +18,8 @@ export function createServerClient() {
     async accessToken() {
       try {
         const { getToken } = await auth();
-        return (await getToken()) ?? null;
+        // Use Clerk template for Supabase to obtain a Supabase-compatible JWT
+        return (await getToken({ template: 'supabase' })) ?? null;
       } catch {
         return null;
       }
@@ -40,7 +42,8 @@ export async function createAuthenticatedServerClient() {
         // For server-side, we need to get the token from the session
         try {
           const { getToken } = await auth();
-          return (await getToken()) ?? null;
+          // Use Clerk template for Supabase to obtain a Supabase-compatible JWT
+          return (await getToken({ template: 'supabase' })) ?? null;
         } catch {
           return null;
         }

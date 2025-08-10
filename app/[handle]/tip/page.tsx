@@ -2,13 +2,10 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { createServerClient } from '@/lib/supabase-server';
 import { Artist, SocialLink } from '@/types/db';
-import { Container } from '@/components/site/Container';
-import { ProfileHeader } from '@/components/profile/ProfileHeader';
-import { TipJar } from '@/components/profile/TipJar';
-import { SocialBar } from '@/components/organisms/SocialBar';
-import { ProfileFooter } from '@/components/profile/ProfileFooter';
 import { ArtistSEO } from '@/components/seo/ArtistSEO';
-import { ThemeToggle } from '@/components/site/ThemeToggle';
+import VenmoTipSelector from '@/components/profile/VenmoTipSelector';
+import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
+import { PAGE_SUBTITLES } from '@/constants/app';
 
 interface ProfilePageProps {
   params: Promise<{
@@ -157,6 +154,28 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     social_links: SocialLink[];
   };
 
+  // Venmo-only tipping (no Stripe). Extract Venmo link and username.
+  const venmoLink =
+    socialLinks.find((l) => l.platform === 'venmo')?.url || null;
+
+  function extractVenmoUsername(url: string | null): string | null {
+    if (!url) return null;
+    try {
+      const u = new URL(url);
+      if (u.hostname.includes('venmo.com')) {
+        const parts = u.pathname.split('/').filter(Boolean);
+        if (parts[0] === 'u' && parts[1]) return parts[1];
+        if (parts[0]) return parts[0];
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  const venmoUsername = extractVenmoUsername(venmoLink);
+  const AMOUNTS = [3, 5, 7];
+
   // Generate structured data
   const structuredData = generateStructuredData(artist, socialLinks);
 
@@ -169,41 +188,23 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         }}
       />
       <ArtistSEO artist={artist} socialLinks={socialLinks} />
-      <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
-        <Container>
-          {/* Theme Toggle */}
-          <div className="absolute top-4 right-4 z-10">
-            <ThemeToggle />
-          </div>
-
-          <div className="flex min-h-screen flex-col py-12">
-            <div className="flex-1 flex flex-col items-center justify-center">
-              <div className="w-full max-w-md space-y-8">
-                <ProfileHeader artist={artist} />
-
-                <div className="flex justify-center">
-                  <TipJar handle={artist.handle} artistName={artist.name} />
-                </div>
-
-                <SocialBar
-                  handle={artist.handle}
-                  artistName={artist.name}
-                  socialLinks={socialLinks}
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-center">
-              <div className="w-full max-w-md">
-                <ProfileFooter
-                  artistHandle={artist.handle}
-                  artistSettings={artist.settings}
-                />
-              </div>
-            </div>
-          </div>
-        </Container>
-      </div>
+      <ArtistPageShell
+        artist={artist}
+        socialLinks={socialLinks}
+        subtitle={PAGE_SUBTITLES.tip}
+      >
+        {venmoLink ? (
+          <VenmoTipSelector
+            venmoLink={venmoLink}
+            venmoUsername={venmoUsername ?? undefined}
+            amounts={AMOUNTS}
+          />
+        ) : (
+          <p className="text-center text-sm text-gray-500">
+            Venmo tipping is not available for this artist yet.
+          </p>
+        )}
+      </ArtistPageShell>
     </>
   );
 }

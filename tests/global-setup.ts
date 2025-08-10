@@ -5,6 +5,7 @@ async function globalSetup() {
   Object.assign(process.env, {
     NODE_ENV: 'test',
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: 'pk_test_dummy',
+    NEXT_PUBLIC_CLERK_PRICING_TABLE_ID: 'prctbl_dummy',
     CLERK_SECRET_KEY: 'sk_test_dummy',
     NEXT_PUBLIC_SUPABASE_URL: 'https://dummy.supabase.co',
     SUPABASE_SERVICE_ROLE_KEY: 'dummy_key',

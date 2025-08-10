@@ -1,6 +1,6 @@
 'use client';
 
-import { SignUp } from '@clerk/nextjs';
+import { ClerkLoaded, ClerkLoading, SignUp } from '@clerk/nextjs';
 import { useSearchParams } from 'next/navigation';
 import { Logo } from '@/components/ui/Logo';
 
@@ -20,7 +20,20 @@ export default function SignUpPage() {
             You’ll be redirected to continue setup.
           </p>
         </div>
-        <SignUp redirectUrl={redirect} afterSignUpUrl={redirect} />
+        <ClerkLoading>
+          <div className="text-center text-gray-600 dark:text-white/70">
+            Loading account form...
+          </div>
+        </ClerkLoading>
+        <ClerkLoaded>
+          <SignUp
+            path="/sign-up"
+            routing="path"
+            signInUrl="/sign-in"
+            redirectUrl={redirect}
+            afterSignUpUrl={redirect}
+          />
+        </ClerkLoaded>
       </div>
     </div>
   );

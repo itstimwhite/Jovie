@@ -1,10 +1,9 @@
 import { SignInButton, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
-import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
 
 export function AuthActions() {
   const { isSignedIn } = useUser();
-  const { flags } = useFeatureFlags();
+  // Feature flags not used here currently
 
   if (isSignedIn) {
     return (
@@ -24,10 +23,10 @@ export function AuthActions() {
         </Link>
         <span className="text-gray-300 dark:text-gray-600">•</span>
         <Link
-          href={flags.waitlistEnabled ? '/waitlist' : '/sign-up'}
+          href="/sign-up"
           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
         >
-          {flags.waitlistEnabled ? 'Join Waitlist' : 'Sign Up'}
+          Sign Up
         </Link>
       </div>
     );
@@ -36,7 +35,7 @@ export function AuthActions() {
   return (
     <div className="flex items-center space-x-4">
       <SignInButton mode="modal">
-        <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+        <button className="text-sm px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500 rounded-sm">
           Sign in
         </button>
       </SignInButton>

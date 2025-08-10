@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { APP_NAME } from '@/constants/app';
-import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
 
 interface ProfileFooterProps {
   artistHandle: string;
@@ -15,8 +14,6 @@ export function ProfileFooter({
   hideBranding = false,
   artistSettings,
 }: ProfileFooterProps) {
-  const { flags } = useFeatureFlags();
-
   // Use user's setting if available, otherwise fall back to hideBranding prop
   const shouldHideBranding = artistSettings?.hide_branding ?? hideBranding;
 
@@ -24,9 +21,7 @@ export function ProfileFooter({
     return null;
   }
 
-  const signUpLink = flags.waitlistEnabled
-    ? `/waitlist?utm_source=profile&utm_artist=${artistHandle}`
-    : `/sign-up?utm_source=profile&utm_artist=${artistHandle}`;
+  const signUpLink = `/sign-up?utm_source=profile&utm_artist=${artistHandle}`;
 
   return (
     <footer className="mt-8 border-t border-gray-200 pt-6">

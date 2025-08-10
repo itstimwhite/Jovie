@@ -7,6 +7,8 @@ import { Analytics } from '@/components/Analytics';
 import { DebugBanner } from '@/components/DebugBanner';
 import { FeatureFlagsProvider } from './FeatureFlagsProvider';
 import { FeatureFlags } from '@/lib/feature-flags';
+import { Spinner } from '@/components/ui';
+import { env } from '@/lib/env';
 // import { Toolbar } from '@vercel/toolbar/next';
 
 interface ClientProvidersProps {
@@ -15,7 +17,7 @@ interface ClientProvidersProps {
 }
 
 function ClerkWrapper({ children }: { children: React.ReactNode }) {
-  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const publishableKey = env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
   if (!publishableKey) {
     return (
@@ -71,7 +73,7 @@ export function ClientProviders({
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+          <Spinner size="lg" />
           <p className="mt-2 text-gray-600">Loading...</p>
         </div>
       </div>

@@ -47,6 +47,8 @@ type InputProps = {
     | DateType;
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
+  inputClassName?: string;
+  trailing?: React.ReactNode;
 } & Omit<Headless.InputProps, 'as' | 'className'>;
 
 export const Input = forwardRef(function Input(
@@ -54,8 +56,9 @@ export const Input = forwardRef(function Input(
     className,
     label,
     error,
-
     loading,
+    inputClassName,
+    trailing,
     ...props
   }: InputProps & Partial<LegacyInputProps>,
   ref: React.ForwardedRef<HTMLInputElement>
@@ -122,6 +125,9 @@ export const Input = forwardRef(function Input(
             'border-red-500 data-hover:border-red-500 dark:border-red-500 dark:data-hover:border-red-500',
           // Loading state - add right padding for spinner
           loading && 'pr-10 sm:pr-8',
+          // Trailing slot - add more right padding for action button
+          trailing && 'pr-28 sm:pr-32',
+          inputClassName,
         ])}
       />
 
@@ -134,6 +140,13 @@ export const Input = forwardRef(function Input(
           />
         </div>
       )}
+
+      {/* Trailing slot (e.g., action button) */}
+      {trailing ? (
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 sm:right-2.5 z-10">
+          {trailing}
+        </div>
+      ) : null}
     </span>
   );
 

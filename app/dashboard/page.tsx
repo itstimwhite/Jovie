@@ -5,6 +5,7 @@ import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
+import { Spinner } from '@/components/ui';
 import {
   ProfileLinkCard,
   OnboardingForm,
@@ -62,6 +63,8 @@ export default function DashboardPage() {
 
       if (!supabase) {
         console.error('Failed to get authenticated Supabase client');
+        setError('Configuration error: Supabase client not available');
+        setLoading(false);
         return;
       }
 
@@ -70,22 +73,17 @@ export default function DashboardPage() {
         .from('users')
         .select('id')
         .eq('clerk_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (userError) {
         console.error('Error fetching user:', userError);
-        if (userError.code === 'PGRST116') {
-          // User doesn't exist in database, redirect to onboarding
-          router.push('/onboarding');
-          return;
-        }
         setError('Failed to load user data');
         return;
       }
 
       if (!userData?.id) {
-        console.error('No user ID found');
-        setError('User data is incomplete');
+        // No user row yet → send to onboarding to create user/artist
+        router.push('/onboarding');
         return;
       }
 
@@ -94,18 +92,22 @@ export default function DashboardPage() {
         .from('artists')
         .select('*')
         .eq('owner_user_id', userData.id)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error fetching artist:', error);
         setError('Failed to load artist data');
-      } else if (error && error.code === 'PGRST116') {
-        // No artist found, redirect to onboarding
+        return;
+      }
+
+      if (!data) {
+        // No artist yet → onboarding
         router.push('/onboarding');
         return;
-      } else {
-        setArtist(data as Artist | null);
       }
+
+      // Supabase client returns untyped data; cast via unknown before Artist to satisfy TS
+      setArtist(data as unknown as Artist | null);
     } catch (error) {
       console.error('Error:', error);
       setError('Failed to load dashboard data');
@@ -129,7 +131,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-white dark:bg-[#0D0E12] flex items-center justify-center">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 dark:border-white/20 border-t-gray-600 dark:border-t-white"></div>
+          <Spinner size="lg" />
           <p className="mt-4 text-gray-600 dark:text-white/70">Loading...</p>
         </div>
       </div>
@@ -164,7 +166,7 @@ export default function DashboardPage() {
 
         <div className="flex min-h-screen items-center justify-center relative z-10">
           <div className="text-center">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 dark:border-white/20 border-t-gray-600 dark:border-t-white"></div>
+            <Spinner size="lg" />
             <p className="mt-4 text-gray-600 dark:text-white/70 transition-colors">
               Loading...
             </p>

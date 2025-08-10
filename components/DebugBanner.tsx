@@ -1,17 +1,15 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useSession } from '@clerk/nextjs';
 import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
+import { env, flags as envFlags } from '@/lib/env';
 
 interface DebugInfo {
   supabaseUrl: string | undefined;
   supabaseAnonKey: string | undefined;
   clerkPublishableKey: string | undefined;
-  clerkSecretKey: string | undefined;
-  spotifyClientId: string | undefined;
-  spotifyClientSecret: string | undefined;
   // Clerk Billing (replaces direct Stripe integration)
   clerkBillingEnabled: boolean;
   clerkBillingGateway: 'development' | 'stripe' | 'not-configured';
@@ -29,7 +27,6 @@ interface DebugInfo {
   clerkTokenError?: string;
   // Feature flags from Edge Config
   featureFlags: {
-    waitlistEnabled: boolean;
     artistSearchEnabled: boolean;
     debugBannerEnabled: boolean;
     tipPromoEnabled: boolean;
@@ -39,16 +36,17 @@ interface DebugInfo {
 export function DebugBanner() {
   const { session, isLoaded } = useSession();
   const { flags: featureFlags } = useFeatureFlags();
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [debugInfo, setDebugInfo] = useState<DebugInfo>({
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    clerkPublishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-    clerkSecretKey: process.env.CLERK_SECRET_KEY,
-    spotifyClientId: process.env.SPOTIFY_CLIENT_ID,
-    spotifyClientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-    clerkBillingEnabled: false, // Default to false
-    clerkBillingGateway: 'not-configured', // Default to not-configured
+    supabaseUrl: env.NEXT_PUBLIC_SUPABASE_URL,
+    supabaseAnonKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    clerkPublishableKey: env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    clerkBillingEnabled: envFlags.clerkBillingEnabled,
+    clerkBillingGateway:
+      envFlags.clerkBillingGateway === 'development' ||
+      envFlags.clerkBillingGateway === 'stripe'
+        ? envFlags.clerkBillingGateway
+        : 'not-configured',
     environment: 'detecting',
     githubEnvironment: 'detecting',
     connectionStatus: 'checking',
@@ -57,37 +55,47 @@ export function DebugBanner() {
     clerkSessionStatus: 'checking',
     clerkTokenStatus: 'checking',
     featureFlags: {
-      waitlistEnabled: false,
       artistSearchEnabled: true,
       debugBannerEnabled: process.env.NODE_ENV === 'development',
       tipPromoEnabled: true,
     },
   });
 
+  // Reuse a single Supabase client to avoid multiple GoTrueClient instances warning
+  const supabaseClient = useMemo(() => {
+    if (!debugInfo.supabaseUrl || !debugInfo.supabaseAnonKey) return null;
+
+    const auth = {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+      storageKey: session ? 'jovie-debug-native' : 'jovie-debug-conn',
+    } as const;
+
+    return createClient(debugInfo.supabaseUrl, debugInfo.supabaseAnonKey, {
+      auth,
+      // Provide token function only when we have a session
+      ...(session && {
+        accessToken: async () => (await session.getToken()) ?? null,
+      }),
+    });
+  }, [debugInfo.supabaseUrl, debugInfo.supabaseAnonKey, session]);
+
   // Check if debug banner should be shown based on feature flags
   const shouldShowDebugBanner = featureFlags.debugBannerEnabled;
 
-  // Add debugging
-  console.log('DebugBanner render:', {
-    shouldShowDebugBanner,
-    featureFlags,
-    NODE_ENV: process.env.NODE_ENV,
-  });
+  // No noisy console logs in production
 
-  // Update body padding based on debug banner state
+  // Update body padding based on debug banner state so we don't cover content
+  // We deliberately omit `supabaseClient` from deps to keep dependency array size stable
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (shouldShowDebugBanner) {
       const bannerHeight = isExpanded ? '8rem' : '3rem';
-      document.documentElement.style.setProperty(
-        '--debug-banner-height',
-        bannerHeight
-      );
+      document.body.style.paddingTop = bannerHeight;
     } else {
       // Remove padding when debug banner is disabled
-      document.documentElement.style.setProperty(
-        '--debug-banner-height',
-        '0rem'
-      );
+      document.body.style.paddingTop = '0px';
     }
   }, [isExpanded, shouldShowDebugBanner]);
 
@@ -259,11 +267,16 @@ export function DebugBanner() {
           return;
         }
 
-        // Test Supabase connection
-        const supabase = createClient(
-          debugInfo.supabaseUrl,
-          debugInfo.supabaseAnonKey
-        );
+        // Test Supabase connection using the memoized client
+        const supabase = supabaseClient;
+        if (!supabase) {
+          setDebugInfo((prev) => ({
+            ...prev,
+            connectionStatus: 'error',
+            connectionError: 'Supabase client not initialized',
+          }));
+          return;
+        }
 
         // Try a simple query to test connection (query published artists which are publicly accessible)
         const { error } = await supabase
@@ -306,16 +319,16 @@ export function DebugBanner() {
           return;
         }
 
-        // Test the native integration by creating an authenticated client
-        const supabase = createClient(
-          debugInfo.supabaseUrl,
-          debugInfo.supabaseAnonKey,
-          {
-            async accessToken() {
-              return session.getToken() ?? null;
-            },
-          }
-        );
+        // Test the native integration using the memoized authenticated client
+        const supabase = supabaseClient;
+        if (!supabase) {
+          setDebugInfo((prev) => ({
+            ...prev,
+            nativeIntegrationStatus: 'error',
+            nativeIntegrationError: 'Supabase client not initialized',
+          }));
+          return;
+        }
 
         // Try to access user-specific data to test authentication
         const { error } = await supabase
@@ -348,39 +361,22 @@ export function DebugBanner() {
 
     checkConnection();
     testNativeIntegration();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debugInfo.supabaseUrl, debugInfo.supabaseAnonKey, session]);
 
   // Update Clerk billing status
   useEffect(() => {
-    const determineClerkBillingStatus = () => {
-      if (typeof window !== 'undefined') {
-        const clerkPublishableKey =
-          process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-        const clerkSecretKey = process.env.CLERK_SECRET_KEY;
-        const clerkBillingEnabled =
-          process.env.NEXT_PUBLIC_CLERK_BILLING_ENABLED === 'true';
-        const clerkBillingGateway =
-          process.env.NEXT_PUBLIC_CLERK_BILLING_GATEWAY;
-
-        if (clerkPublishableKey && clerkSecretKey && clerkBillingEnabled) {
-          if (clerkBillingGateway === 'stripe') {
-            return 'stripe';
-          } else {
-            return 'development';
-          }
-        }
-        return 'not-configured';
-      }
-      return 'not-configured';
-    };
-
-    const detectedClerkBillingStatus = determineClerkBillingStatus();
+    const isBillingConfigured = envFlags.clerkBillingEnabled;
+    const hasGateway = envFlags.clerkBillingGateway !== 'not-configured';
+    const gateway =
+      isBillingConfigured && hasGateway
+        ? envFlags.clerkBillingGateway
+        : 'not-configured';
 
     setDebugInfo((prev) => ({
       ...prev,
-      clerkBillingEnabled:
-        process.env.NEXT_PUBLIC_CLERK_BILLING_ENABLED === 'true',
-      clerkBillingGateway: detectedClerkBillingStatus,
+      clerkBillingEnabled: envFlags.clerkBillingEnabled,
+      clerkBillingGateway: gateway,
     }));
   }, []);
 
@@ -391,7 +387,7 @@ export function DebugBanner() {
       case 'error':
         return 'bg-red-500';
       case 'not-configured':
-        return 'bg-yellow-500';
+        return 'bg-gray-500';
       case 'checking':
         return 'bg-blue-500';
       default:
@@ -485,7 +481,7 @@ export function DebugBanner() {
       case 'available':
         return 'bg-green-500';
       case 'unavailable':
-        return 'bg-yellow-500';
+        return 'bg-gray-500';
       case 'error':
         return 'bg-red-500';
       case 'checking':
@@ -517,7 +513,7 @@ export function DebugBanner() {
       case 'available':
         return 'bg-green-500';
       case 'unavailable':
-        return 'bg-yellow-500';
+        return 'bg-gray-500';
       case 'error':
         return 'bg-red-500';
       case 'checking':
@@ -616,13 +612,6 @@ export function DebugBanner() {
 
           // Required for Clerk authentication
           clerkPublishableKey: debugInfo.clerkPublishableKey
-            ? 'SET'
-            : 'NOT SET',
-          clerkSecretKey: debugInfo.clerkSecretKey ? 'SET' : 'NOT SET',
-
-          // Required for Spotify integration
-          spotifyClientId: debugInfo.spotifyClientId ? 'SET' : 'NOT SET',
-          spotifyClientSecret: debugInfo.spotifyClientSecret
             ? 'SET'
             : 'NOT SET',
 
@@ -730,19 +719,21 @@ export function DebugBanner() {
               </div>
             </div>
 
-            {/* Native Integration Status */}
-            <div className="flex items-center space-x-1">
-              <span>NATIVE:</span>
-              <div
-                className={`px-2 py-1 rounded text-white text-xs ${getNativeIntegrationStatusColor(
-                  debugInfo.nativeIntegrationStatus
-                )}`}
-              >
-                {getNativeIntegrationStatusText(
-                  debugInfo.nativeIntegrationStatus
-                )}
+            {/* Native Integration Status (only meaningful when session exists) */}
+            {session && (
+              <div className="flex items-center space-x-1">
+                <span>NATIVE:</span>
+                <div
+                  className={`px-2 py-1 rounded text-white text-xs ${getNativeIntegrationStatusColor(
+                    debugInfo.nativeIntegrationStatus
+                  )}`}
+                >
+                  {getNativeIntegrationStatusText(
+                    debugInfo.nativeIntegrationStatus
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Clerk Session Status */}
             <div className="flex items-center space-x-1">
@@ -756,17 +747,19 @@ export function DebugBanner() {
               </div>
             </div>
 
-            {/* Clerk Token Status */}
-            <div className="flex items-center space-x-1">
-              <span>TOKEN:</span>
-              <div
-                className={`px-2 py-1 rounded text-white text-xs ${getClerkTokenStatusColor(
-                  debugInfo.clerkTokenStatus
-                )}`}
-              >
-                {getClerkTokenStatusText(debugInfo.clerkTokenStatus)}
+            {/* Clerk Token Status (only when session exists) */}
+            {session && (
+              <div className="flex items-center space-x-1">
+                <span>TOKEN:</span>
+                <div
+                  className={`px-2 py-1 rounded text-white text-xs ${getClerkTokenStatusColor(
+                    debugInfo.clerkTokenStatus
+                  )}`}
+                >
+                  {getClerkTokenStatusText(debugInfo.clerkTokenStatus)}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Clerk Billing Status */}
             <div className="flex items-center space-x-1">
@@ -784,16 +777,6 @@ export function DebugBanner() {
             <div className="flex items-center space-x-1">
               <span>FLAGS:</span>
               <div className="flex space-x-1">
-                <span
-                  className={`px-1 rounded text-xs ${
-                    debugInfo.featureFlags.waitlistEnabled
-                      ? 'bg-green-500'
-                      : 'bg-gray-500'
-                  }`}
-                  title="Waitlist enabled"
-                >
-                  WL
-                </span>
                 <span
                   className={`px-1 rounded text-xs ${
                     debugInfo.featureFlags.artistSearchEnabled
@@ -923,34 +906,9 @@ export function DebugBanner() {
                   >
                     CLERK_PUB
                   </span>
-                  <span
-                    className={`px-1 rounded text-xs ${
-                      debugInfo.clerkSecretKey ? 'bg-green-500' : 'bg-red-500'
-                    }`}
-                    title={debugInfo.clerkSecretKey ? 'Set' : 'Not set'}
-                  >
-                    CLERK_SECRET
-                  </span>
 
                   {/* Spotify */}
-                  <span
-                    className={`px-1 rounded text-xs ${
-                      debugInfo.spotifyClientId ? 'bg-green-500' : 'bg-red-500'
-                    }`}
-                    title={debugInfo.spotifyClientId ? 'Set' : 'Not set'}
-                  >
-                    SPOTIFY_ID
-                  </span>
-                  <span
-                    className={`px-1 rounded text-xs ${
-                      debugInfo.spotifyClientSecret
-                        ? 'bg-green-500'
-                        : 'bg-red-500'
-                    }`}
-                    title={debugInfo.spotifyClientSecret ? 'Set' : 'Not set'}
-                  >
-                    SPOTIFY_SECRET
-                  </span>
+                  {null}
 
                   {/* Clerk Billing */}
                   <span
