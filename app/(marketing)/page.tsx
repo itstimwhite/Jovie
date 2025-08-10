@@ -153,7 +153,7 @@ export default function HomePage() {
         {/* Content sections with Linear-style spacing */}
         <div className="relative z-10">
           {/* Featured Artists with glass morphism */}
-          <section className="py-24">
+          <section className="py-4">
             <Suspense
               fallback={
                 <div className="flex items-center justify-center py-16">
