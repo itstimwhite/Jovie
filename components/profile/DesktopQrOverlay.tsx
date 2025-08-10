@@ -25,6 +25,43 @@ export function DesktopQrOverlay({ handle }: DesktopQrOverlayProps) {
     }
   }, [handle]);
 
+  // React to viewport resizes: show on desktop if not dismissed, hide on mobile
+  useEffect(() => {
+    const mql = window.matchMedia('(min-width: 768px)');
+
+    const onChange = (e: MediaQueryListEvent | MediaQueryList) => {
+      const isDesktop =
+        'matches' in e ? e.matches : (e as MediaQueryList).matches;
+      if (isDesktop) {
+        if (!dismissed) {
+          setShow(true);
+          setUrl(`${window.location.origin}/${handle}`);
+        }
+      } else {
+        // Always hide on mobile viewport
+        setShow(false);
+      }
+    };
+
+    // Initial sync in case state drifted
+    onChange(mql);
+
+    // Add listener with both modern and legacy APIs (feature detection)
+    if (typeof mql.addEventListener === 'function') {
+      mql.addEventListener('change', onChange as EventListener);
+    } else if (typeof (mql as any).addListener === 'function') {
+      (mql as any).addListener(onChange);
+    }
+
+    return () => {
+      if (typeof mql.removeEventListener === 'function') {
+        mql.removeEventListener('change', onChange as EventListener);
+      } else if (typeof (mql as any).removeListener === 'function') {
+        (mql as any).removeListener(onChange);
+      }
+    };
+  }, [dismissed, handle]);
+
   const close = () => {
     setShow(false);
     setDismissed(true);

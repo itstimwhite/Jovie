@@ -24,7 +24,7 @@ export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
             <div className="flex h-2 w-2 items-center justify-center">
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
             </div>
-            <span>60-second setup</span>
+            <span>Quick setup</span>
             <div className="h-1 w-1 rounded-full bg-gray-400 dark:bg-white/30" />
             <span>Free forever</span>
           </div>
@@ -50,7 +50,8 @@ export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
             className="mx-auto max-w-2xl text-xl text-gray-600 dark:text-white/70 font-light leading-relaxed sm:text-2xl"
             role="doc-subtitle"
           >
-            {subtitle ?? 'Turn followers into listeners in 60 seconds.'}
+            {subtitle ??
+              'Turn followers into listeners with your personalized link in bio.'}
           </p>
         </div>
 
@@ -63,6 +64,11 @@ export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
               <ClaimHandleForm />
             </div>
           </div>
+
+          {/* Supporting text under primary CTA */}
+          <p className="mt-4 text-sm text-gray-600 dark:text-white/60 text-center">
+            Go live in 60 seconds
+          </p>
         </div>
 
         {/* CTA buttons */}

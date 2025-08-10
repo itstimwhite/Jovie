@@ -18,6 +18,11 @@ export const DSPS = {
   iheartradio: 'iheartradio',
 } as const;
 export const DEFAULT_PROFILE_TAGLINE = 'Artist';
+export const PAGE_SUBTITLES = {
+  profile: 'Artist',
+  tip: 'Tip with Venmo',
+  listen: 'Choose a Service',
+} as const;
 export const ANALYTICS = {
   segmentWriteKey: env.NEXT_PUBLIC_SEGMENT_WRITE_KEY ?? '',
 };

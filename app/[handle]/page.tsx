@@ -2,14 +2,11 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { createServerClient } from '@/lib/supabase-server';
 import { Artist, SocialLink } from '@/types/db';
-import { Container } from '@/components/site/Container';
-import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { ListenNow } from '@/components/profile/ListenNow';
-import { SocialBar } from '@/components/organisms/SocialBar';
-import { ProfileFooter } from '@/components/profile/ProfileFooter';
 import { ArtistSEO } from '@/components/seo/ArtistSEO';
-import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { DesktopQrOverlay } from '@/components/profile/DesktopQrOverlay';
+import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
+import { PAGE_SUBTITLES } from '@/constants/app';
 
 export async function generateMetadata({
   params,
@@ -200,45 +197,16 @@ export default async function ProfilePage({
           }}
         />
         <ArtistSEO artist={artist} socialLinks={socialLinks} />
-        <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
-          <Container>
-            {/* Theme Toggle */}
-            <div className="absolute top-4 right-4 z-10">
-              <ThemeToggle />
-            </div>
-
-            <div className="flex min-h-screen flex-col py-12">
-              <div className="flex-1 flex flex-col items-center justify-center">
-                <div className="w-full max-w-md space-y-8">
-                  <ProfileHeader artist={artist} />
-
-                  <div className="flex justify-center">
-                    <ListenNow
-                      handle={artist.handle}
-                      artistName={artist.name}
-                    />
-                  </div>
-
-                  <SocialBar
-                    handle={artist.handle}
-                    artistName={artist.name}
-                    socialLinks={socialLinks}
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-center">
-                <div className="w-full max-w-md">
-                  <ProfileFooter
-                    artistHandle={artist.handle}
-                    artistSettings={artist.settings}
-                  />
-                </div>
-              </div>
-            </div>
-          </Container>
-          <DesktopQrOverlay handle={artist.handle} />
-        </div>
+        <ArtistPageShell
+          artist={artist}
+          socialLinks={socialLinks}
+          subtitle={PAGE_SUBTITLES.profile}
+        >
+          <div className="flex justify-center">
+            <ListenNow handle={artist.handle} artistName={artist.name} />
+          </div>
+        </ArtistPageShell>
+        <DesktopQrOverlay handle={artist.handle} />
       </>
     );
   } catch (error) {
