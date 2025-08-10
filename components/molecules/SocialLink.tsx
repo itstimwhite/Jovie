@@ -1,3 +1,5 @@
+'use client';
+
 import { SocialIcon } from '@/components/atoms/SocialIcon';
 import { track } from '@/lib/analytics';
 import type { SocialLink as SocialLinkType } from '@/types/db';

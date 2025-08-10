@@ -45,7 +45,7 @@ export function ListenNow({ handle, artistName }: ListenNowProps) {
     <div className="w-full max-w-sm">
       <Button
         onClick={handleClick}
-        className="w-full"
+        className="w-full py-3 text-base sm:py-4 sm:text-lg"
         size="lg"
         disabled={isLoading}
         aria-label={`Listen to ${artistName} on Spotify`}

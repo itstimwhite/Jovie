@@ -200,16 +200,17 @@ export default async function ProfilePage({
           }}
         />
         <ArtistSEO artist={artist} socialLinks={socialLinks} />
-        <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
+        <div className="min-h-[100dvh] bg-white dark:bg-gray-900 transition-colors duration-200">
           <Container>
             {/* Theme Toggle */}
             <div className="absolute top-4 right-4 z-10">
               <ThemeToggle />
             </div>
 
-            <div className="flex min-h-screen flex-col py-12">
-              <div className="flex-1 flex flex-col items-center justify-center">
-                <div className="w-full max-w-md space-y-8">
+            {/* Full-height column: center main content and pin footer at bottom */}
+            <div className="flex min-h-[100dvh] flex-col pt-8 pb-4 md:pt-10 md:pb-6">
+              <div className="flex-1 flex flex-col items-center justify-center px-4">
+                <div className="w-full max-w-md space-y-6">
                   <ProfileHeader artist={artist} />
 
                   <div className="flex justify-center">
@@ -226,14 +227,13 @@ export default async function ProfilePage({
                   />
                 </div>
               </div>
-            </div>
-
-            <div className="flex justify-center">
-              <div className="w-full max-w-md">
-                <ProfileFooter
-                  artistHandle={artist.handle}
-                  artistSettings={artist.settings}
-                />
+              <div className="flex justify-center">
+                <div className="w-full max-w-md px-4">
+                  <ProfileFooter
+                    artistHandle={artist.handle}
+                    artistSettings={artist.settings}
+                  />
+                </div>
               </div>
             </div>
           </Container>
