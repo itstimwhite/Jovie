@@ -8,6 +8,7 @@ import { SocialBar } from '@/components/organisms/SocialBar';
 import { ProfileFooter } from '@/components/profile/ProfileFooter';
 import { ArtistSEO } from '@/components/seo/ArtistSEO';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
+import VenmoTipSelector from '@/components/profile/VenmoTipSelector';
 
 interface ProfilePageProps {
   params: Promise<{
@@ -176,7 +177,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   }
 
   const venmoUsername = extractVenmoUsername(venmoLink);
-  const AMOUNTS = [2, 5, 10];
+  const AMOUNTS = [3, 5, 7];
 
   // Generate structured data
   const structuredData = generateStructuredData(artist, socialLinks);
@@ -202,30 +203,11 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               <div className="w-full max-w-md space-y-8">
                 <ProfileHeader artist={artist} />
                 {venmoLink ? (
-                  <div className="space-y-4">
-                    <p className="text-center text-sm text-gray-600">
-                      Choose an amount to tip via Venmo
-                    </p>
-                    <div className="flex flex-col gap-3">
-                      {AMOUNTS.map((amount) => {
-                        const sep = venmoLink.includes('?') ? '&' : '?';
-                        const url = `${venmoLink}${sep}utm_amount=${amount}&utm_username=${encodeURIComponent(
-                          venmoUsername ?? ''
-                        )}`;
-                        return (
-                          <a
-                            key={amount}
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center rounded-md bg-[#3D95CE] px-4 py-2 text-white font-semibold shadow hover:bg-[#2f7ead] transition-colors"
-                          >
-                            {`Tip $${amount} on Venmo`}
-                          </a>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  <VenmoTipSelector
+                    venmoLink={venmoLink}
+                    venmoUsername={venmoUsername ?? undefined}
+                    amounts={AMOUNTS}
+                  />
                 ) : (
                   <p className="text-center text-sm text-gray-500">
                     Venmo tipping is not available for this artist yet.
