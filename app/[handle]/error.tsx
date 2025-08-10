@@ -19,6 +19,15 @@ export default function Error({ error, reset }: ErrorProps) {
     <div className="min-h-screen bg-white dark:bg-gray-900">
       <Container>
         <div className="flex min-h-screen flex-col items-center justify-center py-12">
+          {/* Screen reader announcement */}
+          <div
+            aria-live="assertive"
+            aria-label="Error loading artist profile. Please try again."
+            className="sr-only"
+          >
+            Error loading artist profile. Please try again.
+          </div>
+
           <div className="w-full max-w-md space-y-8 text-center">
             {/* Error Icon */}
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
@@ -27,6 +36,7 @@ export default function Error({ error, reset }: ErrorProps) {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -39,10 +49,16 @@ export default function Error({ error, reset }: ErrorProps) {
 
             {/* Error Message */}
             <div className="space-y-4">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              <h1
+                className="text-2xl font-bold text-gray-900 dark:text-white"
+                id="error-title"
+              >
                 Something went wrong!
               </h1>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p
+                className="text-gray-600 dark:text-gray-400"
+                aria-describedby="error-title"
+              >
                 We encountered an error while loading this artist profile.
                 Please try again.
               </p>
@@ -61,7 +77,12 @@ export default function Error({ error, reset }: ErrorProps) {
 
             {/* Action Buttons */}
             <div className="flex flex-col space-y-3 sm:flex-row sm:space-x-3 sm:space-y-0">
-              <Button onClick={() => reset()} className="flex-1" size="lg">
+              <Button
+                onClick={() => reset()}
+                className="flex-1"
+                size="lg"
+                aria-describedby="error-title"
+              >
                 Try again
               </Button>
               <Button
