@@ -13,6 +13,7 @@ export function BenefitsSection() {
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          aria-label="Fast loading icon"
         >
           <path
             strokeLinecap="round"
@@ -35,6 +36,7 @@ export function BenefitsSection() {
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          aria-label="Analytics chart icon"
         >
           <path
             strokeLinecap="round"
@@ -57,6 +59,7 @@ export function BenefitsSection() {
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          aria-label="Smart routing icon"
         >
           <path
             strokeLinecap="round"
@@ -71,16 +74,24 @@ export function BenefitsSection() {
   ];
 
   return (
-    <section className="relative py-24 sm:py-32">
+    <section
+      className="relative py-24 sm:py-32"
+      aria-labelledby="benefits-heading"
+    >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center mb-16">
           <div className="mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-sm font-medium text-green-400">
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-sm font-medium text-green-400"
+              role="img"
+              aria-label="Benefits section"
+            >
               <svg
                 className="w-4 h-4"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                aria-hidden="true"
               >
                 <path
                   strokeLinecap="round"
@@ -93,7 +104,10 @@ export function BenefitsSection() {
             </div>
           </div>
 
-          <h2 className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl">
+          <h2
+            id="benefits-heading"
+            className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-5xl lg:text-6xl"
+          >
             Built for musicians, optimized for conversion
           </h2>
 
@@ -117,6 +131,7 @@ export function BenefitsSection() {
                         'inline-flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-lg bg-gradient-to-br',
                         `from-${accent}-500 to-${accent}-600`
                       )}
+                      aria-hidden="true"
                     >
                       {benefit.icon}
                     </div>
@@ -126,7 +141,11 @@ export function BenefitsSection() {
                     </h3>
 
                     <div className="mt-2">
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/80">
+                      <span
+                        className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/80"
+                        role="status"
+                        aria-label={`Metric: ${benefit.metric}`}
+                      >
                         {benefit.metric}
                       </span>
                     </div>

@@ -17,7 +17,8 @@ export function PreFooterCTA() {
         <div className="flex items-center gap-3">
           <Link
             href="/sign-up"
-            className="inline-flex items-center rounded-xl px-4 py-2 font-medium bg-neutral-900 text-white dark:bg-white dark:text-black focus:outline-none focus-visible:ring"
+            className="inline-flex items-center rounded-xl px-4 py-2 font-medium bg-neutral-900 text-white dark:bg-white dark:text-black focus:outline-hidden focus:ring-4 focus:ring-blue-500/50 transition-all"
+            aria-describedby="cta-heading"
           >
             Claim your handle →
           </Link>

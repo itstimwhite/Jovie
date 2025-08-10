@@ -13,7 +13,7 @@ describe('Atomic Design Structure', () => {
     it('LogoLink component works correctly', () => {
       render(<LogoLink />);
 
-      const link = screen.getByRole('link', { name: '' });
+      const link = screen.getByRole('link', { name: 'Jovie homepage' });
       expect(link).toHaveAttribute('href', '/');
       expect(link).toHaveClass('flex', 'items-center', 'space-x-2');
     });
@@ -31,13 +31,13 @@ describe('Atomic Design Structure', () => {
       render(<AuthActions />);
 
       expect(
-        screen.getByRole('button', { name: 'Sign in' })
+        screen.getByRole('button', { name: 'Sign in to your account' })
       ).toBeInTheDocument();
       // Sign up removed from header
 
       // Check that it's properly structured
       const container = screen.getByRole('button', {
-        name: 'Sign in',
+        name: 'Sign in to your account',
       }).parentElement;
       expect(container).toHaveClass('flex', 'items-center', 'space-x-4');
     });
@@ -54,12 +54,11 @@ describe('Atomic Design Structure', () => {
       );
 
       // Should have logo and sign in button (sign up removed)
-      expect(screen.getByRole('link', { name: '' })).toHaveAttribute(
-        'href',
-        '/'
-      ); // Logo link
       expect(
-        screen.getByRole('button', { name: 'Sign in' })
+        screen.getByRole('link', { name: 'Jovie homepage' })
+      ).toHaveAttribute('href', '/'); // Logo link
+      expect(
+        screen.getByRole('button', { name: 'Sign in to your account' })
       ).toBeInTheDocument();
       // Sign up removed from header
     });
