@@ -4,6 +4,7 @@ import { createServerClient } from '@/lib/supabase-server';
 import { LISTEN_COOKIE } from '@/constants/app';
 import { getAvailableDSPs, generateDSPButtonHTML } from '@/lib/dsp';
 import { generateFooterHTML } from '@/lib/footer';
+import { PAGE_SUBTITLES } from '@/constants/app';
 
 export const runtime = 'edge';
 
@@ -110,7 +111,7 @@ export async function GET(
           <div class="text-center space-y-6">
             <div>
               <h1 class="text-2xl font-bold text-gray-900">${artist.name}</h1>
-              <p class="text-gray-600 mt-2">Choose your streaming platform</p>
+              <p class="text-gray-600 mt-2">${PAGE_SUBTITLES.listen}</p>
             </div>
             
             <div class="space-y-3">

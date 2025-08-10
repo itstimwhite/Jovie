@@ -5,9 +5,10 @@ import { DEFAULT_PROFILE_TAGLINE } from '@/constants/app';
 
 interface ProfileHeaderProps {
   artist: Artist;
+  subtitle?: string;
 }
 
-export function ProfileHeader({ artist }: ProfileHeaderProps) {
+export function ProfileHeader({ artist, subtitle }: ProfileHeaderProps) {
   return (
     <header className="flex flex-col items-center space-y-3 sm:space-y-4 text-center">
       {/* Always render the image container to prevent layout shift */}
@@ -36,7 +37,7 @@ export function ProfileHeader({ artist }: ProfileHeaderProps) {
           className="text-base sm:text-lg text-gray-600 dark:text-gray-400 line-clamp-2"
           itemProp="description"
         >
-          {artist.tagline || DEFAULT_PROFILE_TAGLINE}
+          {subtitle ?? artist.tagline ?? DEFAULT_PROFILE_TAGLINE}
         </p>
 
         {/* Hidden SEO elements */}
