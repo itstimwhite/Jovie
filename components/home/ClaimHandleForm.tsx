@@ -200,18 +200,34 @@ export function ClaimHandleForm() {
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
+    <form
+      onSubmit={onSubmit}
+      className="space-y-3"
+      role="search"
+      aria-labelledby="claim-form-heading"
+    >
+      <div className="sr-only">
+        <h3 id="claim-form-heading">Claim Your Handle</h3>
+      </div>
+
       <Input
         type="text"
         value={handle}
         onChange={(e) => setHandle(e.target.value)}
         placeholder="your-handle"
-        aria-label="Claim your handle"
+        aria-label="Enter your desired handle"
+        aria-describedby={helperText ? 'handle-help' : undefined}
+        aria-invalid={unavailable ? 'true' : 'false'}
         className={`${isShaking ? 'jv-shake' : ''} ${available === true ? 'jv-available' : ''}`}
         inputClassName="text-[16px] sm:text-[15px] leading-6 tracking-tight font-medium placeholder:text-zinc-500 pr-36 sm:pr-40"
         trailing={
           <div className="flex items-center gap-2">
             {/* Live status icon */}
+            <div aria-live="polite" aria-atomic="true" className="sr-only">
+              {showChecking && 'Checking availability'}
+              {available === true && 'Handle available'}
+              {unavailable && 'Handle unavailable'}
+            </div>
             <div aria-hidden className="flex items-center justify-center">
               <StatusIcon />
             </div>
@@ -223,10 +239,15 @@ export function ClaimHandleForm() {
               size="sm"
               className="min-w-[128px] sm:min-w-[136px] justify-center disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={btnDisabled || !handle}
+              aria-describedby={showChecking ? 'button-status' : undefined}
             >
               {showChecking ? (
                 <span className="inline-flex items-center gap-2">
-                  <LoadingSpinner size="sm" className="text-white" />
+                  <LoadingSpinner
+                    size="sm"
+                    className="text-white"
+                    aria-hidden="true"
+                  />
                   <span>Checking…</span>
                 </span>
               ) : navigating ? (
@@ -239,6 +260,15 @@ export function ClaimHandleForm() {
         }
       />
 
+      {/* Live status announcements */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {showChecking && 'Checking handle availability'}
+        {available === true && `Handle ${handle} is available`}
+        {available === false && `Handle ${handle} is taken`}
+        {handleError && handleError}
+        {availError && availError}
+      </div>
+
       {handle ? (
         <p
           onClick={available ? onCopyPreview : undefined}
@@ -246,6 +276,18 @@ export function ClaimHandleForm() {
             available ? 'cursor-pointer' : ''
           }`}
           title={available ? (copied ? 'Copied!' : 'Click to copy') : undefined}
+          role={available ? 'button' : undefined}
+          tabIndex={available ? 0 : -1}
+          onKeyDown={
+            available
+              ? (e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onCopyPreview();
+                  }
+                }
+              : undefined
+          }
         >
           Your profile will be live at{' '}
           <span className="text-current">jov.ie/</span>
@@ -260,11 +302,13 @@ export function ClaimHandleForm() {
 
       {helperText ? (
         <p
+          id="handle-help"
           className={`flex items-center gap-1.5 text-[12px] transition-opacity duration-150 ${
             unavailable
               ? 'text-red-600 dark:text-red-400'
               : 'text-gray-500 dark:text-gray-400'
           }`}
+          role={unavailable ? 'alert' : 'status'}
         >
           {unavailable ? (
             <svg

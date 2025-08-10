@@ -10,12 +10,16 @@ export function ProblemSolutionSection() {
 
   return (
     <section
-      id="problem"
+      id="problem-solution"
       aria-labelledby="problem-heading"
       className="relative border-t border-white/10"
     >
       <div className="mx-auto max-w-5xl px-4 py-20 md:py-24 text-center">
-        <span className="inline-flex items-center rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-wide text-white/60">
+        <span
+          className="inline-flex items-center rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-wide text-white/60"
+          role="img"
+          aria-label="Problem section"
+        >
           Problem
         </span>
         <h2
@@ -29,9 +33,17 @@ export function ProblemSolutionSection() {
           follows, and ticket sales.
         </p>
 
-        <div className="mt-16 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        <div
+          className="mt-16 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"
+          role="separator"
+          aria-hidden="true"
+        />
 
-        <span className="mt-16 inline-flex items-center rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-wide text-white/60">
+        <span
+          className="mt-16 inline-flex items-center rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-wide text-white/60"
+          role="img"
+          aria-label="Solution section"
+        >
           Solution
         </span>
         <h3
@@ -50,7 +62,8 @@ export function ProblemSolutionSection() {
           <Link
             href="/onboarding"
             onClick={handleClick}
-            className="btn btn-primary"
+            className="btn btn-primary focus:outline-hidden focus:ring-4 focus:ring-blue-500/50 rounded-lg"
+            aria-describedby="solution-heading"
           >
             Claim your handle → Go live in 60s
           </Link>

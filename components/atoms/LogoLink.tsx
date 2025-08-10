@@ -15,7 +15,8 @@ export function LogoLink({
   return (
     <Link
       href={href}
-      className={`flex items-center space-x-2 ${className || ''}`}
+      className={`flex items-center space-x-2 focus:outline-hidden focus:ring-2 focus:ring-blue-500 rounded-sm transition-all ${className || ''}`}
+      aria-label="Jovie homepage"
     >
       <Logo size={logoSize} />
     </Link>
