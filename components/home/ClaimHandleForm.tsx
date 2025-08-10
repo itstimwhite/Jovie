@@ -207,6 +207,10 @@ export function ClaimHandleForm() {
         onChange={(e) => setHandle(e.target.value)}
         placeholder="your-handle"
         aria-label="Claim your handle"
+        aria-describedby={
+          helperText ? 'handle-helper-text' : 'handle-preview-text'
+        }
+        aria-invalid={unavailable ? 'true' : 'false'}
         className={`${isShaking ? 'jv-shake' : ''} ${available === true ? 'jv-available' : ''}`}
         inputClassName="text-[16px] sm:text-[15px] leading-6 tracking-tight font-medium placeholder:text-zinc-500 pr-36 sm:pr-40"
         trailing={
@@ -223,6 +227,7 @@ export function ClaimHandleForm() {
               size="sm"
               className="min-w-[128px] sm:min-w-[136px] justify-center disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={btnDisabled || !handle}
+              aria-describedby="claim-button-status"
             >
               {showChecking ? (
                 <span className="inline-flex items-center gap-2">
@@ -239,63 +244,98 @@ export function ClaimHandleForm() {
         }
       />
 
-      {handle ? (
-        <p
-          onClick={available ? onCopyPreview : undefined}
-          className={`text-xs ${previewTone} select-none ${
-            available ? 'cursor-pointer' : ''
-          }`}
-          title={available ? (copied ? 'Copied!' : 'Click to copy') : undefined}
-        >
-          Your profile will be live at{' '}
-          <span className="text-current">jov.ie/</span>
-          <span className="font-semibold text-current">{handle}</span>
-          {available ? (
-            <span className="ml-2 text-[11px] text-green-600 dark:text-green-500">
-              {copied ? 'Copied!' : 'Tap to copy'}
-            </span>
-          ) : null}
-        </p>
-      ) : null}
+      {/* Preview text with consistent height to prevent layout jump */}
+      <div className="min-h-[1.25rem]" id="handle-preview-text">
+        {handle ? (
+          <p
+            onClick={available ? onCopyPreview : undefined}
+            className={`text-xs ${previewTone} select-none transition-colors duration-200 ${
+              available
+                ? 'cursor-pointer hover:text-green-700 dark:hover:text-green-400 active:scale-[0.98] touch-manipulation'
+                : ''
+            }`}
+            title={
+              available ? (copied ? 'Copied!' : 'Click to copy') : undefined
+            }
+            role={available ? 'button' : undefined}
+            tabIndex={available ? 0 : undefined}
+            onKeyDown={
+              available
+                ? (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onCopyPreview();
+                    }
+                  }
+                : undefined
+            }
+            aria-label={
+              available ? `Copy profile URL jov.ie/${handle}` : undefined
+            }
+          >
+            Your profile will be live at{' '}
+            <span className="text-current">jov.ie/</span>
+            <span className="font-semibold text-current">{handle}</span>
+            {available ? (
+              <span className="ml-2 text-[11px] text-green-600 dark:text-green-500 transition-opacity duration-200">
+                {copied ? '✓ Copied!' : '📋 Tap to copy'}
+              </span>
+            ) : null}
+          </p>
+        ) : (
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Your profile will be live at jov.ie/your-handle
+          </p>
+        )}
+      </div>
 
-      {helperText ? (
-        <p
-          className={`flex items-center gap-1.5 text-[12px] transition-opacity duration-150 ${
-            unavailable
-              ? 'text-red-600 dark:text-red-400'
-              : 'text-gray-500 dark:text-gray-400'
-          }`}
-        >
-          {unavailable ? (
-            <svg
-              className="h-3.5 w-3.5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 6h2v6H9V6zm0 7h2v2H9v-2z"
-                clipRule="evenodd"
-              />
-            </svg>
-          ) : (
-            <svg
-              className="h-3.5 w-3.5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 10-1.214-.882l-3.2 4.4-1.63-1.63a.75.75 0 10-1.06 1.06l2.25 2.25a.75.75 0 001.145-.089l3.71-5.109z"
-                clipRule="evenodd"
-              />
-            </svg>
-          )}
-          <span>{helperText}</span>
-        </p>
-      ) : null}
+      {/* Helper text with consistent height to prevent layout jump */}
+      <div
+        className="min-h-[1.125rem]"
+        aria-live="polite"
+        aria-atomic="true"
+        id="handle-helper-text"
+      >
+        {helperText ? (
+          <p
+            className={`flex items-center gap-1.5 text-[12px] transition-all duration-200 ${
+              unavailable
+                ? 'text-red-600 dark:text-red-400'
+                : 'text-gray-500 dark:text-gray-400'
+            }`}
+            role="alert"
+          >
+            {unavailable ? (
+              <svg
+                className="h-3.5 w-3.5 flex-shrink-0"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 6h2v6H9V6zm0 7h2v2H9v-2z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            ) : (
+              <svg
+                className="h-3.5 w-3.5 flex-shrink-0"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 10-1.214-.882l-3.2 4.4-1.63-1.63a.75.75 0 10-1.06 1.06l2.25 2.25a.75.75 0 001.145-.089l3.71-5.109z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+            <span>{helperText}</span>
+          </p>
+        ) : null}
+      </div>
 
       <style jsx>{`
         .jv-shake {

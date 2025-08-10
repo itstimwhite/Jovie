@@ -57,7 +57,8 @@ const nextConfig = {
         ],
       },
       {
-        source: '/(.*)',
+        // Exclude Vercel Flags discovery endpoint from global cache headers
+        source: '/((?!\\.well-known/vercel/flags).*)',
         headers: [
           ...securityHeaders,
           {
