@@ -169,4 +169,20 @@ describe('FeaturedArtists', () => {
       });
     });
   });
+
+  it('has smooth scroll behavior on mobile carousel', async () => {
+    render(<FeaturedArtists />);
+
+    await waitFor(() => {
+      // Find the mobile carousel (hidden on desktop, shown on mobile)
+      const mobileCarousels = document.querySelectorAll('.md\\:hidden.overflow-x-auto');
+      expect(mobileCarousels.length).toBeGreaterThan(0);
+      
+      // Check that it has scroll-smooth class for better UX
+      mobileCarousels.forEach((carousel) => {
+        expect(carousel).toHaveClass('scroll-smooth');
+        expect(carousel).toHaveClass('overflow-x-auto');
+      });
+    });
+  });
 });
