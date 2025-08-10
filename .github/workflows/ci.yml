@@ -124,7 +124,7 @@ jobs:
           if [ -z "$existing_pr" ]; then
             echo "Creating new PR: develop → preview"
             gh pr create --base preview --head develop --title "Auto-promote: develop → preview" --body "Automated promotion PR"
-            existing_pr=$(gh pr list --head develop --base preview --json number --jq '.[0].number')
+            existing_pr=$(gh pr list --head develop --base preview --json number --jq '.[0].number // empty')
           else
             echo "PR already exists: #$existing_pr"
           fi
