@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Spinner } from '@/components/ui';
 
 export function ArtistSearch() {
   const [query, setQuery] = useState('');
@@ -58,11 +59,7 @@ export function ArtistSearch() {
           disabled={isSearching || !query.trim()}
           className="absolute inset-y-0 right-0 px-4 flex items-center bg-blue-600 hover:bg-blue-700 dark:bg-purple-600 dark:hover:bg-purple-700 text-white font-semibold rounded-r-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSearching ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-          ) : (
-            'Search'
-          )}
+          {isSearching ? <Spinner size="sm" variant="dark" /> : 'Search'}
         </button>
       </div>
     </form>

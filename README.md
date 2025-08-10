@@ -1,462 +1,188 @@
-# Jovie
+# Supabase CLI
 
-**One link. All your music.**
+[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=main)](https://coveralls.io/github/supabase/cli?branch=main) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
+](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
 
-Jovie is a high-conversion link-in-bio service specifically designed for musicians. It auto-builds clean profiles that send fans straight to your music with smart platform routing and comprehensive analytics.
+[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
 
-## 📊 Status Indicators
+This repository contains all the functionality for Supabase CLI.
 
-### 🚀 Deployment Status
+- [x] Running Supabase locally
+- [x] Managing database migrations
+- [x] Creating and deploying Supabase Functions
+- [x] Generating types directly from your database schema
+- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
 
-[![Deploy Status](https://img.shields.io/badge/Production-Ready-brightgreen)](https://jov.ie)
-[![Preview Status](https://img.shields.io/badge/Preview-Active-blue)](https://jov.ie)
-[![Develop Status](https://img.shields.io/badge/Develop-Active-orange)](https://jov.ie)
+## Getting started
 
-### 🔒 Security Status
+### Install the CLI
 
-[![Security Audit](https://img.shields.io/badge/Security%20Audit-Passing-brightgreen)](https://github.com/itstimwhite/Jovie/security)
-[![Dependencies](https://img.shields.io/badge/Dependencies-Up%20to%20Date-brightgreen)](https://github.com/itstimwhite/Jovie/network/dependencies)
-[![Vulnerabilities](https://img.shields.io/badge/Vulnerabilities-0-brightgreen)](https://github.com/itstimwhite/Jovie/security)
-
-### 🧪 Quality Status
-
-[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen)](https://github.com/itstimwhite/Jovie/actions)
-[![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen)](https://github.com/itstimwhite/Jovie/actions)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue)](https://www.typescriptlang.org/)
-[![Code Coverage](https://img.shields.io/badge/Coverage-85%25-brightgreen)](https://github.com/itstimwhite/Jovie/actions)
-
-### 📈 Performance Status
-
-[![Lighthouse Performance](https://img.shields.io/badge/Lighthouse-95%25-brightgreen)](https://pagespeed.web.dev/)
-[![Bundle Size](https://img.shields.io/badge/Bundle%20Size-Optimized-brightgreen)](https://bundlephobia.com/)
-[![Core Web Vitals](https://img.shields.io/badge/Core%20Web%20Vitals-Good-brightgreen)](https://web.dev/vitals/)
-
-### 🔄 CI/CD Pipeline Status
-
-[![Develop CI](https://img.shields.io/badge/Develop%20CI-Passing-brightgreen)](https://github.com/itstimwhite/Jovie/actions/workflows/develop-ci.yml)
-[![Preview CI](https://img.shields.io/badge/Preview%20CI-Passing-brightgreen)](https://github.com/itstimwhite/Jovie/actions/workflows/preview-ci.yml)
-
-### 🛡️ Security Alerts
-
-[![CodeQL](https://img.shields.io/badge/CodeQL%20Alerts-15%20Open-orange)](https://github.com/itstimwhite/Jovie/security/code-scanning)
-[![Secret Scanning](https://img.shields.io/badge/Secret%20Scanning-Clean-brightgreen)](https://github.com/itstimwhite/Jovie/security/secret-scanning)
-[![Dependabot](https://img.shields.io/badge/Dependabot-Up%20to%20Date-brightgreen)](https://github.com/itstimwhite/Jovie/security/dependabot)
-
-### 📋 Project Health
-
-[![Open Issues](https://img.shields.io/badge/Issues-0-brightgreen)](https://github.com/itstimwhite/Jovie/issues)
-[![Open PRs](https://img.shields.io/badge/PRs-4%20Open-orange)](https://github.com/itstimwhite/Jovie/pulls)
-[![Last Commit](https://img.shields.io/badge/Last%20Commit-Today-brightgreen)](https://github.com/itstimwhite/Jovie/commits/develop)
-[![License](https://img.shields.io/badge/License-MIT-brightgreen)](https://github.com/itstimwhite/Jovie/blob/main/LICENSE)
-
-### 🌐 Live Status
-
-- **Production**: [jov.ie](https://jov.ie) ✅ Live
-- **Preview**: [preview.jov.ie](https://preview.jov.ie) ✅ Active
-- **API Status**: [api.jov.ie/health](https://api.jov.ie/health) ✅ Healthy
-- **Database**: Supabase ✅ Connected
-- **CDN**: Vercel Edge Network ✅ Global
-
----
-
-## Features
-
-- 🎵 **Spotify Integration**: Automatically pulls artist data and latest releases
-- 🔗 **Smart Routing**: Directs fans to the right streaming platform based on preferences
-- 📊 **Analytics**: Track clicks and see which platforms your fans prefer
-- 🎨 **Clean Design**: Apple-inspired, minimalist interface
-- 🌓 **Dark Mode**: Built-in theme switching
-- 📱 **Mobile First**: Responsive design optimized for all devices
-- 🔒 **Secure Auth**: Powered by Clerk with native Supabase integration
-- ⚡ **Fast & Scalable**: Built on Next.js 15 with Supabase backend
-- 💳 **Billing**: Clerk billing integration with Stripe gateway
-- 🎁 **Tip Jar**: Accept tips from fans (feature-flagged)
-- 🚀 **Feature Flags**: Statsig-powered experimentation and feature management
-
-## Tech Stack
-
-### Core Technologies
-
-- **Frontend**: Next.js 15.4.5 (App Router), React 18.3.1, TypeScript 5
-- **Styling**: Tailwind CSS 4.1.11, Headless UI 2.2.7, Heroicons 2.2.0
-- **Backend**: Supabase (PostgreSQL + RLS)
-- **Authentication**: Clerk 6.28.1 with native Supabase integration
-- **Database**: Supabase 2.39.0
-- **Deployment**: Vercel with standalone output
-- **Testing**: Vitest 3.2.4 + Playwright 1.40.1
-- **Feature Flags**: Statsig for experimentation and feature management
-
-### Key Dependencies
-
-- **Form Handling**: React Hook Form 7.62.0 + Zod 3.25.76
-- **Analytics**: Segment 1.68.0 + Vercel Analytics 1.5.0
-- **Billing**: Clerk billing with Stripe gateway
-- **Feature Flags**: Statsig React Bindings 3.21.1
-- **Utilities**: clsx 2.1.0, date-fns 3.2.0, tailwind-merge 3.3.1
-- **Development**: ESLint 9, Prettier 3.1.1, Husky 9.1.7
-
-## Quick Start
-
-### Prerequisites
-
-- Node.js 20.17+ and npm 10.0.0+
-- Supabase project
-- Clerk application with Spotify social provider
-- Spotify Developer App
-- Statsig account (for feature flags)
-
-### Installation
-
-1. Clone the repository:
+Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
 
 ```bash
-git clone https://github.com/your-org/jovie.git
-cd jovie
+npm i supabase --save-dev
 ```
 
-2. Install dependencies:
+To install the beta release channel:
 
 ```bash
-npm install
+npm i supabase@beta --save-dev
 ```
 
-3. Set up environment variables:
+When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
+
+```
+NODE_OPTIONS=--no-experimental-fetch yarn add supabase
+```
+
+> **Note**
+> For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
+
+<details>
+  <summary><b>macOS</b></summary>
+
+Available via [Homebrew](https://brew.sh). To install:
+
+```sh
+brew install supabase/tap/supabase
+```
+
+To install the beta release channel:
+
+```sh
+brew install supabase/tap/supabase-beta
+brew link --overwrite supabase-beta
+```
+
+To upgrade:
+
+```sh
+brew upgrade supabase
+```
+
+</details>
+
+<details>
+  <summary><b>Windows</b></summary>
+
+Available via [Scoop](https://scoop.sh). To install:
+
+```powershell
+scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
+scoop install supabase
+```
+
+To upgrade:
+
+```powershell
+scoop update supabase
+```
+
+</details>
+
+<details>
+  <summary><b>Linux</b></summary>
+
+Available via [Homebrew](https://brew.sh) and Linux packages.
+
+#### via Homebrew
+
+To install:
+
+```sh
+brew install supabase/tap/supabase
+```
+
+To upgrade:
+
+```sh
+brew upgrade supabase
+```
+
+#### via Linux packages
+
+Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
+
+```sh
+sudo apk add --allow-untrusted <...>.apk
+```
+
+```sh
+sudo dpkg -i <...>.deb
+```
+
+```sh
+sudo rpm -i <...>.rpm
+```
+
+```sh
+sudo pacman -U <...>.pkg.tar.zst
+```
+
+</details>
+
+<details>
+  <summary><b>Other Platforms</b></summary>
+
+You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
+
+```sh
+go install github.com/supabase/cli@latest
+```
+
+Add a symlink to the binary in `$PATH` for easier access:
+
+```sh
+ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
+```
+
+This works on other non-standard Linux distros.
+
+</details>
+
+<details>
+  <summary><b>Community Maintained Packages</b></summary>
+
+Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
+To install in your working directory:
 
 ```bash
-# Required for core functionality
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your-clerk-publishable-key
-CLERK_SECRET_KEY=your-clerk-secret-key
-SPOTIFY_CLIENT_ID=your-spotify-client-id
-SPOTIFY_CLIENT_SECRET=your-spotify-client-secret
-
-# Feature flags (Statsig)
-NEXT_PUBLIC_STATSIG_CLIENT_KEY=client-<your-statsig-client-key>
-
-# Optional: Clerk billing
-NEXT_PUBLIC_CLERK_BILLING_ENABLED=true
-NEXT_PUBLIC_CLERK_BILLING_GATEWAY=stripe
-NEXT_PUBLIC_CLERK_PRICING_TABLE_ID=your-clerk-pricing-table-id
-
-# Optional: Analytics
-NEXT_PUBLIC_SEGMENT_WRITE_KEY=your-segment-key
-
-# Optional: App configuration
-NEXT_PUBLIC_APP_URL=https://your-domain.com
-NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=your-verification-code
+pkgx install supabase
 ```
 
-4. Set up the database:
+Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
+
+</details>
+
+### Run the CLI
 
 ```bash
-# Run the Supabase migrations
-supabase db push
+supabase bootstrap
 ```
 
-5. Start the development server:
+Or using npx:
 
 ```bash
-npm run dev
+npx supabase bootstrap
 ```
 
-Visit `http://localhost:3000` to see the app in action.
+The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
 
-### Environment Setup
+## Docs
 
-#### Supabase
+Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
 
-1. Create a new Supabase project
-2. Run the migrations: `supabase db push`
-3. Get your URL and anon key from the project settings
-4. Configure Clerk as a third-party auth provider in Supabase dashboard
+## Breaking changes
 
-#### Clerk
+We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
 
-1. Create a Clerk application
-2. Enable Spotify as a social provider
-3. Configure redirect URLs for your domain
-4. Get your publishable and secret keys
-5. Set up the Supabase integration in Clerk dashboard
-6. (Optional) Configure billing with Stripe gateway
+However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
 
-#### Spotify
+## Developing
 
-1. Create a Spotify Developer App
-2. Add your domain to redirect URIs
-3. Get your Client ID and Client Secret
-4. Grant necessary scopes for artist data access
+To run from source:
 
-#### Statsig (Feature Flags)
-
-1. Create a Statsig account at [statsig.com](https://statsig.com)
-2. Create a new project
-3. Get your client key from the project settings
-4. Configure feature flags in the Statsig dashboard (see [Feature Flags Documentation](docs/feature-flags.md))
-
-## Feature Flags
-
-Jovie uses [Statsig](https://statsig.com/) for feature flag management and experimentation. This provides real-time feature control and A/B testing capabilities.
-
-### Current Feature Flags
-
-| Flag                   | Type   | Description                      | Default             |
-| ---------------------- | ------ | -------------------------------- | ------------------- |
-| `waitlist_enabled`     | Gate   | Controls waitlist functionality  | `false`             |
-| `debug_banner_enabled` | Gate   | Controls debug banner visibility | `development`       |
-| `artist_search_config` | Config | Artist search configuration      | `{ enabled: true }` |
-| `tip_promo_config`     | Config | Tip promotion configuration      | `{ enabled: true }` |
-
-### Usage in Components
-
-```typescript
-import { useFeatureFlags } from '@/lib/feature-flags';
-
-export function MyComponent() {
-  const { waitlistEnabled, debugBannerEnabled } = useFeatureFlags();
-
-  return (
-    <div>
-      {waitlistEnabled && <WaitlistComponent />}
-      {debugBannerEnabled && <DebugBanner />}
-    </div>
-  );
-}
+```sh
+# Go >= 1.22
+go run . help
 ```
-
-For detailed documentation, see [Feature Flags Documentation](docs/feature-flags.md).
-
-## Development
-
-### Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
-- `npm run typecheck` - Run TypeScript compiler
-- `npm run test` - Run unit tests
-- `npm run test:ci` - Run tests with coverage
-- `npm run test:e2e` - Run end-to-end tests
-- `npm run format` - Format code with Prettier
-- `npm run format:check` - Check code formatting
-
-### Project Structure
-
-```
-jovie/
-├── app/                    # Next.js App Router pages
-│   ├── (auth)/            # Authentication routes
-│   ├── (marketing)/       # Public marketing pages
-│   ├── [handle]/          # Artist profile pages
-│   ├── api/               # API routes
-│   ├── dashboard/         # Dashboard pages
-│   └── legal/             # Legal pages
-├── components/            # React components
-│   ├── dashboard/         # Dashboard components
-│   ├── home/              # Homepage components
-│   ├── profile/           # Profile page components
-│   ├── site/              # Site-wide components
-│   └── ui/                # Reusable UI components
-├── lib/                   # Utility libraries
-├── types/                 # TypeScript type definitions
-├── constants/             # App constants
-├── supabase/              # Database migrations
-├── tests/                 # Test files
-├── docs/                  # Documentation
-│   └── feature-flags.md   # Feature flags documentation
-├── future_features/       # Planned features (see below)
-└── docs/                  # Legal documents
-```
-
-### Database Schema
-
-The app uses Supabase with Row Level Security (RLS) enabled. Key tables:
-
-- `users` - User accounts linked to Clerk IDs
-- `artists` - Artist profiles with Spotify integration
-- `social_links` - Social media links with click tracking
-- `releases` - Music releases from Spotify
-- `click_events` - Analytics and tracking data
-
-### Authentication Flow
-
-1. User signs in with Spotify via Clerk
-2. First-time users go through onboarding to connect their Spotify artist profile
-3. Artist data is ingested from Spotify API
-4. User can customize their profile and add social links
-5. Public profile is available at `/{handle}`
-
-### Clerk-Supabase Integration
-
-This project uses Clerk's native Supabase integration for secure authentication and data access:
-
-#### Client-Side Integration
-
-```typescript
-import { useSession } from '@clerk/nextjs';
-import { createClient } from '@supabase/supabase-js';
-
-function createClerkSupabaseClient() {
-  const { session } = useSession();
-
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      async accessToken() {
-        return session?.getToken() ?? null;
-      },
-    }
-  );
-}
-```
-
-#### Server-Side Integration
-
-```typescript
-import { auth } from '@clerk/nextjs/server';
-import { createClient } from '@supabase/supabase-js';
-
-export function createServerSupabaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      async accessToken() {
-        return (await auth()).getToken();
-      },
-    }
-  );
-}
-```
-
-#### RLS Policies
-
-```sql
--- Example RLS policy using auth.jwt()
-create policy "User can view own data" on "users"
-for select to authenticated using (
-  auth.jwt()->>'sub' = user_id
-);
-```
-
-For more details, see [CLERK_SUPABASE_INTEGRATION.md](CLERK_SUPABASE_INTEGRATION.md).
-
-## Billing & Subscriptions
-
-Jovie uses Clerk's billing system with Stripe gateway for subscription management.
-
-### Setup
-
-1. **Clerk Billing Configuration**:
-   - Enable billing in your Clerk dashboard
-   - Configure Stripe as the payment gateway
-   - Create products and pricing plans
-   - Set up webhook endpoints
-
-2. **Environment Variables**:
-
-   ```bash
-   # Enable Clerk billing
-   NEXT_PUBLIC_CLERK_BILLING_ENABLED=true
-   NEXT_PUBLIC_CLERK_BILLING_GATEWAY=stripe
-   ```
-
-3. **Features**:
-   - **Free Plan**: Includes Jovie branding on profile pages
-   - **Pro Plan**: Removes all Jovie branding
-   - **Payment Flow**: Clerk billing → Stripe gateway → User metadata update
-   - **Branding Control**: `BrandingBadge` component automatically hides for Pro users
-
-### Testing
-
-```bash
-# Test the billing flow
-npm run test:e2e -- --grep="billing"
-
-# Test subscription components
-npm run test -- billing
-```
-
-## Deployment
-
-### Vercel Deployment
-
-1. Connect your repository to Vercel
-2. Add environment variables in Vercel dashboard
-3. Update your Clerk and Spotify app settings with production URLs
-4. Deploy!
-
-### Environment Variables for Production
-
-Ensure all environment variables from the setup section are set in your production environment, particularly:
-
-- `NEXT_PUBLIC_APP_URL` - Your production domain
-- `NEXT_PUBLIC_STATSIG_CLIENT_KEY` - Your Statsig client key
-- Database and API keys
-- OAuth redirect URLs matching your domain
-
-## Future Features
-
-The `future_features/` directory contains detailed specifications for planned features:
-
-- **Tour Dates** (`tour-dates.md`) - Artist tour date management and fan notifications
-- **Tip Jar** (`tip-jar.md`) - Enhanced tipping system with multiple payment methods
-- **Universal Artist Notifications** (`universal-artist-notifications.md`) - Cross-platform notification system
-- **Mobile View** (`view-on-mobile.md`) - Mobile-optimized artist profile views
-
-### Contributing to Future Features
-
-To contribute to future features:
-
-1. **Review existing specs**: Check the `future_features/` directory for current plans
-2. **Create new specs**: Add detailed markdown files for new features
-3. **Follow the template**: Include user stories, technical requirements, and implementation notes
-4. **Update this section**: Add new features to this README when specs are added
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes
-4. Add tests if applicable
-5. Run the test suite: `npm run test && npm run test:e2e`
-6. Commit your changes: `git commit -m 'Add amazing feature'`
-7. Push to the branch: `git push origin feature/amazing-feature`
-8. Open a Pull Request
-
-### Code Style
-
-- Follow the existing ESLint and Prettier configuration
-- Use TypeScript for all new code
-- Write tests for new features
-- Follow the established component and naming patterns
-- Use the native Clerk-Supabase integration (see `.cursorrules` for guidelines)
-- Use Statsig for feature flags (see [Feature Flags Documentation](docs/feature-flags.md))
-
-## AI Development Guidelines
-
-This project includes comprehensive guidelines for AI coding tools:
-
-- **CLAUDE.md** - Guidelines for Claude Code
-- **.cursorrules** - Guidelines for Cursor and other AI tools
-- **CLERK_SUPABASE_INTEGRATION.md** - Detailed integration documentation
-- **docs/feature-flags.md** - Feature flags documentation
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For support and questions:
-
-- Open an issue on GitHub
-- Check the documentation
-- Contact us at support@jov.ie
-
----
-
-Built with ❤️ for musicians everywhere.

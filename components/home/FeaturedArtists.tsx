@@ -1,15 +1,16 @@
 import { createServerClient } from '@/lib/supabase-server';
-import FeaturedArtistsComponent from '@/components/FeaturedArtists';
+import FeaturedArtistsComponent, {
+  type FeaturedArtist,
+} from '@/components/FeaturedArtists';
 
 interface DBArtist {
   id: string;
+  handle: string;
   name: string;
   image_url?: string | null;
 }
 
-async function getFeaturedArtists(): Promise<
-  { id: string; name: string; src: string }[]
-> {
+async function getFeaturedArtists(): Promise<FeaturedArtist[]> {
   try {
     const supabase = await createServerClient();
 
@@ -20,7 +21,7 @@ async function getFeaturedArtists(): Promise<
 
     const { data, error } = await supabase
       .from('artists')
-      .select('id, name, image_url')
+      .select('id, handle, name, image_url')
       .eq('published', true)
       .order('name')
       .limit(12);
@@ -32,7 +33,12 @@ async function getFeaturedArtists(): Promise<
 
     return (data as DBArtist[])
       .filter((a) => a.image_url)
-      .map((a) => ({ id: a.id, name: a.name, src: a.image_url as string }));
+      .map((a) => ({
+        id: a.id,
+        handle: a.handle,
+        name: a.name,
+        src: a.image_url as string,
+      }));
   } catch (error) {
     console.error('Error fetching featured artists:', error);
     return [];

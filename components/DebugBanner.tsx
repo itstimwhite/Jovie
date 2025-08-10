@@ -10,7 +10,6 @@ interface DebugInfo {
   supabaseUrl: string | undefined;
   supabaseAnonKey: string | undefined;
   clerkPublishableKey: string | undefined;
-  spotifyClientId: string | undefined;
   // Clerk Billing (replaces direct Stripe integration)
   clerkBillingEnabled: boolean;
   clerkBillingGateway: 'development' | 'stripe' | 'not-configured';
@@ -42,7 +41,6 @@ export function DebugBanner() {
     supabaseUrl: env.NEXT_PUBLIC_SUPABASE_URL,
     supabaseAnonKey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     clerkPublishableKey: env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-    spotifyClientId: env.SPOTIFY_CLIENT_ID,
     clerkBillingEnabled: envFlags.clerkBillingEnabled,
     clerkBillingGateway:
       envFlags.clerkBillingGateway === 'development' ||
@@ -88,23 +86,16 @@ export function DebugBanner() {
 
   // No noisy console logs in production
 
-  // Update body padding based on debug banner state
+  // Update body padding based on debug banner state so we don't cover content
   // We deliberately omit `supabaseClient` from deps to keep dependency array size stable
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (shouldShowDebugBanner) {
       const bannerHeight = isExpanded ? '8rem' : '3rem';
-      document.documentElement.style.setProperty(
-        '--debug-banner-height',
-        bannerHeight
-      );
+      document.body.style.paddingTop = bannerHeight;
     } else {
       // Remove padding when debug banner is disabled
-      document.documentElement.style.setProperty(
-        '--debug-banner-height',
-        '0rem'
-      );
+      document.body.style.paddingTop = '0px';
     }
   }, [isExpanded, shouldShowDebugBanner]);
 
@@ -396,7 +387,7 @@ export function DebugBanner() {
       case 'error':
         return 'bg-red-500';
       case 'not-configured':
-        return 'bg-yellow-500';
+        return 'bg-gray-500';
       case 'checking':
         return 'bg-blue-500';
       default:
@@ -490,7 +481,7 @@ export function DebugBanner() {
       case 'available':
         return 'bg-green-500';
       case 'unavailable':
-        return 'bg-yellow-500';
+        return 'bg-gray-500';
       case 'error':
         return 'bg-red-500';
       case 'checking':
@@ -522,7 +513,7 @@ export function DebugBanner() {
       case 'available':
         return 'bg-green-500';
       case 'unavailable':
-        return 'bg-yellow-500';
+        return 'bg-gray-500';
       case 'error':
         return 'bg-red-500';
       case 'checking':
@@ -623,9 +614,6 @@ export function DebugBanner() {
           clerkPublishableKey: debugInfo.clerkPublishableKey
             ? 'SET'
             : 'NOT SET',
-
-          // Required for Spotify integration
-          spotifyClientId: debugInfo.spotifyClientId ? 'SET' : 'NOT SET',
 
           // Clerk Billing (replaces direct Stripe integration)
           clerkBillingEnabled: debugInfo.clerkBillingEnabled
@@ -731,19 +719,21 @@ export function DebugBanner() {
               </div>
             </div>
 
-            {/* Native Integration Status */}
-            <div className="flex items-center space-x-1">
-              <span>NATIVE:</span>
-              <div
-                className={`px-2 py-1 rounded text-white text-xs ${getNativeIntegrationStatusColor(
-                  debugInfo.nativeIntegrationStatus
-                )}`}
-              >
-                {getNativeIntegrationStatusText(
-                  debugInfo.nativeIntegrationStatus
-                )}
+            {/* Native Integration Status (only meaningful when session exists) */}
+            {session && (
+              <div className="flex items-center space-x-1">
+                <span>NATIVE:</span>
+                <div
+                  className={`px-2 py-1 rounded text-white text-xs ${getNativeIntegrationStatusColor(
+                    debugInfo.nativeIntegrationStatus
+                  )}`}
+                >
+                  {getNativeIntegrationStatusText(
+                    debugInfo.nativeIntegrationStatus
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Clerk Session Status */}
             <div className="flex items-center space-x-1">
@@ -757,17 +747,19 @@ export function DebugBanner() {
               </div>
             </div>
 
-            {/* Clerk Token Status */}
-            <div className="flex items-center space-x-1">
-              <span>TOKEN:</span>
-              <div
-                className={`px-2 py-1 rounded text-white text-xs ${getClerkTokenStatusColor(
-                  debugInfo.clerkTokenStatus
-                )}`}
-              >
-                {getClerkTokenStatusText(debugInfo.clerkTokenStatus)}
+            {/* Clerk Token Status (only when session exists) */}
+            {session && (
+              <div className="flex items-center space-x-1">
+                <span>TOKEN:</span>
+                <div
+                  className={`px-2 py-1 rounded text-white text-xs ${getClerkTokenStatusColor(
+                    debugInfo.clerkTokenStatus
+                  )}`}
+                >
+                  {getClerkTokenStatusText(debugInfo.clerkTokenStatus)}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Clerk Billing Status */}
             <div className="flex items-center space-x-1">
@@ -916,14 +908,7 @@ export function DebugBanner() {
                   </span>
 
                   {/* Spotify */}
-                  <span
-                    className={`px-1 rounded text-xs ${
-                      debugInfo.spotifyClientId ? 'bg-green-500' : 'bg-red-500'
-                    }`}
-                    title={debugInfo.spotifyClientId ? 'Set' : 'Not set'}
-                  >
-                    SPOTIFY_ID
-                  </span>
+                  {null}
 
                   {/* Clerk Billing */}
                   <span

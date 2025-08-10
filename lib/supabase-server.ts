@@ -18,7 +18,8 @@ export function createServerClient() {
     async accessToken() {
       try {
         const { getToken } = await auth();
-        return (await getToken()) ?? null;
+        // Use Clerk template for Supabase to obtain a Supabase-compatible JWT
+        return (await getToken({ template: 'supabase' })) ?? null;
       } catch {
         return null;
       }
@@ -41,7 +42,8 @@ export async function createAuthenticatedServerClient() {
         // For server-side, we need to get the token from the session
         try {
           const { getToken } = await auth();
-          return (await getToken()) ?? null;
+          // Use Clerk template for Supabase to obtain a Supabase-compatible JWT
+          return (await getToken({ template: 'supabase' })) ?? null;
         } catch {
           return null;
         }

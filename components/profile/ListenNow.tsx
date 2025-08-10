@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { Spinner } from '@/components/ui';
 
 interface ListenNowProps {
   handle: string;
@@ -51,7 +52,7 @@ export function ListenNow({ handle, artistName }: ListenNowProps) {
       >
         {isLoading ? (
           <div className="flex items-center space-x-2">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            <Spinner size="sm" variant="dark" />
             <span>Opening...</span>
           </div>
         ) : (

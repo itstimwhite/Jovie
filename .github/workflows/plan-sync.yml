@@ -3,12 +3,12 @@ name: Plan → Issues → Copilot
 on:
   push:
     paths:
-      - "windsurf.plan.md"
-      - "plan.md"
-      - "PLAN.md"
-      - ".github/scripts/plan2issues.mjs"
+      - 'windsurf.plan.md'
+      - 'plan.md'
+      - 'PLAN.md'
+      - '.github/scripts/plan2issues.mjs'
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: '*/15 * * * *'
   workflow_dispatch: {}
 
 # Defaults (can be overridden in repo → Settings → Actions → Variables)
