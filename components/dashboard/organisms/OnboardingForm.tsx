@@ -344,7 +344,7 @@ export function OnboardingForm() {
     <div className="space-y-6">
       {/* Progress indicator */}
       {state.step !== 'validating' && (
-        <div className="space-y-2">
+        <div className="space-y-2" id="form-status" aria-live="polite">
           <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
             <span>{getProgressText()}</span>
             <span>{state.progress}%</span>
@@ -353,6 +353,11 @@ export function OnboardingForm() {
             <div
               className="bg-blue-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${state.progress}%` }}
+              role="progressbar"
+              aria-valuenow={state.progress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Onboarding progress"
             />
           </div>
         </div>
@@ -384,24 +389,30 @@ export function OnboardingForm() {
         </div>
       )}
 
-      {/* Error display */}
-      {state.error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <p className="text-red-800 dark:text-red-200 text-sm">
-              {state.error}
-            </p>
-            <Button
-              onClick={retryOperation}
-              variant="secondary"
-              size="sm"
-              disabled={state.retryCount >= 3}
-            >
-              {state.retryCount >= 3 ? 'Max retries' : 'Retry'}
-            </Button>
+      {/* Error display with consistent height to prevent layout jump */}
+      <div className="min-h-[4rem]" aria-live="polite">
+        {state.error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 transition-all duration-200">
+            <div className="flex items-center justify-between">
+              <p
+                className="text-red-800 dark:text-red-200 text-sm"
+                role="alert"
+              >
+                {state.error}
+              </p>
+              <Button
+                onClick={retryOperation}
+                variant="secondary"
+                size="sm"
+                disabled={state.retryCount >= 3}
+                aria-label="Retry onboarding process"
+              >
+                {state.retryCount >= 3 ? 'Max retries' : 'Retry'}
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -418,6 +429,11 @@ export function OnboardingForm() {
               required
               disabled={state.step !== 'validating'}
               className="font-mono pr-8"
+              aria-describedby="handle-preview-onboarding"
+              aria-invalid={
+                handleError || handleValidation.error ? 'true' : 'false'
+              }
+              aria-label="Enter your desired handle"
             />
             {handleValidation.checking && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -442,7 +458,10 @@ export function OnboardingForm() {
               </div>
             )}
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <p
+            className="text-xs text-gray-500 dark:text-gray-400 mt-1"
+            id="handle-preview-onboarding"
+          >
             Your profile will be live at jov.ie/{handle || 'your-handle'}
           </p>
         </FormField>
@@ -452,6 +471,7 @@ export function OnboardingForm() {
           disabled={!isFormValid || state.step !== 'validating'}
           variant="primary"
           className="w-full"
+          aria-describedby="form-status"
         >
           {state.step === 'validating' ? 'Create Profile' : getProgressText()}
         </Button>
