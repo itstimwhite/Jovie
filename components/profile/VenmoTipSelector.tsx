@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import PrimaryCTA from '@/components/ui/PrimaryCTA';
 
 type VenmoTipSelectorProps = {
   venmoLink: string;
@@ -61,13 +62,13 @@ export default function VenmoTipSelector({
         })}
       </div>
 
-      <button
-        type="button"
+      <PrimaryCTA
         onClick={handleContinue}
-        className="w-full rounded-lg bg-black text-white dark:bg-white dark:text-black py-3 font-semibold shadow hover:opacity-90 transition"
+        ariaLabel={`Continue to Venmo with $${selectedAmount}`}
+        autoFocus
       >
         Continue
-      </button>
+      </PrimaryCTA>
     </div>
   );
 }

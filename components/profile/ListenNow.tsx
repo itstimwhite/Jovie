@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/Button';
+import PrimaryCTA from '@/components/ui/PrimaryCTA';
 import { Spinner } from '@/components/ui';
 
 interface ListenNowProps {
@@ -43,22 +43,21 @@ export function ListenNow({ handle, artistName }: ListenNowProps) {
 
   return (
     <div className="w-full max-w-sm">
-      <Button
+      <PrimaryCTA
         onClick={handleClick}
-        className="w-full py-3 text-base sm:py-4 sm:text-lg"
-        size="lg"
+        ariaLabel={`Listen to ${artistName}`}
+        autoFocus
         disabled={isLoading}
-        aria-label={`Listen to ${artistName} on Spotify`}
       >
         {isLoading ? (
-          <div className="flex items-center space-x-2">
+          <span className="inline-flex items-center gap-2">
             <Spinner size="sm" variant="dark" />
             <span>Opening...</span>
-          </div>
+          </span>
         ) : (
           'Listen Now'
         )}
-      </Button>
+      </PrimaryCTA>
     </div>
   );
 }
