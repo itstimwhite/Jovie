@@ -9,9 +9,8 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const publicClient = createClient(supabaseUrl, supabaseAnonKey);
 
 // Service key (if available) for RLS testing
-const supabaseServiceKey =
-  process.env.SUPABASE_SERVICE_KEY ||
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU';
+// NOTE: SUPABASE_SERVICE_KEY must be set in your environment. No fallback is provided for security reasons.
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
 const serviceClient = createClient(supabaseUrl, supabaseServiceKey);
 
 // Verify environment variables
