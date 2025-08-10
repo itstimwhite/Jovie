@@ -22,3 +22,4 @@ export { FormStatus } from './FormStatus';
 // Layout Components
 export { DataCard } from './DataCard';
 export { InfoBox } from './InfoBox';
+export { Section } from './Section';
