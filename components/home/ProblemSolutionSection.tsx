@@ -5,55 +5,73 @@ import { track } from '@/lib/analytics';
 
 export function ProblemSolutionSection() {
   const handleClick = () => {
-    track('claim_handle_click', { section: 'solution' });
+    track('claim_handle_click', { section: 'problem-solution' });
   };
 
   return (
     <section
-      id="problem"
-      aria-labelledby="problem-heading"
-      className="relative border-t border-white/10"
+      id="problem-solution"
+      aria-labelledby="problem-solution-heading"
+      className="relative border-t border-gray-200 dark:border-white/10"
     >
       <div className="mx-auto max-w-5xl px-4 py-20 md:py-24 text-center">
-        <span className="inline-flex items-center rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-wide text-white/60">
-          Problem
-        </span>
+        {/* Unified badge with Linear-inspired styling */}
+        <div className="inline-flex items-center rounded-full bg-gray-100/80 dark:bg-white/5 px-4 py-2 text-sm font-medium text-gray-700 dark:text-white/80 backdrop-blur-sm border border-gray-200 dark:border-white/10">
+          <div className="flex h-2 w-2 items-center justify-center mr-2">
+            <div className="h-1.5 w-1.5 rounded-full bg-amber-400 dark:bg-amber-500 animate-pulse" />
+          </div>
+          The Problem & Our Solution
+        </div>
+
+        {/* Unified heading */}
         <h2
-          id="problem-heading"
-          className="mt-4 text-4xl md:text-6xl font-bold tracking-tight text-balance"
+          id="problem-solution-heading"
+          className="mt-6 text-4xl md:text-6xl font-bold tracking-tight text-balance text-gray-900 dark:text-white"
         >
           Your bio link is a speed bump.
+          <br />
+          <span className="text-3xl md:text-5xl text-gray-600 dark:text-white/70 font-semibold">
+            We built the off-ramp.
+          </span>
         </h2>
-        <p className="mt-4 text-white/70 max-w-3xl mx-auto leading-relaxed">
-          Every extra tap taxes attention. “Cute” layouts bleed streams,
-          follows, and ticket sales.
-        </p>
 
-        <div className="mt-16 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        {/* Unified narrative flow */}
+        <div className="mt-8 space-y-6 max-w-4xl mx-auto">
+          <p className="text-lg text-gray-600 dark:text-white/70 leading-relaxed">
+            Every extra tap taxes attention. &ldquo;Cute&rdquo; layouts bleed
+            streams, follows, and ticket sales.
+          </p>
+          <p className="text-lg text-gray-700 dark:text-white/80 leading-relaxed font-medium">
+            Jovie ships a locked, elite artist page in seconds—built for streams
+            and sales, not vibes. One link. One funnel. More plays, more pay.
+          </p>
+        </div>
 
-        <span className="mt-16 inline-flex items-center rounded-full border border-white/10 px-3 py-1 text-[11px] uppercase tracking-wide text-white/60">
-          Solution
-        </span>
-        <h3
-          id="solution-heading"
-          className="mt-4 text-3xl md:text-5xl font-bold tracking-tight"
-        >
-          Stop designing. Start converting.
-        </h3>
-        <p className="mt-4 text-white/70 max-w-3xl mx-auto leading-relaxed">
-          Jovie ships a locked, elite artist page in seconds—built for streams
-          and sales, not vibes. One link. One funnel. More plays, more pay.{' '}
-          <span className="opacity-70">(Tour cues beta.)</span>
-        </p>
-
-        <div className="mt-10">
+        {/* Linear-inspired CTA button */}
+        <div className="mt-12">
           <Link
             href="/onboarding"
             onClick={handleClick}
-            className="btn btn-primary"
+            className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white bg-gray-900 hover:bg-gray-800 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-200 rounded-lg border border-gray-900 dark:border-gray-50 transition-all duration-200 ease-in-out focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 shadow-sm hover:shadow-md disabled:opacity-50 disabled:pointer-events-none group"
           >
-            Claim your handle → Go live in 60s
+            <span>Claim your handle</span>
+            <svg
+              className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
           </Link>
+          <p className="mt-3 text-sm text-gray-500 dark:text-white/50">
+            Go live in 60 seconds
+          </p>
         </div>
       </div>
     </section>
