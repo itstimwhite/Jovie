@@ -185,6 +185,21 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   <TipJar handle={artist.handle} artistName={artist.name} />
                 </div>
 
+                {socialLinks.find((l) => l.platform === 'venmo') && (
+                  <div className="flex justify-center">
+                    <a
+                      href={
+                        socialLinks.find((l) => l.platform === 'venmo')!.url
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center rounded-md bg-[#3D95CE] px-4 py-2 text-white font-semibold shadow hover:bg-[#2f7ead] transition-colors"
+                    >
+                      Tip via Venmo
+                    </a>
+                  </div>
+                )}
+
                 <SocialBar
                   handle={artist.handle}
                   artistName={artist.name}

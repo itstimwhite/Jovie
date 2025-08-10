@@ -67,6 +67,8 @@ SELECT id, 'youtube', 'https://youtube.com/@itstimwhite' FROM tim_artist
 UNION ALL
 SELECT id, 'spotify', 'https://open.spotify.com/artist/4Uwpa6zW3zzCSQvooQNksm' FROM tim_artist
 UNION ALL
+SELECT id, 'venmo', 'https://venmo.com/u/itstimwhite' FROM tim_artist
+UNION ALL
 SELECT id, 'website', 'https://timwhite.co/' FROM tim_artist
 ON CONFLICT DO NOTHING;
 
