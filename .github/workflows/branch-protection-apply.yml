@@ -1,0 +1,87 @@
+name: Apply Branch Protection
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup gh auth
+        env:
+          GH_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+        run: |
+          gh auth status || true
+
+      - name: Apply protection to preview
+        env:
+          GH_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+        run: |
+          set -euo pipefail
+          OWNER="${GITHUB_REPOSITORY%/*}"
+          REPO="${GITHUB_REPOSITORY#*/}"
+
+          cat > body.json << 'JSON'
+          {
+            "required_status_checks": {
+              "strict": false,
+              "contexts": [
+                "CI / pr-policy",
+                "CI / up-to-date-with-preview",
+                "CI / ci-fast"
+              ]
+            },
+            "enforce_admins": true,
+            "required_pull_request_reviews": null,
+            "restrictions": null,
+            "allow_force_pushes": false,
+            "allow_deletions": false,
+            "required_linear_history": true,
+            "required_conversation_resolution": true
+          }
+          JSON
+
+          gh api \
+            -X PUT \
+            -H "Accept: application/vnd.github+json" \
+            repos/$OWNER/$REPO/branches/preview/protection \
+            --input body.json
+
+      - name: Apply protection to main
+        env:
+          GH_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+        run: |
+          set -euo pipefail
+          OWNER="${GITHUB_REPOSITORY%/*}"
+          REPO="${GITHUB_REPOSITORY#*/}"
+
+          cat > body-main.json << 'JSON'
+          {
+            "required_status_checks": {
+              "strict": false,
+              "contexts": [
+                "CI / ci-fast"
+              ]
+            },
+            "enforce_admins": true,
+            "required_pull_request_reviews": {
+              "required_approving_review_count": 1,
+              "dismiss_stale_reviews": false,
+              "require_code_owner_reviews": false
+            },
+            "restrictions": null,
+            "allow_force_pushes": false,
+            "allow_deletions": false,
+            "required_linear_history": true,
+            "required_conversation_resolution": true
+          }
+          JSON
+
+          gh api \
+            -X PUT \
+            -H "Accept: application/vnd.github+json" \
+            repos/$OWNER/$REPO/branches/main/protection \
+            --input body-main.json
