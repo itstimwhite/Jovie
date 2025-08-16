@@ -22,6 +22,14 @@ jobs:
             const owner = context.repo.owner;
             const repo  = context.repo.repo;
 
+            // Ensure repository allows auto-merge so promotion PR can auto-merge when green
+            try {
+              await github.rest.repos.update({ owner, repo, allow_auto_merge: true });
+              core.info('Enabled repository setting: allow_auto_merge');
+            } catch (e) {
+              core.warning(`Could not enable allow_auto_merge: ${e.status} ${e.message}`);
+            }
+
             async function protect(branch, opts) {
               // Update branch protection
               await github.rest.repos.updateBranchProtection({
