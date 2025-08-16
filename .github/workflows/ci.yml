@@ -127,7 +127,8 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
   promote:
-    needs: [deploy]
+    # Only open/update promotion PR after deploy and full CI succeed on preview
+    needs: [deploy, ci-full]
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/preview' }}
     runs-on: ubuntu-latest
     permissions:
