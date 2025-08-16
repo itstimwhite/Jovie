@@ -1,4 +1,4 @@
-name: Auto-merge PRs into preview
+name: Auto-merge Preview PRs
 on:
   workflow_run:
     workflows: ["CI"]
@@ -25,12 +25,12 @@ jobs:
             const pr  = prs.find(p => p.head.sha === sha);
             if (!pr) return;
 
-            // only merge PRs targeting preview
+            // only target preview branch
             if (pr.base.ref !== 'preview') return;
 
             // skip if human said "don't"
             const labels = new Set(pr.labels.map(l => l.name));
-            if (labels.has('blocked') || labels.has('human-review') || labels.has('do-not-merge')) return;
+            if (labels.has('blocked') || labels.has('human-review') || labels.has('no-auto-merge')) return;
 
             // drafts can't merge — mark ready
             if (pr.draft) {
@@ -42,20 +42,12 @@ jobs:
 
             // re-check checks + statuses
             const checks = await github.rest.checks.listForRef({ owner, repo, ref: pr.head.sha, per_page: 100 });
-
-            function isFailingCheck(check) {
-              const completed = check.status === 'completed';
-              const allowedConclusions = ['success', 'neutral', 'skipped'];
-              const conclusionOk = allowedConclusions.includes(check.conclusion || '');
-              return !completed || !conclusionOk;
-            }
-
-            const failing = checks.data.check_runs.some(isFailingCheck);
+            const failing = checks.data.check_runs.some(c => c.status !== 'completed' || !['success','neutral','skipped'].includes(c.conclusion||''));
             const statuses = await github.rest.repos.getCombinedStatusForRef({ owner, repo, ref: pr.head.sha });
             const ok = !failing && statuses.data.state === 'success';
             if (!ok) return;
 
-            // merge + cleanup
+            // merge + cleanup branch when safe (same repo only)
             await github.rest.pulls.merge({ owner, repo, pull_number: pr.number, merge_method: 'squash' });
             try {
               if (pr.head.repo.full_name === `${owner}/${repo}`) {
