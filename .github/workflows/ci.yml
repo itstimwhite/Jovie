@@ -2,13 +2,13 @@ name: CI
 
 on:
   pull_request:
-    branches: [develop, preview, main]
+    branches: [preview, main]
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
       - '.vscode/**'
   push:
-    branches: [develop, preview, main]
+    branches: [preview, main]
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
@@ -33,10 +33,10 @@ jobs:
           script: |
             const base = context.payload.pull_request.base.ref;
             const head = context.payload.pull_request.head.ref;
-            if (base === 'preview' && head !== 'develop') {
-              core.setFailed(`Only allow develop -> preview. Got ${head} -> ${base}`);
-            } else if (base === 'main' && head !== 'preview') {
+            if (base === 'main' && head !== 'preview') {
               core.setFailed(`Only allow preview -> main. Got ${head} -> ${base}`);
+            } else if (base === 'preview' && head === 'main') {
+              core.setFailed(`Do not merge main -> preview. Use feature/* -> preview`);
             } else {
               core.info('PR policy OK');
             }
@@ -78,10 +78,10 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
       - run: npm ci
       - name: Install Playwright
-        if: ${{ hashFiles('tests/e2e/**') != '' }}
+        if: ${{ hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '' }}
         run: npx playwright install --with-deps
       - name: E2E smoke
-        if: ${{ github.ref != 'refs/heads/main' && hashFiles('tests/e2e/**') != '' }}
+        if: ${{ github.ref != 'refs/heads/main' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
         run: npm run e2e:smoke --if-present
         continue-on-error: true
       - run: npm test --if-present
@@ -89,17 +89,27 @@ jobs:
 
   deploy:
     needs: [ci-fast] # change to [ci-full] if you want build/tests first
-    if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/preview') }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/preview' }}
     runs-on: ubuntu-latest
     environment:
-      name: ${{ (github.ref == 'refs/heads/develop' && 'Develop') || 'Preview' }}
-      url: ${{ (github.ref == 'refs/heads/develop' && 'https://dev.jov.ie') || 'https://preview.jov.ie' }}
+      name: Preview
+      url: https://preview.jov.ie
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
+      - name: DB migrate (preview)
+        run: npm run db:migrate
+        env:
+          GIT_BRANCH: preview
+        continue-on-error: true
+      - name: DB seed (preview)
+        run: npm run db:seed
+        env:
+          GIT_BRANCH: preview
+        continue-on-error: true
       - name: Pull env (preview)
         run: vercel pull --yes --environment=preview --token ${{ secrets.VERCEL_TOKEN }}
         env:
@@ -118,7 +128,7 @@ jobs:
 
   promote:
     needs: [deploy]
-    if: ${{ github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/preview') }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/preview' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -126,40 +136,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 2 }
-      - name: Promote develop → preview
-        if: ${{ github.ref == 'refs/heads/develop' }}
+      - name: Create/Update PR preview → main (no auto-merge)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Check if PR already exists
-          existing_pr=$(gh pr list --head develop --base preview --json number --jq '.[0].number // empty')
-          if [ -z "$existing_pr" ]; then
-            echo "Creating new PR: develop → preview"
-            gh pr create --base preview --head develop --title "Auto-promote: develop → preview" --body "Automated promotion PR"
-            existing_pr=$(gh pr list --head develop --base preview --json number --jq '.[0].number // empty')
-          else
-            echo "PR already exists: #$existing_pr"
-          fi
-          echo "Enabling auto-merge for PR #$existing_pr"
-          gh pr merge "$existing_pr" --squash --auto
-      - name: Promote preview → main
-        if: ${{ github.ref == 'refs/heads/preview' }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Check if PR already exists
           existing_pr=$(gh pr list --head preview --base main --json number --jq '.[0].number // empty')
           if [ -z "$existing_pr" ]; then
             echo "Creating new PR: preview → main"
             gh pr create --base main --head preview --title "Auto-promote: preview → main" --body "Automated promotion PR"
-            existing_pr=$(gh pr list --head preview --base main --json number --jq '.[0].number // empty')
           else
             echo "PR already exists: #$existing_pr"
           fi
-          echo "Enabling auto-merge for PR #$existing_pr"
-          gh pr merge "$existing_pr" --squash --auto
-          echo "Triggering CI on main via workflow_dispatch to run production deploy"
-          gh workflow run CI --ref main || echo "Note: ensure workflow_dispatch is enabled on CI workflow"
+          echo "Promotion PR ready for manual review/merge"
 
   deploy-prod:
     needs: [ci-fast]
@@ -175,6 +163,11 @@ jobs:
           node-version: 20
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
+      - name: DB migrate (main) — requires backup and ALLOW_PROD_MIGRATIONS=true
+        run: npm run db:migrate
+        env:
+          GIT_BRANCH: main
+        continue-on-error: false
       - name: Pull env (production)
         run: vercel pull --yes --environment=production --token ${{ secrets.VERCEL_TOKEN }}
         env:
