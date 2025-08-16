@@ -49,9 +49,9 @@ jobs:
               }
             }
 
-            // preview: 0 reviews, require checks
+            // preview: 0 reviews, require checks (including 'up-to-date-with-preview')
             await protect('preview', {
-              contexts: ['pr-policy','ci-fast'],
+              contexts: ['pr-policy','up-to-date-with-preview','ci-fast'],
               reviews: {
                 required_approving_review_count: 0,
                 dismiss_stale_reviews: false,
@@ -60,7 +60,7 @@ jobs:
               },
             });
 
-            // main: 1 review, require checks
+            // main: 1 review, require checks (no up-to-date-with-preview)
             await protect('main', {
               contexts: ['pr-policy','ci-fast'],
               reviews: {
