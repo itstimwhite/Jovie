@@ -34,7 +34,7 @@ jobs:
 
       - name: Wait for fast checks
         if: ${{ fromJSON(steps.ensure.outputs.allowed) }}
-        uses: lewagon/wait-on-check-action@v1.3.3
+        uses: lewagon/wait-on-check-action@v1.4.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
