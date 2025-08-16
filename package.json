@@ -36,7 +36,7 @@
     "db:seed": "node scripts/db-seed.js"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.28.1",
+    "@clerk/nextjs": "^6.31.1",
     "@flags-sdk/statsig": "^0.2.2",
     "@fontsource/inter": "^5.2.6",
     "@headlessui/react": "^2.2.7",
