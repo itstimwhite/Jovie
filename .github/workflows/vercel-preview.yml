@@ -44,7 +44,11 @@ jobs:
       - name: Deploy (prebuilt)
         id: deploy
         run: |
-          url=$(vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }} | tail -n1)
+          url=$(vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }} | grep -Eo 'https://[a-zA-Z0-9.-]+\.vercel\.app' | tail -n1)
+          if [[ ! "$url" =~ ^https://[a-zA-Z0-9.-]+\.vercel\.app$ ]]; then
+            echo "Failed to extract Vercel deployment URL" >&2
+            exit 1
+          fi
           echo "url=$url" >> $GITHUB_OUTPUT
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
