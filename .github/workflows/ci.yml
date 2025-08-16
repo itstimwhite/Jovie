@@ -41,6 +41,24 @@ jobs:
               core.info('PR policy OK');
             }
 
+  up-to-date-with-preview:
+    name: up-to-date-with-preview
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'preview' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check branch is up-to-date with preview
+        run: |
+          git fetch origin preview
+          if git merge-base --is-ancestor origin/preview HEAD; then
+            echo "Up to date with preview"
+          else
+            echo "Branch is behind preview. Please merge/rebase preview into your branch."
+            exit 1
+          fi
+
   ci-fast:
     # Draft PRs skip; ready PRs + pushes run fast checks
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
@@ -137,7 +155,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 2 }
-      - name: Create/Update PR preview → main (no auto-merge)
+      - name: Create/Update PR preview → main and enable auto-merge
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -145,10 +163,12 @@ jobs:
           if [ -z "$existing_pr" ]; then
             echo "Creating new PR: preview → main"
             gh pr create --base main --head preview --title "Auto-promote: preview → main" --body "Automated promotion PR"
+            existing_pr=$(gh pr list --head preview --base main --json number --jq '.[0].number // empty')
           else
             echo "PR already exists: #$existing_pr"
           fi
-          echo "Promotion PR ready for manual review/merge"
+          echo "Enabling auto-merge for PR #$existing_pr"
+          gh pr merge "$existing_pr" --squash --auto || echo "Auto-merge not enabled (checks/policy may prevent); will merge when green"
 
   deploy-prod:
     needs: [ci-fast]
