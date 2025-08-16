@@ -57,9 +57,12 @@ jobs:
               }
             }
 
+            // NOTE: GitHub uses "<workflow name> / <job id or name>" for check contexts
+            // Our workflow is named "CI", so contexts should be prefixed with "CI / "
+
             // preview: 0 reviews, require checks (including 'up-to-date-with-preview')
             await protect('preview', {
-              contexts: ['pr-policy','up-to-date-with-preview','ci-fast'],
+              contexts: ['CI / pr-policy','CI / up-to-date-with-preview','CI / ci-fast'],
               reviews: {
                 required_approving_review_count: 0,
                 dismiss_stale_reviews: false,
@@ -70,7 +73,7 @@ jobs:
 
             // main: 1 review, require checks (no up-to-date-with-preview)
             await protect('main', {
-              contexts: ['pr-policy','ci-fast'],
+              contexts: ['CI / pr-policy','CI / ci-fast'],
               reviews: {
                 required_approving_review_count: 1,
                 dismiss_stale_reviews: true,
