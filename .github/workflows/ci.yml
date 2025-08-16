@@ -156,20 +156,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 2 }
-      - name: Create/Update PR preview → main and enable auto-merge
+      - name: Create/Update PR preview → main (manual review required)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           existing_pr=$(gh pr list --head preview --base main --json number --jq '.[0].number // empty')
           if [ -z "$existing_pr" ]; then
             echo "Creating new PR: preview → main"
-            gh pr create --base main --head preview --title "Auto-promote: preview → main" --body "Automated promotion PR"
-            existing_pr=$(gh pr list --head preview --base main --json number --jq '.[0].number // empty')
+            gh pr create --base main --head preview --title "Promote: preview → main" --body "Automated promotion PR (manual review required)"
           else
-            echo "PR already exists: #$existing_pr"
+            echo "PR already exists: #$existing_pr (no auto-merge; manual review required)"
+            gh pr edit "$existing_pr" --title "Promote: preview → main" --body "Automated promotion PR (manual review required)"
           fi
-          echo "Enabling auto-merge for PR #$existing_pr"
-          gh pr merge "$existing_pr" --squash --auto || echo "Auto-merge not enabled (checks/policy may prevent); will merge when green"
 
   deploy-prod:
     needs: [ci-fast]
