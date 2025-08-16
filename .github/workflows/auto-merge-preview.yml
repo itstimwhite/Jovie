@@ -42,7 +42,15 @@ jobs:
 
             // re-check checks + statuses
             const checks = await github.rest.checks.listForRef({ owner, repo, ref: pr.head.sha, per_page: 100 });
-            const failing = checks.data.check_runs.some(c => c.status !== 'completed' || !['success','neutral','skipped'].includes(c.conclusion||''));
+
+            function isFailingCheck(check) {
+              const completed = check.status === 'completed';
+              const allowedConclusions = ['success', 'neutral', 'skipped'];
+              const conclusionOk = allowedConclusions.includes(check.conclusion || '');
+              return !completed || !conclusionOk;
+            }
+
+            const failing = checks.data.check_runs.some(isFailingCheck);
             const statuses = await github.rest.repos.getCombinedStatusForRef({ owner, repo, ref: pr.head.sha });
             const ok = !failing && statuses.data.state === 'success';
             if (!ok) return;
