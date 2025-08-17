@@ -1,22 +1,30 @@
 import { PostHog } from 'posthog-node';
 
-const key = process.env.POSTHOG_API_KEY!;
+const key = process.env.POSTHOG_API_KEY || 'test-key';
 const host = process.env.POSTHOG_HOST || 'https://us.i.posthog.com';
 
-export const posthogServer = new PostHog(key, {
-  host,
-  // keep server fast & resilient
-  flushAt: 20,
-  flushInterval: 500,
-  requestTimeout: 1500,
-  featureFlagsPollingInterval: 30000,
-});
+// Only initialize PostHog if we have a real API key
+const hasValidKey =
+  process.env.POSTHOG_API_KEY && process.env.POSTHOG_API_KEY.length > 0;
+
+export const posthogServer = hasValidKey
+  ? new PostHog(key, {
+      host,
+      // keep server fast & resilient
+      flushAt: 20,
+      flushInterval: 500,
+      requestTimeout: 1500,
+      featureFlagsPollingInterval: 30000,
+    })
+  : null;
 
 export async function getServerFlag<T = boolean | string | object>(
   key: string,
   distinctId: string,
   props?: Record<string, unknown>
 ): Promise<T | undefined> {
+  if (!posthogServer) return undefined;
+
   try {
     if (props) await posthogServer.identify({ distinctId, properties: props });
     const value = await posthogServer.getFeatureFlag(key, distinctId, props);
@@ -30,6 +38,8 @@ export async function getAllServerFlags(
   distinctId: string,
   props?: Record<string, unknown>
 ): Promise<Record<string, boolean | string | object>> {
+  if (!posthogServer) return {};
+
   try {
     if (props) await posthogServer.identify({ distinctId, properties: props });
     const flags = await posthogServer.getAllFlags(distinctId, props);
@@ -43,6 +53,8 @@ export async function identifyServerUser(
   distinctId: string,
   props: Record<string, unknown>
 ): Promise<void> {
+  if (!posthogServer) return;
+
   try {
     await posthogServer.identify({ distinctId, properties: props });
   } catch {

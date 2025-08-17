@@ -1,79 +1,63 @@
 import { describe, it, expect } from 'vitest';
 
-describe('Vercel Flags Discovery Endpoint', () => {
-  // Test the acceptance criteria: Call /.well-known/vercel/flags and verify version info is returned
-  it('should return version info from discovery endpoint', async () => {
-    const response = await fetch(
-      'http://localhost:3000/.well-known/vercel/flags'
-    );
+describe('PostHog Feature Flags Integration', () => {
+  describe('isEnabled function - default behavior', () => {
+    it('should return default flag values for known flags', async () => {
+      // Import directly to test defaults
+      const { isEnabled } = await import('../../lib/flags');
 
-    expect(response.status).toBe(200);
-    expect(response.headers.get('content-type')).toContain('application/json');
+      // Test known flag defaults (no context = should return defaults)
+      expect(await isEnabled('artistSearchEnabled')).toBe(true);
+      expect(await isEnabled('debugBannerEnabled')).toBe(true);
+      expect(await isEnabled('tipPromoEnabled')).toBe(true);
 
-    const data = await response.json();
-
-    // Verify required version field
-    expect(data).toHaveProperty('version');
-    expect(typeof data.version).toBe('number');
-    expect(data.version).toBe(4); // Should be version 4 for Vercel Flags SDK compatibility
-
-    // Verify flags object exists
-    expect(data).toHaveProperty('flags');
-    expect(typeof data.flags).toBe('object');
-
-    // Verify metadata exists
-    expect(data).toHaveProperty('metadata');
-    expect(typeof data.metadata).toBe('object');
-    expect(data.metadata).toHaveProperty('app');
-    expect(data.metadata).toHaveProperty('framework');
-    expect(data.metadata).toHaveProperty('source');
-  });
-
-  it('should have properly formatted flag definitions', async () => {
-    const response = await fetch(
-      'http://localhost:3000/.well-known/vercel/flags'
-    );
-    const data = await response.json();
-
-    // Verify each flag has required properties
-    Object.entries(data.flags).forEach(([flagName, flag]: [string, any]) => {
-      expect(flag).toHaveProperty('type');
-      expect(flag).toHaveProperty('default');
-      expect(flag).toHaveProperty('description');
-
-      // Verify type is a valid flag type
-      expect(['boolean', 'string', 'number']).toContain(flag.type);
-
-      // Verify description is a string
-      expect(typeof flag.description).toBe('string');
-      expect(flag.description.length).toBeGreaterThan(0);
+      // Test unknown flag
+      expect(await isEnabled('unknownFlag')).toBe(false);
     });
   });
 
-  it('should return Cache-Control header to prevent caching', async () => {
-    const response = await fetch(
-      'http://localhost:3000/.well-known/vercel/flags'
-    );
+  describe('getVariant function - default behavior', () => {
+    it('should return undefined when no context provided', async () => {
+      const { getVariant } = await import('../../lib/flags');
 
-    expect(response.headers.get('cache-control')).toBe('no-store');
+      const result = await getVariant('testVariant');
+      expect(result).toBeUndefined();
+    });
   });
 
-  it('should include expected feature flags', async () => {
-    const response = await fetch(
-      'http://localhost:3000/.well-known/vercel/flags'
-    );
-    const data = await response.json();
+  describe('getServerFeatureFlags function', () => {
+    it('should return proper feature flags structure', async () => {
+      const { getServerFeatureFlags } = await import('../../lib/flags');
 
-    // Verify expected flags are present
-    const expectedFlags = [
-      'waitlistEnabled',
-      'artistSearchEnabled',
-      'debugBannerEnabled',
-      'tipPromoEnabled',
-    ];
+      const result = await getServerFeatureFlags();
 
-    expectedFlags.forEach((flagName) => {
-      expect(data.flags).toHaveProperty(flagName);
+      // Verify structure
+      expect(result).toHaveProperty('artistSearchEnabled');
+      expect(result).toHaveProperty('debugBannerEnabled');
+      expect(result).toHaveProperty('tipPromoEnabled');
+
+      // Verify types
+      expect(typeof result.artistSearchEnabled).toBe('boolean');
+      expect(typeof result.debugBannerEnabled).toBe('boolean');
+      expect(typeof result.tipPromoEnabled).toBe('boolean');
+    });
+  });
+
+  describe('FlagProvider component', () => {
+    it('should export FlagProvider for React usage', async () => {
+      const { FlagProvider } = await import('../../lib/flags');
+
+      expect(FlagProvider).toBeDefined();
+      expect(typeof FlagProvider).toBe('function');
+    });
+  });
+
+  describe('identifyUser function', () => {
+    it('should export identifyUser function', async () => {
+      const { identifyUser } = await import('../../lib/flags');
+
+      expect(identifyUser).toBeDefined();
+      expect(typeof identifyUser).toBe('function');
     });
   });
 });

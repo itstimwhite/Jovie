@@ -1,7 +1,7 @@
 import posthog from 'posthog-js';
 
 const apiHost = process.env.NEXT_PUBLIC_POSTHOG_PROXY_PATH || '/phx';
-const key = process.env.NEXT_PUBLIC_POSTHOG_PUBLIC_KEY!;
+const key = process.env.NEXT_PUBLIC_POSTHOG_PUBLIC_KEY || 'test-key';
 
 export function initPosthog(bootstrap?: Record<string, boolean | string>) {
   if (
@@ -9,6 +9,12 @@ export function initPosthog(bootstrap?: Record<string, boolean | string>) {
     (posthog as unknown as { __initialized?: boolean }).__initialized
   )
     return;
+
+  // Only initialize if we have a real key
+  const hasValidKey =
+    process.env.NEXT_PUBLIC_POSTHOG_PUBLIC_KEY &&
+    process.env.NEXT_PUBLIC_POSTHOG_PUBLIC_KEY.length > 0;
+  if (!hasValidKey) return;
 
   posthog.init(key, {
     api_host: apiHost,
