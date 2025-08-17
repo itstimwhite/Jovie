@@ -21,6 +21,18 @@ export function ProductFlyout({
   const panelRef = useRef<HTMLDivElement>(null);
   const firstItemRef = useRef<HTMLAnchorElement>(null);
   const [currentFocusIndex, setCurrentFocusIndex] = useState(0);
+  const [showPanel, setShowPanel] = useState(false);
+
+  // Handle panel visibility with slight delay for animations
+  useEffect(() => {
+    if (isOpen) {
+      setShowPanel(true);
+    } else {
+      // Small delay before hiding to allow exit animation
+      const timeout = setTimeout(() => setShowPanel(false), 10);
+      return () => clearTimeout(timeout);
+    }
+  }, [isOpen]);
 
   // Split features into core (first 4) and more (remaining)
   const coreFeatures = FEATURES.slice(0, 4);
@@ -114,7 +126,7 @@ export function ProductFlyout({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen, onClose, triggerRef]);
 
-  if (!isOpen) return null;
+  if (!showPanel) return null;
 
   return (
     <div
@@ -123,7 +135,11 @@ export function ProductFlyout({
       aria-labelledby="product-trigger"
       className={`absolute left-1/2 top-full z-50 mt-2 w-[calc(100vw-2rem)] max-w-4xl min-w-80 -translate-x-1/2 transform rounded-lg border bg-[var(--panel)] shadow-lg ring-1 ring-[var(--border)] ${className}`}
       style={{
-        animation: 'flyout-enter 100ms ease-out',
+        opacity: isOpen ? 1 : 0,
+        transform: isOpen
+          ? 'translateX(-50%) translateY(0) scale(1)'
+          : 'translateX(-50%) translateY(-4px) scale(0.99)',
+        transition: 'opacity 100ms ease-out, transform 100ms ease-out',
       }}
     >
       {/* Desktop Layout */}
@@ -144,8 +160,9 @@ export function ProductFlyout({
                   style={
                     {
                       '--ring-color': `color-mix(in srgb, var(${feature.colorVar}) 25%, transparent)`,
-                      animationDelay: `${index * 10}ms`,
-                      animation: 'flyout-item-enter 120ms ease-out both',
+                      opacity: isOpen ? 1 : 0,
+                      transform: isOpen ? 'translateY(0)' : 'translateY(-2px)',
+                      transition: `opacity 120ms ease-out ${index * 10}ms, transform 120ms ease-out ${index * 10}ms`,
                     } as React.CSSProperties
                   }
                 />
@@ -167,8 +184,9 @@ export function ProductFlyout({
                   style={
                     {
                       '--ring-color': `color-mix(in srgb, var(${feature.colorVar}) 25%, transparent)`,
-                      animationDelay: `${(index + 4) * 10}ms`,
-                      animation: 'flyout-item-enter 120ms ease-out both',
+                      opacity: isOpen ? 1 : 0,
+                      transform: isOpen ? 'translateY(0)' : 'translateY(-2px)',
+                      transition: `opacity 120ms ease-out ${(index + 4) * 10}ms, transform 120ms ease-out ${(index + 4) * 10}ms`,
                     } as React.CSSProperties
                   }
                 />
@@ -205,8 +223,9 @@ export function ProductFlyout({
                 style={
                   {
                     '--ring-color': `color-mix(in srgb, var(${feature.colorVar}) 25%, transparent)`,
-                    animationDelay: `${index * 10}ms`,
-                    animation: 'flyout-item-enter 120ms ease-out both',
+                    opacity: isOpen ? 1 : 0,
+                    transform: isOpen ? 'translateY(0)' : 'translateY(-2px)',
+                    transition: `opacity 120ms ease-out ${index * 10}ms, transform 120ms ease-out ${index * 10}ms`,
                   } as React.CSSProperties
                 }
               />
@@ -228,32 +247,8 @@ export function ProductFlyout({
       </div>
 
       <style jsx>{`
-        @keyframes flyout-enter {
-          from {
-            opacity: 0;
-            transform: translateX(-50%) translateY(-4px) scale(0.99);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0) scale(1);
-          }
-        }
-
-        @keyframes flyout-item-enter {
-          from {
-            opacity: 0;
-            transform: translateY(-2px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
         @media (prefers-reduced-motion: reduce) {
           * {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
             transition-duration: 0.01ms !important;
           }
         }
