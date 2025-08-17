@@ -1,104 +1,63 @@
 'use client';
 
-import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Container } from '@/components/site/Container';
 import { ClaimHandleForm } from './ClaimHandleForm';
 
 export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
-  // Feature flags currently unused in hero; keep hook available for future use
   return (
     <section
       className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24"
       role="banner"
       aria-labelledby="hero-headline"
     >
-      <Container className="relative flex max-w-6xl flex-col items-center text-center">
-        {/* Linear-style badge with subtle glass morphism */}
-        <div className="mb-8">
-          <div
-            className="inline-flex items-center gap-2 rounded-full bg-gray-100/80 dark:bg-white/5 px-4 py-2 text-sm font-medium text-gray-700 dark:text-white/80 backdrop-blur-sm border border-gray-200 dark:border-white/10"
-            role="status"
-            aria-label="Key benefits"
-          >
-            <div className="flex h-2 w-2 items-center justify-center">
-              <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            </div>
-            <span>Quick setup</span>
-            <div className="h-1 w-1 rounded-full bg-gray-400 dark:bg-white/30" />
-            <span>Free forever</span>
-          </div>
-        </div>
-
-        {/* Main headline with updated copy */}
-        <div className="mb-12 space-y-6">
+      <Container className="relative flex max-w-4xl flex-col items-center text-center">
+        {/* Big welcoming H1 */}
+        <div className="mb-6 space-y-4">
           <h1
             id="hero-headline"
-            className="text-6xl font-semibold tracking-[-0.02em] text-gray-900 dark:text-white sm:text-7xl lg:text-8xl"
+            className="text-5xl font-semibold tracking-[-0.03em] text-gray-900 dark:text-white sm:text-6xl lg:text-7xl leading-[1.1]"
           >
-            <span className="block leading-none">
+            <span className="block">
               Claim your{' '}
               <span className="text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 dark:from-blue-400 dark:via-purple-400 dark:to-cyan-400 bg-clip-text">
-                @handle
+                handle
               </span>
-              .
             </span>
           </h1>
 
-          {/* Subtitle */}
+          {/* Concise subhead */}
           <p
-            className="mx-auto max-w-2xl text-xl text-gray-600 dark:text-white/70 font-light leading-relaxed sm:text-2xl"
+            className="mx-auto max-w-lg text-lg text-gray-600 dark:text-white/70 font-normal leading-relaxed sm:text-xl"
             role="doc-subtitle"
           >
-            {subtitle ??
-              'Turn followers into listeners with your personalized link in bio.'}
+            {subtitle ?? 'Your personalized link in bio, ready in seconds.'}
           </p>
         </div>
 
-        {/* Claim Handle with Linear-style container */}
-        <div className="w-full max-w-2xl" role="main">
-          <div className="relative">
-            {/* Subtle glow effect behind search */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-cyan-500/20 rounded-2xl blur-xl opacity-50" />
-            <div className="relative">
+        {/* Single frosted card with subtle depth */}
+        <div className="w-full max-w-xl" role="main">
+          <div className="relative group">
+            {/* Subtle parallax glow effect (very light) */}
+            <div className="absolute -inset-2 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-cyan-500/10 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity duration-300" />
+
+            {/* Frosted card with 12-16px radius and soft shadow */}
+            <div className="relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-200 hover:-translate-y-1 p-8">
               <ClaimHandleForm />
             </div>
           </div>
 
-          {/* Supporting text under primary CTA */}
-          <p className="mt-4 text-sm text-gray-600 dark:text-white/60 text-center">
-            Go live in 60 seconds
+          {/* Supporting text under card */}
+          <p className="mt-6 text-sm text-gray-500 dark:text-white/50 text-center">
+            Go live in 60 seconds • Free forever
           </p>
         </div>
 
-        {/* CTA buttons */}
-        <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Link
-            href="/pricing"
-            className="inline-flex items-center px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-          >
-            View Pricing →
-          </Link>
-        </div>
-
-        {/* Trust indicators with Linear styling */}
-        <div className="mt-16 flex flex-col items-center space-y-4">
-          <p className="text-sm text-gray-500 dark:text-white/50 font-medium">
-            Trusted by musicians worldwide
+        {/* Reduced footer padding - Trust indicators */}
+        <div className="mt-12 flex flex-col items-center space-y-3">
+          <p className="text-xs text-gray-400 dark:text-white/40 font-medium">
+            Trusted by 10,000+ artists worldwide
           </p>
-          <div className="flex items-center space-x-8 opacity-60">
-            <div className="text-xs text-gray-400 dark:text-white/40 font-mono">
-              10,000+ artists
-            </div>
-            <div className="h-1 w-1 rounded-full bg-gray-300 dark:bg-white/20" />
-            <div className="text-xs text-gray-400 dark:text-white/40 font-mono">
-              1M+ clicks
-            </div>
-            <div className="h-1 w-1 rounded-full bg-gray-300 dark:bg-white/20" />
-            <div className="text-xs text-gray-400 dark:text-white/40 font-mono">
-              99.9% uptime
-            </div>
-          </div>
         </div>
       </Container>
     </section>

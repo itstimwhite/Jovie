@@ -17,6 +17,7 @@ vi.mock('next/navigation', () => ({
 global.fetch = vi.fn();
 
 const mockPush = vi.fn();
+const mockPrefetch = vi.fn();
 const mockUseAuth = vi.mocked(useAuth);
 const mockUseRouter = vi.mocked(useRouter);
 
@@ -25,6 +26,7 @@ describe('ClaimHandleForm', () => {
     vi.clearAllMocks();
     mockUseRouter.mockReturnValue({
       push: mockPush,
+      prefetch: mockPrefetch,
     } as any);
     mockUseAuth.mockReturnValue({
       isSignedIn: false,
@@ -88,13 +90,13 @@ describe('ClaimHandleForm', () => {
       );
     });
 
-    // Wait for the copy button to appear
+    // Wait for the Available badge to appear
     await waitFor(() => {
-      const copyText = screen.getByText('📋 Tap to copy');
-      expect(copyText).toBeInTheDocument();
+      const availableText = screen.getByText('Available');
+      expect(availableText).toBeInTheDocument();
     });
 
-    // Test click functionality
+    // Test click functionality on the URL preview
     const copyButton = screen.getByRole('button', {
       name: 'Copy profile URL jov.ie/testhandle',
     });
