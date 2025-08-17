@@ -1,0 +1,130 @@
+name: Preview Alias and PR Comment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR number to alias (when running manually)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  alias-and-comment:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Set this repo variable to a base domain you control and have added to Vercel (e.g., previews.jov.ie)
+      # Ensure DNS: CNAME *.previews.jov.ie -> cname.vercel-dns.com
+      PREVIEW_ALIAS_DOMAIN: ${{ vars.PREVIEW_ALIAS_DOMAIN }}
+
+    steps:
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Get latest Vercel preview deployment for this commit (with wait)
+        id: get_deployment
+        run: |
+          set -euo pipefail
+          EVENT_NAME="${{ github.event_name }}"
+          REPO="${{ github.repository }}"
+          PR_INPUT="${{ github.event.inputs.pr }}"
+          PR="${{ github.event.pull_request.number }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            PR="$PR_INPUT"
+            if [ -z "$PR" ]; then
+              echo "Manual run requires 'pr' input" >&2
+              exit 1
+            fi
+            PR_JSON=$(curl -fsSL -H "Authorization: token $GH_TOKEN" "https://api.github.com/repos/$REPO/pulls/$PR")
+            BRANCH=$(echo "$PR_JSON" | jq -r '.head.ref')
+            SHA=$(echo   "$PR_JSON" | jq -r '.head.sha')
+          else
+            BRANCH="${{ github.event.pull_request.head.ref }}"
+            SHA="${{ github.event.pull_request.head.sha }}"
+          fi
+          echo "pr=$PR" >> $GITHUB_OUTPUT
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          ENCODED_BRANCH=$(printf %s "$BRANCH" | jq -sRr @uri)
+          ENCODED_SHA=$(printf %s "$SHA" | jq -sRr @uri)
+          BASE_URL="https://api.vercel.com/v13/deployments?projectId=$VERCEL_PROJECT_ID&target=preview&state=READY&limit=1&teamId=$VERCEL_ORG_ID"
+          # Poll for up to ~8 minutes
+          for i in $(seq 1 48); do
+            JSON=$(curl -fsSL -H "Authorization: Bearer $VERCEL_TOKEN" "$BASE_URL&meta-githubCommitSha=$ENCODED_SHA" || true)
+            DEPLOY_URL=$(echo "$JSON" | jq -r '.deployments[0].url // empty')
+            DEPLOY_ID=$(echo "$JSON" | jq -r '.deployments[0].uid // empty')
+            if [ -n "$DEPLOY_URL" ]; then
+              break
+            fi
+            # Fallback by branch
+            JSON=$(curl -fsSL -H "Authorization: Bearer $VERCEL_TOKEN" "$BASE_URL&meta-githubCommitRef=$ENCODED_BRANCH" || true)
+            DEPLOY_URL=$(echo "$JSON" | jq -r '.deployments[0].url // empty')
+            DEPLOY_ID=$(echo "$JSON" | jq -r '.deployments[0].uid // empty')
+            if [ -n "$DEPLOY_URL" ]; then
+              break
+            fi
+            sleep 10
+          done
+          if [ -n "$DEPLOY_URL" ]; then
+            echo "deploy_url=https://$DEPLOY_URL" >> $GITHUB_OUTPUT
+            echo "deploy_id=$DEPLOY_ID" >> $GITHUB_OUTPUT
+          else
+            echo "No READY preview deployment found after waiting."
+          fi
+
+      - name: Create alias hostname
+        id: alias
+        run: |
+          if [ -z "${{ steps.get_deployment.outputs.deploy_url }}" ]; then
+            echo "No deploy; skipping alias"
+            echo "alias_url=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          PR="${{ steps.get_deployment.outputs.pr }}"
+          BRANCH="${{ steps.get_deployment.outputs.branch }}"
+          # Slugify branch for hostname safety
+          SLUG=$(echo "$BRANCH" | tr '/._' '-' | tr -cd 'a-zA-Z0-9-')
+          BASE="$PREVIEW_ALIAS_DOMAIN"
+          if [ -z "$BASE" ]; then
+            echo "No PREVIEW_ALIAS_DOMAIN set; skipping alias"
+            echo "alias_url=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          HOST="pr-$PR-$SLUG.$BASE"
+          echo "host=$HOST" >> $GITHUB_OUTPUT
+          echo "alias_url=https://$HOST" >> $GITHUB_OUTPUT
+
+      - name: Try to alias deployment (best-effort)
+        if: ${{ steps.alias.outputs.alias_url != '' }}
+        id: do_alias
+        continue-on-error: true
+        run: |
+          DEPLOY_ID="${{ steps.get_deployment.outputs.deploy_id }}"
+          HOST="${{ steps.alias.outputs.host }}"
+          echo "Aliasing $DEPLOY_ID -> $HOST"
+          vercel alias set "$DEPLOY_ID" "$HOST" --token "$VERCEL_TOKEN"
+
+      - name: Comment PR with preview links
+        env:
+          DEPLOY_URL: ${{ steps.get_deployment.outputs.deploy_url }}
+          ALIAS_URL: ${{ steps.alias.outputs.alias_url }}
+          PR_NUMBER: ${{ steps.get_deployment.outputs.pr }}
+        run: |
+          BODY="Preview deployment:\n\n- URL: $DEPLOY_URL\n"
+          if [ -n "$ALIAS_URL" ]; then
+            BODY="$BODY- Alias: $ALIAS_URL\n"
+          else
+            BODY="$BODY- Alias: (not set; configure PREVIEW_ALIAS_DOMAIN and wildcard DNS)\n"
+          fi
+          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "$BODY"

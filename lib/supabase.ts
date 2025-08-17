@@ -3,19 +3,21 @@ import { useSession } from '@clerk/nextjs';
 import { env } from '@/lib/env';
 
 const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabasePublicKey =
+  env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+  env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Create a single singleton instance for unauthenticated requests
 let supabaseClient: ReturnType<typeof createClient> | null = null;
 let authenticatedClient: ReturnType<typeof createClient> | null = null;
 
 export function createBrowserClient() {
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!supabaseUrl || !supabasePublicKey) {
     return null;
   }
 
   if (!supabaseClient) {
-    supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+    supabaseClient = createClient(supabaseUrl, supabasePublicKey, {
       auth: {
         persistSession: false, // Prevent multiple auth instances
       },
@@ -32,7 +34,7 @@ export function useAuthenticatedSupabase() {
   const { session } = useSession();
 
   const getAuthenticatedClient = () => {
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!supabaseUrl || !supabasePublicKey) {
       return null;
     }
 
@@ -41,13 +43,26 @@ export function useAuthenticatedSupabase() {
       return authenticatedClient;
     }
 
-    authenticatedClient = createClient(supabaseUrl, supabaseAnonKey, {
+    // Inject Clerk JWT per request using a custom fetch so RLS is satisfied
+    const authFetch: typeof fetch = async (input, init) => {
+      let token: string | undefined;
+      try {
+        token = await session?.getToken({ template: 'supabase' });
+      } catch (error) {
+        // Optionally log the error, but continue without a token
+        token = undefined;
+      }
+      const headers = new Headers(init?.headers || {});
+      if (token) headers.set('Authorization', `Bearer ${token}`);
+      return fetch(input, { ...init, headers });
+    const authFetch = createAuthFetch(session);
+
+    authenticatedClient = createClient(supabaseUrl, supabasePublicKey, {
       auth: {
         persistSession: false, // Prevent multiple auth instances
       },
-      async accessToken() {
-        // Use Clerk template for Supabase to obtain a Supabase-compatible JWT
-        return (await session?.getToken({ template: 'supabase' })) ?? null;
+      global: {
+        fetch: authFetch,
       },
     });
 
@@ -61,17 +76,29 @@ export function useAuthenticatedSupabase() {
 export function createClerkSupabaseClient(
   session: ReturnType<typeof useSession>['session']
 ) {
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!supabaseUrl || !supabasePublicKey) {
     return null;
   }
 
-  return createClient(supabaseUrl, supabaseAnonKey, {
+  const authFetch: typeof fetch = async (input, init) => {
+    let token: string | null | undefined;
+    try {
+      token = await session?.getToken({ template: 'supabase' });
+    } catch (error) {
+      console.error('Failed to get Supabase token from Clerk session:', error);
+      token = null;
+    }
+    const headers = new Headers(init?.headers || {});
+    if (token) headers.set('Authorization', `Bearer ${token}`);
+    return fetch(input, { ...init, headers });
+  };
+
+  return createClient(supabaseUrl, supabasePublicKey, {
     auth: {
       persistSession: false, // Prevent multiple auth instances
     },
-    async accessToken() {
-      // Use Clerk template for Supabase to obtain a Supabase-compatible JWT
-      return (await session?.getToken({ template: 'supabase' })) ?? null;
+    global: {
+      fetch: authFetch,
     },
   });
 }
@@ -79,12 +106,12 @@ export function createClerkSupabaseClient(
 // Legacy function for backward compatibility (deprecated)
 export async function getAuthenticatedClient(token?: string | null) {
   try {
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!supabaseUrl || !supabasePublicKey) {
       return null;
     }
 
     if (token) {
-      return createClient(supabaseUrl, supabaseAnonKey, {
+      return createClient(supabaseUrl, supabasePublicKey, {
         auth: {
           persistSession: false, // Prevent multiple auth instances
         },
