@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { FeatureFlags } from '@/lib/feature-flags';
+import { FeatureFlags } from '@/lib/flags';
 
 interface FeatureFlagsContextType {
   flags: FeatureFlags;

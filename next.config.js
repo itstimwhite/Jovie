@@ -7,6 +7,7 @@ const nextConfig = {
   output: 'standalone',
   // Disable static generation to prevent Clerk context issues during build
   trailingSlash: false,
+  skipTrailingSlashRedirect: true,
   // Build optimizations
   poweredByHeader: false,
   compress: true,
@@ -29,6 +30,18 @@ const nextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/phx/static/:path*',
+        destination: 'https://us-assets.i.posthog.com/static/:path*',
+      },
+      {
+        source: '/phx/:path*',
+        destination: 'https://us.i.posthog.com/:path*',
+      },
+    ];
   },
   async headers() {
     const securityHeaders = [

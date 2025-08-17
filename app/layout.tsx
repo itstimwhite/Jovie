@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { ClientProviders } from '@/components/providers/ClientProviders';
 import { VercelToolbar } from '@vercel/toolbar/next';
-import { StatsigProviderWrapper } from '@/components/providers/StatsigProvider';
+
 import { APP_NAME, APP_URL } from '@/constants/app';
-import { getServerFeatureFlags } from '@/lib/feature-flags';
+import { FlagProvider, getServerFeatureFlags } from '@/lib/flags';
+import { getAllServerFlags } from '@/lib/posthog/server';
 import '@/styles/globals.css';
 
 // Bypass static rendering for now to fix build issues
@@ -96,8 +97,32 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Fetch feature flags server-side
-  const featureFlags = await getServerFeatureFlags();
+  // Fetch feature flags server-side with PostHog
+  const distinctId = 'anonymous-' + Date.now(); // In real app, get from session/user ID or cookie
+  const allFlags: Record<string, boolean | string> = {};
+  let featureFlags;
+
+  try {
+    // Get all flags from PostHog for bootstrapping
+    const rawFlags = await getAllServerFlags(distinctId);
+    // Filter and convert flags to the expected type
+    Object.entries(rawFlags).forEach(([key, value]) => {
+      if (typeof value === 'boolean' || typeof value === 'string') {
+        allFlags[key] = value;
+      }
+    });
+    // Get compatibility flags for existing providers
+    featureFlags = await getServerFeatureFlags();
+  } catch (error) {
+    console.warn('Failed to fetch feature flags, using defaults:', error);
+    // Use default flags if PostHog fails
+    featureFlags = {
+      artistSearchEnabled: true,
+      debugBannerEnabled: true,
+      tipPromoEnabled: true,
+    };
+  }
+
   const shouldInjectToolbar = process.env.NODE_ENV === 'development';
 
   return (
@@ -143,11 +168,11 @@ export default async function RootLayout({
         className="font-sans"
         style={{ paddingTop: 'var(--debug-banner-height, 3rem)' }}
       >
-        <StatsigProviderWrapper>
+        <FlagProvider flags={allFlags}>
           <ClientProviders initialFeatureFlags={featureFlags}>
             {children}
           </ClientProviders>
-        </StatsigProviderWrapper>
+        </FlagProvider>
         {shouldInjectToolbar && <VercelToolbar />}
       </body>
     </html>

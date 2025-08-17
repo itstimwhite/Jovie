@@ -6,7 +6,7 @@ import { ThemeProvider } from 'next-themes';
 import { Analytics } from '@/components/Analytics';
 import { DebugBanner } from '@/components/DebugBanner';
 import { FeatureFlagsProvider } from './FeatureFlagsProvider';
-import { FeatureFlags } from '@/lib/feature-flags';
+import { FeatureFlags } from '@/lib/flags';
 import { Spinner } from '@/components/ui';
 import { env } from '@/lib/env';
 // import { Toolbar } from '@vercel/toolbar/next';
