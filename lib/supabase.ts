@@ -85,7 +85,7 @@ export function createClerkSupabaseClient(
     try {
       token = await session?.getToken({ template: 'supabase' });
     } catch (error) {
-      // Optionally log the error, or handle as needed
+      console.error('Failed to get Supabase token from Clerk session:', error);
       token = null;
     }
     const headers = new Headers(init?.headers || {});
