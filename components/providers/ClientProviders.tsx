@@ -85,8 +85,8 @@ export function ClientProviders({
       <FeatureFlagsProvider initialFlags={initialFeatureFlags}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
+          defaultTheme="system"
+          enableSystem={true}
           disableTransitionOnChange
           storageKey="jovie-theme"
         >
