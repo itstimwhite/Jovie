@@ -201,7 +201,6 @@ export default async function ProfilePage({
           artist={artist}
           socialLinks={socialLinks}
           subtitle={PAGE_SUBTITLES.profile}
-          showTipButton={true}
         >
           <div className="flex justify-center">
             <ListenNow handle={artist.handle} artistName={artist.name} />
