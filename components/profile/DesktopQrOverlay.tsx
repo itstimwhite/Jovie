@@ -49,15 +49,35 @@ export function DesktopQrOverlay({ handle }: DesktopQrOverlayProps) {
     // Add listener with both modern and legacy APIs (feature detection)
     if (typeof mql.addEventListener === 'function') {
       mql.addEventListener('change', onChange as EventListener);
-    } else if (typeof (mql as any).addListener === 'function') {
-      (mql as any).addListener(onChange);
+    } else if (
+      typeof (
+        mql as MediaQueryList & {
+          addListener?: (listener: (mql: MediaQueryList) => void) => void;
+        }
+      ).addListener === 'function'
+    ) {
+      (
+        mql as MediaQueryList & {
+          addListener: (listener: (mql: MediaQueryList) => void) => void;
+        }
+      ).addListener(onChange);
     }
 
     return () => {
       if (typeof mql.removeEventListener === 'function') {
         mql.removeEventListener('change', onChange as EventListener);
-      } else if (typeof (mql as any).removeListener === 'function') {
-        (mql as any).removeListener(onChange);
+      } else if (
+        typeof (
+          mql as MediaQueryList & {
+            removeListener?: (listener: (mql: MediaQueryList) => void) => void;
+          }
+        ).removeListener === 'function'
+      ) {
+        (
+          mql as MediaQueryList & {
+            removeListener: (listener: (mql: MediaQueryList) => void) => void;
+          }
+        ).removeListener(onChange);
       }
     };
   }, [dismissed, handle]);

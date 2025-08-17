@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { Container } from '@/components/site/Container';
 
-interface SectionProps {
+interface SectionProps extends Record<string, unknown> {
   children: React.ReactNode;
   className?: string;
   containerSize?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
@@ -10,7 +10,7 @@ interface SectionProps {
   withGridBg?: boolean;
   withBorder?: boolean;
   as?: keyof JSX.IntrinsicElements;
-  [key: string]: any; // For additional props like id, aria-*, etc.
+  // For additional props like id, aria-*, etc.
 }
 
 const paddingVariants = {
