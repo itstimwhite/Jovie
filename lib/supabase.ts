@@ -55,7 +55,7 @@ export function useAuthenticatedSupabase() {
       const headers = new Headers(init?.headers || {});
       if (token) headers.set('Authorization', `Bearer ${token}`);
       return fetch(input, { ...init, headers });
-    };
+    const authFetch = createAuthFetch(session);
 
     authenticatedClient = createClient(supabaseUrl, supabasePublicKey, {
       auth: {
