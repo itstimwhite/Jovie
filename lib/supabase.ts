@@ -3,21 +3,19 @@ import { useSession } from '@clerk/nextjs';
 import { env } from '@/lib/env';
 
 const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
-const supabasePublicKey =
-  env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-  env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Create a single singleton instance for unauthenticated requests
 let supabaseClient: ReturnType<typeof createClient> | null = null;
 let authenticatedClient: ReturnType<typeof createClient> | null = null;
 
 export function createBrowserClient() {
-  if (!supabaseUrl || !supabasePublicKey) {
+  if (!supabaseUrl || !supabaseAnonKey) {
     return null;
   }
 
   if (!supabaseClient) {
-    supabaseClient = createClient(supabaseUrl, supabasePublicKey, {
+    supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         persistSession: false, // Prevent multiple auth instances
       },
@@ -34,7 +32,7 @@ export function useAuthenticatedSupabase() {
   const { session } = useSession();
 
   const getAuthenticatedClient = () => {
-    if (!supabaseUrl || !supabasePublicKey) {
+    if (!supabaseUrl || !supabaseAnonKey) {
       return null;
     }
 
@@ -43,27 +41,13 @@ export function useAuthenticatedSupabase() {
       return authenticatedClient;
     }
 
-    // Inject Clerk JWT per request using a custom fetch so RLS is satisfied
-    const authFetch: typeof fetch = async (input, init) => {
-      let token: string | undefined;
-      try {
-        token =
-          (await session?.getToken({ template: 'supabase' })) || undefined;
-      } catch {
-        // Optionally log the error, but continue without a token
-        token = undefined;
-      }
-      const headers = new Headers(init?.headers || {});
-      if (token) headers.set('Authorization', `Bearer ${token}`);
-      return fetch(input, { ...init, headers });
-    };
-
-    authenticatedClient = createClient(supabaseUrl, supabasePublicKey, {
+    authenticatedClient = createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         persistSession: false, // Prevent multiple auth instances
       },
-      global: {
-        fetch: authFetch,
+      async accessToken() {
+        // Use Clerk template for Supabase to obtain a Supabase-compatible JWT
+        return (await session?.getToken({ template: 'supabase' })) ?? null;
       },
     });
 
@@ -77,29 +61,17 @@ export function useAuthenticatedSupabase() {
 export function createClerkSupabaseClient(
   session: ReturnType<typeof useSession>['session']
 ) {
-  if (!supabaseUrl || !supabasePublicKey) {
+  if (!supabaseUrl || !supabaseAnonKey) {
     return null;
   }
 
-  const authFetch: typeof fetch = async (input, init) => {
-    let token: string | null | undefined;
-    try {
-      token = await session?.getToken({ template: 'supabase' });
-    } catch (error) {
-      console.error('Failed to get Supabase token from Clerk session:', error);
-      token = null;
-    }
-    const headers = new Headers(init?.headers || {});
-    if (token) headers.set('Authorization', `Bearer ${token}`);
-    return fetch(input, { ...init, headers });
-  };
-
-  return createClient(supabaseUrl, supabasePublicKey, {
+  return createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: false, // Prevent multiple auth instances
     },
-    global: {
-      fetch: authFetch,
+    async accessToken() {
+      // Use Clerk template for Supabase to obtain a Supabase-compatible JWT
+      return (await session?.getToken({ template: 'supabase' })) ?? null;
     },
   });
 }
@@ -107,12 +79,12 @@ export function createClerkSupabaseClient(
 // Legacy function for backward compatibility (deprecated)
 export async function getAuthenticatedClient(token?: string | null) {
   try {
-    if (!supabaseUrl || !supabasePublicKey) {
+    if (!supabaseUrl || !supabaseAnonKey) {
       return null;
     }
 
     if (token) {
-      return createClient(supabaseUrl, supabasePublicKey, {
+      return createClient(supabaseUrl, supabaseAnonKey, {
         auth: {
           persistSession: false, // Prevent multiple auth instances
         },
