@@ -47,7 +47,8 @@ export function useAuthenticatedSupabase() {
     const authFetch: typeof fetch = async (input, init) => {
       let token: string | undefined;
       try {
-        token = await session?.getToken({ template: 'supabase' }) ?? undefined;
+        const t = await session?.getToken({ template: 'supabase' });
+        token = t ?? undefined;
       } catch {
         token = undefined;
       }
