@@ -1,3 +1,3 @@
-// Re-export Header organism to maintain compatibility
+// Re-export HeaderNav organism as Header to maintain compatibility
 // This ensures existing imports continue to work while using the new Atomic Design structure
-export { Header } from '@/components/organisms/Header';
+export { HeaderNav as Header } from '@/components/organisms/HeaderNav';

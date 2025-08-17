@@ -1,0 +1,27 @@
+/* Theme CSS Variables for Product Flyout */
+:root {
+  /* Base theme colors */
+  --bg: #ffffff;
+  --fg: #0b0b0c;
+  --muted: #6b7280;
+  --panel: #f6f7f8;
+  --border: #e5e7eb;
+
+  /* Accent colors for features */
+  --accent-conv: #6e56cf;
+  --accent-analytics: #0ea5e9;
+  --accent-speed: #22c55e;
+  --accent-beauty: #f59e0b;
+  --accent-seo: #ef4444;
+  --accent-links: #a855f7;
+  --accent-pro: #14b8a6;
+}
+
+:root.dark {
+  --bg: #0b0b0c;
+  --fg: #f7f7f8;
+  --muted: #98a2b3;
+  --panel: #111214;
+  --border: #1f2124;
+  /* Accent colors remain the same in dark mode */
+}
