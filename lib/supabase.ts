@@ -47,15 +47,16 @@ export function useAuthenticatedSupabase() {
     const authFetch: typeof fetch = async (input, init) => {
       let token: string | undefined;
       try {
-        token = await session?.getToken({ template: 'supabase' });
-      } catch (error) {
+        token =
+          (await session?.getToken({ template: 'supabase' })) || undefined;
+      } catch {
         // Optionally log the error, but continue without a token
         token = undefined;
       }
       const headers = new Headers(init?.headers || {});
       if (token) headers.set('Authorization', `Bearer ${token}`);
       return fetch(input, { ...init, headers });
-    const authFetch = createAuthFetch(session);
+    };
 
     authenticatedClient = createClient(supabaseUrl, supabasePublicKey, {
       auth: {

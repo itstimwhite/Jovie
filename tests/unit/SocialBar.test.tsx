@@ -40,15 +40,17 @@ describe('SocialBar', () => {
       />
     );
 
-    const socialLinksElements = screen.getAllByRole('link');
-    expect(socialLinksElements).toHaveLength(2);
-
-    socialLinksElements.forEach((link) => {
-      expect(link).toHaveClass('cursor-pointer');
-    });
+    // Check for specific social platforms instead of counting all links
+    const instagramLink = screen.getByLabelText('Follow Test Artist on instagram');
+    const twitterLink = screen.getByLabelText('Follow Test Artist on twitter');
+    
+    expect(instagramLink).toBeInTheDocument();
+    expect(twitterLink).toBeInTheDocument();
+    expect(instagramLink).toHaveClass('cursor-pointer');
+    expect(twitterLink).toHaveClass('cursor-pointer');
   });
 
-  it('hides container when no social links provided', () => {
+  it('returns null when no social links and no tip button provided', () => {
     const { container } = render(
       <SocialBar
         handle="test-artist"
@@ -57,8 +59,41 @@ describe('SocialBar', () => {
       />
     );
 
-    const socialContainer = container.firstChild as HTMLElement;
-    expect(socialContainer).toHaveClass('hidden');
+    expect(container.firstChild).toBeNull();
+  });
+
+  it('renders tip button when showTipButton is true', () => {
+    render(
+      <SocialBar
+        handle="test-artist"
+        artistName="Test Artist"
+        socialLinks={[]}
+        showTipButton={true}
+      />
+    );
+
+    const tipButton = screen.getByLabelText('Send a tip to Test Artist');
+    expect(tipButton).toBeInTheDocument();
+    expect(tipButton).toHaveTextContent('Tip');
+  });
+
+  it('renders both social links and tip button when both are provided', () => {
+    render(
+      <SocialBar
+        handle="test-artist"
+        artistName="Test Artist"
+        socialLinks={mockSocialLinks}
+        showTipButton={true}
+      />
+    );
+
+    const instagramLink = screen.getByLabelText('Follow Test Artist on instagram');
+    const twitterLink = screen.getByLabelText('Follow Test Artist on twitter');
+    const tipButton = screen.getByLabelText('Send a tip to Test Artist');
+    
+    expect(instagramLink).toBeInTheDocument();
+    expect(twitterLink).toBeInTheDocument();
+    expect(tipButton).toBeInTheDocument();
   });
 
   it('applies proper accessibility attributes', () => {
@@ -70,14 +105,16 @@ describe('SocialBar', () => {
       />
     );
 
-    const links = screen.getAllByRole('link');
-    expect(links[0]).toHaveAttribute('title', 'Follow on instagram');
-    expect(links[0]).toHaveAttribute(
+    const instagramLink = screen.getByLabelText('Follow Test Artist on instagram');
+    const twitterLink = screen.getByLabelText('Follow Test Artist on twitter');
+    
+    expect(instagramLink).toHaveAttribute('title', 'Follow on instagram');
+    expect(instagramLink).toHaveAttribute(
       'aria-label',
       'Follow Test Artist on instagram'
     );
-    expect(links[1]).toHaveAttribute('title', 'Follow on twitter');
-    expect(links[1]).toHaveAttribute(
+    expect(twitterLink).toHaveAttribute('title', 'Follow on twitter');
+    expect(twitterLink).toHaveAttribute(
       'aria-label',
       'Follow Test Artist on twitter'
     );

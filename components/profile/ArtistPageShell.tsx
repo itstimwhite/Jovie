@@ -12,6 +12,7 @@ type ArtistPageShellProps = {
   subtitle?: string;
   children?: React.ReactNode;
   showSocialBar?: boolean;
+  showTipButton?: boolean;
   showFooter?: boolean;
   maxWidthClass?: string;
 };
@@ -22,6 +23,7 @@ export function ArtistPageShell({
   subtitle,
   children,
   showSocialBar = true,
+  showTipButton = false,
   showFooter = true,
   maxWidthClass = 'w-full max-w-md',
 }: ArtistPageShellProps) {
@@ -43,6 +45,7 @@ export function ArtistPageShell({
                   handle={artist.handle}
                   artistName={artist.name}
                   socialLinks={socialLinks}
+                  showTipButton={showTipButton}
                 />
               )}
             </div>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tip Button Demo - Apple-style UX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        .shimmer {
+            position: absolute;
+            inset: 0;
+            border-radius: 9999px;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.7s ease-out;
+        }
+        .tip-button:hover .shimmer {
+            transform: translateX(100%);
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-200">
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-4xl mx-auto space-y-12">
+            <!-- Header -->
+            <div class="text-center">
+                <h1 class="text-3xl font-bold mb-4">Tip Button Component Demo</h1>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Apple-style UX: Clean, modern, and magical design
+                </p>
+            </div>
+
+            <!-- Demo Sections -->
+            <div class="space-y-8">
+                <!-- Section 1: Social Bar Only -->
+                <section class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">1. Social Bar Only (Original)</h2>
+                    <div class="flex justify-center">
+                        <div class="flex gap-3">
+                            <a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer" title="Follow on Instagram">📷</a>
+                            <a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer" title="Follow on Twitter">🐦</a>
+                            <a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer" title="Listen on Spotify">🎵</a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Social Bar with Tip Button -->
+                <section class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">2. Social Bar with Tip Button (New) - Icons Left, Button Right</h2>
+                    <div class="flex justify-center">
+                        <div class="flex items-center justify-between gap-4 w-full max-w-sm">
+                            <!-- Social Icons - Left Side -->
+                            <div class="flex gap-3">
+                                <a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer" title="Follow on Instagram">📷</a>
+                                <a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer" title="Follow on Twitter">🐦</a>
+                                <a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer" title="Listen on Spotify">🎵</a>
+                            </div>
+                            
+                            <!-- Tip Button - Right Side -->
+                            <div class="flex-shrink-0">
+                                <button class="tip-button relative inline-flex items-center justify-center px-4 py-2 text-sm font-medium bg-gradient-to-b from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 active:from-purple-700 active:to-purple-800 text-white rounded-full transition-all duration-200 ease-out shadow-sm hover:shadow-md active:shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transform hover:scale-105 active:scale-95 cursor-pointer" 
+                                        onclick="alert('Demo: Would navigate to /demo-artist/tip')"
+                                        title="Tip Demo Artist" 
+                                        aria-label="Send a tip to Demo Artist">
+                                    <span class="relative z-10 flex items-center gap-1.5">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                        </svg>
+                                        Tip
+                                    </span>
+                                    <div class="shimmer"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Tip Button Only -->
+                <section class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">3. Tip Button Standalone</h2>
+                    <div class="flex justify-center">
+                        <button class="tip-button relative inline-flex items-center justify-center px-4 py-2 text-sm font-medium bg-gradient-to-b from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 active:from-purple-700 active:to-purple-800 text-white rounded-full transition-all duration-200 ease-out shadow-sm hover:shadow-md active:shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transform hover:scale-105 active:scale-95 cursor-pointer" 
+                                onclick="alert('Demo: Would navigate to /demo-artist/tip')"
+                                title="Tip Demo Artist" 
+                                aria-label="Send a tip to Demo Artist">
+                            <span class="relative z-10 flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                                Tip
+                            </span>
+                            <div class="shimmer"></div>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Section 4: Only Tip Button (No Social Links) -->
+                <section class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">4. Social Bar with Only Tip Button (No Social Links)</h2>
+                    <div class="flex justify-center">
+                        <div class="flex items-center justify-between gap-4 w-full max-w-sm">
+                            <div class="flex gap-3"></div>
+                            <div class="flex-shrink-0">
+                                <button class="tip-button relative inline-flex items-center justify-center px-4 py-2 text-sm font-medium bg-gradient-to-b from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 active:from-purple-700 active:to-purple-800 text-white rounded-full transition-all duration-200 ease-out shadow-sm hover:shadow-md active:shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transform hover:scale-105 active:scale-95 cursor-pointer" 
+                                        onclick="alert('Demo: Would navigate to /demo-artist/tip')"
+                                        title="Tip Demo Artist" 
+                                        aria-label="Send a tip to Demo Artist">
+                                    <span class="relative z-10 flex items-center gap-1.5">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                        </svg>
+                                        Tip
+                                    </span>
+                                    <div class="shimmer"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 5: Responsive Test -->
+                <section class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">5. Responsive Test (Many Social Links + Tip Button)</h2>
+                    <div class="flex justify-center">
+                        <div class="flex items-center justify-between gap-4 w-full max-w-sm">
+                            <div class="flex flex-wrap gap-3">
+                                <a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer" title="Follow on Instagram">📷</a>
+                                <a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer" title="Follow on Twitter">🐦</a>
+                                <a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer" title="Listen on Spotify">🎵</a>
+                                <a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer" title="Watch on YouTube">📺</a>
+                                <a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer" title="Follow on TikTok">📱</a>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <button class="tip-button relative inline-flex items-center justify-center px-4 py-2 text-sm font-medium bg-gradient-to-b from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 active:from-purple-700 active:to-purple-800 text-white rounded-full transition-all duration-200 ease-out shadow-sm hover:shadow-md active:shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transform hover:scale-105 active:scale-95 cursor-pointer" 
+                                        onclick="alert('Demo: Would navigate to /demo-artist/tip')"
+                                        title="Tip Demo Artist" 
+                                        aria-label="Send a tip to Demo Artist">
+                                    <span class="relative z-10 flex items-center gap-1.5">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                        </svg>
+                                        Tip
+                                    </span>
+                                    <div class="shimmer"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Design Features -->
+            <section class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">Design Features (Apple-style UX)</h2>
+                <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+                    <li>• Purple gradient background with hover/active states</li>
+                    <li>• Smooth scale transforms on hover/click (hover:scale-105, active:scale-95)</li>
+                    <li>• Shimmer effect on hover for premium feel</li>
+                    <li>• Dollar icon with "Tip" text for clarity</li>
+                    <li>• Focus ring for accessibility (focus:ring-2 focus:ring-purple-500)</li>
+                    <li>• Clean spacing and typography</li>
+                    <li>• Responsive layout: social icons left, tip button right</li>
+                    <li>• Consistent with existing social icon design</li>
+                </ul>
+            </section>
+
+            <!-- Controls -->
+            <div class="text-center space-y-4">
+                <button onclick="document.documentElement.classList.toggle('dark')" 
+                        class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    Toggle Dark Mode
+                </button>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Click any social icon or tip button to see demo interaction
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
