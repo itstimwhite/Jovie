@@ -12,7 +12,7 @@ const ClerkPricingTable = PricingTable as any;
 const publishableKey = env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 // Clerk's PricingTable does not require an env var beyond the publishable key.
 // Provide your Pricing Table ID from the Clerk Dashboard here (code/config), not via a new env var.
-const pricingTableId = '';
+const pricingTableId = 'ptbl_2pWKUJKH7t2pD9gLJJ7aZF7AJzp';
 
 export default function PricingPage() {
   return (
