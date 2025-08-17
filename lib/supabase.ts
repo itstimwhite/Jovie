@@ -75,7 +75,13 @@ export function createClerkSupabaseClient(
   }
 
   const authFetch: typeof fetch = async (input, init) => {
-    const token = await session?.getToken({ template: 'supabase' });
+    let token: string | null | undefined;
+    try {
+      token = await session?.getToken({ template: 'supabase' });
+    } catch (error) {
+      // Optionally log the error, or handle as needed
+      token = null;
+    }
     const headers = new Headers(init?.headers || {});
     if (token) headers.set('Authorization', `Bearer ${token}`);
     return fetch(input, { ...init, headers });
