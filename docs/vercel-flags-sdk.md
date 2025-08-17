@@ -24,7 +24,7 @@ The discovery endpoint (`/.well-known/vercel/flags`) provides Vercel with the cu
       "description": "Controls waitlist flow visibility"
     },
     "artistSearchEnabled": {
-      "type": "boolean", 
+      "type": "boolean",
       "default": true,
       "description": "Enable artist search UI (replaced by claim flow)"
     },
