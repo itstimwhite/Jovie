@@ -61,7 +61,7 @@ export function TipButton({
         active:from-purple-700 active:to-purple-800
         text-white rounded-full transition-all duration-200 ease-out
         shadow-sm hover:shadow-md active:shadow-sm
-        focus:outline-hidden focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 
+        focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 
         dark:focus:ring-offset-gray-900
         transform hover:scale-105 active:scale-95
         ${isPressed ? 'scale-95' : ''}
