@@ -121,9 +121,9 @@ export function ProductFlyout({
       ref={panelRef}
       role="menu"
       aria-labelledby="product-trigger"
-      className={`absolute left-1/2 top-full z-50 mt-2 w-full max-w-4xl -translate-x-1/2 transform rounded-lg border bg-[var(--panel)] shadow-lg ring-1 ring-[var(--border)] ${className}`}
+      className={`absolute left-1/2 top-full z-50 mt-2 w-[calc(100vw-2rem)] max-w-4xl min-w-80 -translate-x-1/2 transform rounded-lg border bg-[var(--panel)] shadow-lg ring-1 ring-[var(--border)] ${className}`}
       style={{
-        animation: 'flyout-enter 120ms ease-out',
+        animation: 'flyout-enter 100ms ease-out',
       }}
     >
       {/* Desktop Layout */}
@@ -144,8 +144,8 @@ export function ProductFlyout({
                   style={
                     {
                       '--ring-color': `color-mix(in srgb, var(${feature.colorVar}) 25%, transparent)`,
-                      animationDelay: `${index * 20}ms`,
-                      animation: 'flyout-item-enter 150ms ease-out both',
+                      animationDelay: `${index * 10}ms`,
+                      animation: 'flyout-item-enter 120ms ease-out both',
                     } as React.CSSProperties
                   }
                 />
@@ -167,8 +167,8 @@ export function ProductFlyout({
                   style={
                     {
                       '--ring-color': `color-mix(in srgb, var(${feature.colorVar}) 25%, transparent)`,
-                      animationDelay: `${(index + 4) * 20}ms`,
-                      animation: 'flyout-item-enter 150ms ease-out both',
+                      animationDelay: `${(index + 4) * 10}ms`,
+                      animation: 'flyout-item-enter 120ms ease-out both',
                     } as React.CSSProperties
                   }
                 />
@@ -194,7 +194,7 @@ export function ProductFlyout({
 
       {/* Mobile Layout */}
       <div className="md:hidden">
-        <div className="p-4">
+        <div className="max-h-[80vh] overflow-y-auto p-4">
           <div className="space-y-1">
             {FEATURES.map((feature, index) => (
               <FlyoutItem
@@ -205,8 +205,8 @@ export function ProductFlyout({
                 style={
                   {
                     '--ring-color': `color-mix(in srgb, var(${feature.colorVar}) 25%, transparent)`,
-                    animationDelay: `${index * 20}ms`,
-                    animation: 'flyout-item-enter 150ms ease-out both',
+                    animationDelay: `${index * 10}ms`,
+                    animation: 'flyout-item-enter 120ms ease-out both',
                   } as React.CSSProperties
                 }
               />
@@ -231,7 +231,7 @@ export function ProductFlyout({
         @keyframes flyout-enter {
           from {
             opacity: 0;
-            transform: translateX(-50%) translateY(-8px) scale(0.98);
+            transform: translateX(-50%) translateY(-4px) scale(0.99);
           }
           to {
             opacity: 1;
@@ -242,7 +242,7 @@ export function ProductFlyout({
         @keyframes flyout-item-enter {
           from {
             opacity: 0;
-            transform: translateY(-4px);
+            transform: translateY(-2px);
           }
           to {
             opacity: 1;

@@ -39,7 +39,7 @@
       @keyframes flyout-enter {
         from {
           opacity: 0;
-          transform: translateX(-50%) translateY(-8px) scale(0.98);
+          transform: translateX(-50%) translateY(-4px) scale(0.99);
         }
         to {
           opacity: 1;
@@ -50,7 +50,7 @@
       @keyframes flyout-item-enter {
         from {
           opacity: 0;
-          transform: translateY(-4px);
+          transform: translateY(-2px);
         }
         to {
           opacity: 1;
@@ -59,11 +59,11 @@
       }
 
       .flyout-panel {
-        animation: flyout-enter 120ms ease-out;
+        animation: flyout-enter 100ms ease-out;
       }
 
       .flyout-item {
-        animation: flyout-item-enter 150ms ease-out both;
+        animation: flyout-item-enter 120ms ease-out both;
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -193,7 +193,7 @@
             style={{
               ...style,
               '--ring-color': `color-mix(in srgb, var(${feature.colorVar}) 25%, transparent)`,
-              animationDelay: `${index * 20}ms`,
+              animationDelay: `${index * 10}ms`,
             }}
             role="menuitem"
           >
@@ -223,7 +223,7 @@
           <div
             role="menu"
             aria-labelledby="product-trigger"
-            className="absolute left-1/2 top-full z-50 mt-2 w-full max-w-4xl -translate-x-1/2 transform rounded-lg border bg-[var(--panel)] shadow-lg ring-1 ring-[var(--border)] flyout-panel"
+            className="absolute left-1/2 top-full z-50 mt-2 w-[calc(100vw-2rem)] max-w-4xl min-w-80 -translate-x-1/2 transform rounded-lg border bg-[var(--panel)] shadow-lg ring-1 ring-[var(--border)] flyout-panel"
           >
             {/* Desktop Layout */}
             <div className="hidden md:block">
@@ -280,7 +280,7 @@
 
             {/* Mobile Layout */}
             <div className="md:hidden">
-              <div className="p-4">
+              <div className="max-h-[80vh] overflow-y-auto p-4">
                 <div className="space-y-1">
                   {FEATURES.map((feature, index) => (
                     <FlyoutItem
