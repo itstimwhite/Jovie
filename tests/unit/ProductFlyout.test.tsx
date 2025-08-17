@@ -73,8 +73,9 @@ describe('ProductFlyout', () => {
   it('renders feature items', () => {
     render(<TestWrapper isOpen={true} onClose={mockOnClose} />);
 
-    expect(screen.getByText('Smart Conversions')).toBeInTheDocument();
-    expect(screen.getByText('Real-Time Analytics')).toBeInTheDocument();
+    // Use getAllByText since features appear in both desktop and mobile layouts
+    expect(screen.getAllByText('Smart Conversions')).toHaveLength(2);
+    expect(screen.getAllByText('Real-Time Analytics')).toHaveLength(2);
   });
 
   it('has correct accessibility attributes', () => {
