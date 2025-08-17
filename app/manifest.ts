@@ -9,13 +9,19 @@ export default function manifest(): MetadataRoute.Manifest {
       'Connect your music, social media, and merch in one link. No design needed. Live in under 90 seconds.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#1e1b4b', // indigo-900
+    background_color: '#ffffff', // white background
     theme_color: '#6366f1', // indigo-500
     orientation: 'portrait',
     scope: '/',
     lang: 'en',
     categories: ['music', 'entertainment', 'social', 'productivity'],
     icons: [
+      {
+        src: '/favicon.svg',
+        sizes: 'any',
+        type: 'image/svg+xml',
+        purpose: 'any',
+      },
       {
         src: '/favicon-16x16.png',
         sizes: '16x16',
