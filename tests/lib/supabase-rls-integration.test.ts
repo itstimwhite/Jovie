@@ -1,7 +1,7 @@
 /**
  * Integration test for Supabase RLS policies
  * This file demonstrates how to test RLS policies with a real Supabase instance
- * 
+ *
  * NOTE: This test requires actual Supabase credentials to run
  * It's provided as documentation/example for manual testing
  */
@@ -17,8 +17,10 @@ import { createClient } from '@supabase/supabase-js';
 
 describe.skip('Supabase RLS Integration Test', () => {
   // These would need to be real values for integration testing
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co';
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key';
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://example.supabase.co';
+  const supabaseAnonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key';
 
   const anonymousClient = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
@@ -38,7 +40,7 @@ describe.skip('Supabase RLS Integration Test', () => {
     // Should succeed without authentication
     expect(error).toBeNull();
     expect(data).toBeDefined();
-    
+
     if (data && data.length > 0) {
       // All returned artists should have published = true
       data.forEach((artist) => {
@@ -91,14 +93,17 @@ describe.skip('Supabase RLS Integration Test', () => {
     expect(socialLinks).toBeDefined();
 
     console.log('✓ Anonymous read access to social_links works');
-    console.log(`  Found ${socialLinks?.length || 0} social links for artist ${artists[0].handle}`);
+    console.log(
+      `  Found ${socialLinks?.length || 0} social links for artist ${artists[0].handle}`
+    );
   });
 
   it('should allow anonymous join queries between artists and social_links', async () => {
     // Test join query to get artists with their social links
     const { data, error } = await anonymousClient
       .from('artists')
-      .select(`
+      .select(
+        `
         id,
         handle,
         name,
@@ -108,7 +113,8 @@ describe.skip('Supabase RLS Integration Test', () => {
           platform,
           url
         )
-      `)
+      `
+      )
       .eq('published', true)
       .limit(3);
 

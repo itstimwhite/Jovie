@@ -1,7 +1,7 @@
 name: Auto-merge AI PRs
 on:
   workflow_run:
-    workflows: ["CI"]   # ← exact name of your test/build workflow
+    workflows: ['CI'] # ← exact name of your test/build workflow
     types: [completed]
 
 permissions:

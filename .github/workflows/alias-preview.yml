@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       pr:
-        description: "PR number to alias (when running manually)"
+        description: 'PR number to alias (when running manually)'
         required: true
         type: string
 
