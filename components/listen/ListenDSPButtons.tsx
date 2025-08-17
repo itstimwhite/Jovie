@@ -56,7 +56,7 @@ export default function ListenDSPButtons({
         <button
           key={dsp.key}
           onClick={() => onClick(dsp.key, dsp.url)}
-          className="w-full max-w-md rounded-lg px-6 py-3 text-base font-semibold transition-transform shadow-sm hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer"
+          className="w-full max-w-md rounded-lg px-6 py-3 text-base font-semibold transition-transform shadow-sm hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 cursor-pointer"
           aria-label={`Open in ${dsp.name}`}
           style={{
             backgroundColor: dsp.config.color,
