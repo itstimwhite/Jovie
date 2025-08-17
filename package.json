@@ -31,9 +31,7 @@
     "ensure-valid-artist-images": "node scripts/ensure-valid-artist-images.js",
     "statsig-setup": "node scripts/statsig-setup.js",
     "prepare": "husky",
-    "danger": "danger ci --fail-on-errors --verbose",
-    "db:migrate": "node scripts/db-migrate.js",
-    "db:seed": "node scripts/db-seed.js"
+    "danger": "danger ci --fail-on-errors --verbose"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.28.1",

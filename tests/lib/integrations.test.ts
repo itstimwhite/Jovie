@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { env } from '@/lib/env';
-import path from 'path';
 
 /**
  * Integration Health Diagnostic Tests
@@ -139,20 +138,16 @@ describe('Integration Health Diagnostics', () => {
   describe('Component Integration', () => {
     it('should have pricing page module available', () => {
       // Test that the pricing page path exists as a module
-      const pricingPagePath = path.resolve(
-        process.cwd(),
-        'app/(marketing)/pricing/page.tsx'
-      );
+      const pricingPagePath =
+        '/home/runner/work/Jovie/Jovie/app/(marketing)/pricing/page.tsx';
       const fs = require('fs');
       expect(fs.existsSync(pricingPagePath)).toBe(true);
     });
 
     it('should have dashboard page module available', () => {
       // Test that the dashboard page path exists as a module
-      const dashboardPagePath = path.resolve(
-        process.cwd(),
-        'app/dashboard/page.tsx'
-      );
+      const dashboardPagePath =
+        '/home/runner/work/Jovie/Jovie/app/dashboard/page.tsx';
       const fs = require('fs');
       expect(fs.existsSync(dashboardPagePath)).toBe(true);
     });
