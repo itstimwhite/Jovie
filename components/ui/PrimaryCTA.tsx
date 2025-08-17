@@ -54,16 +54,7 @@ export default function PrimaryCTA({
       return;
     }
     onClick?.(e);
-  const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
-    (e) => {
-      if (disabled || isLoading) {
-        e.preventDefault();
-        return;
-      }
-      onClick?.(e);
-    },
-    [disabled, isLoading, onClick]
-  );
+  };
 
   return (
     <button

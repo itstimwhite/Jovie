@@ -17,8 +17,7 @@ const active = isDev || isPreview;
 function safeConsole() {
   // Ensure console exists in all environments
   return typeof console !== 'undefined' ? console : ({} as Console);
-// Ensure console exists in all environments, check once at module level
-const safeConsoleInstance: Console = typeof console !== 'undefined' ? console : ({} as Console);
+}
 
 function formatMsg(scope: string | undefined, msg: unknown) {
   return scope ? `[${scope}] ${String(msg)}` : String(msg);
