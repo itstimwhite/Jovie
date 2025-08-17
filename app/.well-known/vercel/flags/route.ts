@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
 
+export const runtime = 'edge';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // Vercel Flags v4 discovery endpoint
 // Returns versioned flag definitions so the Toolbar/Flags Explorer can detect the SDK
 export async function GET() {
-  // Enable debug banner in development by default
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  // Discovery endpoint returns static defaults (no env branching)
 
   const response = {
     version: 4,
