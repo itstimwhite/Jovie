@@ -46,8 +46,13 @@ export function Spinner({
     lg: 'h-8 w-8',
   };
 
-  // Color based on theme variant
-  const iconColor = effectiveTheme === 'dark' ? '#ffffff' : '#6366f1';
+  // Color based on theme variant - use currentColor when className includes text-current
+  const useCurrentColor = className?.includes('text-current');
+  const iconColor = useCurrentColor
+    ? 'currentColor'
+    : effectiveTheme === 'dark'
+      ? '#ffffff'
+      : '#6366f1';
 
   if (!isVisible) {
     return (

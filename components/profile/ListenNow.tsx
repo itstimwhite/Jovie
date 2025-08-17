@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import PrimaryCTA from '@/components/ui/PrimaryCTA';
-import { Spinner } from '@/components/ui';
 
 interface ListenNowProps {
   handle: string;
@@ -46,17 +45,11 @@ export function ListenNow({ handle, artistName }: ListenNowProps) {
       <PrimaryCTA
         onClick={handleClick}
         ariaLabel={`Listen to ${artistName}`}
+        loadingLabel={`Opening ${artistName}'s music...`}
         autoFocus
-        disabled={isLoading}
+        loading={isLoading}
       >
-        {isLoading ? (
-          <span className="inline-flex items-center gap-2">
-            <Spinner size="sm" variant="dark" />
-            <span>Opening...</span>
-          </span>
-        ) : (
-          'Listen Now'
-        )}
+        Listen Now
       </PrimaryCTA>
     </div>
   );
