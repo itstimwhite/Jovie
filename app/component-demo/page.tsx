@@ -3,14 +3,14 @@
 import { useState } from 'react';
 
 // Mock TipButton for demo purposes
-function DemoTipButton({ 
-  handle, 
-  artistName, 
-  className = '' 
-}: { 
-  handle: string; 
-  artistName: string; 
-  className?: string; 
+function DemoTipButton({
+  handle,
+  artistName,
+  className = '',
+}: {
+  handle: string;
+  artistName: string;
+  className?: string;
 }) {
   const [isPressed, setIsPressed] = useState(false);
 
@@ -72,17 +72,17 @@ function DemoSocialIcon({ platform }: { platform: string }) {
     youtube: '📺',
     tiktok: '📱',
   };
-  
+
   return <span>{iconMap[platform] || '🔗'}</span>;
 }
 
-// Mock SocialLink for demo purposes  
-function DemoSocialLink({ 
-  platform, 
-  artistName 
-}: { 
-  platform: string; 
-  artistName: string; 
+// Mock SocialLink for demo purposes
+function DemoSocialLink({
+  platform,
+  artistName,
+}: {
+  platform: string;
+  artistName: string;
 }) {
   return (
     <a
@@ -143,9 +143,11 @@ export default function ComponentDemoPage() {
   const [isDark, setIsDark] = useState(false);
 
   return (
-    <div className={`min-h-screen transition-colors duration-200 ${
-      isDark ? 'dark bg-gray-900' : 'bg-white'
-    }`}>
+    <div
+      className={`min-h-screen transition-colors duration-200 ${
+        isDark ? 'dark bg-gray-900' : 'bg-white'
+      }`}
+    >
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto space-y-12">
           <div className="text-center">
@@ -153,7 +155,8 @@ export default function ComponentDemoPage() {
               Tip Button Component Demo
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Testing the new tip button integration with social bar - Apple-style UX
+              Testing the new tip button integration with social bar -
+              Apple-style UX
             </p>
           </div>
 
@@ -223,7 +226,13 @@ export default function ComponentDemoPage() {
                 <DemoSocialBar
                   handle="demo-artist"
                   artistName="Demo Artist"
-                  socialLinks={['instagram', 'twitter', 'spotify', 'youtube', 'tiktok']}
+                  socialLinks={[
+                    'instagram',
+                    'twitter',
+                    'spotify',
+                    'youtube',
+                    'tiktok',
+                  ]}
                   showTipButton={true}
                 />
               </div>
@@ -239,7 +248,7 @@ export default function ComponentDemoPage() {
               <li>• Purple gradient background with hover/active states</li>
               <li>• Smooth scale transforms on hover/click</li>
               <li>• Shimmer effect on hover</li>
-              <li>• Dollar icon with "Tip" text</li>
+              <li>• Dollar icon with &quot;Tip&quot; text</li>
               <li>• Focus ring for accessibility</li>
               <li>• Clean spacing and typography</li>
               <li>• Responsive layout: icons left, button right</li>
