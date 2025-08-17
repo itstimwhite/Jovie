@@ -10,15 +10,14 @@ interface SocialBarProps {
 export function SocialBar({ handle, artistName, socialLinks }: SocialBarProps) {
   return (
     <div
-      className={`flex flex-wrap justify-center gap-3 ${socialLinks.length === 0 ? 'hidden' : ''}`}
+      className={`flex flex-wrap justify-center gap-4 py-2 ${socialLinks.length === 0 ? 'hidden' : ''}`}
+      role="list"
+      aria-label={`Social media links for ${artistName}`}
     >
       {socialLinks.map((link) => (
-        <SocialLink
-          key={link.id}
-          link={link}
-          handle={handle}
-          artistName={artistName}
-        />
+        <div key={link.id} role="listitem">
+          <SocialLink link={link} handle={handle} artistName={artistName} />
+        </div>
       ))}
     </div>
   );

@@ -81,5 +81,38 @@ describe('SocialBar', () => {
       'aria-label',
       'Follow Test Artist on twitter'
     );
+
+    // Check that the container has proper ARIA attributes
+    const container = screen.getByRole('list');
+    expect(container).toHaveAttribute(
+      'aria-label',
+      'Social media links for Test Artist'
+    );
+
+    // Check that items are properly structured
+    const listItems = screen.getAllByRole('listitem');
+    expect(listItems).toHaveLength(2);
+  });
+
+  it('applies Apple-style touch-friendly dimensions', () => {
+    render(
+      <SocialBar
+        handle="test-artist"
+        artistName="Test Artist"
+        socialLinks={mockSocialLinks}
+      />
+    );
+
+    const socialLinksElements = screen.getAllByRole('link');
+    socialLinksElements.forEach((link) => {
+      // Check for 44x44px touch target (h-11 w-11 in Tailwind)
+      expect(link).toHaveClass('h-11');
+      expect(link).toHaveClass('w-11');
+      // Check for premium animation classes
+      expect(link).toHaveClass('transition-all');
+      expect(link).toHaveClass('duration-200');
+      expect(link).toHaveClass('hover:scale-105');
+      expect(link).toHaveClass('focus-visible:ring-2');
+    });
   });
 });
