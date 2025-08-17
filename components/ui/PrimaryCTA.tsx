@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { clsx } from 'clsx';
+import clsx from 'clsx';
 import { Spinner } from '@/components/ui/Spinner';
 
 type PrimaryCTAProps = {
