@@ -31,7 +31,7 @@ export default function PrimaryCTA({
   dataTestId,
 }: PrimaryCTAProps) {
   const base =
-    'rounded-lg font-semibold shadow transition focus:outline-none focus:ring-2 focus:ring-black/50 focus:ring-offset-2 cursor-pointer';
+    'rounded-lg font-semibold shadow transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/50 focus-visible:ring-offset-2 cursor-pointer';
   const color = 'bg-black text-white hover:opacity-90 active:opacity-95';
   const sizing =
     size === 'lg' ? 'py-3 text-base sm:py-4 sm:text-lg' : 'py-2 text-sm';

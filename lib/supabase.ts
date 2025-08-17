@@ -45,7 +45,7 @@ export function useAuthenticatedSupabase() {
 
     // Inject Clerk JWT per request using a custom fetch so RLS is satisfied
     const authFetch: typeof fetch = async (input, init) => {
-      let token: string | undefined;
+      let token: string | null | undefined;
       try {
         const t = await session?.getToken({ template: 'supabase' });
         token = t ?? undefined;

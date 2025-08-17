@@ -517,6 +517,8 @@ MockedComponents.DialogTitle.displayName = 'MockedDialogTitle';
 MockedComponents.DialogDescription.displayName = 'MockedDialogDescription';
 MockedComponents.DialogBackdrop.displayName = 'MockedDialogBackdrop';
 
+MockedComponents.Input.displayName = 'MockedInput';
+
 MockedComponents.Combobox.displayName = 'MockedCombobox';
 MockedComponents.ComboboxInput.displayName = 'MockedComboboxInput';
 MockedComponents.ComboboxButton.displayName = 'MockedComboboxButton';

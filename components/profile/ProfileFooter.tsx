@@ -29,7 +29,7 @@ export function ProfileFooter({
         <Link
           href={`/?utm_source=profile&utm_artist=${artistHandle}`}
           aria-label={`Create your own profile with ${APP_NAME}`}
-          className="focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-sm"
+          className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-sm"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
