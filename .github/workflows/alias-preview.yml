@@ -22,11 +22,20 @@ jobs:
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # Set this repo variable to a base domain you control and have added to Vercel (e.g., previews.jov.ie)
-      # Ensure DNS: CNAME *.previews.jov.ie -> cname.vercel-dns.com
-      PREVIEW_ALIAS_DOMAIN: ${{ vars.PREVIEW_ALIAS_DOMAIN }}
 
     steps:
+      - name: Check PREVIEW_ALIAS_DOMAIN variable
+        id: varcheck
+        run: |
+          if [ -z "${{ vars.PREVIEW_ALIAS_DOMAIN }}" ]; then
+            echo "has=false" >> "$GITHUB_OUTPUT"
+            echo "domain="  >> "$GITHUB_OUTPUT"
+            echo "PREVIEW_ALIAS_DOMAIN not set; aliasing will be skipped"
+          else
+            echo "has=true" >> "$GITHUB_OUTPUT"
+            echo "domain=${{ vars.PREVIEW_ALIAS_DOMAIN }}" >> "$GITHUB_OUTPUT"
+            echo "Using alias base domain: ${{ vars.PREVIEW_ALIAS_DOMAIN }}"
+          fi
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
 
@@ -85,6 +94,7 @@ jobs:
 
       - name: Create alias hostname
         id: alias
+        if: ${{ steps.varcheck.outputs.has == 'true' }}
         run: |
           if [ -z "${{ steps.get_deployment.outputs.deploy_url }}" ]; then
             echo "No deploy; skipping alias"
@@ -95,7 +105,7 @@ jobs:
           BRANCH="${{ steps.get_deployment.outputs.branch }}"
           # Slugify branch for hostname safety
           SLUG=$(echo "$BRANCH" | tr '/._' '-' | tr -cd 'a-zA-Z0-9-')
-          BASE="$PREVIEW_ALIAS_DOMAIN"
+          BASE="${{ steps.varcheck.outputs.domain }}"
           if [ -z "$BASE" ]; then
             echo "No PREVIEW_ALIAS_DOMAIN set; skipping alias"
             echo "alias_url=" >> $GITHUB_OUTPUT

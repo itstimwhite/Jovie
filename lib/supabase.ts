@@ -47,9 +47,9 @@ export function useAuthenticatedSupabase() {
     const authFetch: typeof fetch = async (input, init) => {
       let token: string | null | undefined;
       try {
-        token = await session?.getToken({ template: 'supabase' });
+        const t = await session?.getToken({ template: 'supabase' });
+        token = t ?? undefined;
       } catch {
-        // Optionally log the error, but continue without a token
         token = undefined;
       }
       const headers = new Headers(init?.headers || {});
@@ -81,12 +81,12 @@ export function createClerkSupabaseClient(
   }
 
   const authFetch: typeof fetch = async (input, init) => {
-    let token: string | null | undefined;
+    let token: string | undefined;
     try {
-      token = await session?.getToken({ template: 'supabase' });
-    } catch (error) {
-      console.error('Failed to get Supabase token from Clerk session:', error);
-      token = null;
+      const t = await session?.getToken({ template: 'supabase' });
+      token = t ?? undefined;
+    } catch {
+      token = undefined;
     }
     const headers = new Headers(init?.headers || {});
     if (token) headers.set('Authorization', `Bearer ${token}`);
