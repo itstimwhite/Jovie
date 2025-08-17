@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { clsx } from 'clsx';
+import Image from 'next/image';
 
 interface SpinnerProps {
   size?: 'sm' | 'md' | 'lg';
@@ -46,13 +47,18 @@ export function Spinner({
     lg: 'h-8 w-8',
   };
 
-  // Color based on theme variant - use currentColor when className includes text-current
-  const useCurrentColor = className?.includes('text-current');
-  const iconColor = useCurrentColor
-    ? 'currentColor'
-    : effectiveTheme === 'dark'
-      ? '#ffffff'
-      : '#6366f1';
+  // Choose app icon based on size (from public/)
+  const iconSrcBySize: Record<'sm' | 'md' | 'lg', string> = {
+    sm: '/favicon-16x16.png',
+    md: '/favicon-32x32.png',
+    lg: '/apple-touch-icon.png',
+  };
+  const iconSrc = iconSrcBySize[size];
+  const pixelBySize: Record<'sm' | 'md' | 'lg', number> = {
+    sm: 16,
+    md: 24,
+    lg: 32,
+  };
 
   if (!isVisible) {
     return (
@@ -60,6 +66,9 @@ export function Spinner({
         className={clsx(sizeClasses[size], className)}
         role="status"
         aria-label="Loading"
+        data-testid="spinner"
+        data-size={size}
+        data-variant={variant}
       >
         {/* Invisible placeholder to prevent layout shift */}
       </div>
@@ -75,20 +84,20 @@ export function Spinner({
       )}
       role="status"
       aria-label="Loading"
+      data-testid="spinner"
+      data-size={size}
+      data-variant={variant}
     >
-      <svg
-        viewBox="0 0 32 32"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
+      {/* Use app icon / favicon from public/ */}
+      <Image
+        src={iconSrc}
+        alt=""
         aria-hidden="true"
-      >
-        {/* Favicon music note icon - theme aware */}
-        <circle cx="8" cy="24" r="4" fill={iconColor} />
-        <circle cx="20" cy="20" r="4" fill={iconColor} />
-        <rect x="10" y="12" width="2" height="16" fill={iconColor} />
-        <rect x="22" y="8" width="2" height="16" fill={iconColor} />
-        <path d="M10 12h12v4H10z" fill={iconColor} />
-      </svg>
+        width={pixelBySize[size]}
+        height={pixelBySize[size]}
+        className="object-contain"
+        priority
+      />
     </div>
   );
 }

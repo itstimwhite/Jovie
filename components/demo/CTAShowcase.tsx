@@ -1,18 +1,17 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import PrimaryCTA from '@/components/ui/PrimaryCTA';
+import { useState } from "react";
+import PrimaryCTA from "@/components/ui/PrimaryCTA";
 
 export function CTAShowcase() {
   const [isLoading1, setIsLoading1] = useState(false);
   const [isLoading2, setIsLoading2] = useState(false);
   const [isLoading3, setIsLoading3] = useState(false);
 
-  const handleDemoClick = (setLoading: (loading: boolean) => void) => {
+  const handleDemoClick = (setLoading: (v: boolean) => void) => {
     return async () => {
       setLoading(true);
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((r) => setTimeout(r, 1200));
       setLoading(false);
     };
   };
@@ -22,8 +21,7 @@ export function CTAShowcase() {
       <div className="mx-auto max-w-5xl px-6">
         <h2 className="text-2xl font-semibold mb-6">Apple-Level CTA Buttons</h2>
         <p className="text-gray-600 dark:text-white/70 mb-8">
-          World-class buttons with smooth loading states, no layout shift, and
-          premium feel.
+          World-class buttons with smooth loading states, zero layout shift, and premium feel.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -42,8 +40,8 @@ export function CTAShowcase() {
               </PrimaryCTA>
             </div>
             <p className="text-sm text-gray-600 dark:text-white/60">
-              Click to see the smooth loading transition. Notice how the button
-              maintains its exact dimensions and smoothly fades between states.
+              Click to see the smooth loading transition. Notice how the button maintains
+              its exact dimensions and smoothly fades between states.
             </p>
           </div>
 
@@ -66,7 +64,7 @@ export function CTAShowcase() {
             </p>
           </div>
 
-          {/* Not Full Width Demo */}
+          {/* Auto Width Demo */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Auto Width</h3>
             <div>
@@ -81,8 +79,7 @@ export function CTAShowcase() {
               </PrimaryCTA>
             </div>
             <p className="text-sm text-gray-600 dark:text-white/60">
-              Auto-width version that sizes to content while maintaining fixed
-              height.
+              Auto-width version that sizes to content while maintaining fixed height.
             </p>
           </div>
 
@@ -90,51 +87,13 @@ export function CTAShowcase() {
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Key Features</h3>
             <ul className="space-y-2 text-sm text-gray-600 dark:text-white/70">
-              <li>
-                ✨ <strong>No Layout Shift:</strong> Fixed dimensions in all
-                states
-              </li>
-              <li>
-                🎭 <strong>Smooth Transitions:</strong> 200ms fade animations
-              </li>
-              <li>
-                🎨 <strong>Premium Design:</strong> Apple-level shadows and
-                hover effects
-              </li>
-              <li>
-                ♿ <strong>Accessible:</strong> Focus-visible, aria-labels,
-                loading states
-              </li>
-              <li>
-                🌙 <strong>Dark Mode:</strong> Perfect light/dark theme support
-              </li>
-              <li>
-                📱 <strong>Responsive:</strong> Adapts beautifully to all screen
-                sizes
-              </li>
+              <li>✨ <strong>No Layout Shift:</strong> Fixed dimensions in all states</li>
+              <li>🎭 <strong>Smooth Transitions:</strong> 200ms fade animations</li>
+              <li>🎨 <strong>Premium Design:</strong> Apple-level shadows and hover effects</li>
+              <li>♿ <strong>Accessible:</strong> Focus-visible, aria-labels, loading states</li>
+              <li>🌙 <strong>Dark Mode:</strong> Perfect light/dark theme support</li>
+              <li>📱 <strong>Responsive:</strong> Adapts to all screen sizes</li>
             </ul>
-          </div>
-        </div>
-
-        <div className="mt-12 p-6 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5">
-          <h3 className="text-lg font-medium mb-3">Technical Implementation</h3>
-          <div className="text-sm text-gray-600 dark:text-white/70 space-y-2">
-            <p>
-              <strong>Fixed Heights:</strong> <code>min-h-[56px]</code> (lg),{' '}
-              <code>min-h-[48px]</code> (md)
-            </p>
-            <p>
-              <strong>Transitions:</strong> Content fades to{' '}
-              <code>opacity-0</code> while spinner fades in
-            </p>
-            <p>
-              <strong>Accessibility:</strong> Proper <code>aria-disabled</code>,{' '}
-              <code>loadingLabel</code> support
-            </p>
-            <p>
-              <strong>Premium Styling:</strong> <code>shadow-lg</code>,{' '}
-              <code>rounded-xl</code>, scale transforms
-            </p>
           </div>
         </div>
       </div>
