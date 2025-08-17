@@ -45,17 +45,17 @@ export function useAuthenticatedSupabase() {
 
     // Inject Clerk JWT per request using a custom fetch so RLS is satisfied
     const authFetch: typeof fetch = async (input, init) => {
-      let token: string | undefined;
+      let token: string | null | undefined;
       try {
         token = await session?.getToken({ template: 'supabase' });
-      } catch (error) {
+      } catch {
         // Optionally log the error, but continue without a token
         token = undefined;
       }
       const headers = new Headers(init?.headers || {});
       if (token) headers.set('Authorization', `Bearer ${token}`);
       return fetch(input, { ...init, headers });
-    const authFetch = createAuthFetch(session);
+    };
 
     authenticatedClient = createClient(supabaseUrl, supabasePublicKey, {
       auth: {
