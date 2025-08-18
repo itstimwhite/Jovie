@@ -1,6 +1,7 @@
 'use client';
 
 import posthog from 'posthog-js';
+import { useEffect, useState } from 'react';
 import { ANALYTICS } from '@/constants/app';
 import { env as publicEnv } from '@/lib/env';
 
@@ -163,4 +164,54 @@ export function identify(userId: string, traits?: Record<string, unknown>) {
       });
     }
   }
+}
+
+// Lightweight feature flag helpers (client-only)
+// Use defaultValue for safe rendering before flags load
+export function isFeatureEnabled(flag: string): boolean {
+  if (typeof window === 'undefined') return false;
+  if (!ANALYTICS.posthogKey) return false;
+  try {
+    return Boolean(posthog.isFeatureEnabled(flag));
+  } catch {
+    return false;
+  }
+}
+
+export function useFeatureFlag(
+  flag: string,
+  defaultValue: boolean = false
+): boolean {
+  const [enabled, setEnabled] = useState<boolean>(defaultValue);
+
+  useEffect(() => {
+    if (!ANALYTICS.posthogKey) {
+      setEnabled(defaultValue);
+      return;
+    }
+
+    // Initial check (if PostHog already loaded)
+    try {
+      const initial = posthog.isFeatureEnabled(flag);
+      setEnabled(Boolean(initial));
+    } catch {
+      setEnabled(defaultValue);
+    }
+
+    // Subscribe to updates (PostHog refreshes feature flags asynchronously)
+    try {
+      posthog.onFeatureFlags(() => {
+        try {
+          const current = posthog.isFeatureEnabled(flag);
+          setEnabled(Boolean(current));
+        } catch {
+          // ignore errors during updates
+        }
+      });
+    } catch {
+      // ignore subscription errors
+    }
+  }, [flag, defaultValue]);
+
+  return enabled;
 }

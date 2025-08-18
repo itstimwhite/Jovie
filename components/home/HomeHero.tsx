@@ -1,10 +1,14 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 import { Container } from '@/components/site/Container';
 import { ClaimHandleForm } from './ClaimHandleForm';
+import { Button } from '@/components/ui/Button';
+import { useFeatureFlag } from '@/lib/analytics';
 
 export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
+  const showClaimHandle = useFeatureFlag('feature_claim_handle', false);
   return (
     <section
       className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24"
@@ -43,7 +47,18 @@ export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
 
             {/* Frosted card with 12-16px radius and soft shadow */}
             <div className="relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-200 hover:-translate-y-1 p-8">
-              <ClaimHandleForm />
+              {showClaimHandle ? (
+                <ClaimHandleForm />
+              ) : (
+                <div className="flex flex-col items-center gap-4">
+                  <p className="text-sm text-gray-600 dark:text-white/70">
+                    Create your artist page in seconds.
+                  </p>
+                  <Button as={Link} href="/sign-up" size="lg">
+                    Sign up to get started
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
