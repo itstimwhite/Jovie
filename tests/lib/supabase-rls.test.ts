@@ -4,7 +4,6 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createClient } from '@supabase/supabase-js';
 
 // Mock environment variables
 vi.mock('@/lib/env', () => ({
@@ -13,6 +12,12 @@ vi.mock('@/lib/env', () => ({
     NEXT_PUBLIC_SUPABASE_ANON_KEY: 'test-anon-key',
   },
 }));
+
+// Typed result shape for our mocked Supabase queries
+type SupabaseResult<T> = {
+  data: T;
+  error: { message?: string } | null;
+};
 
 // Create mock Supabase client for testing
 const createMockSupabaseClient = () => {
@@ -86,7 +91,7 @@ describe('Supabase RLS Policies', () => {
         .eq('published', true)
         .order('name');
 
-      await query.then((result: any) => {
+      await query.then((result: SupabaseResult<typeof publishedArtists>) => {
         expect(result.data).toHaveLength(2);
         expect(result.error).toBeNull();
         expect(result.data).toEqual(publishedArtists);
@@ -113,7 +118,7 @@ describe('Supabase RLS Policies', () => {
         .select('*')
         .eq('published', false);
 
-      await query.then((result: any) => {
+      await query.then((result: SupabaseResult<unknown[]>) => {
         expect(result.data).toEqual([]);
         expect(result.error).toBeNull();
       });
@@ -142,7 +147,7 @@ describe('Supabase RLS Policies', () => {
         .select('*')
         .eq('published', true);
 
-      await query.then((result: any) => {
+      await query.then((result: SupabaseResult<typeof publishedArtists>) => {
         expect(result.data).toHaveLength(1);
         expect(result.data[0].published).toBe(true);
         expect(result.error).toBeNull();
@@ -181,7 +186,7 @@ describe('Supabase RLS Policies', () => {
         .select('*')
         .eq('artist_id', 'published-artist-id');
 
-      await query.then((result: any) => {
+      await query.then((result: SupabaseResult<typeof socialLinks>) => {
         expect(result.data).toHaveLength(2);
         expect(result.error).toBeNull();
         expect(result.data).toEqual(socialLinks);
@@ -208,7 +213,7 @@ describe('Supabase RLS Policies', () => {
         .select('*')
         .eq('artist_id', 'unpublished-artist-id');
 
-      await query.then((result: any) => {
+      await query.then((result: SupabaseResult<unknown[]>) => {
         expect(result.data).toEqual([]);
         expect(result.error).toBeNull();
       });
@@ -248,11 +253,13 @@ describe('Supabase RLS Policies', () => {
         )
         .eq('published', true);
 
-      await query.then((result: any) => {
-        expect(result.data).toHaveLength(1);
-        expect(result.data[0].social_links).toHaveLength(2);
-        expect(result.error).toBeNull();
-      });
+      await query.then(
+        (result: SupabaseResult<typeof artistWithSocialLinks>) => {
+          expect(result.data).toHaveLength(1);
+          expect(result.data[0].social_links).toHaveLength(2);
+          expect(result.error).toBeNull();
+        }
+      );
     });
   });
 

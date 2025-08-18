@@ -1,14 +1,10 @@
 'use client';
 
-import { AnalyticsBrowser } from '@segment/analytics-next';
+import posthog from 'posthog-js';
 import { ANALYTICS } from '@/constants/app';
+import { env as publicEnv } from '@/lib/env';
 
 // Type definitions for analytics
-interface MockAnalytics {
-  track: (event: string, properties?: Record<string, unknown>) => Promise<void>;
-  page: (name?: string, properties?: Record<string, unknown>) => Promise<void>;
-  identify: (userId: string, traits?: Record<string, unknown>) => Promise<void>;
-}
 
 // Extend window interface for analytics
 declare global {
@@ -22,52 +18,129 @@ declare global {
   }
 }
 
-let analytics: AnalyticsBrowser | MockAnalytics;
+// Initialize PostHog on the client when key is present
+if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
+  const getEnvTag = (): 'dev' | 'preview' | 'prod' => {
+    try {
+      const prodHost = new URL(publicEnv.NEXT_PUBLIC_APP_URL).hostname;
+      const host = window.location.hostname;
+      if (
+        host === 'localhost' ||
+        host === '127.0.0.1' ||
+        host.endsWith('.local')
+      ) {
+        return 'dev';
+      }
+      if (host === prodHost || host === `www.${prodHost}`) {
+        return 'prod';
+      }
+      return 'preview';
+    } catch {
+      return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
+    }
+  };
 
-if (typeof window !== 'undefined' && ANALYTICS.segmentWriteKey) {
-  analytics = AnalyticsBrowser.load({
-    writeKey: ANALYTICS.segmentWriteKey,
-  });
-} else {
-  analytics = {
-    track: () => Promise.resolve(),
-    page: () => Promise.resolve(),
-    identify: () => Promise.resolve(),
-  } as MockAnalytics;
+  const options: Parameters<typeof posthog.init>[1] = {
+    autocapture: true,
+    capture_pageview: false, // we'll send $pageview manually via page()
+    persistence: 'localStorage+cookie',
+  };
+  if (ANALYTICS.posthogHost) {
+    options.api_host = ANALYTICS.posthogHost;
+  }
+  try {
+    posthog.init(ANALYTICS.posthogKey, options);
+    // Ensure every event has env attached
+    posthog.register({ env: getEnvTag() });
+  } catch (e) {
+    // noop – avoid breaking the app if analytics fails to init
+    // eslint-disable-next-line no-console
+    console.warn('PostHog init failed:', e);
+  }
 }
-
-export { analytics };
 
 export function track(event: string, properties?: Record<string, unknown>) {
   if (typeof window !== 'undefined') {
-    // Track with Segment
-    analytics.track(event, properties);
+    const envTag = (() => {
+      try {
+        const prodHost = new URL(publicEnv.NEXT_PUBLIC_APP_URL).hostname;
+        const host = window.location.hostname;
+        if (
+          host === 'localhost' ||
+          host === '127.0.0.1' ||
+          host.endsWith('.local')
+        ) {
+          return 'dev';
+        }
+        if (host === prodHost || host === `www.${prodHost}`) {
+          return 'prod';
+        }
+        return 'preview';
+      } catch {
+        return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
+      }
+    })();
+
+    // Track with PostHog
+    try {
+      if (ANALYTICS.posthogKey) {
+        posthog.capture(event, properties);
+      }
+    } catch {}
 
     // Track with Vercel Analytics (if available)
     if (window.va) {
       window.va('event', {
         name: event,
-        properties,
+        properties: { ...(properties || {}), env: envTag },
       });
     }
 
     // Track with Google Analytics (if available)
     if (window.gtag) {
-      window.gtag('event', event, properties);
+      window.gtag('event', event, { ...(properties || {}), env: envTag });
     }
   }
 }
 
 export function page(name?: string, properties?: Record<string, unknown>) {
   if (typeof window !== 'undefined') {
-    // Track with Segment
-    analytics.page(name, properties);
+    const envTag = (() => {
+      try {
+        const prodHost = new URL(publicEnv.NEXT_PUBLIC_APP_URL).hostname;
+        const host = window.location.hostname;
+        if (
+          host === 'localhost' ||
+          host === '127.0.0.1' ||
+          host.endsWith('.local')
+        ) {
+          return 'dev';
+        }
+        if (host === prodHost || host === `www.${prodHost}`) {
+          return 'prod';
+        }
+        return 'preview';
+      } catch {
+        return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
+      }
+    })();
+
+    // Track with PostHog as a pageview
+    try {
+      if (ANALYTICS.posthogKey) {
+        posthog.capture('$pageview', {
+          name,
+          url: window.location.pathname,
+          ...properties,
+        });
+      }
+    } catch {}
 
     // Track with Vercel Analytics (if available)
     if (window.va) {
       window.va('page_view', {
         name,
-        properties,
+        properties: { ...(properties || {}), env: envTag },
       });
     }
   }
@@ -75,8 +148,12 @@ export function page(name?: string, properties?: Record<string, unknown>) {
 
 export function identify(userId: string, traits?: Record<string, unknown>) {
   if (typeof window !== 'undefined') {
-    // Track with Segment
-    analytics.identify(userId, traits);
+    // Identify in PostHog
+    try {
+      if (ANALYTICS.posthogKey) {
+        posthog.identify(userId, traits);
+      }
+    } catch {}
 
     // Track with Vercel Analytics (if available)
     if (window.va) {

@@ -14,6 +14,7 @@ const FeatureFlagsContext = createContext<FeatureFlagsContextType>({
     artistSearchEnabled: true,
     debugBannerEnabled: false, // UI banner removed; keep flag for compatibility
     tipPromoEnabled: true,
+    pricingUseClerk: false,
   },
   isLoading: true,
   error: null,
@@ -37,6 +38,7 @@ export function FeatureFlagsProvider({
       artistSearchEnabled: true,
       debugBannerEnabled: false, // UI banner removed; keep flag for compatibility
       tipPromoEnabled: true,
+      pricingUseClerk: false,
     }
   );
   const [isLoading, setIsLoading] = useState(!initialFlags);
