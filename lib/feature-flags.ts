@@ -3,6 +3,7 @@ export interface FeatureFlags {
   artistSearchEnabled: boolean;
   debugBannerEnabled: boolean;
   tipPromoEnabled: boolean;
+  pricingUseClerk: boolean;
 }
 
 // Default feature flags (fallback)
@@ -11,6 +12,7 @@ const defaultFeatureFlags: FeatureFlags = {
   // Debug banner is removed site-wide; keep flag for compatibility but default to false
   debugBannerEnabled: false,
   tipPromoEnabled: true,
+  pricingUseClerk: false,
 };
 
 // Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
@@ -41,6 +43,9 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
           tipPromoEnabled: Boolean(
             data.tipPromoEnabled ?? defaultFeatureFlags.tipPromoEnabled
           ),
+          pricingUseClerk: Boolean(
+            data.pricingUseClerk ?? defaultFeatureFlags.pricingUseClerk
+          ),
         };
       }
     }
@@ -70,6 +75,10 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
           tipPromoEnabled: Boolean(
             data2.flags?.tipPromoEnabled?.default ??
               defaultFeatureFlags.tipPromoEnabled
+          ),
+          pricingUseClerk: Boolean(
+            data2.flags?.pricingUseClerk?.default ??
+              defaultFeatureFlags.pricingUseClerk
           ),
         };
       }
@@ -115,6 +124,9 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
           tipPromoEnabled: Boolean(
             data.tipPromoEnabled ?? defaultFeatureFlags.tipPromoEnabled
           ),
+          pricingUseClerk: Boolean(
+            data.pricingUseClerk ?? defaultFeatureFlags.pricingUseClerk
+          ),
         };
       }
     }
@@ -140,6 +152,10 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
           tipPromoEnabled: Boolean(
             data.flags?.tipPromoEnabled?.default ??
               defaultFeatureFlags.tipPromoEnabled
+          ),
+          pricingUseClerk: Boolean(
+            data.flags?.pricingUseClerk?.default ??
+              defaultFeatureFlags.pricingUseClerk
           ),
         };
       }

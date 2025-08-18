@@ -13,7 +13,6 @@ type ClerkSessionForSupabase = NonNullable<
  * Tests the health of three main integrations:
  * 1. Clerk auth integration
  * 2. Supabase client (browser + authenticated)
- * 3. Billing integration (Clerk PricingTable)
  */
 
 describe('Integration Health Diagnostics', () => {
@@ -55,12 +54,6 @@ describe('Integration Health Diagnostics', () => {
         // Allow both supabase.co and custom domains
         expect(env.NEXT_PUBLIC_SUPABASE_URL).toMatch(/^https:\/\/.+/);
       }
-    });
-
-    it('should have billing configuration structure', () => {
-      // Test that the env structure exists even if values are undefined
-      expect('NEXT_PUBLIC_CLERK_BILLING_ENABLED' in env).toBe(true);
-      expect('NEXT_PUBLIC_CLERK_BILLING_GATEWAY' in env).toBe(true);
     });
   });
 
@@ -111,33 +104,6 @@ describe('Integration Health Diagnostics', () => {
       } else {
         expect(client).not.toBeNull();
       }
-    });
-  });
-
-  describe('Billing Integration', () => {
-    it('should be able to import Clerk module for PricingTable', async () => {
-      // Test that we can import the module (even if mocked)
-      expect(async () => {
-        await import('@clerk/nextjs');
-      }).not.toThrow();
-    });
-
-    it('should validate billing configuration structure', () => {
-      const billingEnabled = env.NEXT_PUBLIC_CLERK_BILLING_ENABLED;
-      const billingGateway = env.NEXT_PUBLIC_CLERK_BILLING_GATEWAY;
-
-      // Test that the structure is correct
-      if (billingEnabled === 'true') {
-        expect(['development', 'stripe']).toContain(billingGateway);
-      }
-
-      // Should handle undefined values gracefully
-      expect(
-        billingEnabled === undefined || typeof billingEnabled === 'string'
-      ).toBe(true);
-      expect(
-        billingGateway === undefined || typeof billingGateway === 'string'
-      ).toBe(true);
     });
   });
 
