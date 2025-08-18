@@ -2,6 +2,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { env } from '@/lib/env';
 import path from 'path';
 
+// Precise Clerk session param type for createClerkSupabaseClient
+type ClerkSessionForSupabase = NonNullable<
+  Parameters<typeof import('@/lib/supabase').createClerkSupabaseClient>[0]
+>;
+
 /**
  * Integration Health Diagnostic Tests
  *
@@ -165,9 +170,9 @@ describe('Integration Health Diagnostics', () => {
       // Mock session with getToken method
       const mockSession = {
         getToken: vi.fn().mockResolvedValue('mock-token'),
-      };
+      } as unknown as ClerkSessionForSupabase;
 
-      const client = createClerkSupabaseClient(mockSession as any);
+      const client = createClerkSupabaseClient(mockSession);
 
       // When env vars are missing, should return null
       if (!env.NEXT_PUBLIC_SUPABASE_URL || !env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
@@ -188,9 +193,9 @@ describe('Integration Health Diagnostics', () => {
           }
           return Promise.resolve('default-token');
         }),
-      };
+      } as unknown as ClerkSessionForSupabase;
 
-      const client = createClerkSupabaseClient(mockSession as any);
+      const client = createClerkSupabaseClient(mockSession);
 
       // When env vars are missing, should return null
       if (!env.NEXT_PUBLIC_SUPABASE_URL || !env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
