@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from 'next-themes';
 import { Analytics } from '@/components/Analytics';
-import { DebugBanner } from '@/components/DebugBanner';
 import { FeatureFlagsProvider } from './FeatureFlagsProvider';
 import { FeatureFlags } from '@/lib/feature-flags';
 import { Spinner } from '@/components/ui';
@@ -90,7 +89,6 @@ export function ClientProviders({
           disableTransitionOnChange
           storageKey="jovie-theme"
         >
-          <DebugBanner />
           {children}
           <Analytics />
           {/* <Toolbar /> */}

@@ -3,9 +3,6 @@ import { NextResponse } from 'next/server';
 // Vercel Flags v4 discovery endpoint
 // Returns versioned flag definitions so the Toolbar/Flags Explorer can detect the SDK
 export async function GET() {
-  // Enable debug banner in development by default
-  const isDevelopment = process.env.NODE_ENV === 'development';
-
   const response = {
     version: 4,
     flags: {
@@ -21,7 +18,7 @@ export async function GET() {
       },
       debugBannerEnabled: {
         type: 'boolean',
-        default: true, // Show on all environments by default
+        default: false,
         description: 'Show debug banner in the UI',
       },
       tipPromoEnabled: {

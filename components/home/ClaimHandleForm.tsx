@@ -200,7 +200,11 @@ export function ClaimHandleForm() {
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
+    <form
+      onSubmit={onSubmit}
+      className="space-y-3"
+      aria-label="Claim handle form"
+    >
       <Input
         type="text"
         value={handle}
@@ -245,48 +249,50 @@ export function ClaimHandleForm() {
       />
 
       {/* Preview text with consistent height to prevent layout jump */}
-      <div className="min-h-[1.25rem]" id="handle-preview-text">
-        {handle ? (
-          <p
-            onClick={available ? onCopyPreview : undefined}
-            className={`text-xs ${previewTone} select-none transition-colors duration-200 ${
-              available
-                ? 'cursor-pointer hover:text-green-700 dark:hover:text-green-400 active:scale-[0.98] touch-manipulation'
-                : ''
-            }`}
-            title={
-              available ? (copied ? 'Copied!' : 'Click to copy') : undefined
-            }
-            role={available ? 'button' : undefined}
-            tabIndex={available ? 0 : undefined}
-            onKeyDown={
-              available
-                ? (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      onCopyPreview();
+      <div className="min-h-[1.25rem]">
+        <div id="handle-preview-text">
+          {handle ? (
+            <p
+              onClick={available ? onCopyPreview : undefined}
+              className={`text-xs ${previewTone} select-none transition-colors duration-200 ${
+                available
+                  ? 'cursor-pointer hover:text-green-700 dark:hover:text-green-400 active:scale-[0.98] touch-manipulation'
+                  : ''
+              }`}
+              title={
+                available ? (copied ? 'Copied!' : 'Click to copy') : undefined
+              }
+              role={available ? 'button' : undefined}
+              tabIndex={available ? 0 : undefined}
+              onKeyDown={
+                available
+                  ? (e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onCopyPreview();
+                      }
                     }
-                  }
-                : undefined
-            }
-            aria-label={
-              available ? `Copy profile URL jov.ie/${handle}` : undefined
-            }
-          >
-            Your profile will be live at{' '}
-            <span className="text-current">jov.ie/</span>
-            <span className="font-semibold text-current">{handle}</span>
-            {available ? (
-              <span className="ml-2 text-[11px] text-green-600 dark:text-green-500 transition-opacity duration-200">
-                {copied ? '✓ Copied!' : '📋 Tap to copy'}
-              </span>
-            ) : null}
-          </p>
-        ) : (
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            Your profile will be live at jov.ie/your-handle
-          </p>
-        )}
+                  : undefined
+              }
+              aria-label={
+                available ? `Copy profile URL jov.ie/${handle}` : undefined
+              }
+            >
+              Your profile will be live at{' '}
+              <span className="text-current">jov.ie/</span>
+              <span className="font-semibold text-current">{handle}</span>
+              {available ? (
+                <span className="ml-2 text-[11px] text-green-600 dark:text-green-500 transition-opacity duration-200">
+                  {copied ? '✓ Copied!' : '📋 Tap to copy'}
+                </span>
+              ) : null}
+            </p>
+          ) : (
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Your profile will be live at jov.ie/your-handle
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Helper text with consistent height to prevent layout jump */}
@@ -295,6 +301,7 @@ export function ClaimHandleForm() {
         aria-live="polite"
         aria-atomic="true"
         id="handle-helper-text"
+        role="status"
       >
         {helperText ? (
           <p

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { ClientProviders } from '@/components/providers/ClientProviders';
 import { VercelToolbar } from '@vercel/toolbar/next';
-import { StatsigProviderWrapper } from '@/components/providers/StatsigProvider';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
 import '@/styles/globals.css';
@@ -133,15 +132,10 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body
-        className="font-sans"
-        style={{ paddingTop: 'var(--debug-banner-height, 3rem)' }}
-      >
-        <StatsigProviderWrapper>
-          <ClientProviders initialFeatureFlags={featureFlags}>
-            {children}
-          </ClientProviders>
-        </StatsigProviderWrapper>
+      <body className="font-sans">
+        <ClientProviders initialFeatureFlags={featureFlags}>
+          {children}
+        </ClientProviders>
         {shouldInjectToolbar && <VercelToolbar />}
       </body>
     </html>

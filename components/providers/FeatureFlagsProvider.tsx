@@ -12,7 +12,7 @@ interface FeatureFlagsContextType {
 const FeatureFlagsContext = createContext<FeatureFlagsContextType>({
   flags: {
     artistSearchEnabled: true,
-    debugBannerEnabled: true, // Show on all environments by default
+    debugBannerEnabled: false,
     tipPromoEnabled: true,
   },
   isLoading: true,
@@ -35,7 +35,7 @@ export function FeatureFlagsProvider({
   const [flags, setFlags] = useState<FeatureFlags>(
     initialFlags || {
       artistSearchEnabled: true,
-      debugBannerEnabled: true, // Show on all environments by default
+      debugBannerEnabled: false,
       tipPromoEnabled: true,
     }
   );

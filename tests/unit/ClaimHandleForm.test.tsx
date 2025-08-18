@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { ClaimHandleForm } from '@/components/home/ClaimHandleForm';
-import { vi } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // Mock dependencies
 vi.mock('@clerk/nextjs', () => ({
@@ -127,10 +127,7 @@ describe('ClaimHandleForm', () => {
     // Wait for validation
     await waitFor(() => {
       expect(input).toHaveAttribute('aria-invalid', 'true');
-      expect(input).toHaveAttribute(
-        'aria-describedby',
-        'handle-helper-text'
-      );
+      expect(input).toHaveAttribute('aria-describedby', 'handle-helper-text');
     });
 
     // Check that error message appears in helper text

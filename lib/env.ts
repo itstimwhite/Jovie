@@ -15,7 +15,8 @@ const EnvSchema = z.object({
     .string()
     .min(1, 'Missing NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY'),
   NEXT_PUBLIC_APP_URL: z.string().url().default('https://jov.ie'),
-  NEXT_PUBLIC_SEGMENT_WRITE_KEY: z.string().optional(),
+  NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
+  NEXT_PUBLIC_POSTHOG_HOST: z.string().optional(),
 
   // Server or build-time envs (may be undefined locally)
   SPOTIFY_CLIENT_ID: z.string().optional(),
@@ -35,7 +36,8 @@ const rawEnv = {
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
     process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? 'https://jov.ie',
-  NEXT_PUBLIC_SEGMENT_WRITE_KEY: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY,
+  NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
+  NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
   SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
   NEXT_PUBLIC_CLERK_BILLING_ENABLED:
@@ -67,9 +69,12 @@ export const env = {
   NEXT_PUBLIC_APP_URL: parsed.success
     ? parsed.data.NEXT_PUBLIC_APP_URL
     : (process.env.NEXT_PUBLIC_APP_URL ?? 'https://jov.ie'),
-  NEXT_PUBLIC_SEGMENT_WRITE_KEY: parsed.success
-    ? parsed.data.NEXT_PUBLIC_SEGMENT_WRITE_KEY
-    : process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY,
+  NEXT_PUBLIC_POSTHOG_KEY: parsed.success
+    ? parsed.data.NEXT_PUBLIC_POSTHOG_KEY
+    : process.env.NEXT_PUBLIC_POSTHOG_KEY,
+  NEXT_PUBLIC_POSTHOG_HOST: parsed.success
+    ? parsed.data.NEXT_PUBLIC_POSTHOG_HOST
+    : process.env.NEXT_PUBLIC_POSTHOG_HOST,
   SPOTIFY_CLIENT_ID: parsed.success
     ? parsed.data.SPOTIFY_CLIENT_ID
     : process.env.SPOTIFY_CLIENT_ID,
