@@ -63,7 +63,7 @@ export default function DashboardPage() {
 
       if (!supabase) {
         console.error('Failed to get authenticated Supabase client');
-        setError('Configuration error: Supabase client not available');
+        setError('Authentication failed. Please try signing out and back in.');
         setLoading(false);
         return;
       }
@@ -76,8 +76,15 @@ export default function DashboardPage() {
         .maybeSingle();
 
       if (userError) {
+        // If it's a permission error, the user likely needs to be created
+        if (userError.code === 'PGRST301' || userError.code === '42501') {
+          console.log('User not found in database, redirecting to onboarding');
+          router.push('/onboarding');
+          return;
+        }
         console.error('Error fetching user:', userError);
-        setError('Failed to load user data');
+        setError('Database connection failed. Please refresh the page.');
+        setLoading(false);
         return;
       }
 
@@ -96,7 +103,8 @@ export default function DashboardPage() {
 
       if (error) {
         console.error('Error fetching artist:', error);
-        setError('Failed to load artist data');
+        setError('Failed to load artist data. Please refresh the page.');
+        setLoading(false);
         return;
       }
 
@@ -110,7 +118,7 @@ export default function DashboardPage() {
       setArtist(data as unknown as Artist | null);
     } catch (error) {
       console.error('Error:', error);
-      setError('Failed to load dashboard data');
+      setError('Failed to load dashboard data. Please refresh the page.');
     } finally {
       setLoading(false);
     }
@@ -126,13 +134,20 @@ export default function DashboardPage() {
     setArtist(updatedArtist);
   };
 
-  // Show loading while checking claims
-  if (checkingClaims) {
+  // Show loading while checking claims or initial load
+  if (checkingClaims || loading || !isLoaded) {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#0D0E12] flex items-center justify-center">
-        <div className="text-center">
-          <Spinner size="lg" />
-          <p className="mt-4 text-gray-600 dark:text-white/70">Loading...</p>
+      <div className="min-h-screen bg-white dark:bg-[#0D0E12] transition-colors">
+        {/* Subtle grid background pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
+
+        <div className="flex min-h-screen items-center justify-center relative z-10">
+          <div className="text-center">
+            <Spinner size="lg" />
+            <p className="mt-4 text-gray-600 dark:text-white/70 transition-colors">
+              Loading your dashboard...
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -158,24 +173,6 @@ export default function DashboardPage() {
     );
   }
 
-  if (loading || !isLoaded) {
-    return (
-      <div className="min-h-screen bg-white dark:bg-[#0D0E12] transition-colors">
-        {/* Subtle grid background pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
-
-        <div className="flex min-h-screen items-center justify-center relative z-10">
-          <div className="text-center">
-            <Spinner size="lg" />
-            <p className="mt-4 text-gray-600 dark:text-white/70 transition-colors">
-              Loading...
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <>
       <PendingClaimRunner />
@@ -195,28 +192,21 @@ export default function DashboardPage() {
           </div>
 
           <Container className="relative z-10">
-            <div className="flex min-h-screen items-center justify-center py-12">
+            <div className="flex min-h-screen items-center justify-center py-8">
               <div className="w-full max-w-md">
                 {/* Header */}
-                <div className="text-center mb-8">
-                  <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-2 transition-colors">
+                <div className="text-center mb-6">
+                  <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-1 transition-colors">
                     Welcome to {APP_NAME}
                   </h1>
-                  <p className="text-gray-600 dark:text-white/70 text-lg transition-colors">
-                    Claim your jov.ie handle to launch your artist profile
+                  <p className="text-gray-600 dark:text-white/70 transition-colors">
+                    Claim your handle to launch your artist profile
                   </p>
                 </div>
 
                 {/* Form Card */}
                 <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-xl p-6 shadow-xl transition-colors">
                   <OnboardingForm />
-                </div>
-
-                {/* Footer */}
-                <div className="text-center mt-8">
-                  <p className="text-sm text-gray-500 dark:text-white/50 transition-colors">
-                    Your profile will be live at jov.ie/yourhandle
-                  </p>
                 </div>
               </div>
             </div>
