@@ -21,28 +21,21 @@ export default async function OnboardingPage() {
         <ThemeToggle />
       </div>
 
-      <Container className="relative z-10 flex min-h-screen items-center justify-center py-12">
+      <Container className="relative z-10 flex min-h-screen items-center justify-center py-8">
         <div className="w-full max-w-md">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-2 transition-colors">
+          <div className="text-center mb-6">
+            <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-1 transition-colors">
               Welcome to {APP_NAME}
             </h1>
-            <p className="text-gray-600 dark:text-white/70 text-lg transition-colors">
-              Claim your jov.ie handle to launch your artist profile
+            <p className="text-gray-600 dark:text-white/70 transition-colors">
+              Claim your handle to launch your artist profile
             </p>
           </div>
 
           {/* Form Card */}
           <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-xl p-6 shadow-xl transition-colors">
             <OnboardingForm />
-          </div>
-
-          {/* Footer */}
-          <div className="text-center mt-8">
-            <p className="text-sm text-gray-500 dark:text-white/50 transition-colors">
-              Your profile will be live at jov.ie/yourhandle
-            </p>
           </div>
         </div>
       </Container>
