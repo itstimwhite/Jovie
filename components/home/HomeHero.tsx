@@ -5,10 +5,13 @@ import Link from 'next/link';
 import { Container } from '@/components/site/Container';
 import { ClaimHandleForm } from './ClaimHandleForm';
 import { Button } from '@/components/ui/Button';
-import { useFeatureFlag } from '@/lib/analytics';
+import { useFeatureFlagWithLoading, FEATURE_FLAGS } from '@/lib/analytics';
 
 export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
-  const showClaimHandle = useFeatureFlag('feature_claim_handle', false);
+  const { enabled: showClaimHandle, loading } = useFeatureFlagWithLoading(
+    FEATURE_FLAGS.CLAIM_HANDLE,
+    false
+  );
   return (
     <section
       className="relative flex min-h-screen flex-col items-center justify-center px-6 py-24"
@@ -47,7 +50,14 @@ export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
 
             {/* Frosted card with 12-16px radius and soft shadow */}
             <div className="relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-white/10 shadow-xl hover:shadow-2xl transition-all duration-200 hover:-translate-y-1 p-8">
-              {showClaimHandle ? (
+              {loading ? (
+                <div className="flex flex-col items-center gap-4">
+                  <div className="animate-pulse">
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48 mb-4"></div>
+                    <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+                  </div>
+                </div>
+              ) : showClaimHandle ? (
                 <ClaimHandleForm />
               ) : (
                 <div className="flex flex-col items-center gap-4">
