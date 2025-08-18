@@ -29,24 +29,17 @@
     "verify-artist-images": "node scripts/verify-artist-images.js",
     "update-artist-images": "node scripts/update-artist-images.js",
     "ensure-valid-artist-images": "node scripts/ensure-valid-artist-images.js",
-    "statsig-setup": "node scripts/statsig-setup.js",
     "prepare": "husky",
     "danger": "danger ci --fail-on-errors --verbose",
     "db:migrate": "node scripts/db-migrate.js",
     "db:seed": "node scripts/db-seed.js"
   },
   "dependencies": {
-    "@clerk/nextjs": "^6.28.1",
-    "@flags-sdk/statsig": "^0.2.2",
+    "@clerk/nextjs": "^6.31.1",
     "@fontsource/inter": "^5.2.6",
     "@headlessui/react": "^2.2.7",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.2.1",
-    "@segment/analytics-next": "^1.68.0",
-    "@statsig/react-bindings": "^3.21.1",
-    "@statsig/session-replay": "^3.21.1",
-    "@statsig/siggy": "^0.0.4",
-    "@statsig/web-analytics": "^3.21.1",
     "@stripe/stripe-js": "^7.8.0",
     "@supabase/supabase-js": "^2.39.0",
     "@vercel/analytics": "^1.5.0",
@@ -59,13 +52,13 @@
     "framer-motion": "^11.0.0",
     "next": "^15.4.5",
     "next-themes": "^0.4.6",
+    "posthog-js": "^1.132.7",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-hook-form": "^7.62.0",
     "remark": "^15.0.1",
     "remark-html": "^16.0.1",
     "simple-icons": "^15.9.0",
-    "statsig-node-vercel": "^0.7.0",
     "stripe": "^18.4.0",
     "tailwind-merge": "^3.3.1",
     "zod": "^3.25.76"
@@ -108,6 +101,9 @@
     ],
     "*.{json,md,css}": [
       "prettier --write"
+    ],
+    "ignore": [
+      "app/.well-known/**"
     ]
   }
 }
