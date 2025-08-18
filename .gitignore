@@ -38,6 +38,9 @@ next-env.d.ts
 
 .env.local
 
+# Demo files
+flyout-demo-updated.html
+
 # Ignore generated sitemaps
 public/sitemap*.xml
 public/sitemap*.xml.gz

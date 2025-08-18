@@ -30,6 +30,18 @@ export function HeaderNav() {
     }, 150);
   };
 
+  // Flyout hover handlers to keep it open when hovering over the panel
+  const handleFlyoutMouseEnter = () => {
+    clearTimeout(hoverTimeoutRef.current);
+  };
+
+  const handleFlyoutMouseLeave = () => {
+    clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsProductFlyoutOpen(false);
+    }, 150);
+  };
+
   // Mobile tap handler
   const handleProductClick = () => {
     if (!window.matchMedia('(min-width: 768px)').matches) {
@@ -97,6 +109,8 @@ export function HeaderNav() {
                   isOpen={isProductFlyoutOpen}
                   onClose={closeFlyout}
                   triggerRef={productTriggerRef}
+                  onMouseEnter={handleFlyoutMouseEnter}
+                  onMouseLeave={handleFlyoutMouseLeave}
                 />
               </div>
               <Link
@@ -126,6 +140,8 @@ export function HeaderNav() {
                   isOpen={isProductFlyoutOpen}
                   onClose={closeFlyout}
                   triggerRef={productTriggerRef}
+                  onMouseEnter={handleFlyoutMouseEnter}
+                  onMouseLeave={handleFlyoutMouseLeave}
                 />
               </div>
               <Link
