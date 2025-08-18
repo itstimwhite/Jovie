@@ -65,7 +65,7 @@ const parsed = EnvSchema.safeParse(rawEnv);
 
 if (!parsed.success && process.env.NODE_ENV === 'development') {
   // Log zod issues once in dev to aid setup
-  // Do not throw to avoid blocking the entire app; DebugBanner will display statuses
+  // Do not throw to avoid blocking the entire app; surfaced via env-gated logger in dev/preview
   // eslint-disable-next-line no-console
   console.warn('[env] Validation issues:', parsed.error.flatten().fieldErrors);
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { HomeHero } from '@/components/home/HomeHero';
+import { CTAShowcase } from '@/components/demo/CTAShowcase';
 import { APP_NAME, APP_URL } from '@/constants/app';
 
 export const revalidate = 1800;
@@ -121,6 +122,9 @@ export default function DemoPage() {
           </div>
         </div>
       </section>
+
+      {/* CTA Button Showcase */}
+      <CTAShowcase />
 
       {/* Roadmap teaser */}
       <section className="py-20 border-t border-gray-200 dark:border-white/5">

@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { ProblemSolutionSection } from '@/components/home/ProblemSolutionSection';
 
 // Mock analytics
@@ -8,6 +8,9 @@ vi.mock('@/lib/analytics', () => ({
 }));
 
 describe('ProblemSolutionSection', () => {
+  afterEach(() => {
+    cleanup();
+  });
   it('renders unified section with problem and solution content', () => {
     render(<ProblemSolutionSection />);
 

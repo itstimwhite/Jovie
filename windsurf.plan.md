@@ -83,3 +83,20 @@
 1. Fix dashboard: debug and resolve 'Failed to load user data' error
 2. Artist profile pages: ensure /<handle> renders, no hydration/client errors
 3. Streamline sign-up/handle claim flow, ensure dashboard access
+
+## Recent Changes (Flags/Debug Logging)
+
+- Removed `DebugBanner` UI and all usages. Kept the `debugBannerEnabled` flag for compatibility but defaulted it to `false` across:
+  - `lib/feature-flags.ts`
+  - `app/api/feature-flags/route.ts`
+  - `app/.well-known/vercel/flags/route.ts` (marked deprecated)
+- Added a lightweight, environment-gated logger at `lib/utils/logger.ts`:
+  - Active in local development and Vercel Preview
+  - No-op in production; and we updated `next.config.js` to retain console logs in Preview only
+- Removed debug banner padding from `app/layout.tsx` body
+- Updated `components/providers/ClientProviders.tsx` to log startup info via the new logger
+- Updated `components/providers/FeatureFlagsProvider.tsx` defaults to disable the banner
+
+Next:
+
+- Resolve remaining merge conflict in `components/molecules/SocialLink.tsx`, commit, and open PR to `preview`.

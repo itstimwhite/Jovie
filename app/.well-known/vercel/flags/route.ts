@@ -24,8 +24,9 @@ export async function GET() {
       },
       debugBannerEnabled: {
         type: 'boolean',
-        default: true, // Show on all environments by default
-        description: 'Show debug banner in the UI',
+        default: false, // UI banner removed; kept for API compatibility
+        description:
+          'Deprecated: legacy UI debug banner (replaced by console logger)',
       },
       tipPromoEnabled: {
         type: 'boolean',

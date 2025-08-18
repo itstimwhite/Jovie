@@ -8,7 +8,8 @@ export interface FeatureFlags {
 // Default feature flags (fallback)
 const defaultFeatureFlags: FeatureFlags = {
   artistSearchEnabled: true,
-  debugBannerEnabled: true, // Show on all environments by default
+  // Debug banner is removed site-wide; keep flag for compatibility but default to false
+  debugBannerEnabled: false,
   tipPromoEnabled: true,
 };
 

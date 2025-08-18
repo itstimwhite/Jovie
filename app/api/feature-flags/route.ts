@@ -8,7 +8,7 @@ export const revalidate = 0;
 export async function GET() {
   const flags = {
     artistSearchEnabled: true,
-    debugBannerEnabled: true,
+    debugBannerEnabled: false,
     tipPromoEnabled: true,
   } as const;
 

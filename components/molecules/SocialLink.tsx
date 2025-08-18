@@ -1,9 +1,10 @@
 'use client';
 
-import { SocialIcon } from '@/components/atoms/SocialIcon';
+import { SocialIcon, getPlatformIcon } from '@/components/atoms/SocialIcon';
 import { track } from '@/lib/analytics';
 import { getSocialDeepLinkConfig, openDeepLink } from '@/lib/deep-links';
 import type { SocialLink as SocialLinkType } from '@/types/db';
+import { useMemo, useState } from 'react';
 
 interface SocialLinkProps {
   link: SocialLinkType;
@@ -12,9 +13,23 @@ interface SocialLinkProps {
 }
 
 export function SocialLink({ link, handle, artistName }: SocialLinkProps) {
+  const [hover, setHover] = useState(false);
+  const brandHex = useMemo(
+    () => getPlatformIcon(link.platform)?.hex,
+    [link.platform]
+  );
+
+  const hexToRgba = (hex: string, alpha: number) => {
+    const h = hex.replace('#', '');
+    const bigint = parseInt(h, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
-
     // Track analytics first
     track('social_click', {
       handle,
@@ -65,12 +80,22 @@ export function SocialLink({ link, handle, artistName }: SocialLinkProps) {
   return (
     <a
       href={link.url}
-      onClick={handleClick}
-      className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-all duration-200 ease-out hover:bg-gray-200 hover:scale-110 hover:shadow-sm active:scale-95 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 cursor-pointer"
+      onClick={(e) => handleClick(e)}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className="group flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-all duration-150 hover:scale-105 active:scale-95 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 cursor-pointer ring-1 ring-black/5 dark:ring-white/10"
+      style={
+        hover && brandHex
+          ? {
+              color: `#${brandHex}`,
+              boxShadow: `0 0 0 0.5px ${hexToRgba(brandHex, 0.6)}, 0 10px 24px -12px ${hexToRgba(brandHex, 0.6)}`,
+            }
+          : undefined
+      }
       title={`Follow on ${link.platform}`}
-      aria-label={`Follow ${artistName} on ${link.platform}. Opens in ${link.platform} app if installed, otherwise opens in web browser.`}
+      aria-label={`Follow ${artistName} on ${link.platform}`}
     >
-      <SocialIcon platform={link.platform} />
+      <SocialIcon platform={link.platform} className="h-4 w-4" />
     </a>
   );
 }
