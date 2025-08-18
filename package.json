@@ -46,7 +46,7 @@
     "@statsig/react-bindings": "^3.21.1",
     "@statsig/session-replay": "^3.21.1",
     "@statsig/siggy": "^0.0.4",
-    "@statsig/web-analytics": "^3.21.1",
+    "@statsig/web-analytics": "^3.22.0",
     "@stripe/stripe-js": "^7.8.0",
     "@supabase/supabase-js": "^2.39.0",
     "@vercel/analytics": "^1.5.0",
