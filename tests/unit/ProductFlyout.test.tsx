@@ -9,15 +9,16 @@ vi.mock('@/lib/features', () => ({
     {
       slug: 'smart-conversions',
       title: 'Smart Conversions',
-      blurb: 'AI-optimized CTAs and layouts that adapt automatically.',
+      blurb: 'AI-optimized CTAs and layouts that adapt in real time.',
       href: '/features/smart-conversions',
       Icon: () => <svg data-testid="test-icon" />,
       colorVar: '--accent-conv',
+      aiPowered: true,
     },
     {
       slug: 'real-time-analytics',
       title: 'Real-Time Analytics',
-      blurb: 'Instant, reliable insights aligned with your ad platforms.',
+      blurb: 'Instant insights, always aligned with your ad platforms.',
       href: '/features/analytics',
       Icon: () => <svg data-testid="test-icon" />,
       colorVar: '--accent-analytics',
@@ -42,6 +43,8 @@ function TestWrapper({
         isOpen={isOpen}
         onClose={onClose}
         triggerRef={triggerRef}
+        onMouseEnter={() => {}}
+        onMouseLeave={() => {}}
       />
     </div>
   );

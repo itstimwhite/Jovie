@@ -15,21 +15,23 @@ export type Feature = {
   href: string;
   Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   colorVar: string; // e.g., '--accent-conv'
+  aiPowered?: boolean; // Flag for AI-powered tag
 };
 
 export const FEATURES: Feature[] = [
   {
     slug: 'smart-conversions',
     title: 'Smart Conversions',
-    blurb: 'AI-optimized CTAs and layouts that adapt automatically.',
+    blurb: 'AI-optimized CTAs and layouts that adapt in real time.',
     href: '/features/smart-conversions',
     Icon: ArrowTrendingUpIcon,
     colorVar: '--accent-conv',
+    aiPowered: true,
   },
   {
     slug: 'real-time-analytics',
     title: 'Real-Time Analytics',
-    blurb: 'Instant, reliable insights aligned with your ad platforms.',
+    blurb: 'Instant insights, always aligned with your ad platforms.',
     href: '/features/analytics',
     Icon: ChartBarIcon,
     colorVar: '--accent-analytics',
@@ -37,15 +39,15 @@ export const FEATURES: Feature[] = [
   {
     slug: 'blazing-fast',
     title: 'Blazing Fast',
-    blurb: 'Sub-100ms loads and 99.99% uptime—fans never wait.',
+    blurb: 'Sub-100ms loads. 99.99% uptime. Fans never wait.',
     href: '/features/performance',
     Icon: BoltIcon,
     colorVar: '--accent-speed',
   },
   {
-    slug: 'always-beautiful',
-    title: 'Always Beautiful',
-    blurb: "Instantly polished profiles; you can't make it ugly.",
+    slug: 'pixel-perfect-by-default',
+    title: 'Pixel-Perfect by Default',
+    blurb: "Profiles auto-polished—you can't make them ugly.",
     href: '/features/design',
     Icon: SparklesIcon,
     colorVar: '--accent-beauty',
@@ -53,7 +55,7 @@ export const FEATURES: Feature[] = [
   {
     slug: 'seo-boost',
     title: 'SEO Boost',
-    blurb: 'Structured, fast, and discoverable by default.',
+    blurb: 'Structured, discoverable, and lightning-fast by design.',
     href: '/features/seo',
     Icon: MagnifyingGlassCircleIcon,
     colorVar: '--accent-seo',
@@ -67,9 +69,9 @@ export const FEATURES: Feature[] = [
     colorVar: '--accent-links',
   },
   {
-    slug: 'pro-growth-tools',
-    title: 'Pro Growth Tools',
-    blurb: 'Pixels, remarketing, and integrations when you scale.',
+    slug: 'pixels-remarketing',
+    title: 'Pixels & Remarketing',
+    blurb: 'Growth integrations that scale with you.',
     href: '/features/pro',
     Icon: RocketLaunchIcon,
     colorVar: '--accent-pro',

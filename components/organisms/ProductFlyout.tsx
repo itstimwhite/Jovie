@@ -10,6 +10,8 @@ interface ProductFlyoutProps {
   onClose: () => void;
   triggerRef: React.RefObject<HTMLElement>;
   className?: string;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 export function ProductFlyout({
@@ -17,14 +19,14 @@ export function ProductFlyout({
   onClose,
   triggerRef,
   className = '',
+  onMouseEnter,
+  onMouseLeave,
 }: ProductFlyoutProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const firstItemRef = useRef<HTMLAnchorElement>(null);
   const [currentFocusIndex, setCurrentFocusIndex] = useState(0);
 
-  // Split features into core (first 4) and more (remaining)
-  const coreFeatures = FEATURES.slice(0, 4);
-  const moreFeatures = FEATURES.slice(4);
+  // No need to split features - use all in 2-column grid
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -125,55 +127,29 @@ export function ProductFlyout({
       style={{
         animation: 'flyout-enter 100ms ease-out',
       }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {/* Desktop Layout */}
       <div className="hidden md:block">
-        <div className="grid grid-cols-2 gap-8 p-6">
-          {/* Core Features */}
-          <div>
-            <h2 className="mb-4 text-sm font-semibold text-[var(--fg)]">
-              Core Features
-            </h2>
-            <div className="space-y-1">
-              {coreFeatures.map((feature, index) => (
-                <FlyoutItem
-                  key={feature.slug}
-                  feature={feature}
-                  ref={index === 0 ? firstItemRef : undefined}
-                  className="hover:bg-[var(--bg)] focus-visible:bg-[var(--bg)]"
-                  style={
-                    {
-                      '--ring-color': `color-mix(in srgb, var(${feature.colorVar}) 25%, transparent)`,
-                      animationDelay: `${index * 10}ms`,
-                      animation: 'flyout-item-enter 120ms ease-out both',
-                    } as React.CSSProperties
-                  }
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* More Features */}
-          <div>
-            <h2 className="mb-4 text-sm font-semibold text-[var(--fg)]">
-              More
-            </h2>
-            <div className="space-y-1">
-              {moreFeatures.map((feature, index) => (
-                <FlyoutItem
-                  key={feature.slug}
-                  feature={feature}
-                  className="hover:bg-[var(--bg)] focus-visible:bg-[var(--bg)]"
-                  style={
-                    {
-                      '--ring-color': `color-mix(in srgb, var(${feature.colorVar}) 25%, transparent)`,
-                      animationDelay: `${(index + 4) * 10}ms`,
-                      animation: 'flyout-item-enter 120ms ease-out both',
-                    } as React.CSSProperties
-                  }
-                />
-              ))}
-            </div>
+        <div className="p-6">
+          {/* Flattened 2-column grid for all features */}
+          <div className="grid grid-cols-2 gap-x-8 gap-y-1">
+            {FEATURES.map((feature, index) => (
+              <FlyoutItem
+                key={feature.slug}
+                feature={feature}
+                ref={index === 0 ? firstItemRef : undefined}
+                className="hover:bg-[var(--bg)] focus-visible:bg-[var(--bg)]"
+                style={
+                  {
+                    '--ring-color': `color-mix(in srgb, var(${feature.colorVar}) 25%, transparent)`,
+                    animationDelay: `${index * 10}ms`,
+                    animation: 'flyout-item-enter 120ms ease-out both',
+                  } as React.CSSProperties
+                }
+              />
+            ))}
           </div>
         </div>
 
