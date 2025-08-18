@@ -64,7 +64,7 @@ export function ListenNow({ handle, artistName }: ListenNowProps) {
             >
               <span className="inline-flex items-center gap-2">
                 <Spinner size="sm" variant="dark" />
-                <span>Opening…</span>
+                <span>Opening...</span>
               </span>
             </span>
           </div>
