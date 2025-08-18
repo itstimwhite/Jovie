@@ -43,7 +43,7 @@
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.2.1",
     "@segment/analytics-next": "^1.68.0",
-    "@statsig/react-bindings": "^3.21.1",
+    "@statsig/react-bindings": "^3.22.0",
     "@statsig/session-replay": "^3.21.1",
     "@statsig/siggy": "^0.0.4",
     "@statsig/web-analytics": "^3.21.1",
