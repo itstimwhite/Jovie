@@ -25,10 +25,11 @@ async function seedArtists() {
     { id: 'artist_5', email: 'tim@example.com' },
   ];
 
-  // Artist profiles with proper data
-  const artistProfiles = [
+  // Creator profiles with proper data
+  const creatorProfiles = [
     {
       user_id: 'artist_1',
+      creator_type: 'artist',
       username: 'ladygaga',
       display_name: 'Lady Gaga',
       bio: 'Grammy Award-winning artist known for hits like "Bad Romance" and "Shallow". Advocate for mental health awareness and LGBTQ+ rights.',
@@ -38,6 +39,7 @@ async function seedArtists() {
     },
     {
       user_id: 'artist_2',
+      creator_type: 'artist',
       username: 'davidguetta',
       display_name: 'David Guetta',
       bio: 'French DJ and music producer. Pioneer of electronic dance music with hits like "Titanium" and "When Love Takes Over".',
@@ -47,6 +49,7 @@ async function seedArtists() {
     },
     {
       user_id: 'artist_3',
+      creator_type: 'artist',
       username: 'billieeilish',
       display_name: 'Billie Eilish',
       bio: 'Multi-Grammy Award winner known for her unique sound and style. Albums include "When We All Fall Asleep, Where Do We Go?" and "Happier Than Ever".',
@@ -56,6 +59,7 @@ async function seedArtists() {
     },
     {
       user_id: 'artist_4',
+      creator_type: 'artist',
       username: 'marshmello',
       display_name: 'Marshmello',
       bio: 'Electronic music producer and DJ known for tracks like "Alone" and "Happier". Recognized by the iconic marshmallow helmet.',
@@ -65,6 +69,7 @@ async function seedArtists() {
     },
     {
       user_id: 'artist_5',
+      creator_type: 'artist',
       username: 'tim',
       display_name: 'Tim White',
       bio: 'Independent artist exploring electronic and ambient sounds. Latest release: "Never Say A Word" (2024).',
@@ -86,26 +91,28 @@ async function seedArtists() {
       return;
     }
 
-    // Insert artist profiles
-    console.log('🎵 Creating artist profiles...');
+    // Insert creator profiles
+    console.log('🎵 Creating creator profiles...');
     const { data, error: profilesError } = await supabase
-      .from('artist_profiles')
-      .upsert(artistProfiles, { onConflict: 'username' })
+      .from('creator_profiles')
+      .upsert(creatorProfiles, { onConflict: 'username' })
       .select();
 
     if (profilesError) {
-      console.error('Error creating artist profiles:', profilesError);
+      console.error('Error creating creator profiles:', profilesError);
       return;
     }
 
-    console.log(`✅ Successfully created ${data.length} artist profiles:`);
+    console.log(`✅ Successfully created ${data.length} creator profiles:`);
     data.forEach((profile) => {
-      console.log(`   - ${profile.display_name} (@${profile.username})`);
+      console.log(
+        `   - ${profile.display_name} (@${profile.username}) [${profile.creator_type}]`
+      );
     });
 
     console.log('\n🚀 Local development setup complete!');
     console.log(
-      '   Visit http://localhost:3003/ladygaga to test an artist profile'
+      '   Visit http://localhost:3003/ladygaga to test a creator profile'
     );
   } catch (error) {
     console.error('❌ Seeding failed:', error);

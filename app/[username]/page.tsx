@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { notFound } from 'next/navigation';
 import { AnimatedArtistPage } from '@/components/profile/AnimatedArtistPage';
 import { DesktopQrOverlay } from '@/components/profile/DesktopQrOverlay';
-import { Artist, SocialLink } from '@/types/db';
+import { Artist, SocialLink, CreatorProfile } from '@/types/db';
 import { PAGE_SUBTITLES } from '@/constants/app';
 
 // Create an anonymous Supabase client for public data
@@ -47,31 +47,33 @@ function convertToArtist(profile: ArtistProfile): Artist {
   };
 }
 
-async function getArtistProfile(
+async function getCreatorProfile(
   username: string
-): Promise<ArtistProfile | null> {
+): Promise<CreatorProfile | null> {
   const supabase = createAnonSupabase();
 
   console.log(
-    '[getArtistProfile] Looking for username:',
+    '[getCreatorProfile] Looking for username:',
     username.toLowerCase()
   );
 
   const { data, error } = await supabase
-    .from('artist_profiles')
-    .select('id, username, display_name, bio, avatar_url, is_public')
+    .from('creator_profiles')
+    .select(
+      'id, user_id, creator_type, username, display_name, bio, avatar_url, is_public, created_at, updated_at'
+    )
     .eq('username', username.toLowerCase())
     .eq('is_public', true) // Only fetch public profiles
     .single();
 
-  console.log('[getArtistProfile] Query result:', { data, error });
+  console.log('[getCreatorProfile] Query result:', { data, error });
 
   if (error || !data) {
-    console.log('[getArtistProfile] No data found or error occurred');
+    console.log('[getCreatorProfile] No data found or error occurred');
     return null;
   }
 
-  console.log('[getArtistProfile] Found profile:', data);
+  console.log('[getCreatorProfile] Found profile:', data);
   return data;
 }
 
@@ -87,7 +89,7 @@ interface Props {
 export default async function ArtistPage({ params, searchParams }: Props) {
   const { username } = await params;
   const { mode = 'profile' } = await searchParams;
-  const profile = await getArtistProfile(username);
+  const profile = await getCreatorProfile(username);
 
   if (!profile) {
     notFound();
@@ -165,7 +167,7 @@ export default async function ArtistPage({ params, searchParams }: Props) {
 // Generate metadata for the page
 export async function generateMetadata({ params }: Props) {
   const { username } = await params;
-  const profile = await getArtistProfile(username);
+  const profile = await getCreatorProfile(username);
 
   if (!profile) {
     return {

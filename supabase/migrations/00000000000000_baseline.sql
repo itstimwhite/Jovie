@@ -10,6 +10,7 @@ drop table if exists public.artists cascade;
 drop table if exists public.users cascade;
 drop table if exists public.app_users cascade;
 drop table if exists public.artist_profiles cascade;
+drop table if exists public.creator_profiles cascade;
 
 -- Remove any legacy functions
 drop function if exists public.verify_clerk_jwt(text);
@@ -25,10 +26,14 @@ create table app_users (
 -- Enable RLS
 alter table app_users enable row level security;
 
--- ARTIST PROFILES - public or private artist data
-create table artist_profiles (
+-- Creator type enum
+create type creator_type as enum ('artist', 'podcaster', 'influencer', 'creator');
+
+-- CREATOR PROFILES - public or private creator data
+create table creator_profiles (
   id uuid primary key default gen_random_uuid(),
   user_id text not null references app_users(id) on delete cascade,
+  creator_type creator_type not null default 'artist',
   username text unique not null,
   display_name text,
   bio text,
@@ -39,7 +44,7 @@ create table artist_profiles (
 );
 
 -- Enable RLS
-alter table artist_profiles enable row level security;
+alter table creator_profiles enable row level security;
 
 -- RLS POLICIES FOR APP_USERS
 -- Users can only read/write their own data using auth.jwt()->>'sub'
@@ -56,45 +61,46 @@ create policy "users_owner_update"
   using (id = auth.jwt()->>'sub')
   with check (id = auth.jwt()->>'sub');
 
--- RLS POLICIES FOR ARTIST_PROFILES
+-- RLS POLICIES FOR CREATOR_PROFILES
 
 -- Anonymous users can read public profiles
-create policy "artist_public_read"
-  on artist_profiles for select to anon
+create policy "creator_public_read"
+  on creator_profiles for select to anon
   using (is_public = true);
 
 -- Authenticated users can read public profiles or their own
-create policy "artist_auth_read_public_or_self"
-  on artist_profiles for select to authenticated
+create policy "creator_auth_read_public_or_self"
+  on creator_profiles for select to authenticated
   using (is_public = true OR user_id = auth.jwt()->>'sub');
 
 -- Only owners can insert/update/delete their profile
-create policy "artist_insert_owner"
-  on artist_profiles for insert to authenticated
+create policy "creator_insert_owner"
+  on creator_profiles for insert to authenticated
   with check (user_id = auth.jwt()->>'sub');
 
-create policy "artist_update_owner"
-  on artist_profiles for update to authenticated
+create policy "creator_update_owner"
+  on creator_profiles for update to authenticated
   using (user_id = auth.jwt()->>'sub')
   with check (user_id = auth.jwt()->>'sub');
 
-create policy "artist_delete_owner"
-  on artist_profiles for delete to authenticated
+create policy "creator_delete_owner"
+  on creator_profiles for delete to authenticated
   using (user_id = auth.jwt()->>'sub');
 
 -- INDEXES for performance
-create index artist_profiles_username_idx on artist_profiles(lower(username));
-create index artist_profiles_user_id_idx on artist_profiles(user_id);
-create index artist_profiles_public_idx on artist_profiles(is_public) where is_public = true;
+create index creator_profiles_username_idx on creator_profiles(lower(username));
+create index creator_profiles_user_id_idx on creator_profiles(user_id);
+create index creator_profiles_type_idx on creator_profiles(creator_type);
+create index creator_profiles_public_idx on creator_profiles(is_public) where is_public = true;
 create index app_users_id_idx on app_users(id);
 
 -- GRANTS
 -- Ensure anon role can read public profiles
-grant select on artist_profiles to anon;
+grant select on creator_profiles to anon;
 
 -- Authenticated users can access both tables through RLS
 grant select, insert, update, delete on app_users to authenticated;
-grant select, insert, update, delete on artist_profiles to authenticated;
+grant select, insert, update, delete on creator_profiles to authenticated;
 
 -- Grant usage on sequences
 grant usage on all sequences in schema public to authenticated;
@@ -109,9 +115,9 @@ begin
 end;
 $$ language plpgsql;
 
--- Apply updated_at trigger to artist_profiles
-create trigger update_artist_profiles_updated_at
-  before update on artist_profiles
+-- Apply updated_at trigger to creator_profiles
+create trigger update_creator_profiles_updated_at
+  before update on creator_profiles
   for each row
   execute function update_updated_at_column();
 
@@ -123,15 +129,15 @@ insert into app_users (id, email) values
   ('artist_5', 'tim@example.com')
 on conflict (id) do nothing;
 
-insert into artist_profiles (user_id, username, display_name, bio, avatar_url, is_public) values
-  ('test_user_1', 'testartist1', 'Test Artist One', 'This is a test public artist profile.', null, true),
-  ('test_user_2', 'testartist2', 'Test Artist Two', 'This is a test private artist profile.', null, false),
-  ('artist_1', 'ladygaga', 'Lady Gaga', 'Grammy Award-winning artist known for hits like "Bad Romance" and "Shallow". Advocate for mental health awareness and LGBTQ+ rights.', 'https://i.scdn.co/image/ab6761610000e5ebc36dd9eb55fb0db4911f25dd', true),
-  ('artist_5', 'tim', 'Tim White', 'Independent artist exploring electronic and ambient sounds. Latest release: "Never Say A Word" (2024).', 'https://i.scdn.co/image/ab6761610000e5ebbab7ca6e76db7da72b58aa5c', true)
+insert into creator_profiles (user_id, creator_type, username, display_name, bio, avatar_url, is_public) values
+  ('test_user_1', 'artist', 'testartist1', 'Test Artist One', 'This is a test public artist profile.', null, true),
+  ('test_user_2', 'artist', 'testartist2', 'Test Artist Two', 'This is a test private artist profile.', null, false),
+  ('artist_1', 'artist', 'ladygaga', 'Lady Gaga', 'Grammy Award-winning artist known for hits like "Bad Romance" and "Shallow". Advocate for mental health awareness and LGBTQ+ rights.', 'https://i.scdn.co/image/ab6761610000e5ebc36dd9eb55fb0db4911f25dd', true),
+  ('artist_5', 'artist', 'tim', 'Tim White', 'Independent artist exploring electronic and ambient sounds. Latest release: "Never Say A Word" (2024).', 'https://i.scdn.co/image/ab6761610000e5ebbab7ca6e76db7da72b58aa5c', true)
 on conflict (username) do nothing;
 
 -- Also create one public profile not attached to any user (for testing anon access)
 insert into app_users (id, email) values ('public_test', 'public@example.com') on conflict do nothing;
-insert into artist_profiles (user_id, username, display_name, bio, avatar_url, is_public) values
-  ('public_test', 'publicartist', 'Public Test Artist', 'This profile should be visible to everyone.', null, true)
+insert into creator_profiles (user_id, creator_type, username, display_name, bio, avatar_url, is_public) values
+  ('public_test', 'artist', 'publicartist', 'Public Test Artist', 'This profile should be visible to everyone.', null, true)
 on conflict (username) do nothing;

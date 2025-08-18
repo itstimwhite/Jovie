@@ -3,11 +3,12 @@ import FeaturedArtistsComponent, {
   type FeaturedArtist,
 } from '@/components/FeaturedArtists';
 
-interface DBArtistProfile {
+interface DBCreatorProfile {
   id: string;
   username: string;
   display_name: string | null;
   avatar_url?: string | null;
+  creator_type: string;
 }
 
 async function getFeaturedArtists(): Promise<FeaturedArtist[]> {
@@ -20,9 +21,10 @@ async function getFeaturedArtists(): Promise<FeaturedArtist[]> {
     }
 
     const { data, error } = await supabase
-      .from('artist_profiles')
-      .select('id, username, display_name, avatar_url')
+      .from('creator_profiles')
+      .select('id, username, display_name, avatar_url, creator_type')
       .eq('is_public', true)
+      .eq('creator_type', 'artist') // Only show artists for now
       .order('display_name')
       .limit(12);
 
@@ -31,7 +33,7 @@ async function getFeaturedArtists(): Promise<FeaturedArtist[]> {
       return [];
     }
 
-    return (data as DBArtistProfile[])
+    return (data as DBCreatorProfile[])
       .filter((a) => a.avatar_url) // Only show artists with avatars
       .map((a) => ({
         id: a.id,

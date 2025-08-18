@@ -29,7 +29,7 @@ export async function GET() {
 
     // Test that we can query the current user's profile using RLS
     const { data, error } = await supabase
-      .from('artist_profiles')
+      .from('creator_profiles')
       .select('id, username')
       .eq('user_id', userId)
       .maybeSingle();
