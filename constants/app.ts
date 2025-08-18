@@ -26,8 +26,8 @@ export const PAGE_SUBTITLES = {
 export const ANALYTICS = {
   segmentWriteKey: env.NEXT_PUBLIC_SEGMENT_WRITE_KEY ?? '',
   // Optional PostHog client config (typed for analytics.ts checks)
-  posthogKey: process.env.NEXT_PUBLIC_POSTHOG_KEY || '',
-  posthogHost: process.env.NEXT_PUBLIC_POSTHOG_HOST || undefined,
+  posthogKey: env.NEXT_PUBLIC_POSTHOG_KEY || '',
+  posthogHost: env.NEXT_PUBLIC_POSTHOG_HOST || undefined,
 } as const;
 
 // Legacy FEATURE_FLAGS removed (waitlist deprecated). Use `lib/feature-flags.ts`.
