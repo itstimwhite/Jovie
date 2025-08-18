@@ -4,7 +4,6 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createClient } from '@supabase/supabase-js';
 
 // Mock environment variables
 vi.mock('@/lib/env', () => ({
@@ -13,6 +12,12 @@ vi.mock('@/lib/env', () => ({
     NEXT_PUBLIC_SUPABASE_ANON_KEY: 'test-anon-key',
   },
 }));
+
+// Typed result shape for our mocked Supabase queries
+type SupabaseResult<T> = {
+  data: T;
+  error: { message?: string } | null;
+};
 
 // Create mock Supabase client for testing
 const createMockSupabaseClient = () => {
@@ -31,7 +36,7 @@ const createMockSupabaseClient = () => {
     then: vi.fn(),
   };
 
-  // Mock social_links table queries  
+  // Mock social_links table queries
   const mockSocialLinksQuery = {
     select: vi.fn(() => mockSocialLinksQuery),
     eq: vi.fn(() => mockSocialLinksQuery),
@@ -56,7 +61,7 @@ describe('Supabase RLS Policies', () => {
   describe('Artists Table - Public Read Access', () => {
     it('should allow anonymous access to published artists', async () => {
       const { mockClient, mockArtistsQuery } = createMockSupabaseClient();
-      
+
       // Mock successful response for published artists
       const publishedArtists = [
         {
@@ -67,7 +72,7 @@ describe('Supabase RLS Policies', () => {
           image_url: 'https://example.com/ladygaga.jpg',
         },
         {
-          id: '2', 
+          id: '2',
           handle: 'davidguetta',
           name: 'David Guetta',
           published: true,
@@ -80,19 +85,22 @@ describe('Supabase RLS Policies', () => {
       );
 
       // Simulate anonymous client query (no auth token)
-      const query = mockClient.from('artists')
+      const query = mockClient
+        .from('artists')
         .select('id, handle, name, published, image_url')
         .eq('published', true)
         .order('name');
 
-      await query.then((result: any) => {
+      await query.then((result: SupabaseResult<typeof publishedArtists>) => {
         expect(result.data).toHaveLength(2);
         expect(result.error).toBeNull();
         expect(result.data).toEqual(publishedArtists);
       });
 
       expect(mockClient.from).toHaveBeenCalledWith('artists');
-      expect(mockArtistsQuery.select).toHaveBeenCalledWith('id, handle, name, published, image_url');
+      expect(mockArtistsQuery.select).toHaveBeenCalledWith(
+        'id, handle, name, published, image_url'
+      );
       expect(mockArtistsQuery.eq).toHaveBeenCalledWith('published', true);
     });
 
@@ -105,11 +113,12 @@ describe('Supabase RLS Policies', () => {
       );
 
       // Try to query unpublished artists (should return empty)
-      const query = mockClient.from('artists')
+      const query = mockClient
+        .from('artists')
         .select('*')
         .eq('published', false);
 
-      await query.then((result: any) => {
+      await query.then((result: SupabaseResult<unknown[]>) => {
         expect(result.data).toEqual([]);
         expect(result.error).toBeNull();
       });
@@ -117,7 +126,7 @@ describe('Supabase RLS Policies', () => {
 
     it('should work with authenticated users for published artists', async () => {
       const { mockClient, mockArtistsQuery } = createMockSupabaseClient();
-      
+
       const publishedArtists = [
         {
           id: '1',
@@ -133,11 +142,12 @@ describe('Supabase RLS Policies', () => {
       );
 
       // Simulate authenticated client query
-      const query = mockClient.from('artists')
+      const query = mockClient
+        .from('artists')
         .select('*')
         .eq('published', true);
 
-      await query.then((result: any) => {
+      await query.then((result: SupabaseResult<typeof publishedArtists>) => {
         expect(result.data).toHaveLength(1);
         expect(result.data[0].published).toBe(true);
         expect(result.error).toBeNull();
@@ -158,7 +168,7 @@ describe('Supabase RLS Policies', () => {
           clicks: 100,
         },
         {
-          id: '2', 
+          id: '2',
           artist_id: 'published-artist-id',
           platform: 'instagram',
           url: 'https://instagram.com/artist',
@@ -171,18 +181,22 @@ describe('Supabase RLS Policies', () => {
       );
 
       // Query social links for a published artist
-      const query = mockClient.from('social_links')
+      const query = mockClient
+        .from('social_links')
         .select('*')
         .eq('artist_id', 'published-artist-id');
 
-      await query.then((result: any) => {
+      await query.then((result: SupabaseResult<typeof socialLinks>) => {
         expect(result.data).toHaveLength(2);
         expect(result.error).toBeNull();
         expect(result.data).toEqual(socialLinks);
       });
 
       expect(mockClient.from).toHaveBeenCalledWith('social_links');
-      expect(mockSocialLinksQuery.eq).toHaveBeenCalledWith('artist_id', 'published-artist-id');
+      expect(mockSocialLinksQuery.eq).toHaveBeenCalledWith(
+        'artist_id',
+        'published-artist-id'
+      );
     });
 
     it('should not return social_links for unpublished artists', async () => {
@@ -194,11 +208,12 @@ describe('Supabase RLS Policies', () => {
       );
 
       // Try to query social links for unpublished artist
-      const query = mockClient.from('social_links')
+      const query = mockClient
+        .from('social_links')
         .select('*')
         .eq('artist_id', 'unpublished-artist-id');
 
-      await query.then((result: any) => {
+      await query.then((result: SupabaseResult<unknown[]>) => {
         expect(result.data).toEqual([]);
         expect(result.error).toBeNull();
       });
@@ -210,7 +225,7 @@ describe('Supabase RLS Policies', () => {
       const artistWithSocialLinks = [
         {
           id: '1',
-          handle: 'ladygaga', 
+          handle: 'ladygaga',
           name: 'Lady Gaga',
           published: true,
           social_links: [
@@ -225,21 +240,26 @@ describe('Supabase RLS Policies', () => {
       );
 
       // Query artists with their social links
-      const query = mockClient.from('artists')
-        .select(`
+      const query = mockClient
+        .from('artists')
+        .select(
+          `
           id,
           handle,
           name,
           published,
           social_links(platform, url)
-        `)
+        `
+        )
         .eq('published', true);
 
-      await query.then((result: any) => {
-        expect(result.data).toHaveLength(1);
-        expect(result.data[0].social_links).toHaveLength(2);
-        expect(result.error).toBeNull();
-      });
+      await query.then(
+        (result: SupabaseResult<typeof artistWithSocialLinks>) => {
+          expect(result.data).toHaveLength(1);
+          expect(result.data[0].social_links).toHaveLength(2);
+          expect(result.error).toBeNull();
+        }
+      );
     });
   });
 
@@ -257,22 +277,25 @@ describe('Supabase RLS Policies', () => {
             using: 'published = true',
           },
           {
-            name: 'Public can read published artists', 
-            description: 'Duplicate policy for public read access (from later migration)',
+            name: 'Public can read published artists',
+            description:
+              'Duplicate policy for public read access (from later migration)',
             table: 'public.artists',
             command: 'SELECT',
-            roles: ['anon', 'authenticated'], 
+            roles: ['anon', 'authenticated'],
             using: 'published IS TRUE',
           },
         ],
         social_links: [
           {
             name: 'social_links_public_read',
-            description: 'Allow public read access to social links of published artists',
+            description:
+              'Allow public read access to social links of published artists',
             table: 'public.social_links',
             command: 'SELECT',
             roles: ['anon', 'authenticated'],
-            using: 'artist_id IN (SELECT id FROM artists WHERE published = true)',
+            using:
+              'artist_id IN (SELECT id FROM artists WHERE published = true)',
           },
         ],
       };
@@ -280,10 +303,16 @@ describe('Supabase RLS Policies', () => {
       // Verify policy documentation exists
       expect(expectedPolicies.artists).toHaveLength(2); // Shows duplicate policies exist
       expect(expectedPolicies.social_links).toHaveLength(1);
-      
+
       // Both artist policies should allow the same access
-      expect(expectedPolicies.artists[0].roles).toEqual(['anon', 'authenticated']);
-      expect(expectedPolicies.artists[1].roles).toEqual(['anon', 'authenticated']);
+      expect(expectedPolicies.artists[0].roles).toEqual([
+        'anon',
+        'authenticated',
+      ]);
+      expect(expectedPolicies.artists[1].roles).toEqual([
+        'anon',
+        'authenticated',
+      ]);
     });
   });
 });

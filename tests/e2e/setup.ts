@@ -1,6 +1,17 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { test as base } from '@playwright/test';
 
+declare global {
+  interface Window {
+    __REACT_DEVTOOLS_GLOBAL_HOOK__?: {
+      supportsFiber: boolean;
+      inject: () => void;
+      onCommitFiberRoot: () => void;
+      onCommitFiberUnmount: () => void;
+    };
+  }
+}
+
 // Extend the base test with custom setup
 export const test = base.extend({
   // Override the page to handle React context issues
@@ -8,7 +19,7 @@ export const test = base.extend({
     // Set up page to handle React context
     await page.addInitScript(() => {
       // Mock React context providers for testing
-      (window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
+      window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
         supportsFiber: true,
         inject: () => {},
         onCommitFiberRoot: () => {},

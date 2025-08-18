@@ -7,14 +7,12 @@ on:
       - 'plan.md'
       - 'PLAN.md'
       - '.github/scripts/plan2issues.mjs'
+      - '.github/scripts/plan2issues.v2.mjs'
   schedule:
     - cron: '*/15 * * * *'
   workflow_dispatch: {}
 
-# Defaults (can be overridden in repo → Settings → Actions → Variables)
-env:
-  PLAN_PATH: ${{ vars.PLAN_PATH || 'windsurf.plan.md' }}
-  COPILOT_ASSIGNEE: ${{ vars.COPILOT_ASSIGNEE || 'github-copilot' }}
+# No top-level env defaults to avoid actionlint warnings; script provides fallbacks
 
 jobs:
   sync:
@@ -30,8 +28,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Install Octokit (runtime)
+        run: npm i octokit@latest --no-save --silent
       - name: Sync plan to issues and assign Copilot
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-        run: node .github/scripts/plan2issues.mjs
+          COPILOT_ASSIGNEE: github-copilot
+        run: node .github/scripts/plan2issues.v2.mjs

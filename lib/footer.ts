@@ -50,7 +50,7 @@ export async function generateFooterHTML({
         <a
           href="/?utm_source=${utmSource}&utm_artist=${artist.handle}"
           aria-label="Create your own profile with ${APP_NAME}"
-          class="focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-sm"
+          class="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-sm"
         >
           ${logoSvg}
         </a>

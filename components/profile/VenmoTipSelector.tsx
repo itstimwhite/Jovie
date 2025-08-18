@@ -61,6 +61,7 @@ export default function VenmoTipSelector({
           );
         })}
       </div>
+      <hr className="mt-3 pt-3 border-t border-black/5 dark:border-white/10" />
 
       <PrimaryCTA
         onClick={handleContinue}

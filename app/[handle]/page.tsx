@@ -16,7 +16,7 @@ export async function generateMetadata({
   const { handle } = await params;
 
   try {
-    const supabase = await createServerClient();
+    const supabase = createServerClient();
 
     if (!supabase) {
       return {
@@ -84,7 +84,7 @@ export async function generateMetadata({
 
 export async function generateStaticParams() {
   try {
-    const supabase = await createServerClient();
+    const supabase = createServerClient();
 
     if (!supabase) {
       console.warn('Supabase not available for static params generation');
@@ -157,7 +157,7 @@ export default async function ProfilePage({
   const { handle } = await params;
 
   try {
-    const supabase = await createServerClient();
+    const supabase = createServerClient();
 
     if (!supabase) {
       console.error('Supabase client not available');

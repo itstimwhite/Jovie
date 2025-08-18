@@ -116,6 +116,7 @@ export function generateDSPButtonHTML(dsp: AvailableDSP): string {
     <button
       data-dsp="${dsp.key}"
       data-url="${dsp.url}"
+      aria-label="Open in ${dsp.name} app if installed, otherwise opens in web browser"
       style="
         background-color: ${dsp.config.color};
         color: ${dsp.config.textColor};
@@ -135,9 +136,10 @@ export function generateDSPButtonHTML(dsp: AvailableDSP): string {
         text-decoration: none;
         margin-bottom: 12px;
       "
-      onmouseover="this.style.opacity='0.9'; this.style.transform='translateY(-1px)'"
-      onmouseout="this.style.opacity='1'; this.style.transform='translateY(0)'"
-      onclick="window.open('${dsp.url}', '_blank', 'noopener,noreferrer')"
+      onmouseover="this.style.opacity='0.9'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'"
+      onmouseout="this.style.opacity='1'; this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'"
+      onmousedown="this.style.transform='translateY(-1px)'"
+      onmouseup="this.style.transform='translateY(-2px)'"
     >
       <span style="display: flex; align-items: center;">
         ${dsp.config.logoSvg}

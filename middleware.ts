@@ -66,20 +66,12 @@ export default clerkMiddleware(async (auth, req) => {
     if (userId) {
       if (req.nextUrl.pathname === '/') {
         res = NextResponse.redirect(new URL('/dashboard', req.url));
-      } else if (req.nextUrl.pathname === '/billing/success') {
-        // Allow access to billing success page for authenticated users
-        res = NextResponse.next();
       } else {
         res = NextResponse.next();
       }
     } else {
       // Handle unauthenticated users
-      if (req.nextUrl.pathname === '/billing/success') {
-        // Redirect non-authenticated users away from billing success
-        res = NextResponse.redirect(new URL('/dashboard', req.url));
-      } else {
-        res = NextResponse.next();
-      }
+      res = NextResponse.next();
     }
 
     if (showBanner) {

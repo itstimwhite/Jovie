@@ -3,13 +3,16 @@ export interface FeatureFlags {
   artistSearchEnabled: boolean;
   debugBannerEnabled: boolean;
   tipPromoEnabled: boolean;
+  pricingUseClerk: boolean;
 }
 
 // Default feature flags (fallback)
 const defaultFeatureFlags: FeatureFlags = {
   artistSearchEnabled: true,
-  debugBannerEnabled: true, // Show on all environments by default
+  // Debug banner is removed site-wide; keep flag for compatibility but default to false
+  debugBannerEnabled: false,
   tipPromoEnabled: true,
+  pricingUseClerk: false,
 };
 
 // Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
@@ -18,33 +21,70 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
   if (typeof window === 'undefined') {
     return getServerFeatureFlags();
   }
-  // On the client, fetch relative to current origin
+  // On the client, prefer the internal app flags endpoint; fall back to Vercel discovery locally
+  // 1) Try app-internal endpoint
   try {
-    const res = await fetch('/.well-known/vercel/flags');
+    const res = await fetch('/api/feature-flags', { cache: 'no-store' });
     if (res.ok) {
-      const data = (await res.json()) as {
-        version?: number;
-        flags?: Record<string, { default?: unknown }>;
-      };
-      if (typeof data?.version === 'number') {
+      const data: any = await res.json();
+      // New app-internal shape: direct booleans
+      if (
+        typeof data?.artistSearchEnabled !== 'undefined' ||
+        typeof data?.debugBannerEnabled !== 'undefined' ||
+        typeof data?.tipPromoEnabled !== 'undefined'
+      ) {
         return {
           artistSearchEnabled: Boolean(
-            data.flags?.artistSearchEnabled?.default ??
-              defaultFeatureFlags.artistSearchEnabled
+            data.artistSearchEnabled ?? defaultFeatureFlags.artistSearchEnabled
           ),
           debugBannerEnabled: Boolean(
-            data.flags?.debugBannerEnabled?.default ??
-              defaultFeatureFlags.debugBannerEnabled
+            data.debugBannerEnabled ?? defaultFeatureFlags.debugBannerEnabled
           ),
           tipPromoEnabled: Boolean(
-            data.flags?.tipPromoEnabled?.default ??
-              defaultFeatureFlags.tipPromoEnabled
+            data.tipPromoEnabled ?? defaultFeatureFlags.tipPromoEnabled
+          ),
+          pricingUseClerk: Boolean(
+            data.pricingUseClerk ?? defaultFeatureFlags.pricingUseClerk
           ),
         };
       }
     }
   } catch {
-    // Ignore and fall back
+    // ignore
+  }
+  // 2) Fallback: try Vercel discovery (works in dev/local; may be blocked in Preview/Prod)
+  try {
+    const res2 = await fetch('/.well-known/vercel/flags', {
+      cache: 'no-store',
+    });
+    if (res2.ok) {
+      const data2 = (await res2.json()) as {
+        version?: number;
+        flags?: Record<string, { default?: unknown }>;
+      };
+      if (typeof data2?.version === 'number') {
+        return {
+          artistSearchEnabled: Boolean(
+            data2.flags?.artistSearchEnabled?.default ??
+              defaultFeatureFlags.artistSearchEnabled
+          ),
+          debugBannerEnabled: Boolean(
+            data2.flags?.debugBannerEnabled?.default ??
+              defaultFeatureFlags.debugBannerEnabled
+          ),
+          tipPromoEnabled: Boolean(
+            data2.flags?.tipPromoEnabled?.default ??
+              defaultFeatureFlags.tipPromoEnabled
+          ),
+          pricingUseClerk: Boolean(
+            data2.flags?.pricingUseClerk?.default ??
+              defaultFeatureFlags.pricingUseClerk
+          ),
+        };
+      }
+    }
+  } catch {
+    // ignore
   }
   return defaultFeatureFlags;
 }
@@ -64,8 +104,36 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
       return defaultFeatureFlags;
     }
 
-    const url = `${proto}://${host}/.well-known/vercel/flags`;
-    const res = await fetch(url, { next: { revalidate: 60 } });
+    // 1) Try app-internal endpoint first
+    let url = `${proto}://${host}/api/feature-flags`;
+    let res = await fetch(url, { cache: 'no-store' });
+    if (res.ok) {
+      const data: any = await res.json();
+      if (
+        typeof data?.artistSearchEnabled !== 'undefined' ||
+        typeof data?.debugBannerEnabled !== 'undefined' ||
+        typeof data?.tipPromoEnabled !== 'undefined'
+      ) {
+        return {
+          artistSearchEnabled: Boolean(
+            data.artistSearchEnabled ?? defaultFeatureFlags.artistSearchEnabled
+          ),
+          debugBannerEnabled: Boolean(
+            data.debugBannerEnabled ?? defaultFeatureFlags.debugBannerEnabled
+          ),
+          tipPromoEnabled: Boolean(
+            data.tipPromoEnabled ?? defaultFeatureFlags.tipPromoEnabled
+          ),
+          pricingUseClerk: Boolean(
+            data.pricingUseClerk ?? defaultFeatureFlags.pricingUseClerk
+          ),
+        };
+      }
+    }
+
+    // 2) Fallback to Vercel discovery (may be blocked in Preview/Prod)
+    url = `${proto}://${host}/.well-known/vercel/flags`;
+    res = await fetch(url, { cache: 'no-store' });
     if (res.ok) {
       const data = (await res.json()) as {
         version?: number;
@@ -84,6 +152,10 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
           tipPromoEnabled: Boolean(
             data.flags?.tipPromoEnabled?.default ??
               defaultFeatureFlags.tipPromoEnabled
+          ),
+          pricingUseClerk: Boolean(
+            data.flags?.pricingUseClerk?.default ??
+              defaultFeatureFlags.pricingUseClerk
           ),
         };
       }

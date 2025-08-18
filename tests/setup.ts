@@ -3,8 +3,15 @@ import { expect } from 'vitest';
 import * as matchers from '@testing-library/jest-dom/matchers';
 import { vi } from 'vitest';
 import React from 'react';
+import { cleanup } from '@testing-library/react';
+import { afterEach } from 'vitest';
 
 expect.extend(matchers);
+
+// Ensure the DOM is cleaned up between tests to avoid cross-test interference
+afterEach(() => {
+  cleanup();
+});
 
 // Mock Clerk components and hooks
 vi.mock('@clerk/nextjs', () => ({
@@ -71,7 +78,7 @@ vi.mock('@/components/home/FeaturedArtists', () => ({
       { className: 'w-full py-12', 'data-testid': 'featured-artists' },
       React.createElement(
         'div',
-        { className: 'w-full overflow-x-auto' },
+        { className: 'w-full md:hidden overflow-x-auto scroll-smooth' },
         React.createElement(
           'div',
           {
@@ -516,6 +523,8 @@ MockedComponents.DialogPanel.displayName = 'MockedDialogPanel';
 MockedComponents.DialogTitle.displayName = 'MockedDialogTitle';
 MockedComponents.DialogDescription.displayName = 'MockedDialogDescription';
 MockedComponents.DialogBackdrop.displayName = 'MockedDialogBackdrop';
+
+MockedComponents.Input.displayName = 'MockedInput';
 
 MockedComponents.Combobox.displayName = 'MockedCombobox';
 MockedComponents.ComboboxInput.displayName = 'MockedComboboxInput';

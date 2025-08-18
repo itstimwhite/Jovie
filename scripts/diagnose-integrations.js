@@ -6,7 +6,6 @@
  * This script diagnoses the current state of:
  * 1. Clerk auth integration
  * 2. Supabase client integration
- * 3. Billing (PricingTable) integration
  *
  * Run with: node scripts/diagnose-integrations.js
  */
@@ -45,9 +44,6 @@ const requiredEnvVars = {
 };
 
 const optionalEnvVars = {
-  NEXT_PUBLIC_CLERK_BILLING_ENABLED: 'Clerk billing feature flag',
-  NEXT_PUBLIC_CLERK_BILLING_GATEWAY:
-    'Clerk billing gateway (development/stripe)',
   CLERK_SECRET_KEY: 'Clerk server-side secret',
   SPOTIFY_CLIENT_ID: 'Spotify integration',
   SPOTIFY_CLIENT_SECRET: 'Spotify integration',
@@ -76,7 +72,6 @@ if (!clerkKey) {
   console.log('❌ Clerk publishable key not configured');
   console.log('   - Authentication will not work');
   console.log('   - Dashboard access will fail');
-  console.log('   - PricingTable will not render');
 } else {
   console.log('✅ Clerk publishable key configured');
   if (clerkKey.startsWith('pk_test_')) {
@@ -111,45 +106,6 @@ if (!supabaseUrl || !supabaseKey) {
   }
 }
 
-console.log('\n3️⃣ Billing Integration (Clerk PricingTable):');
-const billingEnabled = process.env.NEXT_PUBLIC_CLERK_BILLING_ENABLED;
-const billingGateway = process.env.NEXT_PUBLIC_CLERK_BILLING_GATEWAY;
-
-if (billingEnabled !== 'true') {
-  console.log('ℹ️ Billing disabled (feature flag off)');
-} else {
-  console.log('✅ Billing enabled');
-  if (billingGateway === 'development') {
-    console.log('🔧 Using development gateway');
-  } else if (billingGateway === 'stripe') {
-    console.log('💳 Using Stripe gateway');
-  } else {
-    console.log('⚠️ Billing gateway not configured');
-  }
-}
-
-// Check for PricingTable ID in code
-const pricingPagePath = path.join(
-  process.cwd(),
-  'app',
-  '(marketing)',
-  'pricing',
-  'page.tsx'
-);
-if (fs.existsSync(pricingPagePath)) {
-  const pricingPageContent = fs.readFileSync(pricingPagePath, 'utf8');
-  const pricingTableIdMatch = pricingPageContent.match(
-    /pricingTableId\s*=\s*['"`]([^'"`]*)['"`]/
-  );
-
-  if (pricingTableIdMatch && pricingTableIdMatch[1]) {
-    console.log('✅ PricingTable ID configured in code');
-  } else {
-    console.log('⚠️ PricingTable ID empty in pricing page');
-    console.log('   - Will show fallback message instead of pricing table');
-  }
-}
-
 console.log('\n📊 Overall Health Summary:');
 if (allRequiredSet) {
   console.log('🎉 All required integrations configured!');
@@ -166,9 +122,7 @@ if (!allRequiredSet) {
   console.log('2. Fill in actual values from your services:');
   console.log('   - Clerk: https://dashboard.clerk.com');
   console.log('   - Supabase: https://supabase.com/dashboard');
-  console.log(
-    '3. Configure PricingTable ID in app/(marketing)/pricing/page.tsx'
-  );
+  console.log('3. Verify plans are configured and public in Clerk dashboard');
   console.log('4. Restart development server');
 } else {
   console.log('✅ Configuration looks good!');

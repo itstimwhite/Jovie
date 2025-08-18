@@ -16,6 +16,8 @@ import {
   siGithub,
   siMedium,
   siPatreon,
+  siVenmo,
+  siGooglechrome,
   type SimpleIcon,
 } from 'simple-icons';
 
@@ -28,11 +30,14 @@ interface SocialIconProps {
 const platformMap: Record<string, SimpleIcon> = {
   instagram: siInstagram,
   twitter: siX,
+  x: siX,
   tiktok: siTiktok,
   youtube: siYoutube,
   facebook: siFacebook,
   spotify: siSpotify,
   apple: siApplemusic,
+  applemusic: siApplemusic,
+  apple_music: siApplemusic,
   soundcloud: siSoundcloud,
   bandcamp: siBandcamp,
   discord: siDiscord,
@@ -43,11 +48,17 @@ const platformMap: Record<string, SimpleIcon> = {
   github: siGithub,
   medium: siMedium,
   patreon: siPatreon,
+  venmo: siVenmo,
+  website: siGooglechrome,
 };
+
+export function getPlatformIcon(platform: string): SimpleIcon | undefined {
+  return platformMap[platform.toLowerCase()];
+}
 
 export function SocialIcon({ platform, className }: SocialIconProps) {
   const icon = platformMap[platform.toLowerCase()];
-  const iconClass = className || 'h-3.5 w-3.5';
+  const iconClass = className || 'h-4 w-4';
 
   if (icon) {
     return (

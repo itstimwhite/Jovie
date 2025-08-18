@@ -24,18 +24,18 @@ export function ProfileFooter({
   const signUpLink = `/sign-up?utm_source=profile&utm_artist=${artistHandle}`;
 
   return (
-    <footer className="mt-8 border-t border-gray-200 pt-6">
-      <div className="flex flex-col items-center justify-center space-y-2">
+    <footer className="relative mt-6 pt-4">
+      <div className="flex flex-col items-center justify-center space-y-1.5">
         <Link
           href={`/?utm_source=profile&utm_artist=${artistHandle}`}
           aria-label={`Create your own profile with ${APP_NAME}`}
-          className="focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-sm"
+          className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             xmlnsXlink="http://www.w3.org/1999/xlink"
             viewBox="0 0 136 39"
-            className="h-6 w-auto text-gray-600 hover:text-gray-900 transition-colors"
+            className="h-6 w-auto text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors"
             fill="currentColor"
           >
             <path
@@ -46,15 +46,15 @@ export function ProfileFooter({
         </Link>
         <Link
           href={signUpLink}
-          className="text-xs text-gray-500 hover:text-indigo-600 font-medium transition-colors"
+          className="text-[11px] uppercase tracking-[0.08em] text-gray-500 hover:text-indigo-500 dark:text-gray-400 dark:hover:text-indigo-400 font-medium transition-colors"
         >
           Claim your profile now
         </Link>
 
-        <div className="mt-4 pt-4 border-t border-gray-100">
+        <div className="mt-3 pt-3 border-t border-black/5 dark:border-white/10">
           <Link
             href="/legal/privacy"
-            className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-[11px] text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
           >
             Privacy
           </Link>

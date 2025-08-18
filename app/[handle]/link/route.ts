@@ -102,7 +102,106 @@ export async function GET(
         </div>
 
         <script>
-          // Add click tracking for analytics
+          // Deep linking configuration for server-side generated buttons
+          const deepLinkConfigs = {
+            spotify: {
+              iosScheme: 'spotify://artist/{artistId}',
+              androidScheme: 'intent://open.spotify.com/artist/{artistId}#Intent;package=com.spotify.music;scheme=https;end',
+              extractId: (url) => {
+                const match = url.match(/spotify\\.com\\/artist\\/([^/?#]+)/);
+                return match ? match[1] : null;
+              }
+            },
+            apple_music: {
+              iosScheme: 'music://artist/{artistId}',
+              androidScheme: 'intent://music.apple.com/artist/{artistId}#Intent;package=com.apple.android.music;scheme=https;end',
+              extractId: (url) => {
+                const match = url.match(/music\\.apple\\.com\\/[^/]+\\/artist\\/[^/]+\\/([^/?#]+)/);
+                return match ? match[1] : null;
+              }
+            },
+            youtube: {
+              iosScheme: 'youtubemusic://browse/channel/{channelId}',
+              androidScheme: 'intent://music.youtube.com/channel/{channelId}#Intent;package=com.google.android.apps.youtube.music;scheme=https;end',
+              extractId: (url) => {
+                const match = url.match(/youtube\\.com\\/channel\\/([^/?#]+)/);
+                return match ? match[1] : null;
+              }
+            }
+          };
+
+          // Platform detection
+          function detectPlatform() {
+            const ua = navigator.userAgent.toLowerCase();
+            if (ua.includes('iphone') || ua.includes('ipad')) return 'ios';
+            if (ua.includes('android')) return 'android';
+            return 'desktop';
+          }
+
+          // Deep link opening with fallback
+          function openDeepLink(originalUrl, config) {
+            const platform = detectPlatform();
+            
+            if (platform === 'desktop' || !config) {
+              window.open(originalUrl, '_blank', 'noopener,noreferrer');
+              return;
+            }
+
+            const id = config.extractId(originalUrl);
+            if (!id) {
+              window.open(originalUrl, '_blank', 'noopener,noreferrer');
+              return;
+            }
+
+            let nativeUrl = null;
+            if (platform === 'ios' && config.iosScheme) {
+              nativeUrl = config.iosScheme.replace('{artistId}', id).replace('{channelId}', id);
+            } else if (platform === 'android' && config.androidScheme) {
+              nativeUrl = config.androidScheme.replace('{artistId}', id).replace('{channelId}', id);
+            }
+
+            if (!nativeUrl) {
+              window.open(originalUrl, '_blank', 'noopener,noreferrer');
+              return;
+            }
+
+            // Try native app with fallback
+            let appOpened = false;
+            const timeout = 2000;
+
+            const handleVisibilityChange = () => {
+              if (document.hidden) {
+                appOpened = true;
+              }
+            };
+
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+
+            try {
+              if (platform === 'ios') {
+                // Use iframe for iOS
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = nativeUrl;
+                document.body.appendChild(iframe);
+                setTimeout(() => document.body.removeChild(iframe), 100);
+              } else {
+                // Use location for Android
+                window.location.href = nativeUrl;
+              }
+            } catch (error) {
+              console.debug('Native app opening failed:', error);
+            }
+
+            setTimeout(() => {
+              document.removeEventListener('visibilitychange', handleVisibilityChange);
+              if (!appOpened) {
+                window.open(originalUrl, '_blank', 'noopener,noreferrer');
+              }
+            }, timeout);
+          }
+
+          // Add click tracking and deep linking for analytics
           document.querySelectorAll('[data-dsp]').forEach(button => {
             button.addEventListener('click', async (e) => {
               e.preventDefault();
@@ -122,8 +221,9 @@ export async function GET(
                 }),
               }).catch(() => {}); // Ignore tracking errors
               
-              // Open link
-              window.open(url, '_blank', 'noopener,noreferrer');
+              // Open with deep linking
+              const config = deepLinkConfigs[dsp];
+              openDeepLink(url, config);
             });
           });
         </script>
