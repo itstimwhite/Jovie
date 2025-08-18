@@ -51,7 +51,7 @@ export function useAuthenticatedSupabase() {
   return { getAuthenticatedClient, supabase };
 }
 
-// Function to create authenticated client with session
+// Function to create authenticated client with session - uses native integration
 export function createClerkSupabaseClient(
   session: ReturnType<typeof useSession>['session']
 ) {
