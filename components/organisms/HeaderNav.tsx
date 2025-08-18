@@ -5,7 +5,6 @@ import { useState, useRef, useEffect } from 'react';
 import { Container } from '@/components/site/Container';
 import { LogoLink } from '@/components/atoms/LogoLink';
 import { AuthActions } from '@/components/molecules/AuthActions';
-import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { ProductFlyout } from '@/components/organisms/ProductFlyout';
 
 export function HeaderNav() {
@@ -139,7 +138,6 @@ export function HeaderNav() {
 
           {/* Actions - Right side */}
           <div className="flex items-center space-x-4 md:ml-0 ml-auto">
-            <ThemeToggle />
             <AuthActions />
           </div>
         </div>
