@@ -36,18 +36,27 @@ describe('Vercel Flags Discovery Endpoint', () => {
     const data = await response.json();
 
     // Verify each flag has required properties
-    Object.entries(data.flags).forEach(([flagName, flag]: [string, any]) => {
-      expect(flag).toHaveProperty('type');
-      expect(flag).toHaveProperty('default');
-      expect(flag).toHaveProperty('description');
+    type FlagDef = {
+      type: 'boolean' | 'string' | 'number';
+      default: unknown;
+      description: string;
+    };
+    (Object.entries(data.flags) as Array<[string, FlagDef]>).forEach(
+      ([flagName, flag]) => {
+        // consume flagName to satisfy no-unused-vars and assert format
+        expect(typeof flagName).toBe('string');
+        expect(flag).toHaveProperty('type');
+        expect(flag).toHaveProperty('default');
+        expect(flag).toHaveProperty('description');
 
-      // Verify type is a valid flag type
-      expect(['boolean', 'string', 'number']).toContain(flag.type);
+        // Verify type is a valid flag type
+        expect(['boolean', 'string', 'number']).toContain(flag.type);
 
-      // Verify description is a string
-      expect(typeof flag.description).toBe('string');
-      expect(flag.description.length).toBeGreaterThan(0);
-    });
+        // Verify description is a string
+        expect(typeof flag.description).toBe('string');
+        expect(flag.description.length).toBeGreaterThan(0);
+      }
+    );
   });
 
   it('should return Cache-Control header to prevent caching', async () => {

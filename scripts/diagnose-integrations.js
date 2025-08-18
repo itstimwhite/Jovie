@@ -6,7 +6,6 @@
  * This script diagnoses the current state of:
  * 1. Clerk auth integration
  * 2. Supabase client integration
- * 3. Billing (PricingTable) integration
  *
  * Run with: node scripts/diagnose-integrations.js
  */
@@ -45,9 +44,6 @@ const requiredEnvVars = {
 };
 
 const optionalEnvVars = {
-  NEXT_PUBLIC_CLERK_BILLING_ENABLED: 'Clerk billing feature flag',
-  NEXT_PUBLIC_CLERK_BILLING_GATEWAY:
-    'Clerk billing gateway (development/stripe)',
   CLERK_SECRET_KEY: 'Clerk server-side secret',
   SPOTIFY_CLIENT_ID: 'Spotify integration',
   SPOTIFY_CLIENT_SECRET: 'Spotify integration',
@@ -76,7 +72,6 @@ if (!clerkKey) {
   console.log('❌ Clerk publishable key not configured');
   console.log('   - Authentication will not work');
   console.log('   - Dashboard access will fail');
-  console.log('   - PricingTable will not render');
 } else {
   console.log('✅ Clerk publishable key configured');
   if (clerkKey.startsWith('pk_test_')) {
@@ -108,46 +103,6 @@ if (!supabaseUrl || !supabaseKey) {
     }
   } catch {
     console.log('❌ Invalid Supabase URL format');
-  }
-}
-
-console.log('\n3️⃣ Billing Integration (Clerk PricingTable):');
-const billingEnabled = process.env.NEXT_PUBLIC_CLERK_BILLING_ENABLED;
-const billingGateway = process.env.NEXT_PUBLIC_CLERK_BILLING_GATEWAY;
-
-if (billingEnabled !== 'true') {
-  console.log('ℹ️ Billing disabled (feature flag off)');
-} else {
-  console.log('✅ Billing enabled');
-  if (billingGateway === 'development') {
-    console.log('🔧 Using development gateway');
-  } else if (billingGateway === 'stripe') {
-    console.log('💳 Using Stripe gateway');
-  } else {
-    console.log('⚠️ Billing gateway not configured');
-  }
-}
-
-// Check for PricingTable configuration in code
-const pricingPagePath = path.join(
-  process.cwd(),
-  'app',
-  '(marketing)',
-  'pricing',
-  'page.tsx'
-);
-if (fs.existsSync(pricingPagePath)) {
-  const pricingPageContent = fs.readFileSync(pricingPagePath, 'utf8');
-  const hasPricingTable =
-    pricingPageContent.includes('<ClerkPricingTable') ||
-    pricingPageContent.includes('<PricingTable');
-
-  if (hasPricingTable) {
-    console.log('✅ PricingTable component configured');
-    console.log('   - Uses plans configured in Clerk dashboard');
-    console.log('   - Plans controlled by slug (e.g., basic, pro)');
-  } else {
-    console.log('⚠️ PricingTable component not found in pricing page');
   }
 }
 
