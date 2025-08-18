@@ -10,6 +10,7 @@ export async function GET() {
     artistSearchEnabled: true,
     debugBannerEnabled: false,
     tipPromoEnabled: true,
+    pricingUseClerk: false,
   } as const;
 
   return new NextResponse(JSON.stringify(flags), {
