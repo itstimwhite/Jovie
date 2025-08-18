@@ -27,7 +27,6 @@ export function SocialLink({ link, handle, artistName }: SocialLinkProps) {
     const b = bigint & 255;
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
   };
-
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     // Track analytics first
