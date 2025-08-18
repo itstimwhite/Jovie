@@ -13,15 +13,21 @@ export function createServerClient() {
     return null;
   }
 
-  return createClient(supabaseUrl, supabaseKey, {
+  // For local development, ensure we use localhost instead of 127.0.0.1 for server-side requests
+  const serverSupabaseUrl =
+    process.env.NODE_ENV === 'development'
+      ? supabaseUrl.replace('127.0.0.1', 'localhost')
+      : supabaseUrl;
+
+  return createClient(serverSupabaseUrl, supabaseKey, {
     auth: {
       persistSession: false, // Prevent multiple auth instances
     },
     async accessToken() {
       try {
         const { getToken } = await auth();
-        // Use Clerk template for Supabase to obtain a Supabase-compatible JWT
-        return (await getToken({ template: 'supabase' })) ?? null;
+        // Use native integration instead of deprecated JWT template
+        return (await getToken()) ?? null;
       } catch {
         return null;
       }
@@ -36,7 +42,13 @@ export async function createAuthenticatedServerClient() {
       return null;
     }
 
-    return createClient(supabaseUrl, supabaseKey, {
+    // For local development, ensure we use localhost instead of 127.0.0.1 for server-side requests
+    const serverSupabaseUrl =
+      process.env.NODE_ENV === 'development'
+        ? supabaseUrl.replace('127.0.0.1', 'localhost')
+        : supabaseUrl;
+
+    return createClient(serverSupabaseUrl, supabaseKey, {
       auth: {
         persistSession: false, // Prevent multiple auth instances
       },
@@ -44,8 +56,8 @@ export async function createAuthenticatedServerClient() {
         // For server-side, we need to get the token from the session
         try {
           const { getToken } = await auth();
-          // Use Clerk template for Supabase to obtain a Supabase-compatible JWT
-          return (await getToken({ template: 'supabase' })) ?? null;
+          // Use native integration instead of deprecated JWT template
+          return (await getToken()) ?? null;
         } catch {
           return null;
         }
@@ -56,7 +68,13 @@ export async function createAuthenticatedServerClient() {
     if (!supabaseUrl || !supabaseKey) {
       return null;
     }
-    return createClient(supabaseUrl, supabaseKey, {
+    // For local development, ensure we use localhost instead of 127.0.0.1 for server-side requests
+    const serverSupabaseUrl =
+      process.env.NODE_ENV === 'development'
+        ? supabaseUrl.replace('127.0.0.1', 'localhost')
+        : supabaseUrl;
+
+    return createClient(serverSupabaseUrl, supabaseKey, {
       auth: {
         persistSession: false, // Prevent multiple auth instances
       },
