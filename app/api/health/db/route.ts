@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import type { PostgrestError } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase-server';
 import { env } from '@/lib/env';
 import { logger } from '@/lib/utils/logger';
@@ -11,6 +12,9 @@ interface HealthDetails {
   keyOk: boolean;
   count?: number | null;
   error?: string;
+  errorCode?: string;
+  errorDetails?: string | null;
+  errorHint?: string | null;
 }
 
 interface HealthResponse {
@@ -52,10 +56,13 @@ export async function GET() {
     });
   }
 
+  // Use a minimal SELECT with a tight range to obtain a reliable count and clearer error details.
+  // Avoid head:true because HEAD responses can mask error bodies leading to empty error messages.
   const { count, error } = await supabase
     .from('artists')
-    .select('*', { count: 'estimated', head: true })
-    .eq('published', true);
+    .select('id', { count: 'estimated' })
+    .eq('published', true)
+    .range(0, 0);
 
   const ok = !error;
 
@@ -68,16 +75,29 @@ export async function GET() {
       urlOk,
       keyOk,
       count: count ?? null,
-      ...(error ? { error: error.message } : {}),
+      ...(error
+        ? {
+            error: (error as PostgrestError).message,
+            errorCode: (error as PostgrestError).code,
+            errorDetails: (error as PostgrestError).details ?? null,
+            errorHint: (error as PostgrestError).hint ?? null,
+          }
+        : {}),
     },
   };
 
   if (ok) {
     logger.info('DB healthcheck ok', { count }, 'health/db');
   } else {
+    const e = error as PostgrestError | null;
     logger.error(
       'DB healthcheck error',
-      { error: error?.message },
+      {
+        message: e?.message ?? null,
+        code: e?.code ?? null,
+        details: e?.details ?? null,
+        hint: e?.hint ?? null,
+      },
       'health/db'
     );
   }
