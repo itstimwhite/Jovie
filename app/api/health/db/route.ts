@@ -66,13 +66,18 @@ export async function GET() {
   let error = null;
 
   try {
+    // Use the correct key based on what's available
+    const apiKey =
+      env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+      env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
     // Test direct fetch first to isolate the issue
     const directResponse = await fetch(
       `${supabaseUrl}/rest/v1/artists?select=id&limit=1`,
       {
         headers: {
-          apikey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+          apikey: apiKey!,
+          Authorization: `Bearer ${apiKey!}`,
           'Content-Type': 'application/json',
         },
       }
