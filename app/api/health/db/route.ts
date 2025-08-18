@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { PostgrestError } from '@supabase/supabase-js';
-import { createServerClient } from '@/lib/supabase-server';
 import { env } from '@/lib/env';
 import { logger } from '@/lib/utils/logger';
 
@@ -32,19 +31,18 @@ export async function GET() {
       env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
 
-  const supabase = createServerClient();
   const now = new Date().toISOString();
 
-  if (!supabase) {
+  if (!urlOk || !keyOk) {
     const body: HealthResponse = {
       service: 'db',
       status: 'error',
       ok: false,
       timestamp: now,
-      details: { urlOk, keyOk, error: 'Supabase client not configured' },
+      details: { urlOk, keyOk, error: 'Supabase configuration missing' },
     };
     logger.warn(
-      'DB healthcheck failed: client not configured',
+      'DB healthcheck failed: configuration missing',
       body.details,
       'health/db'
     );
@@ -56,13 +54,49 @@ export async function GET() {
     });
   }
 
+  // For local development, convert 127.0.0.1 to localhost for Node.js fetch compatibility
+  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL!.replace(
+    '127.0.0.1',
+    'localhost'
+  );
+
   // Use a minimal SELECT with a tight range to obtain a reliable count and clearer error details.
   // Avoid head:true because HEAD responses can mask error bodies leading to empty error messages.
-  const { count, error } = await supabase
-    .from('artists')
-    .select('id', { count: 'estimated' })
-    .eq('published', true)
-    .range(0, 0);
+  let count = null;
+  let error = null;
+
+  try {
+    // Test direct fetch first to isolate the issue
+    const directResponse = await fetch(
+      `${supabaseUrl}/rest/v1/artists?select=id&limit=1`,
+      {
+        headers: {
+          apikey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          Authorization: `Bearer ${env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!directResponse.ok) {
+      throw new Error(
+        `HTTP ${directResponse.status}: ${directResponse.statusText}`
+      );
+    }
+
+    const directData = await directResponse.json();
+    count = directData.length;
+  } catch (fetchError) {
+    error = {
+      message:
+        fetchError instanceof Error
+          ? fetchError.message
+          : 'Unknown fetch error',
+      code: '',
+      details: fetchError instanceof Error ? fetchError.stack : null,
+      hint: 'Direct fetch failed - possible network issue',
+    };
+  }
 
   const ok = !error;
 
