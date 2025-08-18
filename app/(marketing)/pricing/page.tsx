@@ -45,10 +45,10 @@ export default function PricingPage() {
 
               <div className="mt-8 flex items-center gap-3">
                 <Link
-                  href="/sign-in"
+                  href="/sign-up"
                   className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
                 >
-                  Sign in to upgrade
+                  Get started
                 </Link>
                 <Link
                   href="/"
