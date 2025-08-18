@@ -118,16 +118,20 @@ create trigger update_artist_profiles_updated_at
 -- SEED DATA for development/testing
 insert into app_users (id, email) values 
   ('test_user_1', 'test1@example.com'),
-  ('test_user_2', 'test2@example.com')
+  ('test_user_2', 'test2@example.com'),
+  ('artist_1', 'ladygaga@example.com'),
+  ('artist_5', 'tim@example.com')
 on conflict (id) do nothing;
 
-insert into artist_profiles (user_id, username, display_name, bio, is_public) values
-  ('test_user_1', 'testartist1', 'Test Artist One', 'This is a test public artist profile.', true),
-  ('test_user_2', 'testartist2', 'Test Artist Two', 'This is a test private artist profile.', false)
+insert into artist_profiles (user_id, username, display_name, bio, avatar_url, is_public) values
+  ('test_user_1', 'testartist1', 'Test Artist One', 'This is a test public artist profile.', null, true),
+  ('test_user_2', 'testartist2', 'Test Artist Two', 'This is a test private artist profile.', null, false),
+  ('artist_1', 'ladygaga', 'Lady Gaga', 'Grammy Award-winning artist known for hits like "Bad Romance" and "Shallow". Advocate for mental health awareness and LGBTQ+ rights.', 'https://i.scdn.co/image/ab6761610000e5ebc36dd9eb55fb0db4911f25dd', true),
+  ('artist_5', 'tim', 'Tim White', 'Independent artist exploring electronic and ambient sounds. Latest release: "Never Say A Word" (2024).', 'https://i.scdn.co/image/ab6761610000e5ebbab7ca6e76db7da72b58aa5c', true)
 on conflict (username) do nothing;
 
 -- Also create one public profile not attached to any user (for testing anon access)
 insert into app_users (id, email) values ('public_test', 'public@example.com') on conflict do nothing;
-insert into artist_profiles (user_id, username, display_name, bio, is_public) values
-  ('public_test', 'publicartist', 'Public Test Artist', 'This profile should be visible to everyone.', true)
+insert into artist_profiles (user_id, username, display_name, bio, avatar_url, is_public) values
+  ('public_test', 'publicartist', 'Public Test Artist', 'This profile should be visible to everyone.', null, true)
 on conflict (username) do nothing;

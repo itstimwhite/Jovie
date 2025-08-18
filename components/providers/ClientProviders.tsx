@@ -81,7 +81,7 @@ export function ClientProviders({
     }
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [initialFeatureFlags]);
 
   // Show loading state during hydration
   if (!isClient || isLoading) {
