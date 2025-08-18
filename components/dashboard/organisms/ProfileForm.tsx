@@ -47,15 +47,13 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
       }
 
       const { data, error } = await supabase
-        .from('artists')
+        .from('creator_profiles')
         .update({
-          name: formData.name,
-          tagline: formData.tagline,
-          image_url: formData.image_url || null,
-          settings: {
-            ...artist.settings,
-            hide_branding: formData.hide_branding,
-          },
+          display_name: formData.name,
+          bio: formData.tagline,
+          avatar_url: formData.image_url || null,
+          // Note: settings field doesn't exist in creator_profiles schema
+          // hide_branding could be added later if needed
         })
         .eq('id', artist.id)
         .select('*')
@@ -65,7 +63,14 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
         console.error('Error updating profile:', error);
         setError('Failed to update profile');
       } else {
-        onUpdate(data as unknown as Artist);
+        // Convert CreatorProfile back to Artist format for the callback
+        const updatedArtist: Artist = {
+          ...artist,
+          name: data.display_name || data.username,
+          tagline: data.bio || undefined,
+          image_url: data.avatar_url || undefined,
+        };
+        onUpdate(updatedArtist);
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       }

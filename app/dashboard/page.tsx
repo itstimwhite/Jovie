@@ -68,11 +68,11 @@ export default function DashboardPage() {
         return;
       }
 
-      // First get the user's database ID
+      // Check if user exists in app_users table (using Clerk's user.id as the primary key)
       const { data: userData, error: userError } = await supabase
-        .from('users')
+        .from('app_users')
         .select('id')
-        .eq('clerk_id', user.id)
+        .eq('id', user.id)
         .maybeSingle();
 
       if (userError) {
@@ -94,11 +94,11 @@ export default function DashboardPage() {
         return;
       }
 
-      // Then get the artist data
-      const { data, error } = await supabase
-        .from('artists')
+      // Then get the creator profile data
+      const { data: creatorData, error } = await supabase
+        .from('creator_profiles')
         .select('*')
-        .eq('owner_user_id', userData.id)
+        .eq('user_id', userData.id)
         .maybeSingle();
 
       if (error) {
@@ -108,14 +108,32 @@ export default function DashboardPage() {
         return;
       }
 
-      if (!data) {
-        // No artist yet → onboarding
+      if (!creatorData) {
+        // No creator profile yet → onboarding
         router.push('/onboarding');
         return;
       }
 
-      // Supabase client returns untyped data; cast via unknown before Artist to satisfy TS
-      setArtist(data as unknown as Artist | null);
+      // Convert CreatorProfile to Artist for backward compatibility
+      const artistData: Artist = {
+        id: creatorData.id,
+        owner_user_id: creatorData.user_id,
+        handle: creatorData.username,
+        spotify_id: '',
+        name: creatorData.display_name || creatorData.username,
+        image_url: creatorData.avatar_url || undefined,
+        tagline: creatorData.bio || undefined,
+        theme: undefined,
+        settings: { hide_branding: false },
+        spotify_url: undefined,
+        apple_music_url: undefined,
+        youtube_url: undefined,
+        published: creatorData.is_public,
+        is_verified: false,
+        created_at: creatorData.created_at,
+      };
+
+      setArtist(artistData);
     } catch (error) {
       console.error('Error:', error);
       setError('Failed to load dashboard data. Please refresh the page.');
