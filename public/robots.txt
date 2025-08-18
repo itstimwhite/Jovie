@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://your-domain.com
+Host: https://jov.ie
 
 # Sitemaps
-Sitemap: https://your-domain.com/sitemap.xml
+Sitemap: https://jov.ie/sitemap.xml

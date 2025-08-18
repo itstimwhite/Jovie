@@ -139,10 +139,7 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body
-        className="font-sans"
-        style={{ paddingTop: 'var(--debug-banner-height, 3rem)' }}
-      >
+      <body className="font-sans">
         <StatsigProviderWrapper>
           <ClientProviders initialFeatureFlags={featureFlags}>
             {children}

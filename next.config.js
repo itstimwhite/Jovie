@@ -90,7 +90,10 @@ const nextConfig = {
     swcTraceProfiling: false,
   },
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    // Keep console logs in Vercel Preview builds for debugging
+    removeConsole:
+      process.env.NODE_ENV === 'production' &&
+      process.env.VERCEL_ENV !== 'preview',
   },
   // Webpack optimizations
   webpack: (config, { dev, isServer }) => {

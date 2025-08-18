@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';
@@ -15,26 +16,35 @@ export function LoadingSpinner({
     lg: 'h-6 w-6',
   };
 
+  // Choose app icon based on size (from public/)
+  const iconSrcBySize: Record<'sm' | 'md' | 'lg', string> = {
+    sm: '/favicon-16x16.png',
+    md: '/favicon-32x32.png',
+    lg: '/apple-touch-icon.png',
+  };
+  const iconSrc = iconSrcBySize[size];
+  const pixelBySize: Record<'sm' | 'md' | 'lg', number> = {
+    sm: 16,
+    md: 24,
+    lg: 32,
+  };
+
   return (
     <div
-      className={`inline-flex items-center justify-center ${sizeClasses[size]} ${className}`}
+      className={`inline-flex items-center justify-center animate-spin ${sizeClasses[size]} ${className}`}
       role="status"
       aria-label="Loading"
     >
-      <svg
-        className="animate-spin"
-        viewBox="0 0 32 32"
-        fill="currentColor"
-        xmlns="http://www.w3.org/2000/svg"
+      {/* Use app icon / favicon from public/ */}
+      <Image
+        src={iconSrc}
+        alt=""
         aria-hidden="true"
-      >
-        {/* Jovie Music Note Icon */}
-        <circle cx="8" cy="24" r="4" fill="currentColor" />
-        <circle cx="20" cy="20" r="4" fill="currentColor" />
-        <rect x="10" y="12" width="2" height="16" fill="currentColor" />
-        <rect x="22" y="8" width="2" height="16" fill="currentColor" />
-        <path d="M10 12h12v4H10z" fill="currentColor" />
-      </svg>
+        width={pixelBySize[size]}
+        height={pixelBySize[size]}
+        className="object-contain"
+        priority
+      />
     </div>
   );
 }
