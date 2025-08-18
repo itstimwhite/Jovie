@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # feature_development_flow
 
 - Trigger: When AI is asked to implement a new feature, enhancement, or bugfix.

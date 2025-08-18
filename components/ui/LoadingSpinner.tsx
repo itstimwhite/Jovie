@@ -16,11 +16,11 @@ export function LoadingSpinner({
     lg: 'h-6 w-6',
   };
 
-  // Choose app icon based on size (from public/)
+  // Choose app icon based on size (from public/) - use transparent android-chrome icon to avoid spinning square issue
   const iconSrcBySize: Record<'sm' | 'md' | 'lg', string> = {
-    sm: '/favicon-16x16.png',
-    md: '/favicon-32x32.png',
-    lg: '/apple-touch-icon.png',
+    sm: '/android-chrome-512x512.png',
+    md: '/android-chrome-512x512.png',
+    lg: '/android-chrome-512x512.png',
   };
   const iconSrc = iconSrcBySize[size];
   const pixelBySize: Record<'sm' | 'md' | 'lg', number> = {
