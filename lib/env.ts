@@ -23,12 +23,6 @@ const EnvSchema = z
     // Server or build-time envs (may be undefined locally)
     SPOTIFY_CLIENT_ID: z.string().optional(),
     SPOTIFY_CLIENT_SECRET: z.string().optional(),
-
-    // Clerk billing configuration (optional)
-    NEXT_PUBLIC_CLERK_BILLING_ENABLED: z.enum(['true', 'false']).optional(),
-    NEXT_PUBLIC_CLERK_BILLING_GATEWAY: z
-      .enum(['development', 'stripe'])
-      .optional(),
   })
   .superRefine((val, ctx) => {
     // Require at least one Supabase client key
@@ -59,10 +53,6 @@ const rawEnv = {
   NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
   SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
-  NEXT_PUBLIC_CLERK_BILLING_ENABLED:
-    process.env.NEXT_PUBLIC_CLERK_BILLING_ENABLED,
-  NEXT_PUBLIC_CLERK_BILLING_GATEWAY: process.env
-    .NEXT_PUBLIC_CLERK_BILLING_GATEWAY as 'development' | 'stripe' | undefined,
 };
 
 const parsed = EnvSchema.safeParse(rawEnv);
@@ -106,23 +96,8 @@ export const env = {
   SPOTIFY_CLIENT_SECRET: parsed.success
     ? parsed.data.SPOTIFY_CLIENT_SECRET
     : process.env.SPOTIFY_CLIENT_SECRET,
-  NEXT_PUBLIC_CLERK_BILLING_ENABLED: parsed.success
-    ? parsed.data.NEXT_PUBLIC_CLERK_BILLING_ENABLED
-    : (process.env.NEXT_PUBLIC_CLERK_BILLING_ENABLED as
-        | 'true'
-        | 'false'
-        | undefined),
-  NEXT_PUBLIC_CLERK_BILLING_GATEWAY: parsed.success
-    ? parsed.data.NEXT_PUBLIC_CLERK_BILLING_GATEWAY
-    : (process.env.NEXT_PUBLIC_CLERK_BILLING_GATEWAY as
-        | 'development'
-        | 'stripe'
-        | undefined),
 } as const;
 
 export const flags = {
-  clerkBillingEnabled:
-    env.NEXT_PUBLIC_CLERK_BILLING_ENABLED === 'true' ? true : false,
-  clerkBillingGateway:
-    env.NEXT_PUBLIC_CLERK_BILLING_GATEWAY ?? 'not-configured',
+  // Feature flags controlled via feature-flags.ts instead of env
 } as const;
