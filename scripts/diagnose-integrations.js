@@ -128,7 +128,7 @@ if (billingEnabled !== 'true') {
   }
 }
 
-// Check for PricingTable ID in code
+// Check for PricingTable configuration in code
 const pricingPagePath = path.join(
   process.cwd(),
   'app',
@@ -138,15 +138,16 @@ const pricingPagePath = path.join(
 );
 if (fs.existsSync(pricingPagePath)) {
   const pricingPageContent = fs.readFileSync(pricingPagePath, 'utf8');
-  const pricingTableIdMatch = pricingPageContent.match(
-    /pricingTableId\s*=\s*['"`]([^'"`]*)['"`]/
-  );
+  const hasPricingTable =
+    pricingPageContent.includes('<ClerkPricingTable') ||
+    pricingPageContent.includes('<PricingTable');
 
-  if (pricingTableIdMatch && pricingTableIdMatch[1]) {
-    console.log('✅ PricingTable ID configured in code');
+  if (hasPricingTable) {
+    console.log('✅ PricingTable component configured');
+    console.log('   - Uses plans configured in Clerk dashboard');
+    console.log('   - Plans controlled by slug (e.g., basic, pro)');
   } else {
-    console.log('⚠️ PricingTable ID empty in pricing page');
-    console.log('   - Will show fallback message instead of pricing table');
+    console.log('⚠️ PricingTable component not found in pricing page');
   }
 }
 
@@ -166,9 +167,7 @@ if (!allRequiredSet) {
   console.log('2. Fill in actual values from your services:');
   console.log('   - Clerk: https://dashboard.clerk.com');
   console.log('   - Supabase: https://supabase.com/dashboard');
-  console.log(
-    '3. Configure PricingTable ID in app/(marketing)/pricing/page.tsx'
-  );
+  console.log('3. Verify plans are configured and public in Clerk dashboard');
   console.log('4. Restart development server');
 } else {
   console.log('✅ Configuration looks good!');

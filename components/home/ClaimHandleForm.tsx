@@ -23,16 +23,27 @@ export function ClaimHandleForm() {
   const [copied, setCopied] = useState(false);
   const lastQueriedRef = useRef<string>('');
 
+  // Better handle validation with stricter regex for lowercase a-z, 0-9, hyphen
   const handleError = useMemo(() => {
     if (!handle) return null;
     if (handle.length < 3) return 'Handle must be at least 3 characters';
     if (handle.length > 30) return 'Handle must be less than 30 characters';
-    if (!/^[a-zA-Z0-9-]+$/.test(handle))
-      return 'Handle can only contain letters, numbers, and hyphens';
+    if (!/^[a-z0-9-]+$/.test(handle))
+      return 'Handle can only contain lowercase letters, numbers, and hyphens';
+    if (handle.startsWith('-') || handle.endsWith('-'))
+      return 'Handle cannot start or end with a hyphen';
     return null;
   }, [handle]);
 
-  // Debounced live availability check
+  // Optimistic prefetch when handle becomes available
+  useEffect(() => {
+    if (available === true && handle) {
+      const target = `/onboarding?handle=${encodeURIComponent(handle.toLowerCase())}`;
+      router.prefetch(target);
+    }
+  }, [available, handle, router]);
+
+  // Debounced live availability check (350-500ms per requirements)
   useEffect(() => {
     setAvailError(null);
     setCopied(false);
@@ -72,7 +83,7 @@ export function ClaimHandleForm() {
       } finally {
         if (lastQueriedRef.current === value) setCheckingAvail(false);
       }
-    }, 400);
+    }, 450); // 450ms debounce (within 350-500ms requirement)
 
     return () => {
       clearTimeout(id);
@@ -116,17 +127,11 @@ export function ClaimHandleForm() {
     [available, checkingAvail, handle, handleError, isSignedIn, router]
   );
 
-  // Button state logic
+  // Button state logic with "Create Profile" copy
   const showChecking = checkingAvail;
   const unavailable = available === false || !!handleError || !!availError;
   const canSubmit = available === true && !checkingAvail && !navigating;
-  const btnLabel = showChecking
-    ? 'Checking…'
-    : unavailable
-      ? 'Choose Another'
-      : available === true
-        ? 'Claim Handle'
-        : 'Claim';
+  const btnLabel = available === true ? 'Create Profile' : 'Create Profile';
   const btnColor: 'green' | 'indigo' = available === true ? 'green' : 'indigo';
   const btnDisabled = !canSubmit;
 
@@ -200,65 +205,66 @@ export function ClaimHandleForm() {
   };
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="space-y-3"
-      aria-label="Claim handle form"
-    >
+    <form onSubmit={onSubmit} className="space-y-4">
       <Input
         type="text"
         value={handle}
-        onChange={(e) => setHandle(e.target.value)}
+        onChange={(e) => setHandle(e.target.value.toLowerCase())}
         placeholder="your-handle"
         aria-label="Claim your handle"
         aria-describedby={
           helperText ? 'handle-helper-text' : 'handle-preview-text'
         }
         aria-invalid={unavailable ? 'true' : 'false'}
-        className={`${isShaking ? 'jv-shake' : ''} ${available === true ? 'jv-available' : ''}`}
-        inputClassName="text-[16px] sm:text-[15px] leading-6 tracking-tight font-medium placeholder:text-zinc-500 pr-36 sm:pr-40"
+        aria-live="polite"
+        autoCapitalize="none"
+        autoCorrect="off"
+        className={`${isShaking ? 'jv-shake' : ''} ${available === true ? 'jv-available' : ''} transition-all duration-150 hover:shadow-lg focus-within:shadow-lg`}
+        inputClassName="text-[16px] leading-6 tracking-tight font-medium placeholder:text-zinc-400 dark:placeholder:text-zinc-500 pr-36 sm:pr-40 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
         trailing={
           <div className="flex items-center gap-2">
             {/* Live status icon */}
             <div aria-hidden className="flex items-center justify-center">
               <StatusIcon />
             </div>
-            {/* Action button */}
+            {/* Fixed-size CTA button with cross-fade animation */}
             <Button
               type="submit"
               variant="primary"
               color={btnColor}
               size="sm"
-              className="min-w-[128px] sm:min-w-[136px] justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              className="min-w-[136px] w-[136px] h-[36px] justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
               disabled={btnDisabled || !handle}
               aria-describedby="claim-button-status"
             >
-              {showChecking ? (
-                <span className="inline-flex items-center gap-2">
-                  <LoadingSpinner size="sm" className="text-white" />
-                  <span>Checking…</span>
-                </span>
-              ) : navigating ? (
-                'Redirecting…'
-              ) : (
-                btnLabel
-              )}
+              <span className="inline-flex items-center justify-center gap-2 transition-opacity duration-250">
+                {showChecking ? (
+                  <>
+                    <LoadingSpinner size="sm" className="text-white" />
+                    <span>Checking…</span>
+                  </>
+                ) : navigating ? (
+                  'Setting things up…'
+                ) : (
+                  btnLabel
+                )}
+              </span>
             </Button>
           </div>
         }
       />
 
-      {/* Preview text with consistent height to prevent layout jump */}
-      <div className="min-h-[1.25rem]">
-        <div id="handle-preview-text">
-          {handle ? (
+      {/* Compact URL preview under input */}
+      <div className="min-h-[1.25rem]" id="handle-preview-text">
+        {handle ? (
+          <div className="flex items-center justify-between text-xs">
             <p
               onClick={available ? onCopyPreview : undefined}
-              className={`text-xs ${previewTone} select-none transition-colors duration-200 ${
+              className={`${previewTone} select-none transition-colors duration-200 ${
                 available
                   ? 'cursor-pointer hover:text-green-700 dark:hover:text-green-400 active:scale-[0.98] touch-manipulation'
                   : ''
-              }`}
+              } truncate`}
               title={
                 available ? (copied ? 'Copied!' : 'Click to copy') : undefined
               }
@@ -278,30 +284,67 @@ export function ClaimHandleForm() {
                 available ? `Copy profile URL jov.ie/${handle}` : undefined
               }
             >
-              Your profile will be live at{' '}
-              <span className="text-current">jov.ie/</span>
+              <span className="text-gray-400 dark:text-gray-500">jov.ie/</span>
               <span className="font-semibold text-current">{handle}</span>
-              {available ? (
-                <span className="ml-2 text-[11px] text-green-600 dark:text-green-500 transition-opacity duration-200">
-                  {copied ? '✓ Copied!' : '📋 Tap to copy'}
-                </span>
-              ) : null}
             </p>
-          ) : (
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Your profile will be live at jov.ie/your-handle
-            </p>
-          )}
-        </div>
+            {available && (
+              <span
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium transition-all duration-200 ${
+                  available
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                    : ''
+                }`}
+              >
+                {copied ? (
+                  <>
+                    <svg
+                      className="w-3 h-3"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-3 h-3"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Available
+                  </>
+                )}
+              </span>
+            )}
+          </div>
+        ) : (
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            <span className="text-gray-400 dark:text-gray-500">jov.ie/</span>
+            <span className="text-gray-400 dark:text-gray-500">
+              your-handle
+            </span>
+          </p>
+        )}
       </div>
 
-      {/* Helper text with consistent height to prevent layout jump */}
+      {/* Single inline helper that swaps to error/success */}
       <div
         className="min-h-[1.125rem]"
         aria-live="polite"
         aria-atomic="true"
         id="handle-helper-text"
-        role="status"
       >
         {helperText ? (
           <p
@@ -349,7 +392,8 @@ export function ClaimHandleForm() {
           animation: jv-shake 150ms ease-in-out;
         }
         @keyframes jv-shake {
-          0% {
+          0%,
+          100% {
             transform: translateX(0);
           }
           25% {
@@ -361,14 +405,10 @@ export function ClaimHandleForm() {
           75% {
             transform: translateX(-2px);
           }
-          100% {
-            transform: translateX(0);
-          }
         }
         .jv-available {
           box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.35);
           animation: jv-available-pulse 900ms ease-out 1;
-          border-radius: 0.5rem;
         }
         @keyframes jv-available-pulse {
           0% {

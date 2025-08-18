@@ -74,7 +74,7 @@
     "@types/node": "^24",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
-    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/eslint-plugin": "^8.39.1",
     "@typescript-eslint/parser": "^8.38.0",
     "@vercel/toolbar": "^0.1.38",
     "@vitejs/plugin-react": "^4.2.1",

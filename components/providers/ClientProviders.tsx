@@ -8,6 +8,7 @@ import { FeatureFlagsProvider } from './FeatureFlagsProvider';
 import { FeatureFlags } from '@/lib/feature-flags';
 import { Spinner } from '@/components/ui';
 import { env } from '@/lib/env';
+import { logger } from '@/lib/utils/logger';
 // import { Toolbar } from '@vercel/toolbar/next';
 
 interface ClientProvidersProps {
@@ -64,6 +65,21 @@ export function ClientProviders({
       setIsLoading(false);
     }, 100);
 
+    // Environment-gated startup log
+    try {
+      logger.group('Jovie App');
+      logger.info('Booting client providers', {
+        vercelEnv: process.env.VERCEL_ENV || 'local',
+        nodeEnv: process.env.NODE_ENV,
+      });
+      if (initialFeatureFlags) {
+        logger.debug('Initial feature flags', initialFeatureFlags);
+      }
+      logger.groupEnd();
+    } catch {
+      // ignore
+    }
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -84,8 +100,8 @@ export function ClientProviders({
       <FeatureFlagsProvider initialFlags={initialFeatureFlags}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
+          defaultTheme="system"
+          enableSystem={true}
           disableTransitionOnChange
           storageKey="jovie-theme"
         >

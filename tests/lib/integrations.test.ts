@@ -141,10 +141,7 @@ describe('Integration Health Diagnostics', () => {
       // Test that the pricing page path exists as a module
       const pricingPagePath = path.resolve(
         process.cwd(),
-        'app',
-        '(marketing)',
-        'pricing',
-        'page.tsx'
+        'app/(marketing)/pricing/page.tsx'
       );
       const fs = require('fs');
       expect(fs.existsSync(pricingPagePath)).toBe(true);
@@ -154,9 +151,7 @@ describe('Integration Health Diagnostics', () => {
       // Test that the dashboard page path exists as a module
       const dashboardPagePath = path.resolve(
         process.cwd(),
-        'app',
-        'dashboard',
-        'page.tsx'
+        'app/dashboard/page.tsx'
       );
       const fs = require('fs');
       expect(fs.existsSync(dashboardPagePath)).toBe(true);

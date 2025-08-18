@@ -42,7 +42,8 @@ jobs:
             }
 
   up-to-date-with-preview:
-    if: ${{ github.event_name == 'pull_request' && github.base_ref == 'preview' }}
+    name: up-to-date-with-preview
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'preview' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -154,8 +155,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 2 }
-      - name: Promote preview → main
-        if: ${{ github.ref == 'refs/heads/preview' }}
+      - name: Create/Update PR preview → main (manual review required)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -163,12 +163,11 @@ jobs:
           existing_pr=$(gh pr list --head preview --base main --json number --jq '.[0].number // empty')
           if [ -z "$existing_pr" ]; then
             echo "Creating new PR: preview → main"
-            gh pr create --base main --head preview --title "Auto-promote: preview → main" --body "Automated promotion PR"
-            existing_pr=$(gh pr list --head preview --base main --json number --jq '.[0].number // empty')
+            gh pr create --base main --head preview --title "Promote: preview → main" --body "Automated promotion PR (manual review required)"
           else
-            echo "PR already exists: #$existing_pr"
+            echo "PR already exists: #$existing_pr (no auto-merge; manual review required)"
+            gh pr edit "$existing_pr" --title "Promote: preview → main" --body "Automated promotion PR (manual review required)"
           fi
-          echo "Promotion PR #$existing_pr is ready. Manual review and merge required. Auto-merge is intentionally disabled."
 
   deploy-prod:
     needs: [ci-fast]

@@ -2,7 +2,14 @@
 
 import { PricingTable } from '@clerk/nextjs';
 import { Container } from '@/components/site/Container';
-import { flags } from '@/lib/env';
+import { env } from '@/lib/env';
+
+// Clerk's PricingTable typings currently omit required configuration props.
+// Cast to any so we can supply them directly until official types are updated.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ClerkPricingTable = PricingTable as any;
+
+const publishableKey = env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 export default function PricingPage() {
   return (
@@ -20,25 +27,13 @@ export default function PricingPage() {
           </div>
 
           <div className="max-w-4xl mx-auto">
-            {flags.clerkBillingEnabled ? (
-              <PricingTable />
-            ) : (
-              <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-6 text-center">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  Billing temporarily unavailable
-                </h2>
-                <p className="mt-2 text-gray-600 dark:text-gray-300">
-                  Pricing information is not available in this environment.
-                </p>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  Set{' '}
-                  <code className="font-mono">
-                    NEXT_PUBLIC_CLERK_BILLING_ENABLED=true
-                  </code>{' '}
-                  to enable the Clerk Pricing Table.
-                </p>
-              </div>
-            )}
+            <ClerkPricingTable
+              publishableKey={publishableKey}
+              path="/pricing"
+              redirectUrl="/billing/success"
+              signInUrl="/sign-in"
+              signUpUrl="/sign-up"
+            />
           </div>
 
           <div className="mt-16 text-center">

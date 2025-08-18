@@ -121,7 +121,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
                   hide_branding: !formData.hide_branding,
                 })
               }
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ${
                 formData.hide_branding
                   ? 'bg-gray-200 dark:bg-gray-700'
                   : 'bg-indigo-600'

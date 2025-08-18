@@ -47,6 +47,17 @@ const nextConfig = {
     ];
     return [
       {
+        // Ensure internal flags endpoint is never cached
+        source: '/api/feature-flags',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value: 'no-store',
+          },
+        ],
+      },
+      {
         source: '/api/(.*)',
         headers: [
           ...securityHeaders,
@@ -58,7 +69,7 @@ const nextConfig = {
       },
       {
         // Exclude Vercel Flags discovery endpoint from global cache headers
-        source: '/((?!\\.well-known/vercel/flags).*)',
+        source: '/((?!\.well-known/vercel/flags).*)',
         headers: [
           ...securityHeaders,
           {
@@ -79,7 +90,10 @@ const nextConfig = {
     swcTraceProfiling: false,
   },
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    // Keep console logs in Vercel Preview builds for debugging
+    removeConsole:
+      process.env.NODE_ENV === 'production' &&
+      process.env.VERCEL_ENV !== 'preview',
   },
   // Webpack optimizations
   webpack: (config, { dev, isServer }) => {

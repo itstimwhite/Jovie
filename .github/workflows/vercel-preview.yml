@@ -1,0 +1,108 @@
+name: Vercel Preview (PRs & branches)
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  push:
+    branches-ignore:
+      - main
+      - preview
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: vercel-preview-${{ github.event_name }}-${{ github.ref || github.event.pull_request.head.sha }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy Vercel Preview
+    runs-on: ubuntu-latest
+    # Avoid running with secrets on forked PRs
+    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Vercel CLI
+        run: npm i -g vercel@latest
+      - name: Pull env (preview)
+        run: vercel pull --yes --environment=preview --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Build
+        run: vercel build --token ${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Deploy (prebuilt)
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }} | grep -Eo 'https://[a-zA-Z0-9.-]+\.vercel\.app' | tail -n1)
+          if [[ ! "$url" =~ ^https://[a-zA-Z0-9.-]+\.vercel\.app$ ]]; then
+            echo "Failed to extract Vercel deployment URL" >&2
+            exit 1
+          fi
+          echo "url=$url" >> $GITHUB_OUTPUT
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Compute alias host (wildcard domain)
+        id: alias
+        if: ${{ vars.PREVIEW_ALIAS_DOMAIN != '' }}
+        shell: bash
+        run: |
+          BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          # slugify branch: lowercase, replace non-alnum with '-', collapse dashes, trim, limit length
+          slug=$(echo "$BRANCH" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's#[^a-z0-9]+#-#g; s#-+#-#g; s#(^-|-$)##g' \
+            | cut -c1-48)
+          host="$slug.${{ vars.PREVIEW_ALIAS_DOMAIN }}"
+          echo "Computed alias host: $host"
+          echo "alias_host=$host" >> "$GITHUB_OUTPUT"
+      - name: Verify wildcard alias resolves
+        id: verify
+        if: ${{ vars.PREVIEW_ALIAS_DOMAIN != '' }}
+        shell: bash
+        continue-on-error: true
+        run: |
+          host="${{ steps.alias.outputs.alias_host }}"
+          if [ -z "$host" ]; then
+            echo "Missing alias host" >&2
+            exit 1
+          fi
+          echo "Probing wildcard alias: $host"
+          attempts=40
+          sleep_secs=15
+          for i in $(seq 1 $attempts); do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 "https://$host/")
+            echo "Attempt $i/$attempts -> HTTP $code"
+            if [ "$code" -ge 200 ] && [ "$code" -lt 500 ]; then
+              echo "ok=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep $sleep_secs
+          done
+          echo "ok=false" >> "$GITHUB_OUTPUT"
+          echo "Wildcard alias did not become ready within time window" >&2
+          exit 1
+      - name: Comment Preview URL on PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = `${{ steps.deploy.outputs.url }}`;
+            if (!url) return;
+            const pr = context.payload.pull_request.number;
+            const alias = `${{ steps.alias.outputs.alias_host }}`;
+            const ok = `${{ steps.verify.outputs.ok }}`;
+            const wildcard = alias ? `\nWildcard alias: https://${alias} ${ok === 'true' ? '✅' : '(probing...)'}` : '';
+            const body = `Vercel Preview ready: ${url}${wildcard}`;
+            await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: pr, body });

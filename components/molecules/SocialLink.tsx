@@ -1,8 +1,10 @@
 'use client';
 
-import { SocialIcon } from '@/components/atoms/SocialIcon';
+import { SocialIcon, getPlatformIcon } from '@/components/atoms/SocialIcon';
 import { track } from '@/lib/analytics';
+import { getSocialDeepLinkConfig, openDeepLink } from '@/lib/deep-links';
 import type { SocialLink as SocialLinkType } from '@/types/db';
+import { useMemo, useState } from 'react';
 
 interface SocialLinkProps {
   link: SocialLinkType;
@@ -11,7 +13,23 @@ interface SocialLinkProps {
 }
 
 export function SocialLink({ link, handle, artistName }: SocialLinkProps) {
-  const handleClick = async () => {
+  const [hover, setHover] = useState(false);
+  const brandHex = useMemo(
+    () => getPlatformIcon(link.platform)?.hex,
+    [link.platform]
+  );
+
+  const hexToRgba = (hex: string, alpha: number) => {
+    const h = hex.replace('#', '');
+    const bigint = parseInt(h, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+  const handleClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    // Track analytics first
     track('social_click', {
       handle,
       artist: artistName,
@@ -19,7 +37,8 @@ export function SocialLink({ link, handle, artistName }: SocialLinkProps) {
       url: link.url,
     });
 
-    await fetch('/api/track', {
+    // Fire-and-forget server tracking
+    fetch('/api/track', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -30,20 +49,52 @@ export function SocialLink({ link, handle, artistName }: SocialLinkProps) {
         target: link.platform,
         linkId: link.id,
       }),
+    }).catch(() => {
+      // Ignore tracking errors
     });
+
+    // Try deep linking
+    const deepLinkConfig = getSocialDeepLinkConfig(link.platform);
+
+    if (deepLinkConfig) {
+      try {
+        await openDeepLink(link.url, deepLinkConfig, {
+          onNativeAttempt: () => {
+            // Optional: could add loading state here
+          },
+          onFallback: () => {
+            // Optional: could track fallback usage
+          },
+        });
+      } catch (error) {
+        console.debug('Deep link failed, using fallback:', error);
+        window.open(link.url, '_blank', 'noopener,noreferrer');
+      }
+    } else {
+      // No deep link config, use original URL
+      window.open(link.url, '_blank', 'noopener,noreferrer');
+    }
   };
 
   return (
     <a
       href={link.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={handleClick}
-      className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 cursor-pointer"
+      onClick={(e) => handleClick(e)}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      className="group flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 transition-all duration-150 hover:scale-105 active:scale-95 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 cursor-pointer ring-1 ring-black/5 dark:ring-white/10"
+      style={
+        hover && brandHex
+          ? {
+              color: `#${brandHex}`,
+              boxShadow: `0 0 0 0.5px ${hexToRgba(brandHex, 0.6)}, 0 10px 24px -12px ${hexToRgba(brandHex, 0.6)}`,
+            }
+          : undefined
+      }
       title={`Follow on ${link.platform}`}
       aria-label={`Follow ${artistName} on ${link.platform}`}
     >
-      <SocialIcon platform={link.platform} />
+      <SocialIcon platform={link.platform} className="h-4 w-4" />
     </a>
   );
 }

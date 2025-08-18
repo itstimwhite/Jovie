@@ -4,6 +4,7 @@ import { VercelToolbar } from '@vercel/toolbar/next';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
 import '@/styles/globals.css';
+import { StatsigProviderWrapper } from '@/components/providers/StatsigProvider';
 
 // Bypass static rendering for now to fix build issues
 export const dynamic = 'force-dynamic';
@@ -85,8 +86,8 @@ export const metadata: Metadata = {
     'apple-mobile-web-app-status-bar-style': 'default',
     'apple-mobile-web-app-title': APP_NAME,
     'application-name': APP_NAME,
-    'msapplication-TileColor': '#000000',
-    'theme-color': '#000000',
+    'msapplication-TileColor': '#6366f1',
+    'theme-color': '#ffffff',
   },
 };
 
@@ -102,6 +103,12 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Favicon and Icons */}
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+
         <link rel="dns-prefetch" href="https://i.scdn.co" />
         <link rel="dns-prefetch" href="https://api.spotify.com" />
 
@@ -133,9 +140,11 @@ export default async function RootLayout({
         />
       </head>
       <body className="font-sans">
-        <ClientProviders initialFeatureFlags={featureFlags}>
-          {children}
-        </ClientProviders>
+        <StatsigProviderWrapper>
+          <ClientProviders initialFeatureFlags={featureFlags}>
+            {children}
+          </ClientProviders>
+        </StatsigProviderWrapper>
         {shouldInjectToolbar && <VercelToolbar />}
       </body>
     </html>

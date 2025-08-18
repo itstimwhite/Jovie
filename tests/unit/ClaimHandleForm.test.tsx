@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { ClaimHandleForm } from '@/components/home/ClaimHandleForm';
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock dependencies
 vi.mock('@clerk/nextjs', () => ({
@@ -17,6 +17,7 @@ vi.mock('next/navigation', () => ({
 global.fetch = vi.fn();
 
 const mockPush = vi.fn();
+const mockPrefetch = vi.fn();
 const mockUseAuth = vi.mocked(useAuth);
 const mockUseRouter = vi.mocked(useRouter);
 
@@ -25,6 +26,7 @@ describe('ClaimHandleForm', () => {
     vi.clearAllMocks();
     mockUseRouter.mockReturnValue({
       push: mockPush,
+      prefetch: mockPrefetch,
     } as any);
     mockUseAuth.mockReturnValue({
       isSignedIn: false,
@@ -46,7 +48,7 @@ describe('ClaimHandleForm', () => {
     // Check that preview container exists with min-height
     const previewContainer = document.querySelector('#handle-preview-text');
     expect(previewContainer).toBeInTheDocument();
-    expect(previewContainer?.parentElement).toHaveClass('min-h-[1.25rem]');
+    expect(previewContainer).toHaveClass('min-h-[1.25rem]');
   });
 
   test('has proper accessibility attributes', () => {
@@ -57,8 +59,8 @@ describe('ClaimHandleForm', () => {
     expect(input).toHaveAttribute('aria-invalid', 'false');
 
     // Check aria-live region exists
-    const liveRegion = screen.getByRole('status', { hidden: true });
-    expect(liveRegion).toBeInTheDocument();
+    const liveRegion = document.querySelector('[aria-live="polite"]');
+    expect(liveRegion).not.toBeNull();
   });
 
   test('tap-to-copy functionality with proper keyboard support', async () => {
@@ -88,13 +90,13 @@ describe('ClaimHandleForm', () => {
       );
     });
 
-    // Wait for the copy button to appear
+    // Wait for the Available badge to appear
     await waitFor(() => {
-      const copyText = screen.getByText('📋 Tap to copy');
-      expect(copyText).toBeInTheDocument();
+      const availableText = screen.getByText('Available');
+      expect(availableText).toBeInTheDocument();
     });
 
-    // Test click functionality
+    // Test click functionality on the URL preview
     const copyButton = screen.getByRole('button', {
       name: 'Copy profile URL jov.ie/testhandle',
     });
@@ -140,7 +142,8 @@ describe('ClaimHandleForm', () => {
   test('shake animation triggers on invalid submission', () => {
     render(<ClaimHandleForm />);
 
-    const form = screen.getByRole('form');
+    const form = document.querySelector('form') as HTMLFormElement;
+    expect(form).not.toBeNull();
     const input = screen.getByLabelText('Claim your handle');
 
     // Try to submit with invalid handle

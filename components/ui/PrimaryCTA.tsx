@@ -2,11 +2,14 @@
 
 import React from 'react';
 import { clsx } from 'clsx';
+import { Spinner } from '@/components/ui/Spinner';
 
 type PrimaryCTAProps = {
   children: React.ReactNode;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
   ariaLabel: string;
+  loadingLabel?: string;
+  loading?: boolean;
   type?: 'button' | 'submit' | 'reset';
   autoFocus?: boolean;
   disabled?: boolean;
@@ -21,6 +24,8 @@ export default function PrimaryCTA({
   children,
   onClick,
   ariaLabel,
+  loadingLabel,
+  loading = false,
   type = 'button',
   autoFocus = false,
   disabled,
@@ -30,25 +35,68 @@ export default function PrimaryCTA({
   id,
   dataTestId,
 }: PrimaryCTAProps) {
+  const isLoading = Boolean(loading);
+  const a11yLabel = isLoading && loadingLabel ? loadingLabel : ariaLabel;
+
   const base =
-    'rounded-lg font-semibold shadow transition focus:outline-none focus:ring-2 focus:ring-black/50 focus:ring-offset-2 cursor-pointer';
-  const color = 'bg-black text-white hover:opacity-90 active:opacity-95';
+    'relative inline-flex items-center justify-center overflow-hidden group rounded-xl font-semibold tracking-tight shadow-lg transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2 dark:focus-visible:ring-white/40';
+  const color =
+    'bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-50';
   const sizing =
-    size === 'lg' ? 'py-3 text-base sm:py-4 sm:text-lg' : 'py-2 text-sm';
+    size === 'lg'
+      ? 'min-h-[56px] px-8 text-base sm:min-h-[60px] sm:px-10 sm:text-lg'
+      : 'min-h-[48px] px-6 text-sm';
   const width = fullWidth ? 'w-full' : '';
+
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    if (disabled || isLoading) {
+      e.preventDefault();
+      return;
+    }
+    onClick?.(e);
+  };
 
   return (
     <button
       id={id}
       data-testid={dataTestId}
       type={type}
-      onClick={onClick}
-      aria-label={ariaLabel}
+      onClick={handleClick}
+      aria-label={a11yLabel}
       autoFocus={autoFocus}
-      disabled={disabled}
-      className={clsx(base, color, sizing, width, className)}
+      disabled={disabled || isLoading}
+      aria-disabled={disabled || isLoading ? 'true' : 'false'}
+      className={clsx(
+        base,
+        color,
+        sizing,
+        width,
+        'hover:scale-[1.01] active:scale-[0.99] ring-1 ring-black/10 dark:ring-white/10 hover:ring-black/20 dark:hover:ring-white/20',
+        // luminous subtle glow using before pseudo-element
+        'before:pointer-events-none before:absolute before:inset-0 before:rounded-xl before:opacity-0 before:transition-opacity before:duration-300',
+        'before:bg-[radial-gradient(80%_60%_at_50%_0%,rgba(255,255,255,0.35),transparent_60%)]',
+        'group-hover:before:opacity-100',
+        isLoading && 'opacity-80',
+        className
+      )}
     >
-      {children}
+      <span
+        className={clsx(
+          'transition-opacity duration-200',
+          isLoading ? 'opacity-0' : 'opacity-100'
+        )}
+      >
+        {children}
+      </span>
+
+      {isLoading && (
+        <div
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          aria-hidden="true"
+        >
+          <Spinner size="sm" variant="dark" />
+        </div>
+      )}
     </button>
   );
 }

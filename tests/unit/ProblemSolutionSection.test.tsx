@@ -1,5 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { ProblemSolutionSection } from '@/components/home/ProblemSolutionSection';
 
 // Mock analytics
@@ -8,6 +8,9 @@ vi.mock('@/lib/analytics', () => ({
 }));
 
 describe('ProblemSolutionSection', () => {
+  afterEach(() => {
+    cleanup();
+  });
   it('renders unified section with problem and solution content', () => {
     render(<ProblemSolutionSection />);
 
@@ -52,8 +55,8 @@ describe('ProblemSolutionSection', () => {
     expect(ctaButton).toHaveClass('px-8', 'py-4', 'text-base');
   });
 
-  it('tracks analytics when CTA button is clicked', async () => {
-    const { track } = await import('@/lib/analytics');
+  it('tracks analytics when CTA button is clicked', () => {
+    const { track } = require('@/lib/analytics');
     render(<ProblemSolutionSection />);
 
     const ctaButton = screen.getByRole('link', { name: /Claim your handle/i });
