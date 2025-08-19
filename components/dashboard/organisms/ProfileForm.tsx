@@ -6,7 +6,7 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuthenticatedSupabase } from '@/lib/supabase';
-import { Artist } from '@/types/db';
+import { Artist, convertCreatorProfileToArtist } from '@/types/db';
 
 interface ProfileFormProps {
   artist: Artist;
@@ -64,12 +64,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
         setError('Failed to update profile');
       } else {
         // Convert CreatorProfile back to Artist format for the callback
-        const updatedArtist: Artist = {
-          ...artist,
-          name: data.display_name || data.username,
-          tagline: data.bio || undefined,
-          image_url: data.avatar_url || undefined,
-        };
+        const updatedArtist = convertCreatorProfileToArtist(data);
         onUpdate(updatedArtist);
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);

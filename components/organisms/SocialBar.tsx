@@ -1,5 +1,5 @@
 import { SocialLink } from '@/components/molecules/SocialLink';
-import type { SocialLink as SocialLinkType } from '@/types/db';
+import type { LegacySocialLink as SocialLinkType } from '@/types/db';
 
 interface SocialBarProps {
   handle: string;

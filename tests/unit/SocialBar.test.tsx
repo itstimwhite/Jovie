@@ -1,7 +1,7 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
 import { SocialBar } from '@/components/organisms/SocialBar';
-import type { SocialLink } from '@/types/db';
+import type { LegacySocialLink } from '@/types/db';
 
 // Mock fetch for API calls
 global.fetch = vi.fn();
@@ -12,7 +12,7 @@ describe('SocialBar', () => {
     vi.clearAllMocks();
   });
 
-  const mockSocialLinks: SocialLink[] = [
+  const mockSocialLinks: LegacySocialLink[] = [
     {
       id: '1',
       artist_id: 'test-artist',

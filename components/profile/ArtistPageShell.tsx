@@ -5,11 +5,11 @@ import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { SocialLink as SocialLinkComponent } from '@/components/molecules/SocialLink';
 import { ProfileFooter } from '@/components/profile/ProfileFooter';
-import { Artist, SocialLink } from '@/types/db';
+import { Artist, LegacySocialLink } from '@/types/db';
 
 type ArtistPageShellProps = {
   artist: Artist;
-  socialLinks: SocialLink[];
+  socialLinks: LegacySocialLink[];
   subtitle?: string;
   children?: React.ReactNode;
   showSocialBar?: boolean;

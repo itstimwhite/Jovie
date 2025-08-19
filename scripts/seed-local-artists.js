@@ -35,6 +35,8 @@ async function seedArtists() {
       bio: 'Grammy Award-winning artist known for hits like "Bad Romance" and "Shallow". Advocate for mental health awareness and LGBTQ+ rights.',
       avatar_url:
         'https://i.scdn.co/image/ab6761610000e5ebc36dd9eb55fb0db4911f25dd',
+      spotify_url: 'https://open.spotify.com/artist/1HY2Jd0NmPuamShAr6KMms',
+      spotify_id: '1HY2Jd0NmPuamShAr6KMms',
       is_public: true,
     },
     {

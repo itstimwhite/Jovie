@@ -6,12 +6,12 @@ import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
 import { ListenNow } from '@/components/profile/ListenNow';
 import { AnimatedListenInterface } from '@/components/profile/AnimatedListenInterface';
 import VenmoTipSelector from '@/components/profile/VenmoTipSelector';
-import { Artist, SocialLink } from '@/types/db';
+import { Artist, LegacySocialLink } from '@/types/db';
 
 interface AnimatedArtistPageProps {
   mode: string;
   artist: Artist;
-  socialLinks: SocialLink[];
+  socialLinks: LegacySocialLink[];
   subtitle: string;
   showTipButton: boolean;
   showBackButton: boolean;
@@ -20,7 +20,7 @@ interface AnimatedArtistPageProps {
 function renderContent(
   mode: string,
   artist: Artist,
-  socialLinks: SocialLink[]
+  socialLinks: LegacySocialLink[]
 ) {
   switch (mode) {
     case 'listen':

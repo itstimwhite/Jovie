@@ -2,7 +2,11 @@ import { createClient } from '@supabase/supabase-js';
 import { notFound } from 'next/navigation';
 import { AnimatedArtistPage } from '@/components/profile/AnimatedArtistPage';
 import { DesktopQrOverlay } from '@/components/profile/DesktopQrOverlay';
-import { Artist, SocialLink, CreatorProfile } from '@/types/db';
+import {
+  LegacySocialLink,
+  CreatorProfile,
+  convertCreatorProfileToArtist,
+} from '@/types/db';
 import { PAGE_SUBTITLES } from '@/constants/app';
 
 // Create an anonymous Supabase client for public data
@@ -15,37 +19,7 @@ function createAnonSupabase() {
   return createClient(supabaseUrl, supabaseKey);
 }
 
-interface ArtistProfile {
-  id: string;
-  username: string;
-  display_name: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-  is_public: boolean;
-}
-
-// Helper function to convert ArtistProfile to Artist type for components
-function convertToArtist(profile: ArtistProfile): Artist {
-  return {
-    id: profile.id,
-    owner_user_id: 'unknown', // Not available in our simplified schema
-    handle: profile.username,
-    spotify_id: '', // Not available in our simplified schema
-    name: profile.display_name || profile.username,
-    image_url: profile.avatar_url || undefined,
-    tagline: profile.bio || undefined,
-    theme: undefined,
-    settings: {
-      hide_branding: false,
-    },
-    spotify_url: undefined,
-    apple_music_url: undefined,
-    youtube_url: undefined,
-    published: profile.is_public,
-    is_verified: false, // Could be extended later
-    created_at: new Date().toISOString(), // Not available in our simplified schema
-  };
-}
+// Using CreatorProfile type and convertCreatorProfileToArtist utility from types/db.ts
 
 async function getCreatorProfile(
   username: string
@@ -60,7 +34,7 @@ async function getCreatorProfile(
   const { data, error } = await supabase
     .from('creator_profiles')
     .select(
-      'id, user_id, creator_type, username, display_name, bio, avatar_url, is_public, created_at, updated_at'
+      'id, user_id, creator_type, username, display_name, bio, avatar_url, spotify_url, apple_music_url, youtube_url, spotify_id, is_public, is_verified, settings, theme, created_at, updated_at'
     )
     .eq('username', username.toLowerCase())
     .eq('is_public', true) // Only fetch public profiles
@@ -96,11 +70,11 @@ export default async function ArtistPage({ params, searchParams }: Props) {
   }
 
   // Convert our profile data to the Artist type expected by components
-  const artist = convertToArtist(profile);
+  const artist = convertCreatorProfileToArtist(profile);
 
   // Mock social links for testing (in a real app, these would come from the database)
-  const socialLinks: SocialLink[] =
-    artist.handle === 'ladygaga'
+  const socialLinks: LegacySocialLink[] =
+    profile.username === 'ladygaga'
       ? [
           {
             id: 'venmo-link-1',
@@ -119,7 +93,7 @@ export default async function ArtistPage({ params, searchParams }: Props) {
             created_at: new Date().toISOString(),
           },
         ]
-      : artist.handle === 'tim'
+      : profile.username === 'tim'
         ? [
             {
               id: 'venmo-link-2',

@@ -38,7 +38,16 @@ create table creator_profiles (
   display_name text,
   bio text,
   avatar_url text,
+  -- Music platform URLs (for artists)
+  spotify_url text,
+  apple_music_url text,
+  youtube_url text,
+  spotify_id text, -- for backwards compatibility
+  -- Visibility and metadata
   is_public boolean not null default true,
+  is_verified boolean not null default false,
+  settings jsonb default '{"hide_branding": false}'::jsonb,
+  theme jsonb,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -129,11 +138,11 @@ insert into app_users (id, email) values
   ('artist_5', 'tim@example.com')
 on conflict (id) do nothing;
 
-insert into creator_profiles (user_id, creator_type, username, display_name, bio, avatar_url, is_public) values
-  ('test_user_1', 'artist', 'testartist1', 'Test Artist One', 'This is a test public artist profile.', null, true),
-  ('test_user_2', 'artist', 'testartist2', 'Test Artist Two', 'This is a test private artist profile.', null, false),
-  ('artist_1', 'artist', 'ladygaga', 'Lady Gaga', 'Grammy Award-winning artist known for hits like "Bad Romance" and "Shallow". Advocate for mental health awareness and LGBTQ+ rights.', 'https://i.scdn.co/image/ab6761610000e5ebc36dd9eb55fb0db4911f25dd', true),
-  ('artist_5', 'artist', 'tim', 'Tim White', 'Independent artist exploring electronic and ambient sounds. Latest release: "Never Say A Word" (2024).', 'https://i.scdn.co/image/ab6761610000e5ebbab7ca6e76db7da72b58aa5c', true)
+insert into creator_profiles (user_id, creator_type, username, display_name, bio, avatar_url, spotify_url, spotify_id, is_public) values
+  ('test_user_1', 'artist', 'testartist1', 'Test Artist One', 'This is a test public artist profile.', null, null, null, true),
+  ('test_user_2', 'artist', 'testartist2', 'Test Artist Two', 'This is a test private artist profile.', null, null, null, false),
+  ('artist_1', 'artist', 'ladygaga', 'Lady Gaga', 'Grammy Award-winning artist known for hits like "Bad Romance" and "Shallow". Advocate for mental health awareness and LGBTQ+ rights.', 'https://i.scdn.co/image/ab6761610000e5ebc36dd9eb55fb0db4911f25dd', 'https://open.spotify.com/artist/1HY2Jd0NmPuamShAr6KMms', '1HY2Jd0NmPuamShAr6KMms', true),
+  ('artist_5', 'artist', 'tim', 'Tim White', 'Independent artist exploring electronic and ambient sounds. Latest release: "Never Say A Word" (2024).', 'https://i.scdn.co/image/ab6761610000e5ebbab7ca6e76db7da72b58aa5c', null, null, true)
 on conflict (username) do nothing;
 
 -- Also create one public profile not attached to any user (for testing anon access)
