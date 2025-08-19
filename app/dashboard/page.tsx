@@ -46,6 +46,13 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [checkingClaims, setCheckingClaims] = useState(true);
 
+  // Hard redirect to sign-in when unauthenticated
+  useEffect(() => {
+    if (isLoaded && !user) {
+      router.replace('/sign-in?redirect_url=/dashboard');
+    }
+  }, [isLoaded, user, router]);
+
   // Check for pending claims and redirect if needed
   useEffect(() => {
     if (!isLoaded) return;
@@ -161,7 +168,7 @@ export default function DashboardPage() {
   };
 
   // Show loading while checking claims or initial load
-  if (checkingClaims || loading || !isLoaded) {
+  if (checkingClaims || loading || !isLoaded || (!user && isLoaded)) {
     return (
       <div className="min-h-screen bg-white dark:bg-[#0D0E12] transition-colors">
         {/* Subtle grid background pattern */}
