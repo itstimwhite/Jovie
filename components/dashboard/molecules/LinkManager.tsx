@@ -37,6 +37,9 @@ interface LinkManagerProps {
   onLinksChange: (links: LinkItem[]) => void;
   disabled?: boolean;
   maxLinks?: number;
+  allowedCategory?: 'dsp' | 'social' | 'custom' | 'all';
+  title?: string;
+  description?: string;
 }
 
 export const LinkManager: React.FC<LinkManagerProps> = ({
@@ -44,6 +47,10 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
   onLinksChange,
   disabled = false,
   maxLinks = 20,
+  allowedCategory = 'all',
+  title: _title = 'Manage Links', // eslint-disable-line @typescript-eslint/no-unused-vars
+  description:
+    _description = 'Add and organize your links. Changes save automatically.', // eslint-disable-line @typescript-eslint/no-unused-vars
 }) => {
   const [links, setLinks] = useState<LinkItem[]>(
     initialLinks.sort((a, b) => a.order - b.order)
@@ -84,6 +91,18 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
         return;
       }
 
+      // Validate platform category
+      if (
+        allowedCategory !== 'all' &&
+        detectedLink.platform.category !== allowedCategory
+      ) {
+        // TODO: Show toast notification about invalid platform type
+        console.warn(
+          `Platform ${detectedLink.platform.name} (${detectedLink.platform.category}) not allowed in ${allowedCategory} link manager`
+        );
+        return;
+      }
+
       const newLink: LinkItem = {
         ...detectedLink,
         id: `link_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -94,7 +113,7 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
 
       updateLinks([...links, newLink]);
     },
-    [links, maxLinks, updateLinks]
+    [links, maxLinks, updateLinks, allowedCategory]
   );
 
   // Update existing link

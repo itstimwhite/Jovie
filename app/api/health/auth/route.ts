@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createServerSupabase } from '@/lib/supabase/server';
+import { createAuthenticatedServerClient } from '@/lib/supabase-server';
 import { auth } from '@clerk/nextjs/server';
 
 export const dynamic = 'force-dynamic';
@@ -25,7 +25,14 @@ export async function GET() {
       });
     }
 
-    const supabase = createServerSupabase();
+    const supabase = await createAuthenticatedServerClient();
+
+    if (!supabase) {
+      return NextResponse.json(
+        { ok: false, error: 'Database connection failed' },
+        { status: 500 }
+      );
+    }
 
     // Test that we can query the current user's profile using RLS
     const { data, error } = await supabase

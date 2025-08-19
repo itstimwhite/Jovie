@@ -1,7 +1,7 @@
 'use server';
 
 import { auth } from '@clerk/nextjs/server';
-import { createServerSupabase } from '@/lib/supabase/server';
+import { createServerClient } from '@/lib/supabase-server';
 import { CreatorProfile } from '@/types/db';
 
 export interface DashboardData {
@@ -23,7 +23,11 @@ export async function getDashboardData(): Promise<DashboardData> {
     };
   }
 
-  const supabase = createServerSupabase();
+  const supabase = createServerClient();
+
+  if (!supabase) {
+    throw new Error('Failed to create Supabase client');
+  }
 
   try {
     // Check if user exists in app_users table

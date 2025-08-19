@@ -25,12 +25,12 @@ export default async function ArtistsPage() {
     );
   }
 
-  // Fetch all published artists
-  const { data: artists, error } = await supabase
-    .from('artists')
-    .select('id, handle, name, image_url, tagline')
-    .eq('published', true)
-    .order('name');
+  // Fetch all public creator profiles
+  const { data: profiles, error } = await supabase
+    .from('creator_profiles')
+    .select('id, username, display_name, avatar_url, bio')
+    .eq('is_public', true)
+    .order('display_name');
 
   if (error) {
     return (
@@ -38,7 +38,7 @@ export default async function ArtistsPage() {
         <Container className="py-16">
           <div className="text-center">
             <h1 className="text-2xl font-semibold text-white">
-              Error loading artists
+              Error loading profiles
             </h1>
             <p className="mt-4 text-white/70">Please try again later.</p>
           </div>
@@ -60,19 +60,19 @@ export default async function ArtistsPage() {
           </p>
         </div>
 
-        {/* Artists Grid */}
-        {artists && artists.length > 0 ? (
+        {/* Creator Profiles Grid */}
+        {profiles && profiles.length > 0 ? (
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {artists.map((artist) => (
+            {profiles.map((profile) => (
               <Link
-                key={artist.id}
-                href={`/${artist.handle}`}
+                key={profile.id}
+                href={`/${profile.username}`}
                 className="group block text-center transition-all duration-300 hover:scale-105"
               >
                 <div className="mx-auto mb-4 h-24 w-24">
                   <OptimizedImage
-                    src={artist.image_url}
-                    alt={`${artist.name} - Music Artist`}
+                    src={profile.avatar_url}
+                    alt={`${profile.display_name} - Creator Profile`}
                     size="xl"
                     shape="circle"
                     className="mx-auto"
@@ -80,12 +80,12 @@ export default async function ArtistsPage() {
                 </div>
 
                 <h3 className="text-lg font-semibold text-white group-hover:text-blue-400 transition-colors">
-                  {artist.name}
+                  {profile.display_name}
                 </h3>
 
-                {artist.tagline && (
+                {profile.bio && (
                   <p className="mt-1 text-sm text-white/70 line-clamp-2">
-                    {artist.tagline}
+                    {profile.bio}
                   </p>
                 )}
 
@@ -99,10 +99,10 @@ export default async function ArtistsPage() {
         ) : (
           <div className="text-center">
             <h2 className="text-2xl font-semibold text-white">
-              No artists found
+              No profiles found
             </h2>
             <p className="mt-4 text-white/70">
-              Check back later for new artist profiles.
+              Check back later for new creator profiles.
             </p>
           </div>
         )}

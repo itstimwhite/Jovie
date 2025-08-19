@@ -32,7 +32,9 @@
     "prepare": "husky",
     "danger": "danger ci --fail-on-errors --verbose",
     "db:migrate": "node scripts/db-migrate.js",
-    "db:seed": "node scripts/db-seed.js"
+    "db:seed": "node scripts/db-seed.js",
+    "db:seed-enhanced": "node scripts/seed-enhanced-profiles.js",
+    "db:seed-tim": "node scripts/seed-tim-user.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.31.1",
@@ -69,6 +71,7 @@
     "zod": "^4.0.17"
   },
   "devDependencies": {
+    "@clerk/dev-cli": "^0.0.12",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@playwright/test": "^1.40.1",

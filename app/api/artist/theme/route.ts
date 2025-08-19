@@ -32,9 +32,9 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Update the artist's theme preference
+      // Update the creator profile's theme preference
       const { error } = await supabase
-        .from('artists')
+        .from('creator_profiles')
         .update({
           theme: { mode: theme },
         })
