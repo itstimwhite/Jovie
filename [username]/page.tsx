@@ -15,9 +15,7 @@ import { PAGE_SUBTITLES } from '@/constants/app';
 // Create an anonymous Supabase client for public data
 function createAnonSupabase() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
   return createClient(supabaseUrl, supabaseKey);
 }
@@ -184,5 +182,5 @@ export async function generateStaticParams() {
 // Enable ISR with 1 hour revalidation for public profiles
 export const revalidate = 3600;
 
-// Use edge runtime for faster cold starts and global distribution
-export const runtime = 'edge';
+// Temporarily disable edge runtime for debugging
+// export const runtime = 'edge';
