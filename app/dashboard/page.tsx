@@ -169,7 +169,7 @@ export default function DashboardPage() {
   };
 
   // Show loading while checking claims or initial load
-  if (checkingClaims || loading || !isLoaded || (!user && isLoaded)) {
+  if (checkingClaims || loading || !isLoaded) {
     return (
       <div className="min-h-screen bg-white dark:bg-[#0D0E12] transition-colors">
         {/* Subtle grid background pattern */}
