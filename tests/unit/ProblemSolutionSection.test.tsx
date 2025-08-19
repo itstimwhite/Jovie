@@ -55,8 +55,8 @@ describe('ProblemSolutionSection', () => {
     expect(ctaButton).toHaveClass('px-8', 'py-4', 'text-base');
   });
 
-  it('tracks analytics when CTA button is clicked', () => {
-    const { track } = require('@/lib/analytics');
+  it('tracks analytics when CTA button is clicked', async () => {
+    const { track } = await import('@/lib/analytics');
     render(<ProblemSolutionSection />);
 
     const ctaButton = screen.getByRole('link', { name: /Claim your handle/i });

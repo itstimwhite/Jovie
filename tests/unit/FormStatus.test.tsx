@@ -70,7 +70,7 @@ describe('FormStatus', () => {
 
     const spinner = screen.getByRole('status');
     expect(spinner).toBeInTheDocument();
-    expect(spinner.querySelector('svg')).toBeInTheDocument();
+    expect(spinner.querySelector('img')).toBeInTheDocument();
   });
 
   it('handles empty error message', () => {

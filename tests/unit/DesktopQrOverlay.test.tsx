@@ -36,6 +36,10 @@ describe('DesktopQrOverlay', () => {
   it('shows reopen icon after dismiss', async () => {
     render(<DesktopQrOverlay handle="tim" />);
     fireEvent.click(await screen.findByLabelText('Close'));
+
+    // Wait for the exit animation to complete (duration is 0.2s)
+    await new Promise((resolve) => setTimeout(resolve, 250));
+
     expect(screen.queryByAltText('Scan to view on mobile')).toBeNull();
     expect(screen.getByLabelText('View on mobile')).toBeInTheDocument();
   });

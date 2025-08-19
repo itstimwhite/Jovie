@@ -5,7 +5,6 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
 import '@/styles/globals.css';
-import { StatsigProviderWrapper } from '@/components/providers/StatsigProvider';
 
 // Bypass static rendering for now to fix build issues
 export const dynamic = 'force-dynamic';
@@ -141,11 +140,9 @@ export default async function RootLayout({
         />
       </head>
       <body className="font-sans">
-        <StatsigProviderWrapper>
-          <ClientProviders initialFeatureFlags={featureFlags}>
-            {children}
-          </ClientProviders>
-        </StatsigProviderWrapper>
+        <ClientProviders initialFeatureFlags={featureFlags}>
+          {children}
+        </ClientProviders>
         <SpeedInsights />
         {shouldInjectToolbar && <VercelToolbar />}
       </body>

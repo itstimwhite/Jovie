@@ -27,10 +27,14 @@ describe('ClaimHandleForm', () => {
     mockUseRouter.mockReturnValue({
       push: mockPush,
       prefetch: mockPrefetch,
-    } as any);
+      back: vi.fn(),
+      forward: vi.fn(),
+      refresh: vi.fn(),
+      replace: vi.fn(),
+    } as ReturnType<typeof useRouter>);
     mockUseAuth.mockReturnValue({
       isSignedIn: false,
-    } as any);
+    } as ReturnType<typeof useAuth>);
   });
 
   afterEach(() => {
@@ -41,7 +45,7 @@ describe('ClaimHandleForm', () => {
     render(<ClaimHandleForm />);
 
     // Check that helper text container exists with min-height
-    const helperContainer = document.querySelector('[aria-live="polite"]');
+    const helperContainer = document.querySelector('#handle-helper-text');
     expect(helperContainer).toBeInTheDocument();
     expect(helperContainer).toHaveClass('min-h-[1.125rem]');
 
@@ -65,10 +69,10 @@ describe('ClaimHandleForm', () => {
 
   test('tap-to-copy functionality with proper keyboard support', async () => {
     // Mock successful handle check
-    (global.fetch as any).mockResolvedValueOnce({
+    vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ available: true }),
-    });
+    } as Response);
 
     // Mock clipboard API
     Object.assign(navigator, {
@@ -116,10 +120,10 @@ describe('ClaimHandleForm', () => {
 
   test('validation messages update aria attributes correctly', async () => {
     // Mock handle taken response
-    (global.fetch as any).mockResolvedValueOnce({
+    vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ available: false }),
-    });
+    } as Response);
 
     render(<ClaimHandleForm />);
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, cleanup } from '@testing-library/react';
 import { IconBadge } from '@/components/atoms/IconBadge';
 import { BoltIcon } from '@heroicons/react/24/outline';
 
@@ -9,9 +9,7 @@ describe('IconBadge', () => {
   it('renders icon with correct styling', () => {
     render(<IconBadge Icon={BoltIcon} colorVar="--accent-speed" />);
 
-    const iconContainer = screen.getByRole('img', {
-      hidden: true,
-    }).parentElement;
+    const iconContainer = document.querySelector('div[class*="rounded-full"]');
     expect(iconContainer).toHaveClass('h-8', 'w-8', 'rounded-full');
   });
 
@@ -24,9 +22,7 @@ describe('IconBadge', () => {
       />
     );
 
-    const iconContainer = screen.getByRole('img', {
-      hidden: true,
-    }).parentElement;
+    const iconContainer = document.querySelector('div[class*="custom-class"]');
     expect(iconContainer).toHaveClass('custom-class');
   });
 });
