@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { LinkManager } from '../molecules/LinkManager';
+import { SocialLinkManager } from '../molecules/SocialLinkManager';
+import { DSPLinkManager } from '../molecules/DSPLinkManager';
 import { StaticArtistPage } from '@/components/profile/StaticArtistPage';
 import type { DetectedLink } from '@/lib/utils/platform-detection';
 import type { Artist, CreatorProfile, LegacySocialLink } from '@/types/db';
@@ -29,19 +30,23 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   disabled = false,
 }) => {
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
-  const [links, setLinks] = useState<LinkItem[]>([]);
+  const [socialLinks, setSocialLinks] = useState<LinkItem[]>([]);
+  const [dspLinks, setDSPLinks] = useState<LinkItem[]>([]); // eslint-disable-line @typescript-eslint/no-unused-vars
 
-  // Convert current social links to LinkItem format
-  const initialLinks = useMemo(() => {
-    // TODO: Convert existing social_links from database to LinkItem format
-    // This would need to be populated from the existing social links
-    return [];
+  // Convert current links to LinkItem format (split by category)
+  const { initialSocialLinks, initialDSPLinks } = useMemo(() => {
+    // TODO: Convert existing social_links and dsp_links from database to LinkItem format
+    // This would need to be populated from the existing links, separated by category
+    return {
+      initialSocialLinks: [],
+      initialDSPLinks: [],
+    };
   }, []);
 
-  // Convert LinkItems to LegacySocialLink format for preview
+  // Convert social LinkItems to LegacySocialLink format for preview
   const previewSocialLinks = useMemo((): LegacySocialLink[] => {
-    return links
-      .filter((link) => link.isVisible)
+    return socialLinks
+      .filter((link) => link.isVisible && link.platform.category === 'social')
       .map((link) => ({
         id: link.id,
         artist_id: artist.id,
@@ -51,11 +56,11 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
         created_at: new Date().toISOString(),
       }))
       .sort((a, b) => {
-        const aIndex = links.findIndex((l) => l.id === a.id);
-        const bIndex = links.findIndex((l) => l.id === b.id);
+        const aIndex = socialLinks.findIndex((l) => l.id === a.id);
+        const bIndex = socialLinks.findIndex((l) => l.id === b.id);
         return aIndex - bIndex;
       });
-  }, [links, artist.id]);
+  }, [socialLinks, artist.id]);
 
   // Create preview artist object
   const previewArtist = useMemo(
@@ -66,11 +71,16 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
     [artist]
   );
 
-  // Handle link changes
-  const handleLinksChange = (newLinks: LinkItem[]) => {
-    setLinks(newLinks);
-    // TODO: Auto-save to database here
-    // This should trigger an API call to save the links
+  // Handle social link changes
+  const handleSocialLinksChange = (newLinks: LinkItem[]) => {
+    setSocialLinks(newLinks);
+    // TODO: Auto-save social links to database here
+  };
+
+  // Handle DSP link changes
+  const handleDSPLinksChange = (newLinks: LinkItem[]) => {
+    setDSPLinks(newLinks);
+    // TODO: Auto-save DSP links to database here
   };
 
   return (
@@ -106,24 +116,35 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
         ${viewMode === 'edit' ? 'block' : 'hidden lg:block'}
       `}
       >
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Header */}
           <div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-              Manage Links
+              Manage Your Links
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Add and organize your social media and streaming links. Changes
-              save automatically.
+              Organize your social media and music streaming links. Changes save
+              automatically.
             </p>
           </div>
 
-          {/* Link Manager */}
-          <LinkManager
-            initialLinks={initialLinks}
-            onLinksChange={handleLinksChange}
+          {/* Social Links Manager */}
+          <SocialLinkManager
+            initialLinks={initialSocialLinks}
+            onLinksChange={handleSocialLinksChange}
             disabled={disabled}
-            maxLinks={20}
+            maxLinks={10}
+          />
+
+          {/* Separator */}
+          <div className="border-t border-gray-200 dark:border-gray-700" />
+
+          {/* DSP Links Manager */}
+          <DSPLinkManager
+            initialLinks={initialDSPLinks}
+            onLinksChange={handleDSPLinksChange}
+            disabled={disabled}
+            maxLinks={10}
           />
         </div>
       </div>

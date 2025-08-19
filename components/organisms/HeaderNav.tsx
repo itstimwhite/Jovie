@@ -16,9 +16,7 @@ export function HeaderNav() {
   const handleProductMouseEnter = () => {
     if (window.matchMedia('(min-width: 768px)').matches) {
       clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = setTimeout(() => {
-        setIsProductFlyoutOpen(true);
-      }, 200); // 200ms intent delay
+      setIsProductFlyoutOpen(true);
     }
   };
 

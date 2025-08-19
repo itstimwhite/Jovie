@@ -6,7 +6,7 @@
 export interface PlatformInfo {
   id: string;
   name: string;
-  category: 'music' | 'social' | 'custom';
+  category: 'dsp' | 'social' | 'custom'; // DSP = Digital Service Provider (music platforms)
   icon: string; // Simple Icons platform key
   color: string; // Brand color hex
   placeholder: string;
@@ -26,7 +26,7 @@ const PLATFORMS: Record<string, PlatformInfo> = {
   spotify: {
     id: 'spotify',
     name: 'Spotify',
-    category: 'music',
+    category: 'dsp',
     icon: 'spotify',
     color: '1DB954',
     placeholder: 'https://open.spotify.com/artist/...',
@@ -34,23 +34,15 @@ const PLATFORMS: Record<string, PlatformInfo> = {
   'apple-music': {
     id: 'apple-music',
     name: 'Apple Music',
-    category: 'music',
+    category: 'dsp',
     icon: 'applemusic',
     color: 'FA2D48',
     placeholder: 'https://music.apple.com/artist/...',
   },
-  youtube: {
-    id: 'youtube',
-    name: 'YouTube',
-    category: 'music',
-    icon: 'youtube',
-    color: 'FF0000',
-    placeholder: 'https://youtube.com/c/...',
-  },
   'youtube-music': {
     id: 'youtube-music',
     name: 'YouTube Music',
-    category: 'music',
+    category: 'dsp',
     icon: 'youtube',
     color: 'FF6D00',
     placeholder: 'https://music.youtube.com/channel/...',
@@ -90,7 +82,7 @@ const PLATFORMS: Record<string, PlatformInfo> = {
   soundcloud: {
     id: 'soundcloud',
     name: 'SoundCloud',
-    category: 'music',
+    category: 'dsp',
     icon: 'soundcloud',
     color: 'FF5500',
     placeholder: 'https://soundcloud.com/username',
@@ -98,10 +90,18 @@ const PLATFORMS: Record<string, PlatformInfo> = {
   bandcamp: {
     id: 'bandcamp',
     name: 'Bandcamp',
-    category: 'music',
+    category: 'dsp',
     icon: 'bandcamp',
     color: '629AA0',
     placeholder: 'https://username.bandcamp.com',
+  },
+  youtube: {
+    id: 'youtube',
+    name: 'YouTube',
+    category: 'social',
+    icon: 'youtube',
+    color: 'FF0000',
+    placeholder: 'https://youtube.com/@username',
   },
   twitch: {
     id: 'twitch',
@@ -119,6 +119,14 @@ const PLATFORMS: Record<string, PlatformInfo> = {
     color: '0A66C2',
     placeholder: 'https://linkedin.com/in/username',
   },
+  venmo: {
+    id: 'venmo',
+    name: 'Venmo',
+    category: 'social',
+    icon: 'venmo',
+    color: '3D95CE',
+    placeholder: 'https://venmo.com/username',
+  },
   website: {
     id: 'website',
     name: 'Website',
@@ -131,21 +139,22 @@ const PLATFORMS: Record<string, PlatformInfo> = {
 
 // Domain pattern matching for platform detection
 const DOMAIN_PATTERNS: Array<{ pattern: RegExp; platformId: string }> = [
-  // Music platforms
+  // DSP platforms (Digital Service Providers)
   { pattern: /(?:open\.)?spotify\.com/i, platformId: 'spotify' },
   { pattern: /music\.apple\.com/i, platformId: 'apple-music' },
-  { pattern: /(?:www\.)?youtube\.com|youtu\.be/i, platformId: 'youtube' },
   { pattern: /music\.youtube\.com/i, platformId: 'youtube-music' },
   { pattern: /soundcloud\.com/i, platformId: 'soundcloud' },
   { pattern: /bandcamp\.com/i, platformId: 'bandcamp' },
 
-  // Social platforms
+  // Social platforms (including YouTube for social/channels)
+  { pattern: /(?:www\.)?youtube\.com|youtu\.be/i, platformId: 'youtube' },
   { pattern: /(?:www\.)?instagram\.com/i, platformId: 'instagram' },
   { pattern: /(?:www\.)?tiktok\.com/i, platformId: 'tiktok' },
   { pattern: /(?:twitter\.com|x\.com)/i, platformId: 'twitter' },
   { pattern: /(?:www\.)?facebook\.com/i, platformId: 'facebook' },
   { pattern: /(?:www\.)?twitch\.tv/i, platformId: 'twitch' },
   { pattern: /(?:www\.)?linkedin\.com/i, platformId: 'linkedin' },
+  { pattern: /(?:www\.)?venmo\.com/i, platformId: 'venmo' },
 ];
 
 /**
@@ -314,7 +323,7 @@ function validateUrl(url: string, platform: PlatformInfo): boolean {
  */
 export function getPlatformsByCategory(): Record<string, PlatformInfo[]> {
   const categorized: Record<string, PlatformInfo[]> = {
-    music: [],
+    dsp: [],
     social: [],
     custom: [],
   };
@@ -324,6 +333,20 @@ export function getPlatformsByCategory(): Record<string, PlatformInfo[]> {
   });
 
   return categorized;
+}
+
+/**
+ * Check if a platform is a DSP (Digital Service Provider)
+ */
+export function isDSPPlatform(platform: PlatformInfo): boolean {
+  return platform.category === 'dsp';
+}
+
+/**
+ * Check if a platform is a social platform
+ */
+export function isSocialPlatform(platform: PlatformInfo): boolean {
+  return platform.category === 'social';
 }
 
 /**
