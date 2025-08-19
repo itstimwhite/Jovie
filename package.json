@@ -32,7 +32,8 @@
     "prepare": "husky",
     "danger": "danger ci --fail-on-errors --verbose",
     "db:migrate": "node scripts/db-migrate.js",
-    "db:seed": "node scripts/db-seed.js"
+    "db:seed": "node scripts/db-seed.js",
+    "db:seed-enhanced": "node scripts/seed-enhanced-profiles.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.31.1",
