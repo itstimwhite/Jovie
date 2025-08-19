@@ -3,3 +3,4 @@
 
 export * from './AuthActions';
 export * from './SocialLink';
+export * from './UserButton';
