@@ -15,7 +15,7 @@ interface DBCreatorProfile {
 function createAnonSupabase() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseKey =
-    process.env.NEXT_PUBLIC_SUPABASE_KEY || // New standard key
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || // New standard key
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!; // Fallback to deprecated key
 
   return createClient(supabaseUrl, supabaseKey);
