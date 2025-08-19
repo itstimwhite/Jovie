@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { ClientProviders } from '@/components/providers/ClientProviders';
 import { VercelToolbar } from '@vercel/toolbar/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
 import '@/styles/globals.css';
@@ -145,6 +146,7 @@ export default async function RootLayout({
             {children}
           </ClientProviders>
         </StatsigProviderWrapper>
+        <SpeedInsights />
         {shouldInjectToolbar && <VercelToolbar />}
       </body>
     </html>
