@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
+import { UserButton } from '@/components/molecules/UserButton';
 import { Spinner } from '@/components/ui';
 import {
   ProfileLinkCard,
@@ -220,9 +221,10 @@ export default function DashboardPage() {
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full blur-3xl" />
 
-          {/* Theme Toggle */}
-          <div className="absolute top-4 right-4 z-20">
+          {/* Top Bar - Theme Toggle and User Menu */}
+          <div className="absolute top-4 right-4 z-20 flex items-center gap-3">
             <ThemeToggle />
+            <UserButton />
           </div>
 
           <Container className="relative z-10">
@@ -255,9 +257,10 @@ export default function DashboardPage() {
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full blur-3xl" />
 
-          {/* Theme Toggle */}
-          <div className="absolute top-4 right-4 z-20">
+          {/* Top Bar - Theme Toggle and User Menu */}
+          <div className="absolute top-4 right-4 z-20 flex items-center gap-3">
             <ThemeToggle />
+            <UserButton />
           </div>
 
           <Container className="relative z-10">

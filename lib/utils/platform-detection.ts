@@ -355,3 +355,61 @@ export function isSocialPlatform(platform: PlatformInfo): boolean {
 export function getPlatform(id: string): PlatformInfo | undefined {
   return PLATFORMS[id];
 }
+
+/**
+ * Dynamically get the correct base URL for the current environment
+ * This ensures profile links work correctly in local, preview, and production environments
+ */
+export function getBaseUrl(): string {
+  // If we have NEXT_PUBLIC_APP_URL from env, use that first
+  if (typeof window !== 'undefined' && window.location) {
+    // Client-side: use current origin for local/preview environments
+    const { protocol, hostname, port } = window.location;
+
+    // For local development
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
+    }
+
+    // For preview environments (typically preview.jov.ie or similar)
+    if (hostname.includes('preview') || hostname.includes('vercel.app')) {
+      return `${protocol}//${hostname}`;
+    }
+  }
+
+  // Server-side or fallback: use environment variable or production URL
+  return process.env.NEXT_PUBLIC_APP_URL || 'https://jov.ie';
+}
+
+/**
+ * Check if we're in a development environment
+ */
+export function isDevelopment(): boolean {
+  return process.env.NODE_ENV === 'development';
+}
+
+/**
+ * Check if we're in a preview environment
+ */
+export function isPreview(): boolean {
+  if (typeof window !== 'undefined') {
+    return (
+      window.location.hostname.includes('preview') ||
+      window.location.hostname.includes('vercel.app')
+    );
+  }
+  return process.env.VERCEL_ENV === 'preview';
+}
+
+/**
+ * Check if we're in production
+ */
+export function isProduction(): boolean {
+  if (typeof window !== 'undefined') {
+    return window.location.hostname === 'jov.ie';
+  }
+  return (
+    process.env.NODE_ENV === 'production' &&
+    process.env.VERCEL_ENV === 'production'
+  );
+}

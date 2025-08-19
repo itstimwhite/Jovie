@@ -69,6 +69,7 @@
     "zod": "^4.0.17"
   },
   "devDependencies": {
+    "@clerk/dev-cli": "^0.0.12",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@playwright/test": "^1.40.1",

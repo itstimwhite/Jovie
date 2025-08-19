@@ -7,28 +7,12 @@ export function AuthActions() {
 
   if (isSignedIn) {
     return (
-      <div className="flex items-center space-x-4">
-        <Link
-          href="/dashboard"
-          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-        >
-          Dashboard
-        </Link>
-        <span className="text-gray-300 dark:text-gray-600">•</span>
-        <Link
-          href="/onboarding"
-          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-        >
-          Get started
-        </Link>
-        <span className="text-gray-300 dark:text-gray-600">•</span>
-        <Link
-          href="/sign-up"
-          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-        >
-          Sign Up
-        </Link>
-      </div>
+      <Link
+        href="/dashboard"
+        className="text-sm px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500 rounded-sm"
+      >
+        Dashboard
+      </Link>
     );
   }
 

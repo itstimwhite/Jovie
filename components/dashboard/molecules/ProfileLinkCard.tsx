@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Artist } from '@/types/db';
-import { APP_URL } from '@/constants/app';
+import { getBaseUrl } from '@/lib/utils/platform-detection';
 
 interface ProfileLinkCardProps {
   artist: Artist;
@@ -12,7 +12,7 @@ interface ProfileLinkCardProps {
 
 export function ProfileLinkCard({ artist }: ProfileLinkCardProps) {
   const [copied, setCopied] = useState(false);
-  const profileUrl = `${APP_URL}/${artist.handle}`;
+  const profileUrl = `${getBaseUrl()}/${artist.handle}`;
 
   const handleCopy = async () => {
     try {
