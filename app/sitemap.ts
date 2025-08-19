@@ -30,11 +30,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
   }
 
-  // Get all published artists
-  const { data: artists } = await supabase
-    .from('artists')
-    .select('handle, updated_at')
-    .eq('published', true);
+  // Get all public creator profiles
+  const { data: profiles } = await supabase
+    .from('creator_profiles')
+    .select('username, updated_at')
+    .eq('is_public', true);
 
   const baseUrl = APP_URL;
 
@@ -60,16 +60,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Artist profile pages with optimized priorities
-  const artistPages =
-    artists?.map((artist) => ({
-      url: `${baseUrl}/${artist.handle}`,
-      lastModified: artist.updated_at
-        ? new Date(artist.updated_at)
+  // Creator profile pages with optimized priorities
+  const profilePages =
+    profiles?.map((profile) => ({
+      url: `${baseUrl}/${profile.username}`,
+      lastModified: profile.updated_at
+        ? new Date(profile.updated_at)
         : new Date(),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     })) || [];
 
-  return [...staticPages, ...artistPages];
+  return [...staticPages, ...profilePages];
 }
