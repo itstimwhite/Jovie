@@ -12,7 +12,7 @@ INSERT INTO app_users (id, email) VALUES
   ('user_sabrinacarpenter', 'sabrinacarpenter@example.com'),
   ('user_thechainsmokers', 'thechainsmokers@example.com'),
   ('user_dualipa', 'dualipa@example.com'),
-  ('user_tim', 'tim@timwhite.co')
+  ('user_31WSX2aM04NNT8bFAQppljnGuGN', 't@timwhite.co')
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert enhanced creator profiles with full bio and social information
@@ -167,7 +167,7 @@ INSERT INTO creator_profiles (
     '{"hide_branding": false}'::jsonb
   ),
   (
-    'user_tim',
+    'user_31WSX2aM04NNT8bFAQppljnGuGN',
     'artist',
     'tim',
     'Tim White',
