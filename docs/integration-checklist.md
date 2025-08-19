@@ -34,7 +34,7 @@ This document outlines the comprehensive audit and repair of the Clerk ↔ Supab
 
 ### 5. **Public Artist Pages**
 
-- ✅ Created `app/[username]/page.tsx` for public artist profiles
+- ✅ Created `[username]/page.tsx` for public artist profiles
 - ✅ Updated to use `artist_profiles` table
 - ✅ Fixed Next.js 15 async params requirements
 - ✅ Anonymous access works via RLS policies
