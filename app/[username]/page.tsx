@@ -1,7 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
-import { Container } from '@/components/site/Container';
+import { AnimatedArtistPage } from '@/components/profile/AnimatedArtistPage';
+import { DesktopQrOverlay } from '@/components/profile/DesktopQrOverlay';
+import {
+  LegacySocialLink,
+  CreatorProfile,
+  convertCreatorProfileToArtist,
+} from '@/types/db';
+import { PAGE_SUBTITLES } from '@/constants/app';
 
 // Create an anonymous Supabase client for public data
 function createAnonSupabase() {
@@ -13,31 +19,35 @@ function createAnonSupabase() {
   return createClient(supabaseUrl, supabaseKey);
 }
 
-interface ArtistProfile {
-  id: string;
-  username: string;
-  display_name: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-  is_public: boolean;
-}
+// Using CreatorProfile type and convertCreatorProfileToArtist utility from types/db.ts
 
-async function getArtistProfile(
+async function getCreatorProfile(
   username: string
-): Promise<ArtistProfile | null> {
+): Promise<CreatorProfile | null> {
   const supabase = createAnonSupabase();
 
+  console.log(
+    '[getCreatorProfile] Looking for username:',
+    username.toLowerCase()
+  );
+
   const { data, error } = await supabase
-    .from('artist_profiles')
-    .select('id, username, display_name, bio, avatar_url, is_public')
+    .from('creator_profiles')
+    .select(
+      'id, user_id, creator_type, username, display_name, bio, avatar_url, spotify_url, apple_music_url, youtube_url, spotify_id, is_public, is_verified, settings, theme, created_at, updated_at'
+    )
     .eq('username', username.toLowerCase())
     .eq('is_public', true) // Only fetch public profiles
     .single();
 
+  console.log('[getCreatorProfile] Query result:', { data, error });
+
   if (error || !data) {
+    console.log('[getCreatorProfile] No data found or error occurred');
     return null;
   }
 
+  console.log('[getCreatorProfile] Found profile:', data);
   return data;
 }
 
@@ -45,76 +55,93 @@ interface Props {
   params: Promise<{
     username: string;
   }>;
+  searchParams: Promise<{
+    mode?: 'profile' | 'listen' | 'tip';
+  }>;
 }
 
-export default async function ArtistPage({ params }: Props) {
+export default async function ArtistPage({ params, searchParams }: Props) {
   const { username } = await params;
-  const profile = await getArtistProfile(username);
+  const { mode = 'profile' } = await searchParams;
+  const profile = await getCreatorProfile(username);
 
   if (!profile) {
     notFound();
   }
 
+  // Convert our profile data to the Artist type expected by components
+  const artist = convertCreatorProfileToArtist(profile);
+
+  // Mock social links for testing (in a real app, these would come from the database)
+  const socialLinks: LegacySocialLink[] =
+    profile.username === 'ladygaga'
+      ? [
+          {
+            id: 'venmo-link-1',
+            artist_id: artist.id,
+            platform: 'venmo',
+            url: 'https://venmo.com/u/ladygaga',
+            clicks: 0,
+            created_at: new Date().toISOString(),
+          },
+          {
+            id: 'spotify-link-1',
+            artist_id: artist.id,
+            platform: 'spotify',
+            url: 'https://open.spotify.com/artist/1HY2Jd0NmPuamShAr6KMms',
+            clicks: 0,
+            created_at: new Date().toISOString(),
+          },
+        ]
+      : profile.username === 'tim'
+        ? [
+            {
+              id: 'venmo-link-2',
+              artist_id: artist.id,
+              platform: 'venmo',
+              url: 'https://venmo.com/u/timwhite',
+              clicks: 0,
+              created_at: new Date().toISOString(),
+            },
+          ]
+        : [];
+
+  // Determine subtitle based on mode
+  const getSubtitle = (mode: string) => {
+    switch (mode) {
+      case 'listen':
+        return PAGE_SUBTITLES.listen;
+      case 'tip':
+        return PAGE_SUBTITLES.tip;
+      default:
+        return PAGE_SUBTITLES.profile;
+    }
+  };
+
+  // Show tip button when not in tip mode and artist has venmo
+  const hasVenmoLink = socialLinks.some((link) => link.platform === 'venmo');
+  const showTipButton = mode !== 'tip' && hasVenmoLink;
+  const showBackButton = mode !== 'profile';
+
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0D0E12] transition-colors">
-      <Container className="py-16">
-        <div className="max-w-2xl mx-auto">
-          {/* Artist Header */}
-          <div className="text-center mb-12">
-            {profile.avatar_url && (
-              <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden">
-                <Image
-                  src={profile.avatar_url}
-                  alt={profile.display_name || profile.username}
-                  width={128}
-                  height={128}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
-
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              {profile.display_name || profile.username}
-            </h1>
-
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              @{profile.username}
-            </p>
-          </div>
-
-          {/* Bio */}
-          {profile.bio && (
-            <div className="mb-12">
-              <div className="bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-xl p-8">
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                  {profile.bio}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Coming Soon Section */}
-          <div className="text-center">
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-800/50 rounded-xl p-8">
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-                More content coming soon
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                {profile.display_name || profile.username} is setting up their
-                profile. Check back soon for updates!
-              </p>
-            </div>
-          </div>
-        </div>
-      </Container>
-    </div>
+    <>
+      <AnimatedArtistPage
+        mode={mode}
+        artist={artist}
+        socialLinks={socialLinks}
+        subtitle={getSubtitle(mode)}
+        showTipButton={showTipButton}
+        showBackButton={showBackButton}
+      />
+      <DesktopQrOverlay handle={artist.handle} />
+    </>
   );
 }
 
 // Generate metadata for the page
 export async function generateMetadata({ params }: Props) {
   const { username } = await params;
-  const profile = await getArtistProfile(username);
+  const profile = await getCreatorProfile(username);
 
   if (!profile) {
     return {

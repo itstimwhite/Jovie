@@ -16,7 +16,11 @@ import {
 } from '@/components/dashboard';
 import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
 import { useAuthenticatedSupabase } from '@/lib/supabase';
-import { Artist } from '@/types/db';
+import {
+  Artist,
+  CreatorProfile,
+  convertCreatorProfileToArtist,
+} from '@/types/db';
 import { APP_NAME } from '@/constants/app';
 
 // Root layout handles dynamic rendering
@@ -33,6 +37,10 @@ export default function DashboardPage() {
   const { getAuthenticatedClient } = useAuthenticatedSupabase();
   const router = useRouter();
   const [artist, setArtist] = useState<Artist | null>(null);
+  const [creatorProfiles, setCreatorProfiles] = useState<CreatorProfile[]>([]);
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('profile');
   const [error, setError] = useState<string | null>(null);
@@ -68,11 +76,11 @@ export default function DashboardPage() {
         return;
       }
 
-      // First get the user's database ID
+      // Check if user exists in app_users table (using Clerk's user.id as the primary key)
       const { data: userData, error: userError } = await supabase
-        .from('users')
+        .from('app_users')
         .select('id')
-        .eq('clerk_id', user.id)
+        .eq('id', user.id)
         .maybeSingle();
 
       if (userError) {
@@ -94,28 +102,36 @@ export default function DashboardPage() {
         return;
       }
 
-      // Then get the artist data
-      const { data, error } = await supabase
-        .from('artists')
+      // Get all creator profiles for this user
+      const { data: creatorData, error } = await supabase
+        .from('creator_profiles')
         .select('*')
-        .eq('owner_user_id', userData.id)
-        .maybeSingle();
+        .eq('user_id', userData.id)
+        .order('created_at', { ascending: true }); // Oldest first as default
 
       if (error) {
-        console.error('Error fetching artist:', error);
-        setError('Failed to load artist data. Please refresh the page.');
+        console.error('Error fetching creator profiles:', error);
+        setError('Failed to load creator profiles. Please refresh the page.');
         setLoading(false);
         return;
       }
 
-      if (!data) {
-        // No artist yet → onboarding
+      if (!creatorData || creatorData.length === 0) {
+        // No creator profiles yet → onboarding
         router.push('/onboarding');
         return;
       }
 
-      // Supabase client returns untyped data; cast via unknown before Artist to satisfy TS
-      setArtist(data as unknown as Artist | null);
+      // Store all profiles
+      setCreatorProfiles(creatorData);
+
+      // Select the first profile by default (or restore previous selection)
+      const profileToSelect = creatorData[0];
+      setSelectedProfileId(profileToSelect.id);
+
+      // Convert selected CreatorProfile to Artist for backward compatibility
+      const artistData = convertCreatorProfileToArtist(profileToSelect);
+      setArtist(artistData);
     } catch (error) {
       console.error('Error:', error);
       setError('Failed to load dashboard data. Please refresh the page.');
@@ -132,6 +148,16 @@ export default function DashboardPage() {
 
   const handleArtistUpdated = (updatedArtist: Artist) => {
     setArtist(updatedArtist);
+  };
+
+  // Handle profile selection when user has multiple creator profiles
+  const handleProfileSelection = (profileId: string) => {
+    const selectedProfile = creatorProfiles.find((p) => p.id === profileId);
+    if (selectedProfile) {
+      setSelectedProfileId(profileId);
+      const artistData = convertCreatorProfileToArtist(selectedProfile);
+      setArtist(artistData);
+    }
   };
 
   // Show loading while checking claims or initial load
@@ -236,6 +262,83 @@ export default function DashboardPage() {
                   Manage your {APP_NAME} profile
                 </p>
               </div>
+
+              {/* Profile Selector - Show when user has multiple creator profiles */}
+              {creatorProfiles.length > 1 && (
+                <div className="mb-8">
+                  <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-xl p-4 shadow-xl transition-colors">
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                      Creator Profiles ({creatorProfiles.length})
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {creatorProfiles.map((profile) => (
+                        <button
+                          key={profile.id}
+                          onClick={() => handleProfileSelection(profile.id)}
+                          className={`text-left p-3 rounded-lg border transition-colors ${
+                            selectedProfileId === profile.id
+                              ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 dark:border-indigo-400'
+                              : 'border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 bg-white/50 dark:bg-white/5'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {profile.avatar_url ? (
+                              <img
+                                src={profile.avatar_url}
+                                alt={profile.display_name || profile.username}
+                                className="w-8 h-8 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                                <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                                  {(profile.display_name || profile.username)
+                                    .charAt(0)
+                                    .toUpperCase()}
+                                </span>
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                {profile.display_name || profile.username}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                                {profile.creator_type} • @{profile.username}
+                              </p>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Add New Profile Button */}
+                    <div className="mt-3 pt-3 border-t border-gray-200/50 dark:border-white/10">
+                      <button
+                        onClick={() => router.push('/onboarding')}
+                        className="w-full p-3 rounded-lg border border-dashed border-gray-300 dark:border-white/20 hover:border-gray-400 dark:hover:border-white/30 bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors text-center"
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <svg
+                            className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 4v16m8-8H4"
+                            />
+                          </svg>
+                          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                            Create New Profile
+                          </span>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="mb-8">
                 <ProfileLinkCard artist={artist} />

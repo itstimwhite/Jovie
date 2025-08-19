@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import PrimaryCTA from '@/components/ui/PrimaryCTA';
 import { Spinner } from '@/components/ui';
 
@@ -11,6 +12,7 @@ interface ListenNowProps {
 
 export function ListenNow({ handle, artistName }: ListenNowProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleClick = async () => {
     if (isLoading) return;
@@ -31,11 +33,12 @@ export function ListenNow({ handle, artistName }: ListenNowProps) {
         }),
       });
 
-      window.open(`/${handle}/listen`, '_blank', 'noopener,noreferrer');
+      // Navigate to listen mode on same page instead of new window
+      router.push(`/${handle}?mode=listen`);
     } catch (error) {
       console.error('Failed to track listen click:', error);
-      // Still open the link even if tracking fails
-      window.open(`/${handle}/listen`, '_blank', 'noopener,noreferrer');
+      // Still navigate even if tracking fails
+      router.push(`/${handle}?mode=listen`);
     } finally {
       setIsLoading(false);
     }

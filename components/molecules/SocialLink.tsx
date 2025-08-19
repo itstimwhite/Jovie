@@ -3,7 +3,7 @@
 import { SocialIcon, getPlatformIcon } from '@/components/atoms/SocialIcon';
 import { track } from '@/lib/analytics';
 import { getSocialDeepLinkConfig, openDeepLink } from '@/lib/deep-links';
-import type { SocialLink as SocialLinkType } from '@/types/db';
+import type { LegacySocialLink as SocialLinkType } from '@/types/db';
 import { useMemo, useState } from 'react';
 
 interface SocialLinkProps {

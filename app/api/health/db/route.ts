@@ -72,7 +72,7 @@ export async function GET() {
     const supabase = createClient(supabaseUrl, apiKey!);
 
     const { data, error: supabaseError } = await supabase
-      .from('artist_profiles')
+      .from('creator_profiles')
       .select('id')
       .limit(1);
 

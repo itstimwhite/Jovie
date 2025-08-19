@@ -28,7 +28,7 @@ export async function completeOnboarding({
 
     // Step 2: Check if username is available
     const { data: existing } = await supabase
-      .from('artist_profiles')
+      .from('creator_profiles')
       .select('id')
       .eq('username', username.toLowerCase())
       .limit(1)
@@ -38,9 +38,9 @@ export async function completeOnboarding({
       throw new Error('Username is already taken');
     }
 
-    // Step 3: Check if user already has an artist profile
+    // Step 3: Check if user already has a creator profile
     const { data: userProfile } = await supabase
-      .from('artist_profiles')
+      .from('creator_profiles')
       .select('id')
       .eq('user_id', userId)
       .limit(1)
@@ -51,9 +51,10 @@ export async function completeOnboarding({
       redirect('/dashboard');
     }
 
-    // Step 4: Insert artist profile
-    const { error } = await supabase.from('artist_profiles').insert({
+    // Step 4: Insert creator profile
+    const { error } = await supabase.from('creator_profiles').insert({
       user_id: userId,
+      creator_type: 'artist', // Default to artist for now
       username: username.toLowerCase(),
       display_name: displayName ?? username,
     });

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import PrimaryCTA from '@/components/ui/PrimaryCTA';
 
 type VenmoTipSelectorProps = {
@@ -31,11 +31,34 @@ export default function VenmoTipSelector({
     return url;
   }, [venmoLink, selectedAmount, venmoUsername]);
 
-  const handleContinue = () => {
+  const handleContinue = useCallback(() => {
     if (!continueUrl) return;
     onContinue?.(continueUrl);
     window.open(continueUrl, '_blank', 'noopener,noreferrer');
-  };
+  }, [continueUrl, onContinue]);
+
+  // Add keyboard controls
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault();
+          setSelectedIdx((prev) => Math.max(0, prev - 1));
+          break;
+        case 'ArrowRight':
+          event.preventDefault();
+          setSelectedIdx((prev) => Math.min(amounts.length - 1, prev + 1));
+          break;
+        case 'Enter':
+          event.preventDefault();
+          handleContinue();
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [amounts.length, handleContinue]);
 
   return (
     <div className={className ?? 'space-y-4'}>
@@ -49,7 +72,7 @@ export default function VenmoTipSelector({
               onClick={() => setSelectedIdx(idx)}
               aria-pressed={selected}
               className={[
-                'w-full aspect-square rounded-xl border text-lg font-semibold transition-colors flex items-center justify-center',
+                'w-full aspect-square rounded-xl border text-lg font-semibold transition-colors flex items-center justify-center cursor-pointer',
                 'bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100',
                 selected
                   ? 'border-purple-500 ring-2 ring-purple-200/60 dark:ring-purple-600/30'

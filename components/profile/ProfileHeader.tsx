@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { Artist } from '@/types/db';
@@ -39,7 +40,12 @@ export function ProfileHeader({ artist, subtitle }: ProfileHeaderProps) {
           itemProp="name"
         >
           <span className="flex items-center justify-center gap-2">
-            {artist.name}
+            <Link
+              href={`/${artist.handle}`}
+              className="hover:text-gray-700 dark:hover:text-gray-300 transition-colors cursor-pointer"
+            >
+              {artist.name}
+            </Link>
             {artist.is_verified && <VerifiedBadge size="sm" />}
           </span>
         </h1>
