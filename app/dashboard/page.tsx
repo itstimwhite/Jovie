@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { Spinner } from '@/components/ui';
@@ -290,9 +291,11 @@ export default function DashboardPage() {
                         >
                           <div className="flex items-center gap-3">
                             {profile.avatar_url ? (
-                              <img
+                              <Image
                                 src={profile.avatar_url}
                                 alt={profile.display_name || profile.username}
+                                width={32}
+                                height={32}
                                 className="w-8 h-8 rounded-full object-cover"
                               />
                             ) : (
