@@ -1,6 +1,7 @@
 'use client';
 
 import posthog from 'posthog-js';
+import { useEffect, useState } from 'react';
 import { ANALYTICS } from '@/constants/app';
 import { env as publicEnv } from '@/lib/env';
 
@@ -163,4 +164,136 @@ export function identify(userId: string, traits?: Record<string, unknown>) {
       });
     }
   }
+}
+
+// Feature flag constants for type safety
+export const FEATURE_FLAGS = {
+  CLAIM_HANDLE: 'feature_claim_handle',
+} as const;
+
+export type FeatureFlagName =
+  (typeof FEATURE_FLAGS)[keyof typeof FEATURE_FLAGS];
+
+// Lightweight feature flag helpers (client-only)
+// Use defaultValue for safe rendering before flags load
+export function isFeatureEnabled(flag: FeatureFlagName | string): boolean {
+  if (typeof window === 'undefined') return false;
+  if (!ANALYTICS.posthogKey) return false;
+  try {
+    return Boolean(posthog.isFeatureEnabled(flag));
+  } catch {
+    return false;
+  }
+}
+
+export function useFeatureFlag(
+  flag: FeatureFlagName | string,
+  defaultValue: boolean = false
+): boolean {
+  const [enabled, setEnabled] = useState<boolean>(defaultValue);
+
+  useEffect(() => {
+    if (!ANALYTICS.posthogKey) {
+      setEnabled(defaultValue);
+      return;
+    }
+
+    // Initial check (if PostHog already loaded)
+    try {
+      const initial = posthog.isFeatureEnabled(flag);
+      setEnabled(Boolean(initial));
+    } catch (error) {
+      console.warn(`PostHog feature flag check failed for "${flag}":`, error);
+      setEnabled(defaultValue);
+    }
+
+    // Subscribe to updates (PostHog refreshes feature flags asynchronously)
+    try {
+      posthog.onFeatureFlags(() => {
+        try {
+          const current = posthog.isFeatureEnabled(flag);
+          setEnabled(Boolean(current));
+        } catch (error) {
+          console.warn(
+            `PostHog feature flag update failed for "${flag}":`,
+            error
+          );
+        }
+      });
+    } catch (error) {
+      console.warn(
+        `PostHog feature flag subscription failed for "${flag}":`,
+        error
+      );
+    }
+  }, [flag, defaultValue]);
+
+  return enabled;
+}
+
+// Hook with loading state to prevent flash of content
+export function useFeatureFlagWithLoading(
+  flag: FeatureFlagName | string,
+  defaultValue: boolean = false
+): { enabled: boolean; loading: boolean } {
+  const [enabled, setEnabled] = useState<boolean>(defaultValue);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (!ANALYTICS.posthogKey) {
+      setEnabled(defaultValue);
+      setLoading(false);
+      return;
+    }
+
+    // Check if PostHog is ready
+    const checkPostHogReady = () => {
+      try {
+        if (posthog && typeof posthog.isFeatureEnabled === 'function') {
+          const initial = posthog.isFeatureEnabled(flag);
+          setEnabled(Boolean(initial));
+          setLoading(false);
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.warn(`PostHog feature flag check failed for "${flag}":`, error);
+        setEnabled(defaultValue);
+        setLoading(false);
+        return true;
+      }
+    };
+
+    // Try immediate check
+    if (checkPostHogReady()) {
+      // Subscribe to updates
+      try {
+        posthog.onFeatureFlags(() => {
+          try {
+            const current = posthog.isFeatureEnabled(flag);
+            setEnabled(Boolean(current));
+          } catch (error) {
+            console.warn(
+              `PostHog feature flag update failed for "${flag}":`,
+              error
+            );
+          }
+        });
+      } catch (error) {
+        console.warn(
+          `PostHog feature flag subscription failed for "${flag}":`,
+          error
+        );
+      }
+    } else {
+      // PostHog not ready, wait a bit and try again
+      const timeout = setTimeout(() => {
+        checkPostHogReady();
+      }, 100);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [flag, defaultValue]);
+
+  return { enabled, loading };
 }

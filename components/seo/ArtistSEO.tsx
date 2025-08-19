@@ -106,11 +106,11 @@ export function ArtistSEO({ artist, socialLinks }: ArtistSEOProps) {
       <meta property="og:type" content="profile" />
       <meta
         property="og:profile:first_name"
-        content={artist.name.split(' ')[0]}
+        content={artist.name?.split(' ')[0] || ''}
       />
       <meta
         property="og:profile:last_name"
-        content={artist.name.split(' ').slice(1).join(' ')}
+        content={artist.name?.split(' ').slice(1).join(' ') || ''}
       />
       <meta property="og:profile:username" content={artist.handle} />
 

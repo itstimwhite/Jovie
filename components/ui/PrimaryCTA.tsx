@@ -39,7 +39,7 @@ export default function PrimaryCTA({
   const a11yLabel = isLoading && loadingLabel ? loadingLabel : ariaLabel;
 
   const base =
-    'relative inline-flex items-center justify-center overflow-hidden group rounded-xl font-semibold tracking-tight shadow-lg transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2 dark:focus-visible:ring-white/40';
+    'relative inline-flex items-center justify-center overflow-hidden group rounded-xl font-semibold tracking-tight shadow-lg transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2 dark:focus-visible:ring-white/40 cursor-pointer';
   const color =
     'bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-50';
   const sizing =

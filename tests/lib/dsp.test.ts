@@ -83,7 +83,7 @@ describe('DSP Utils', () => {
       const releases = [
         {
           id: '1',
-          artist_id: '1',
+          creator_id: '1',
           dsp: 'spotify',
           title: 'Latest Song',
           url: 'https://open.spotify.com/track/track123',

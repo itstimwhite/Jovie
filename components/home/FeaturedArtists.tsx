@@ -1,29 +1,36 @@
-import { createServerClient } from '@/lib/supabase-server';
+import { createClient } from '@supabase/supabase-js';
 import FeaturedArtistsComponent, {
   type FeaturedArtist,
 } from '@/components/FeaturedArtists';
 
-interface DBArtist {
+interface DBCreatorProfile {
   id: string;
-  handle: string;
-  name: string;
-  image_url?: string | null;
+  username: string;
+  display_name: string | null;
+  avatar_url?: string | null;
+  creator_type: string;
+}
+
+// Create an anonymous Supabase client for public data
+function createAnonSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseKey =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || // New standard key
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!; // Fallback to deprecated key
+
+  return createClient(supabaseUrl, supabaseKey);
 }
 
 async function getFeaturedArtists(): Promise<FeaturedArtist[]> {
   try {
-    const supabase = await createServerClient();
-
-    if (!supabase) {
-      console.warn('Supabase server client not available');
-      return [];
-    }
+    const supabase = createAnonSupabase();
 
     const { data, error } = await supabase
-      .from('artists')
-      .select('id, handle, name, image_url')
-      .eq('published', true)
-      .order('name')
+      .from('creator_profiles')
+      .select('id, username, display_name, avatar_url, creator_type')
+      .eq('is_public', true)
+      .eq('creator_type', 'artist') // Only show artists for now
+      .order('display_name')
       .limit(12);
 
     if (error) {
@@ -31,14 +38,13 @@ async function getFeaturedArtists(): Promise<FeaturedArtist[]> {
       return [];
     }
 
-    return (data as DBArtist[])
-      .filter((a) => a.image_url)
-      .map((a) => ({
-        id: a.id,
-        handle: a.handle,
-        name: a.name,
-        src: a.image_url as string,
-      }));
+    return (data as DBCreatorProfile[]).map((a) => ({
+      id: a.id,
+      handle: a.username,
+      name: a.display_name || a.username,
+      // Provide fallback avatar or use the existing one
+      src: a.avatar_url || '/android-chrome-192x192.png', // Fallback to app icon
+    }));
   } catch (error) {
     console.error('Error fetching featured artists:', error);
     return [];

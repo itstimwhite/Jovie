@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase-server';
+import { createServerSupabase } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const supabase = await createServerClient();
+    const supabase = createServerSupabase();
 
     if (!supabase) {
       return NextResponse.json(
@@ -23,9 +23,9 @@ export async function GET(request: Request) {
     }
 
     const { data, error } = await supabase
-      .from('artists')
-      .select('handle')
-      .eq('handle', handle);
+      .from('creator_profiles')
+      .select('username')
+      .eq('username', handle);
 
     if (error) {
       console.error('Error checking handle availability:', error);

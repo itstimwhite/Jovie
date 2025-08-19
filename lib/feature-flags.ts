@@ -4,6 +4,7 @@ export interface FeatureFlags {
   debugBannerEnabled: boolean;
   tipPromoEnabled: boolean;
   pricingUseClerk: boolean;
+  universalNotificationsEnabled: boolean;
 }
 
 // Default feature flags (fallback)
@@ -13,6 +14,8 @@ const defaultFeatureFlags: FeatureFlags = {
   debugBannerEnabled: false,
   tipPromoEnabled: true,
   pricingUseClerk: false,
+  // Universal notifications only enabled in development for now
+  universalNotificationsEnabled: process.env.NODE_ENV === 'development',
 };
 
 // Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
@@ -26,12 +29,13 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
   try {
     const res = await fetch('/api/feature-flags', { cache: 'no-store' });
     if (res.ok) {
-      const data: any = await res.json();
+      const data: Record<string, unknown> = await res.json();
       // New app-internal shape: direct booleans
       if (
         typeof data?.artistSearchEnabled !== 'undefined' ||
         typeof data?.debugBannerEnabled !== 'undefined' ||
-        typeof data?.tipPromoEnabled !== 'undefined'
+        typeof data?.tipPromoEnabled !== 'undefined' ||
+        typeof data?.universalNotificationsEnabled !== 'undefined'
       ) {
         return {
           artistSearchEnabled: Boolean(
@@ -45,6 +49,10 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
           ),
           pricingUseClerk: Boolean(
             data.pricingUseClerk ?? defaultFeatureFlags.pricingUseClerk
+          ),
+          universalNotificationsEnabled: Boolean(
+            data.universalNotificationsEnabled ??
+              defaultFeatureFlags.universalNotificationsEnabled
           ),
         };
       }
@@ -80,6 +88,10 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
             data2.flags?.pricingUseClerk?.default ??
               defaultFeatureFlags.pricingUseClerk
           ),
+          universalNotificationsEnabled: Boolean(
+            data2.flags?.universalNotificationsEnabled?.default ??
+              defaultFeatureFlags.universalNotificationsEnabled
+          ),
         };
       }
     }
@@ -108,7 +120,7 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
     let url = `${proto}://${host}/api/feature-flags`;
     let res = await fetch(url, { cache: 'no-store' });
     if (res.ok) {
-      const data: any = await res.json();
+      const data: Record<string, unknown> = await res.json();
       if (
         typeof data?.artistSearchEnabled !== 'undefined' ||
         typeof data?.debugBannerEnabled !== 'undefined' ||
@@ -126,6 +138,10 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
           ),
           pricingUseClerk: Boolean(
             data.pricingUseClerk ?? defaultFeatureFlags.pricingUseClerk
+          ),
+          universalNotificationsEnabled: Boolean(
+            data.universalNotificationsEnabled ??
+              defaultFeatureFlags.universalNotificationsEnabled
           ),
         };
       }
@@ -156,6 +172,10 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
           pricingUseClerk: Boolean(
             data.flags?.pricingUseClerk?.default ??
               defaultFeatureFlags.pricingUseClerk
+          ),
+          universalNotificationsEnabled: Boolean(
+            data.flags?.universalNotificationsEnabled?.default ??
+              defaultFeatureFlags.universalNotificationsEnabled
           ),
         };
       }

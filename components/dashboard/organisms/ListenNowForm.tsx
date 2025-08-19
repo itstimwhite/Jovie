@@ -5,7 +5,7 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuthenticatedSupabase } from '@/lib/supabase';
-import { Artist } from '@/types/db';
+import { Artist, convertCreatorProfileToArtist } from '@/types/db';
 
 interface ListenNowFormProps {
   artist: Artist;
@@ -39,7 +39,7 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
       }
 
       const { data, error } = await supabase
-        .from('artists')
+        .from('creator_profiles')
         .update({
           spotify_url: formData.spotify_url || null,
           apple_music_url: formData.apple_music_url || null,
@@ -53,7 +53,9 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
         console.error('Error updating music links:', error);
         setError('Failed to update music links');
       } else {
-        onUpdate(data as unknown as Artist);
+        // Convert CreatorProfile back to Artist format for the callback
+        const updatedArtist = convertCreatorProfileToArtist(data);
+        onUpdate(updatedArtist);
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       }

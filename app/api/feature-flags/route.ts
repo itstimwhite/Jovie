@@ -11,6 +11,7 @@ export async function GET() {
     debugBannerEnabled: false,
     tipPromoEnabled: true,
     pricingUseClerk: false,
+    universalNotificationsEnabled: process.env.NODE_ENV === 'development',
   } as const;
 
   return new NextResponse(JSON.stringify(flags), {

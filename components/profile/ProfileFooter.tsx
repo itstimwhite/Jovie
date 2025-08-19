@@ -51,14 +51,26 @@ export function ProfileFooter({
           Claim your profile now
         </Link>
 
-        <div className="mt-3 pt-3 border-t border-black/5 dark:border-white/10">
-          <Link
-            href="/legal/privacy"
-            className="text-[11px] text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
-          >
-            Privacy
-          </Link>
+        <div className="mt-3 pt-3 border-t border-black/5 dark:border-white/10 w-full">
+          <div className="text-center md:hidden">
+            <Link
+              href="/legal/privacy"
+              className="text-[11px] text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
+            >
+              Privacy
+            </Link>
+          </div>
         </div>
+      </div>
+
+      {/* Privacy link positioned in bottom left corner on desktop */}
+      <div className="hidden md:block fixed bottom-4 left-4 z-10">
+        <Link
+          href="/legal/privacy"
+          className="text-[11px] text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors whitespace-nowrap"
+        >
+          Privacy
+        </Link>
       </div>
     </footer>
   );

@@ -4,18 +4,76 @@
 
 ### ⚠️ **NEVER PUSH TO PREVIEW OR MAIN**
 
-- **ONLY push to `develop` branch**
 - **NEVER push directly to `preview` or `main` branches**
-- The CI/CD pipeline handles all promotions automatically
-- If pipeline is stuck, fix issues on `develop` and let CI handle the rest
-- Direct pushes to protected branches will be rejected and can break the pipeline
+- **Work on feature branches opened from `preview`**
+  - Naming: `feat/<slug>`, `fix/<slug>`, `chore/<slug>` where `<slug>` is 3–6 words, kebab-case
+- **Open a PR against `preview`**
+  - PRs must be up-to-date with `preview` and pass all checks
+  - Auto-merge to `preview` after green CI is allowed
+- **Promotion to `main` is manual via PR** (no auto-merge to `main`)
 
 ### 🔒 **Branch Protection**
 
 - `preview` and `main` are protected branches
-- All changes must go through the CI/CD pipeline
-- Auto-promote workflows handle `develop → preview → main` progression
-- Manual intervention should only be done on `develop` branch
+- No direct pushes to protected branches
+- All changes flow via PR to `preview` with an up-to-date-with-`preview` requirement
+- After CI success, feature PRs may auto-merge into `preview`
+- Promotion from `preview` → `main` is performed manually via a PR per policy
+
+## Feature Development & Branching (Windsurf Rules)
+
+Follow this standardized flow whenever implementing a new feature, enhancement, or bugfix.
+
+- **Step 1: Branching**
+  - Create a branch from `preview`
+  - Name it using: `feat/<slug>`, `fix/<slug>`, or `chore/<slug>`
+  - `<slug>` is 3–6 words in kebab-case describing the scope
+
+- **Step 2: Scoping**
+  - Keep scope to one user-visible outcome
+  - If multiple outcomes are needed, split into separate branches/tasks
+  - Tie scope to a KPI where possible (e.g., "+capture-email")
+
+- **Step 3: Implementation**
+  - Wrap new functionality behind a feature flag
+    - Default OFF
+    - Name: `feature_<slug>` (lowercase snake_case)
+  - Instrument PostHog events for primary user actions
+    - Naming: `page_element_action` (e.g., `profile_button_click`)
+    - Ensure events fire in both light/dark mode flows
+  - Add tests
+    - Unit tests for logic
+    - E2E smoke test for the main happy path
+
+- **Step 4: Pull Request (target = `preview`)**
+  - Title: `[feat|fix|chore]: <slug>`
+  - Body must include:
+    1. Goal (1–2 sentences)
+    2. KPI target (if applicable)
+    3. Feature flag name
+    4. New PostHog events added
+    5. Rollback plan (usually "disable feature flag")
+  - PR must be up-to-date with `preview`
+
+- **Step 5: CI/CD Checks**
+  - Must pass: lint, typecheck, unit tests, E2E tests
+  - Preview deployment must build successfully
+  - Chromatic/Storybook check if any component was touched
+
+- **Step 6: Post-Deploy**
+  - After merge, deploy to prod with the feature flag still OFF
+  - Enable the flag for the internal segment only
+  - Verify Sentry + PostHog capture
+  - Roll out progressively when stable
+
+- **Step 7: Done Criteria**
+  - Code merged to `preview`
+  - Feature behind a flag, minimally tested, metrics firing
+  - PR closed with changelog line auto-generated from the title
+
+- **Step 8: Merge to Main**
+  - When validated in preview/prod, promote to `main` via a manual PR
+  - Always tag the release
 
 ## Clerk-Supabase Integration (Primary Method)
 

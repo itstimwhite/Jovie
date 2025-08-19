@@ -99,7 +99,7 @@ export function OnboardingForm() {
       setHandleValidation({ available: false, checking: true, error: null });
 
       try {
-        const supabase = await getAuthenticatedClient();
+        const supabase = getAuthenticatedClient();
 
         if (!supabase) {
           setHandleValidation({
@@ -111,9 +111,9 @@ export function OnboardingForm() {
         }
 
         const { data, error: validationError } = await supabase
-          .from('artists')
+          .from('creator_profiles')
           .select('id')
-          .eq('handle', handleValue.toLowerCase())
+          .eq('username', handleValue.toLowerCase())
           .single();
 
         if (validationError && validationError.code !== 'PGRST116') {
@@ -214,33 +214,19 @@ export function OnboardingForm() {
         let userId: string;
 
         try {
-          const { data: existingUser, error: userError } = await supabase
-            .from('users')
-            .select('id')
-            .eq('clerk_id', user.id)
-            .single();
+          // Create or verify app_users entry (using Clerk user.id as primary key)
+          const userEmail = user.emailAddresses[0]?.emailAddress;
+          if (!userEmail) throw new Error('Email address is required');
 
-          if (userError && userError.code !== 'PGRST116') {
-            // User doesn't exist, create them
-            const userEmail = user.emailAddresses[0]?.emailAddress;
-            if (!userEmail) throw new Error('Email address is required');
+          const { error: upsertError } = await supabase
+            .from('app_users')
+            .upsert({
+              id: user.id, // Use Clerk's user.id as primary key
+              email: userEmail,
+            });
 
-            const { data: newUser, error: createUserError } = await supabase
-              .from('users')
-              .insert({
-                clerk_id: user.id,
-                email: userEmail,
-              })
-              .select('id')
-              .single();
-
-            if (createUserError) throw createUserError;
-            userId = newUser.id as string;
-          } else if (userError) {
-            throw userError;
-          } else {
-            userId = existingUser.id as string;
-          }
+          if (upsertError) throw upsertError;
+          userId = user.id; // Use Clerk's user.id directly
         } catch (error) {
           throw new Error(
             `User creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -254,14 +240,15 @@ export function OnboardingForm() {
           progress: 60,
         }));
         try {
-          const { data: existingArtist, error: checkError } = await supabase
-            .from('artists')
+          const { data: existingProfile, error: checkError } = await supabase
+            .from('creator_profiles')
             .select('id')
-            .eq('handle', handle.toLowerCase())
+            .eq('username', handle.toLowerCase())
             .single();
 
           if (checkError && checkError.code !== 'PGRST116') throw checkError;
-          if (existingArtist) throw new Error('Handle is no longer available');
+          if (existingProfile)
+            throw new Error('Username is no longer available');
         } catch (error) {
           throw new Error(
             `Handle validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -275,20 +262,20 @@ export function OnboardingForm() {
           progress: 80,
         }));
         try {
-          const { error: artistError } = await supabase
-            .from('artists')
+          const { error: profileError } = await supabase
+            .from('creator_profiles')
             .insert({
-              owner_user_id: userId,
-              handle: handle.toLowerCase(),
-              name: selectedArtist?.artistName || 'Your Artist Name',
-              spotify_id: selectedArtist?.spotifyId || 'placeholder',
-              image_url: selectedArtist?.imageUrl || null,
-              published: true,
+              user_id: userId,
+              creator_type: 'artist',
+              username: handle.toLowerCase(),
+              display_name: selectedArtist?.artistName || 'Your Artist Name',
+              avatar_url: selectedArtist?.imageUrl || null,
+              is_public: true,
             })
             .select('*')
             .single();
 
-          if (artistError) throw artistError;
+          if (profileError) throw profileError;
 
           // Success!
           setState((prev) => ({ ...prev, step: 'complete', progress: 100 }));
@@ -297,10 +284,8 @@ export function OnboardingForm() {
           sessionStorage.removeItem('selectedArtist');
           sessionStorage.removeItem('pendingClaim');
 
-          // Redirect with a small delay to show completion
-          setTimeout(() => {
-            window.location.href = `/${encodeURIComponent(handle.toLowerCase())}`;
-          }, 500);
+          // Redirect immediately to the dashboard to reduce wait time
+          window.location.href = '/dashboard';
         } catch (error) {
           throw new Error(
             `Artist creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -341,7 +326,7 @@ export function OnboardingForm() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Progress indicator */}
       {state.step !== 'validating' && (
         <div className="space-y-2" id="form-status" aria-live="polite">
@@ -365,23 +350,23 @@ export function OnboardingForm() {
 
       {/* Selected artist info */}
       {selectedArtist && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
           <div className="flex items-center space-x-3">
             {selectedArtist.imageUrl && (
-              <div className="w-12 h-12 rounded-full overflow-hidden">
+              <div className="w-10 h-10 rounded-full overflow-hidden">
                 <Image
                   src={selectedArtist.imageUrl}
                   alt={selectedArtist.artistName}
-                  width={48}
-                  height={48}
+                  width={40}
+                  height={40}
                 />
               </div>
             )}
             <div>
-              <h3 className="font-medium text-blue-900 dark:text-blue-100">
+              <h3 className="font-medium text-blue-900 dark:text-blue-100 text-sm">
                 {selectedArtist.artistName}
               </h3>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
+              <p className="text-xs text-blue-700 dark:text-blue-300">
                 Spotify Artist Profile
               </p>
             </div>
@@ -389,30 +374,25 @@ export function OnboardingForm() {
         </div>
       )}
 
-      {/* Error display with consistent height to prevent layout jump */}
-      <div className="min-h-[4rem]" aria-live="polite">
-        {state.error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 transition-all duration-200">
-            <div className="flex items-center justify-between">
-              <p
-                className="text-red-800 dark:text-red-200 text-sm"
-                role="alert"
-              >
-                {state.error}
-              </p>
-              <Button
-                onClick={retryOperation}
-                variant="secondary"
-                size="sm"
-                disabled={state.retryCount >= 3}
-                aria-label="Retry onboarding process"
-              >
-                {state.retryCount >= 3 ? 'Max retries' : 'Retry'}
-              </Button>
-            </div>
+      {/* Error display */}
+      {state.error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 transition-all duration-200">
+          <div className="flex items-center justify-between">
+            <p className="text-red-800 dark:text-red-200 text-sm" role="alert">
+              {state.error}
+            </p>
+            <Button
+              onClick={retryOperation}
+              variant="secondary"
+              size="sm"
+              disabled={state.retryCount >= 3}
+              aria-label="Retry onboarding process"
+            >
+              {state.retryCount >= 3 ? 'Max retries' : 'Retry'}
+            </Button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">

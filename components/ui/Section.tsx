@@ -10,7 +10,7 @@ interface SectionProps {
   withGridBg?: boolean;
   withBorder?: boolean;
   as?: keyof JSX.IntrinsicElements;
-  [key: string]: any; // For additional props like id, aria-*, etc.
+  [key: string]: unknown; // For additional props like id, aria-*, etc.
 }
 
 const paddingVariants = {

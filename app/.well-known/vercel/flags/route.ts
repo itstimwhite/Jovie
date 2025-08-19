@@ -33,6 +33,12 @@ export async function GET() {
         default: true,
         description: 'Enable tip promotion features',
       },
+      feature_claim_handle: {
+        type: 'boolean',
+        default: false,
+        description:
+          'Gate the Claim Handle input on homepage; when false, show Sign Up button instead',
+      },
     },
     metadata: {
       app: 'jovie',
