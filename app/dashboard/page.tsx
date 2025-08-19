@@ -3,10 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
-import { Spinner } from '@/components/ui';
+import { Spinner, OptimizedImage } from '@/components/ui';
 import {
   ProfileLinkCard,
   OnboardingForm,
@@ -290,23 +289,12 @@ export default function DashboardPage() {
                           }`}
                         >
                           <div className="flex items-center gap-3">
-                            {profile.avatar_url ? (
-                              <Image
-                                src={profile.avatar_url}
-                                alt={profile.display_name || profile.username}
-                                width={32}
-                                height={32}
-                                className="w-8 h-8 rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                                <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
-                                  {(profile.display_name || profile.username)
-                                    .charAt(0)
-                                    .toUpperCase()}
-                                </span>
-                              </div>
-                            )}
+                            <OptimizedImage
+                              src={profile.avatar_url}
+                              alt={profile.display_name || profile.username}
+                              size="sm"
+                              shape="circle"
+                            />
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                                 {profile.display_name || profile.username}
