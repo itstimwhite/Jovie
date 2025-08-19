@@ -1,7 +1,7 @@
 'use server';
 
 import { auth, currentUser } from '@clerk/nextjs/server';
-import { createServerSupabase } from '@/lib/supabase/server';
+import { createAuthenticatedServerClient } from '@/lib/supabase-server';
 import { redirect } from 'next/navigation';
 
 export async function completeOnboarding({
@@ -14,7 +14,11 @@ export async function completeOnboarding({
   const { userId } = await auth();
   if (!userId) throw new Error('Not authenticated');
 
-  const supabase = createServerSupabase();
+  const supabase = await createAuthenticatedServerClient();
+
+  if (!supabase) {
+    throw new Error('Database connection failed');
+  }
 
   try {
     // Step 1: Upsert app_users
