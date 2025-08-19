@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase-server';
+import { createClient } from '@supabase/supabase-js';
 import FeaturedArtistsComponent, {
   type FeaturedArtist,
 } from '@/components/FeaturedArtists';
@@ -11,14 +11,19 @@ interface DBCreatorProfile {
   creator_type: string;
 }
 
+// Create an anonymous Supabase client for public data
+function createAnonSupabase() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseKey =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+  return createClient(supabaseUrl, supabaseKey);
+}
+
 async function getFeaturedArtists(): Promise<FeaturedArtist[]> {
   try {
-    const supabase = await createServerClient();
-
-    if (!supabase) {
-      console.warn('Supabase server client not available');
-      return [];
-    }
+    const supabase = createAnonSupabase();
 
     const { data, error } = await supabase
       .from('creator_profiles')
@@ -33,14 +38,13 @@ async function getFeaturedArtists(): Promise<FeaturedArtist[]> {
       return [];
     }
 
-    return (data as DBCreatorProfile[])
-      .filter((a) => a.avatar_url) // Only show artists with avatars
-      .map((a) => ({
-        id: a.id,
-        handle: a.username,
-        name: a.display_name || a.username,
-        src: a.avatar_url as string,
-      }));
+    return (data as DBCreatorProfile[]).map((a) => ({
+      id: a.id,
+      handle: a.username,
+      name: a.display_name || a.username,
+      // Provide fallback avatar or use the existing one
+      src: a.avatar_url || '/android-chrome-192x192.png', // Fallback to app icon
+    }));
   } catch (error) {
     console.error('Error fetching featured artists:', error);
     return [];
