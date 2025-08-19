@@ -26,21 +26,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: artist, error: artistError } = await supabase
-      .from('artists')
+    const { data: profile, error: profileError } = await supabase
+      .from('creator_profiles')
       .select('id')
-      .eq('handle', handle)
+      .eq('username', handle)
       .single();
 
-    if (artistError || !artist) {
-      return NextResponse.json({ error: 'Artist not found' }, { status: 404 });
+    if (profileError || !profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     const userAgent = request.headers.get('user-agent');
     const platformDetected = detectPlatformFromUA(userAgent || undefined);
 
     const { error: clickError } = await supabase.from('click_events').insert({
-      artist_id: artist.id,
+      artist_id: profile.id,
       link_type: linkType,
       target,
       ua: userAgent,
