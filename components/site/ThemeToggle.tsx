@@ -37,7 +37,7 @@ export function ThemeToggle() {
       // System theme - show a computer/auto icon
       return (
         <svg
-          className="h-4 w-4"
+          className="h-5 w-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -54,7 +54,7 @@ export function ThemeToggle() {
       // Light theme - show moon (to switch to dark)
       return (
         <svg
-          className="h-4 w-4"
+          className="h-5 w-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -71,7 +71,7 @@ export function ThemeToggle() {
       // Dark theme - show sun (to switch to light)
       return (
         <svg
-          className="h-4 w-4"
+          className="h-5 w-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

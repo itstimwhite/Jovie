@@ -9,7 +9,6 @@ const supabasePublicKey =
 
 // Create a single singleton instance for unauthenticated requests
 let supabaseClient: ReturnType<typeof createClient> | null = null;
-let authenticatedClient: ReturnType<typeof createClient> | null = null;
 
 export function createBrowserClient() {
   if (!supabaseUrl || !supabasePublicKey) {
@@ -38,41 +37,21 @@ export function useAuthenticatedSupabase() {
       return null;
     }
 
-    // Return the same authenticated client instance if session hasn't changed
-    if (authenticatedClient) {
-      return authenticatedClient;
-    }
-
-    // Inject Clerk JWT per request using a custom fetch so RLS is satisfied
-    const authFetch: typeof fetch = async (input, init) => {
-      let token: string | null | undefined;
-      try {
-        const t = await session?.getToken({ template: 'supabase' });
-        token = t ?? undefined;
-      } catch {
-        token = undefined;
-      }
-      const headers = new Headers(init?.headers || {});
-      if (token) headers.set('Authorization', `Bearer ${token}`);
-      return fetch(input, { ...init, headers });
-    };
-
-    authenticatedClient = createClient(supabaseUrl, supabasePublicKey, {
+    // Use native Supabase integration with accessToken in the global config
+    return createClient(supabaseUrl, supabasePublicKey, {
       auth: {
         persistSession: false, // Prevent multiple auth instances
       },
-      global: {
-        fetch: authFetch,
+      accessToken: async () => {
+        return session?.getToken() ?? null;
       },
     });
-
-    return authenticatedClient;
   };
 
   return { getAuthenticatedClient, supabase };
 }
 
-// Function to create authenticated client with session
+// Function to create authenticated client with session - uses native integration
 export function createClerkSupabaseClient(
   session: ReturnType<typeof useSession>['session']
 ) {
@@ -80,25 +59,12 @@ export function createClerkSupabaseClient(
     return null;
   }
 
-  const authFetch: typeof fetch = async (input, init) => {
-    let token: string | undefined;
-    try {
-      const t = await session?.getToken({ template: 'supabase' });
-      token = t ?? undefined;
-    } catch {
-      token = undefined;
-    }
-    const headers = new Headers(init?.headers || {});
-    if (token) headers.set('Authorization', `Bearer ${token}`);
-    return fetch(input, { ...init, headers });
-  };
-
   return createClient(supabaseUrl, supabasePublicKey, {
     auth: {
       persistSession: false, // Prevent multiple auth instances
     },
-    global: {
-      fetch: authFetch,
+    accessToken: async () => {
+      return session?.getToken() ?? null;
     },
   });
 }

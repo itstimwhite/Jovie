@@ -28,7 +28,7 @@ export function ArtistThemeToggle() {
       <span className="sr-only">Toggle theme</span>
       {resolvedTheme === 'light' ? (
         <svg
-          className="h-4 w-4 text-gray-700 dark:text-gray-300"
+          className="h-5 w-5 text-gray-700 dark:text-gray-300"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -42,7 +42,7 @@ export function ArtistThemeToggle() {
         </svg>
       ) : (
         <svg
-          className="h-4 w-4 text-gray-700 dark:text-gray-300"
+          className="h-5 w-5 text-gray-700 dark:text-gray-300"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

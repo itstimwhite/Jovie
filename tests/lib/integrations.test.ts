@@ -148,17 +148,12 @@ describe('Integration Health Diagnostics', () => {
       }
     });
 
-    it('should handle Clerk template for Supabase tokens', async () => {
+    it('should handle session token integration properly with native integration', async () => {
       const { createClerkSupabaseClient } = await import('@/lib/supabase');
 
-      // Mock session with template-specific token method
+      // Mock session with native getToken method (no template)
       const mockSession = {
-        getToken: vi.fn().mockImplementation(({ template }) => {
-          if (template === 'supabase') {
-            return Promise.resolve('supabase-compatible-token');
-          }
-          return Promise.resolve('default-token');
-        }),
+        getToken: vi.fn().mockResolvedValue('native-clerk-token'),
       } as unknown as ClerkSessionForSupabase;
 
       const client = createClerkSupabaseClient(mockSession);

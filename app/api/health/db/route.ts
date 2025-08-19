@@ -54,47 +54,39 @@ export async function GET() {
     });
   }
 
-  // For local development, convert 127.0.0.1 to localhost for Node.js fetch compatibility
-  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL!.replace(
-    '127.0.0.1',
-    'localhost'
-  );
+  // Use URL as configured - no need for conversion since it's already localhost
+  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL!;
 
-  // Use a minimal SELECT with a tight range to obtain a reliable count and clearer error details.
-  // Avoid head:true because HEAD responses can mask error bodies leading to empty error messages.
+  // Use Supabase client instead of direct fetch to avoid Node.js fetch issues
   let count = null;
   let error = null;
 
   try {
-    // Test direct fetch first to isolate the issue
-    const directResponse = await fetch(
-      `${supabaseUrl}/rest/v1/artists?select=id&limit=1`,
-      {
-        headers: {
-          apikey: env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const { createClient } = await import('@supabase/supabase-js');
 
-    if (!directResponse.ok) {
-      throw new Error(
-        `HTTP ${directResponse.status}: ${directResponse.statusText}`
-      );
-    }
+    // Use the correct key based on what's available
+    const apiKey =
+      env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+      env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    const directData = await directResponse.json();
-    count = directData.length;
-  } catch (fetchError) {
+    const supabase = createClient(supabaseUrl, apiKey!);
+
+    const { data, error: supabaseError } = await supabase
+      .from('artist_profiles')
+      .select('id')
+      .limit(1);
+
+    if (supabaseError) throw supabaseError;
+
+    count = data?.length || 0;
+  } catch (fetchError: unknown) {
+    const err =
+      fetchError instanceof Error ? fetchError : new Error('Unknown error');
     error = {
-      message:
-        fetchError instanceof Error
-          ? fetchError.message
-          : 'Unknown fetch error',
-      code: '',
-      details: fetchError instanceof Error ? fetchError.stack : null,
-      hint: 'Direct fetch failed - possible network issue',
+      message: err.message,
+      code: (err as Error & { code?: string })?.code || '',
+      details: (err as Error & { details?: string })?.details || null,
+      hint: (err as Error & { hint?: string })?.hint || 'Database query failed',
     };
   }
 
