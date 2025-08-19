@@ -2,8 +2,15 @@ import { OnboardingForm } from '@/components/dashboard';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { APP_NAME } from '@/constants/app';
+import { auth } from '@clerk/nextjs/server';
+import { redirect } from 'next/navigation';
 
 export default async function OnboardingPage() {
+  const { userId } = await auth();
+  if (!userId) {
+    // Require auth for onboarding; preserve destination
+    redirect('/sign-in?redirect_url=/onboarding');
+  }
   // Read prefilled handle from query or cookie/session fallback later in the form
   // We cannot access searchParams directly here without defining them in the component signature,
   // so the client form will read from URL and sessionStorage.
