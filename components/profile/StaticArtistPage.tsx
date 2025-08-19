@@ -35,7 +35,8 @@ function renderContent(
         if (!url) return null;
         try {
           const u = new URL(url);
-          if (u.hostname.includes('venmo.com')) {
+          const allowedVenmoHosts = ['venmo.com', 'www.venmo.com'];
+          if (allowedVenmoHosts.includes(u.hostname)) {
             const parts = u.pathname.split('/').filter(Boolean);
             if (parts[0] === 'u' && parts[1]) return parts[1];
             if (parts[0]) return parts[0];
