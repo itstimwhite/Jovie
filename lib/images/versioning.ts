@@ -2,13 +2,12 @@
  * Image versioning utilities for cache busting and optimization
  */
 
-import { createHash } from 'crypto';
-
 // Cache for generated hashes to avoid recomputation
 const hashCache = new Map<string, string>();
 
 /**
  * Generate a stable hash for cache busting from image URL
+ * Uses a simple hash algorithm compatible with edge runtime
  */
 export function generateImageHash(url: string, timestamp?: number): string {
   const cacheKey = `${url}_${timestamp || ''}`;
@@ -17,13 +16,18 @@ export function generateImageHash(url: string, timestamp?: number): string {
     return hashCache.get(cacheKey)!;
   }
 
-  const hash = createHash('md5')
-    .update(url + (timestamp || Date.now().toString()))
-    .digest('hex')
-    .substring(0, 8);
+  // Simple hash function that works in edge runtime
+  const input = url + (timestamp || Date.now().toString());
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    const char = input.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
 
-  hashCache.set(cacheKey, hash);
-  return hash;
+  const hashString = Math.abs(hash).toString(16).substring(0, 8);
+  hashCache.set(cacheKey, hashString);
+  return hashString;
 }
 
 /**

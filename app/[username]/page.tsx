@@ -168,8 +168,8 @@ export async function generateMetadata({ params }: Props) {
 
   if (!profile) {
     return {
-      title: 'Artist Not Found',
-      description: 'The requested artist profile could not be found.',
+      title: 'Profile Not Found',
+      description: 'The requested profile could not be found.',
     };
   }
 
@@ -225,16 +225,8 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-// Generate static params for popular/known profiles
-export async function generateStaticParams() {
-  // Pre-generate pages for known popular profiles
-  // This can be expanded to query the database for most popular profiles
-  const popularProfiles = ['ladygaga', 'tim', 'testartist1', 'publicartist'];
-
-  return popularProfiles.map((username) => ({
-    username,
-  }));
-}
+// Note: generateStaticParams removed to allow edge runtime
+// Edge runtime provides better performance for dynamic profile pages
 
 // Enable ISR with 30 minute revalidation for fresher content
 export const revalidate = 1800;

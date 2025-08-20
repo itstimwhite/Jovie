@@ -11,10 +11,10 @@ export default function NotFound() {
               404
             </div>
             <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-              Artist not found
+              Profile not found
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              The artist profile you&apos;re looking for doesn&apos;t exist or
+              The profile you&apos;re looking for doesn&apos;t exist or
               isn&apos;t public.
             </p>
           </div>

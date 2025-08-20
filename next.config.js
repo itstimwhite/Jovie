@@ -141,6 +141,15 @@ const nextConfig = {
         },
       };
     }
+    
+    // Exclude Storybook files from production builds
+    if (!dev) {
+      config.module.rules.push({
+        test: /\.stories\.(js|jsx|ts|tsx|mdx)$/,
+        use: 'ignore-loader',
+      });
+    }
+    
     return config;
   },
 };
