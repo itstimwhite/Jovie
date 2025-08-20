@@ -9,9 +9,6 @@ import { env } from '@/lib/env';
 
 // Initialize Stripe client with proper configuration
 export const stripe = new Stripe(env.STRIPE_SECRET_KEY!, {
-  // Use supported API version for this SDK
-  apiVersion: '2025-07-30.basil',
-
   // Add app info for better Stripe support
   appInfo: {
     name: 'Jovie',
