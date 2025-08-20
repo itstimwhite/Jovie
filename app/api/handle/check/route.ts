@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase-server';
+import { createAnonymousServerClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
@@ -13,8 +13,8 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Use server client; tests expect this helper and exact equality check
-    const supabase = createServerClient();
+    // Use anonymous client since handle checking doesn't require authentication
+    const supabase = createAnonymousServerClient();
 
     if (!supabase) {
       return NextResponse.json(

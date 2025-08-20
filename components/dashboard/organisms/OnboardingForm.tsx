@@ -203,15 +203,14 @@ export function OnboardingForm() {
           displayName: selectedArtist?.artistName || handle,
         });
 
-        // Success!
+        // Success! Server action will handle redirect
         setState((prev) => ({ ...prev, step: 'complete', progress: 100 }));
 
         // Clear session data
         sessionStorage.removeItem('selectedArtist');
         sessionStorage.removeItem('pendingClaim');
 
-        // Redirect immediately to the dashboard to reduce wait time
-        window.location.href = '/dashboard';
+        // Server action redirects to dashboard - no client redirect needed
       } catch (error) {
         console.error('Onboarding error:', error);
         setState((prev) => ({
@@ -375,7 +374,14 @@ export function OnboardingForm() {
           className="w-full"
           aria-describedby="form-status"
         >
-          {state.step === 'validating' ? 'Create Profile' : getProgressText()}
+          {state.step === 'validating' ? (
+            'Create Profile'
+          ) : (
+            <div className="flex items-center justify-center space-x-2">
+              <Spinner size="sm" />
+              <span>{getProgressText()}</span>
+            </div>
+          )}
         </Button>
       </form>
     </div>

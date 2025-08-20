@@ -32,17 +32,38 @@ export function generateImageHash(url: string, timestamp?: number): string {
 
 /**
  * Add versioning to image URLs for cache busting
+ * Skips versioning for external CDNs that don't support query parameters
  */
 export function versionImageUrl(url: string, version?: string): string {
   if (!url) return url;
 
+  // Skip versioning for external CDNs that don't support query parameters
+  const skipVersioningDomains = [
+    'i.scdn.co', // Spotify
+    'images.unsplash.com', // Unsplash
+    'api.qrserver.com', // QR Code API
+  ];
+
   try {
     const urlObj = new URL(url);
+
+    // Check if domain should skip versioning
+    if (
+      skipVersioningDomains.some((domain) => urlObj.hostname.includes(domain))
+    ) {
+      return url;
+    }
+
     const versionParam = version || generateImageHash(url);
     urlObj.searchParams.set('v', versionParam);
     return urlObj.toString();
   } catch {
     // If URL parsing fails, append as query param manually
+    // But only if it's not a skip domain
+    if (skipVersioningDomains.some((domain) => url.includes(domain))) {
+      return url;
+    }
+
     const separator = url.includes('?') ? '&' : '?';
     const versionParam = version || generateImageHash(url);
     return `${url}${separator}v=${versionParam}`;
