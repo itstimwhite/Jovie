@@ -213,6 +213,14 @@ export function OnboardingForm() {
         // Server action redirects to dashboard - no client redirect needed
       } catch (error) {
         console.error('Onboarding error:', error);
+
+        // Check if this is a Next.js redirect (which is expected)
+        if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+          // This is expected behavior - the redirect is working
+          setState((prev) => ({ ...prev, step: 'complete', progress: 100 }));
+          return;
+        }
+
         setState((prev) => ({
           ...prev,
           error:
