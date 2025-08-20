@@ -30,13 +30,14 @@ export function ProgressiveArtistPage(props: ProgressiveArtistPageProps) {
   const [shouldUseAnimated, setShouldUseAnimated] = useState(false);
 
   useEffect(() => {
-    // Only load animations after hydration and a small delay for better UX
-    const timer = setTimeout(() => {
-      setShouldUseAnimated(true);
-    }, 100);
+    // For listen mode, stay with static version for better performance
+    if (props.mode === 'listen') {
+      return; // Don't upgrade to animated for listen mode
+    }
 
-    return () => clearTimeout(timer);
-  }, []);
+    // Only load animations after hydration with no delay for other modes
+    setShouldUseAnimated(true);
+  }, [props.mode]);
 
   // Start with static version for immediate rendering
   if (!shouldUseAnimated) {

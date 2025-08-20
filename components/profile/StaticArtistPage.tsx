@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
 import { ListenNow } from '@/components/profile/ListenNow';
-import { AnimatedListenInterface } from '@/components/profile/AnimatedListenInterface';
+import { StaticListenInterface } from '@/components/profile/StaticListenInterface';
 import VenmoTipSelector from '@/components/profile/VenmoTipSelector';
 import { Artist, LegacySocialLink } from '@/types/db';
 
@@ -23,7 +23,7 @@ function renderContent(
     case 'listen':
       return (
         <div className="flex justify-center">
-          <AnimatedListenInterface artist={artist} handle={artist.handle} />
+          <StaticListenInterface artist={artist} handle={artist.handle} />
         </div>
       );
 
