@@ -5,12 +5,15 @@ import { useUser, useClerk } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/react';
+import { useBillingStatus } from '@/hooks/use-billing-status';
 
 export function UserButton() {
   const { isLoaded, user } = useUser();
   const { signOut, openUserProfile } = useClerk();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isBillingLoading, setIsBillingLoading] = useState(false);
+  const billingStatus = useBillingStatus();
 
   if (!isLoaded || !user) {
     return null;
@@ -28,6 +31,40 @@ export function UserButton() {
 
   const handleProfile = () => {
     openUserProfile();
+  };
+
+  const handleBilling = async () => {
+    if (isBillingLoading) return;
+
+    setIsBillingLoading(true);
+
+    try {
+      if (billingStatus.isPro && billingStatus.hasStripeCustomer) {
+        // User has a subscription - open billing portal
+        const response = await fetch('/api/stripe/portal', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create billing portal session');
+        }
+
+        const { url } = await response.json();
+        window.location.href = url;
+      } else {
+        // User doesn't have a subscription - go to pricing page
+        router.push('/pricing');
+      }
+    } catch (error) {
+      console.error('Error opening billing portal:', error);
+      // Fallback to pricing page
+      router.push('/pricing');
+    } finally {
+      setIsBillingLoading(false);
+    }
   };
 
   const userImageUrl = user.imageUrl;
@@ -160,27 +197,56 @@ export function UserButton() {
           <MenuItem>
             {({ focus }) => (
               <button
-                onClick={() => router.push('/pricing')}
-                className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
+                onClick={handleBilling}
+                disabled={isBillingLoading || billingStatus.loading}
+                className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                   focus
                     ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
                     : 'text-gray-700 dark:text-gray-300'
                 }`}
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-                Billing
+                {isBillingLoading ? (
+                  <svg
+                    className="w-4 h-4 animate-spin"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                )}
+                {isBillingLoading
+                  ? 'Loading...'
+                  : billingStatus.loading
+                    ? 'Billing'
+                    : billingStatus.isPro
+                      ? 'Manage Billing'
+                      : 'Upgrade to Pro'}
               </button>
             )}
           </MenuItem>

@@ -3,20 +3,16 @@
  * Ensures consistency between availability check and actual profile creation
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { GET } from '@/app/api/handle/check/route';
 
 // Mock the supabase client
-vi.mock('@/lib/supabase/server', () => ({
-  createServerSupabase: vi.fn(),
+vi.mock('@/lib/supabase-server', () => ({
+  createServerClient: vi.fn(),
 }));
 
 describe('Handle Check API', () => {
-  const mockCreateServerSupabase = vi.mocked(
-    () => import('@/lib/supabase/server').then(m => m.createServerSupabase)
-  );
-
   it('should use creator_profiles table and username field', async () => {
     // Mock supabase client
     const mockEq = vi.fn().mockResolvedValue({
@@ -28,8 +24,10 @@ describe('Handle Check API', () => {
     const mockSupabase = { from: mockFrom };
 
     // Mock the server supabase function
-    const { createServerSupabase } = await import('@/lib/supabase/server');
-    vi.mocked(createServerSupabase).mockReturnValue(mockSupabase as any);
+    const { createServerClient } = await import('@/lib/supabase-server');
+    vi.mocked(createServerClient).mockReturnValue(
+      mockSupabase as unknown as ReturnType<typeof createServerClient>
+    );
 
     const request = new NextRequest(
       'http://localhost:3000/api/handle/check?handle=testhandle'
@@ -56,8 +54,10 @@ describe('Handle Check API', () => {
     const mockFrom = vi.fn().mockReturnValue({ select: mockSelect });
     const mockSupabase = { from: mockFrom };
 
-    const { createServerSupabase } = await import('@/lib/supabase/server');
-    vi.mocked(createServerSupabase).mockReturnValue(mockSupabase as any);
+    const { createServerClient } = await import('@/lib/supabase-server');
+    vi.mocked(createServerClient).mockReturnValue(
+      mockSupabase as unknown as ReturnType<typeof createServerClient>
+    );
 
     const request = new NextRequest(
       'http://localhost:3000/api/handle/check?handle=existinghandle'
@@ -72,9 +72,7 @@ describe('Handle Check API', () => {
   });
 
   it('should require handle parameter', async () => {
-    const request = new NextRequest(
-      'http://localhost:3000/api/handle/check'
-    );
+    const request = new NextRequest('http://localhost:3000/api/handle/check');
 
     // Act
     const response = await GET(request);
