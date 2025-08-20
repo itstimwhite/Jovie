@@ -4,3 +4,5 @@
 export * from './AuthActions';
 export * from './SocialLink';
 export * from './UserButton';
+export * from './ArtistCard';
+export * from './CookieActions';

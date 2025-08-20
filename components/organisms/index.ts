@@ -3,3 +3,6 @@
 
 export * from './HeaderNav';
 export * from './SocialBar';
+export * from './FeaturedArtistsSection';
+export * from './CookieBannerSection';
+export * from './CTASection';
