@@ -1,4 +1,4 @@
-import { createServerClient } from '@/lib/supabase-server';
+import { createAuthenticatedServerClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const supabase = createServerClient();
+    const supabase = await createAuthenticatedServerClient();
 
     if (!supabase) {
       return NextResponse.json(
