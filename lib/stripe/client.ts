@@ -8,23 +8,26 @@ import Stripe from 'stripe';
 import { env } from '@/lib/env';
 
 // Initialize Stripe client with proper configuration
-export const stripe = new Stripe(env.STRIPE_SECRET_KEY!, {
-  // Add app info for better Stripe support
-  appInfo: {
-    name: 'Jovie',
-    version: '1.0.0',
-    url: 'https://jov.ie',
-  },
+export const stripe = new Stripe(
+  env.STRIPE_SECRET_KEY || 'sk_test_placeholder',
+  {
+    // Add app info for better Stripe support
+    appInfo: {
+      name: 'Jovie',
+      version: '1.0.0',
+      url: 'https://jov.ie',
+    },
 
-  // TypeScript configuration
-  typescript: true,
+    // TypeScript configuration
+    typescript: true,
 
-  // Timeout configuration
-  timeout: 10000, // 10 seconds
+    // Timeout configuration
+    timeout: 10000, // 10 seconds
 
-  // Retry configuration
-  maxNetworkRetries: 3,
-});
+    // Retry configuration
+    maxNetworkRetries: 3,
+  }
+);
 
 /**
  * Get or create a Stripe customer for a user
