@@ -34,7 +34,9 @@
     "db:migrate": "node scripts/db-migrate.js",
     "db:seed": "node scripts/db-seed.js",
     "db:seed-enhanced": "node scripts/seed-enhanced-profiles.js",
-    "db:seed-tim": "node scripts/seed-tim-user.js"
+    "db:seed-tim": "node scripts/seed-tim-user.js",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.31.1",
@@ -85,6 +87,13 @@
     "@typescript-eslint/eslint-plugin": "^8.39.1",
     "@typescript-eslint/parser": "^8.38.0",
     "@vercel/toolbar": "^0.1.38",
+    "@storybook/nextjs-vite": "^9.1.2",
+    "@storybook/react": "^9.1.2",
+    "@storybook/addon-docs": "^9.1.2",
+    "@storybook/addon-a11y": "^9.1.2",
+    "@chromatic-com/storybook": "^4.1.1",
+    "storybook": "^9.1.2",
+    "eslint-plugin-storybook": "^9.1.2",
     "@vitejs/plugin-react": "^4.2.1",
     "@vitest/coverage-v8": "^3.2.4",
     "danger": "^13.0.4",
