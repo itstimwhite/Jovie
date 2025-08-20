@@ -23,6 +23,7 @@ function createAnonSupabase() {
 
 async function getFeaturedArtists(): Promise<FeaturedArtist[]> {
   try {
+    console.log('[FeaturedArtists] Starting to fetch artists...');
     const supabase = createAnonSupabase();
 
     const { data, error } = await supabase
@@ -33,18 +34,36 @@ async function getFeaturedArtists(): Promise<FeaturedArtist[]> {
       .order('display_name')
       .limit(12);
 
+    console.log('[FeaturedArtists] Query result:', {
+      error: error?.message || null,
+      count: data?.length || 0,
+      artists: data?.map((a) => a.username) || [],
+    });
+
     if (error) {
       console.error('Error fetching featured artists:', error);
       return [];
     }
 
-    return (data as DBCreatorProfile[]).map((a) => ({
+    const mappedArtists = (data as DBCreatorProfile[]).map((a) => ({
       id: a.id,
       handle: a.username,
       name: a.display_name || a.username,
       // Provide fallback avatar or use the existing one
       src: a.avatar_url || '/android-chrome-192x192.png', // Fallback to app icon
     }));
+
+    console.log(
+      '[FeaturedArtists] Mapped artists:',
+      mappedArtists.map((a) => ({
+        handle: a.handle,
+        name: a.name,
+        src: a.src,
+      }))
+    );
+
+    console.log('[FeaturedArtists] Returning', mappedArtists.length, 'artists');
+    return mappedArtists;
   } catch (error) {
     console.error('Error fetching featured artists:', error);
     return [];

@@ -24,9 +24,15 @@ export default async function DashboardPage() {
     // Pass server-fetched data to client component
     return <DashboardClient initialData={dashboardData} />;
   } catch (error) {
+    // Check if this is a Next.js redirect error (which is expected)
+    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+      // Re-throw redirect errors so they work properly
+      throw error;
+    }
+
     console.error('Error loading dashboard:', error);
 
-    // On error, show a simple error page
+    // On actual error, show a simple error page
     return (
       <div className="min-h-screen bg-white dark:bg-[#0D0E12] flex items-center justify-center">
         <div className="text-center">
