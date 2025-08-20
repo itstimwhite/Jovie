@@ -13,6 +13,8 @@ describe('generateFooterHTML', () => {
     tagline: 'Test tagline',
     published: true,
     is_verified: false,
+    is_featured: false,
+    marketing_opt_out: false,
     created_at: '2023-01-01T00:00:00Z',
     settings: {},
   };

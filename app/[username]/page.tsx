@@ -37,7 +37,7 @@ const getCreatorProfile = cache(
     const { data, error } = await supabase
       .from('creator_profiles')
       .select(
-        'id, user_id, creator_type, username, display_name, bio, avatar_url, spotify_url, apple_music_url, youtube_url, spotify_id, is_public, is_verified, settings, theme, created_at, updated_at'
+        'id, user_id, creator_type, username, display_name, bio, avatar_url, spotify_url, apple_music_url, youtube_url, spotify_id, is_public, is_verified, is_featured, marketing_opt_out, settings, theme, created_at, updated_at'
       )
       .eq('username', username.toLowerCase())
       .eq('is_public', true) // Only fetch public profiles
