@@ -67,21 +67,18 @@ test.describe('Artist Profile Pages', () => {
       await page.goto('/nonexistent-artist');
 
       // Check 404 page content
-      await expect(page.locator('h1')).toContainText('Artist not found');
+      await expect(page.locator('h1')).toContainText('Profile not found');
       await expect(page.getByText(/doesn't exist/)).toBeVisible();
 
       // Check navigation buttons
-      await expect(
-        page.getByRole('link', { name: 'Find an artist' })
-      ).toBeVisible();
       await expect(page.getByRole('link', { name: 'Go home' })).toBeVisible();
     });
 
     test('404 page has proper navigation', async ({ page }) => {
       await page.goto('/nonexistent-artist');
 
-      // Click "Find an artist" button
-      await page.getByRole('link', { name: 'Find an artist' }).click();
+      // Click "Go home" button
+      await page.getByRole('link', { name: 'Go home' }).click();
       await expect(page).toHaveURL('/');
     });
 

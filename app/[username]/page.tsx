@@ -168,8 +168,8 @@ export async function generateMetadata({ params }: Props) {
 
   if (!profile) {
     return {
-      title: 'Artist Not Found',
-      description: 'The requested artist profile could not be found.',
+      title: 'Profile Not Found',
+      description: 'The requested profile could not be found.',
     };
   }
 
