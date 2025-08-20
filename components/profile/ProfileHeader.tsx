@@ -31,6 +31,8 @@ export function ProfileHeader({ artist, subtitle }: ProfileHeaderProps) {
           className="ring-1 ring-black/5 dark:ring-white/10 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.6)] transition-shadow"
           priority
           fill
+          artistName={artist.name}
+          imageType="avatar"
         />
       </div>
 

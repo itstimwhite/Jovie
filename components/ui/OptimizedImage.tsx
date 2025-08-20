@@ -162,6 +162,7 @@ export function OptimizedImage({
     quality,
     placeholder: placeholder as 'blur' | 'empty',
     ...(placeholder === 'blur' && { blurDataURL: defaultBlur }),
+    ...(priority && { fetchPriority: 'high' as const }),
     className: cn(
       'transition-opacity duration-300',
       isLoading ? 'opacity-0' : 'opacity-100'

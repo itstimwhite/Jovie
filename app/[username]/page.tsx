@@ -173,11 +173,55 @@ export async function generateMetadata({ params }: Props) {
     };
   }
 
+  const title = `${profile.display_name || profile.username} - Artist Profile`;
+  const description = profile.bio
+    ? `${profile.bio.slice(0, 160)}${profile.bio.length > 160 ? '...' : ''}`
+    : `Check out ${profile.display_name || profile.username}'s artist profile on Jovie.`;
+
+  // Generate resource hints for performance optimization
+  const resourceHints = [];
+
+  // Preload critical avatar image
+  if (profile.avatar_url) {
+    resourceHints.push(
+      <link
+        key="preload-avatar"
+        rel="preload"
+        as="image"
+        href={profile.avatar_url}
+        fetchPriority="high"
+      />
+    );
+  }
+
   return {
-    title: `${profile.display_name || profile.username} - Artist Profile`,
-    description: profile.bio
-      ? `${profile.bio.slice(0, 160)}${profile.bio.length > 160 ? '...' : ''}`
-      : `Check out ${profile.display_name || profile.username}'s artist profile on Jovie.`,
+    title,
+    description,
+    other: {
+      // Add resource hints via other metadata
+      'preload-critical-resources': 'enabled',
+    },
+    // OpenGraph with optimized image
+    openGraph: {
+      title,
+      description,
+      images: profile.avatar_url
+        ? [
+            {
+              url: profile.avatar_url,
+              width: 400,
+              height: 400,
+              alt: `${profile.display_name || profile.username} profile picture`,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+      images: profile.avatar_url ? [profile.avatar_url] : undefined,
+    },
   };
 }
 
@@ -192,8 +236,8 @@ export async function generateStaticParams() {
   }));
 }
 
-// Enable ISR with 1 hour revalidation for public profiles
-export const revalidate = 3600;
+// Enable ISR with 30 minute revalidation for fresher content
+export const revalidate = 1800;
 
-// Temporarily disable edge runtime for debugging
-// export const runtime = 'edge';
+// Enable edge runtime for better performance
+export const runtime = 'edge';
