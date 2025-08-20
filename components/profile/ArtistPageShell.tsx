@@ -1,7 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { Container } from '@/components/site/Container';
-import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
 import { SocialLink as SocialLinkComponent } from '@/components/molecules/SocialLink';
 import { ProfileFooter } from '@/components/profile/ProfileFooter';
@@ -66,9 +65,9 @@ export function ArtistPageShell({
         )}
 
         {/* Top right controls */}
-        <div className="absolute top-4 right-4 z-10 flex items-center gap-3">
-          {/* Notification Bell (feature flagged) */}
-          {process.env.NODE_ENV === 'development' && (
+        {process.env.NODE_ENV === 'development' && (
+          <div className="absolute top-4 right-4 z-10 flex items-center gap-3">
+            {/* Notification Bell (feature flagged) */}
             <button
               className="w-10 h-10 bg-white/60 dark:bg-white/10 backdrop-blur-sm border border-gray-200/30 dark:border-white/10 rounded-full flex items-center justify-center hover:bg-white/80 dark:hover:bg-white/20 transition-colors cursor-pointer"
               aria-label="Notifications"
@@ -87,11 +86,8 @@ export function ArtistPageShell({
                 />
               </svg>
             </button>
-          )}
-
-          {/* Theme Toggle */}
-          <ThemeToggle />
-        </div>
+          </div>
+        )}
 
         <div className="flex min-h-screen flex-col py-12 relative z-10">
           <div className="flex-1 flex flex-col items-center justify-center px-4">
