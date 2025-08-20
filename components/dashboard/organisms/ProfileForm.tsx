@@ -7,6 +7,9 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuthenticatedSupabase } from '@/lib/supabase';
 import { Artist, convertCreatorProfileToArtist } from '@/types/db';
+import Image from 'next/image';
+import AvatarUploader from '@/components/dashboard/molecules/AvatarUploader';
+import { flags } from '@/lib/env';
 
 interface ProfileFormProps {
   artist: Artist;
@@ -79,6 +82,33 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Avatar uploader (feature-flagged) */}
+      {flags.feature_image_cdn_cloudinary && (
+        <FormField label="Profile Image" error={error}>
+          <div className="flex items-center gap-4">
+            {formData.image_url ? (
+              <Image
+                src={formData.image_url}
+                alt="Current avatar"
+                width={64}
+                height={64}
+                className="rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-neutral-200 dark:bg-neutral-800" />
+            )}
+            <div className="flex-1">
+              <AvatarUploader
+                onUploaded={(res) => {
+                  // For now, persist the secure_url into avatar_url
+                  setFormData((f) => ({ ...f, image_url: res.secure_url }));
+                }}
+                folder="avatars"
+              />
+            </div>
+          </div>
+        </FormField>
+      )}
       <FormField label="Artist Name" error={error}>
         <Input
           type="text"

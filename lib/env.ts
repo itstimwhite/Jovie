@@ -23,6 +23,13 @@ const EnvSchema = z
     // Stripe public keys
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
 
+    // Cloudinary configuration
+    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string().optional(),
+    CLOUDINARY_API_KEY: z.string().optional(),
+    CLOUDINARY_API_SECRET: z.string().optional(),
+    CLOUDINARY_UPLOAD_FOLDER: z.string().optional(),
+    CLOUDINARY_UPLOAD_PRESET: z.string().optional(),
+
     // Server or build-time envs (may be undefined locally)
     SPOTIFY_CLIENT_ID: z.string().optional(),
     SPOTIFY_CLIENT_SECRET: z.string().optional(),
@@ -68,6 +75,12 @@ const rawEnv = {
   NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME:
+    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+  CLOUDINARY_UPLOAD_FOLDER: process.env.CLOUDINARY_UPLOAD_FOLDER,
+  CLOUDINARY_UPLOAD_PRESET: process.env.CLOUDINARY_UPLOAD_PRESET,
   SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
   SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
@@ -116,6 +129,21 @@ export const env = {
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: parsed.success
     ? parsed.data.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
     : process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: parsed.success
+    ? parsed.data.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+    : process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: parsed.success
+    ? parsed.data.CLOUDINARY_API_KEY
+    : process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: parsed.success
+    ? parsed.data.CLOUDINARY_API_SECRET
+    : process.env.CLOUDINARY_API_SECRET,
+  CLOUDINARY_UPLOAD_FOLDER: parsed.success
+    ? parsed.data.CLOUDINARY_UPLOAD_FOLDER
+    : process.env.CLOUDINARY_UPLOAD_FOLDER,
+  CLOUDINARY_UPLOAD_PRESET: parsed.success
+    ? parsed.data.CLOUDINARY_UPLOAD_PRESET
+    : process.env.CLOUDINARY_UPLOAD_PRESET,
   SPOTIFY_CLIENT_ID: parsed.success
     ? parsed.data.SPOTIFY_CLIENT_ID
     : process.env.SPOTIFY_CLIENT_ID,
@@ -144,4 +172,5 @@ export const env = {
 
 export const flags = {
   // Feature flags controlled via feature-flags.ts instead of env
+  feature_image_cdn_cloudinary: false,
 } as const;

@@ -94,17 +94,17 @@ const getSocialLinks = cache(
 );
 
 interface Props {
-  params: {
+  params: Promise<{
     username: string;
-  };
-  searchParams?: {
+  }>;
+  searchParams?: Promise<{
     mode?: 'profile' | 'listen' | 'tip';
-  };
+  }>;
 }
 
 export default async function ArtistPage({ params, searchParams }: Props) {
-  const { username } = params;
-  const { mode = 'profile' } = searchParams || {};
+  const { username } = await params;
+  const { mode = 'profile' } = (await searchParams) || {};
 
   // Parallel data fetching - profile first, then social links
   const profile = await getCreatorProfile(username);
