@@ -20,9 +20,24 @@ const EnvSchema = z
     NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
     NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
 
+    // Stripe public keys
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
+
     // Server or build-time envs (may be undefined locally)
     SPOTIFY_CLIENT_ID: z.string().optional(),
     SPOTIFY_CLIENT_SECRET: z.string().optional(),
+
+    // Stripe server-side configuration
+    STRIPE_SECRET_KEY: z.string().optional(),
+    STRIPE_WEBHOOK_SECRET: z.string().optional(),
+
+    // Stripe price IDs for introductory pricing
+    STRIPE_PRICE_INTRO_MONTHLY: z.string().optional(),
+    STRIPE_PRICE_INTRO_YEARLY: z.string().optional(),
+
+    // Stripe price IDs for standard pricing (inactive)
+    STRIPE_PRICE_STANDARD_MONTHLY: z.string().optional(),
+    STRIPE_PRICE_STANDARD_YEARLY: z.string().optional(),
   })
   .superRefine((val, ctx) => {
     // Require at least one Supabase client key
@@ -51,8 +66,16 @@ const rawEnv = {
   NEXT_PUBLIC_SEGMENT_WRITE_KEY: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY,
   NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
   NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
+    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
   SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
   SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+  STRIPE_PRICE_INTRO_MONTHLY: process.env.STRIPE_PRICE_INTRO_MONTHLY,
+  STRIPE_PRICE_INTRO_YEARLY: process.env.STRIPE_PRICE_INTRO_YEARLY,
+  STRIPE_PRICE_STANDARD_MONTHLY: process.env.STRIPE_PRICE_STANDARD_MONTHLY,
+  STRIPE_PRICE_STANDARD_YEARLY: process.env.STRIPE_PRICE_STANDARD_YEARLY,
 };
 
 const parsed = EnvSchema.safeParse(rawEnv);
@@ -90,12 +113,33 @@ export const env = {
   NEXT_PUBLIC_POSTHOG_HOST: parsed.success
     ? parsed.data.NEXT_PUBLIC_POSTHOG_HOST
     : process.env.NEXT_PUBLIC_POSTHOG_HOST,
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: parsed.success
+    ? parsed.data.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+    : process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
   SPOTIFY_CLIENT_ID: parsed.success
     ? parsed.data.SPOTIFY_CLIENT_ID
     : process.env.SPOTIFY_CLIENT_ID,
   SPOTIFY_CLIENT_SECRET: parsed.success
     ? parsed.data.SPOTIFY_CLIENT_SECRET
     : process.env.SPOTIFY_CLIENT_SECRET,
+  STRIPE_SECRET_KEY: parsed.success
+    ? parsed.data.STRIPE_SECRET_KEY
+    : process.env.STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET: parsed.success
+    ? parsed.data.STRIPE_WEBHOOK_SECRET
+    : process.env.STRIPE_WEBHOOK_SECRET,
+  STRIPE_PRICE_INTRO_MONTHLY: parsed.success
+    ? parsed.data.STRIPE_PRICE_INTRO_MONTHLY
+    : process.env.STRIPE_PRICE_INTRO_MONTHLY,
+  STRIPE_PRICE_INTRO_YEARLY: parsed.success
+    ? parsed.data.STRIPE_PRICE_INTRO_YEARLY
+    : process.env.STRIPE_PRICE_INTRO_YEARLY,
+  STRIPE_PRICE_STANDARD_MONTHLY: parsed.success
+    ? parsed.data.STRIPE_PRICE_STANDARD_MONTHLY
+    : process.env.STRIPE_PRICE_STANDARD_MONTHLY,
+  STRIPE_PRICE_STANDARD_YEARLY: parsed.success
+    ? parsed.data.STRIPE_PRICE_STANDARD_YEARLY
+    : process.env.STRIPE_PRICE_STANDARD_YEARLY,
 } as const;
 
 export const flags = {
