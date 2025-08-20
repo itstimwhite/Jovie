@@ -6,10 +6,14 @@ import { useAuth } from '@clerk/nextjs';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { APP_URL } from '@/constants/app';
 
 export function ClaimHandleForm() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
+
+  // Extract domain from APP_URL for display
+  const displayDomain = APP_URL.replace(/^https?:\/\//, '');
 
   const [handle, setHandle] = useState('');
   // Navigating (redirecting after submit)
@@ -198,7 +202,7 @@ export function ClaimHandleForm() {
 
   const onCopyPreview = async () => {
     try {
-      await navigator.clipboard.writeText(`jov.ie/${handle}`);
+      await navigator.clipboard.writeText(`${displayDomain}/${handle}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 1200);
     } catch {}
@@ -281,10 +285,14 @@ export function ClaimHandleForm() {
                   : undefined
               }
               aria-label={
-                available ? `Copy profile URL jov.ie/${handle}` : undefined
+                available
+                  ? `Copy profile URL ${displayDomain}/${handle}`
+                  : undefined
               }
             >
-              <span className="text-gray-400 dark:text-gray-500">jov.ie/</span>
+              <span className="text-gray-400 dark:text-gray-500">
+                {displayDomain}/
+              </span>
               <span className="font-semibold text-current">{handle}</span>
             </p>
             {available && (
@@ -331,7 +339,9 @@ export function ClaimHandleForm() {
           </div>
         ) : (
           <p className="text-xs text-gray-400 dark:text-gray-500">
-            <span className="text-gray-400 dark:text-gray-500">jov.ie/</span>
+            <span className="text-gray-400 dark:text-gray-500">
+              {displayDomain}/
+            </span>
             <span className="text-gray-400 dark:text-gray-500">
               your-handle
             </span>

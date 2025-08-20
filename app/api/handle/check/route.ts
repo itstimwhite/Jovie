@@ -25,7 +25,7 @@ export async function GET(request: Request) {
     const { data, error } = await supabase
       .from('creator_profiles')
       .select('username')
-      .eq('username', handle);
+      .ilike('username', handle.toLowerCase());
 
     if (error) {
       console.error('Error checking handle availability:', error);

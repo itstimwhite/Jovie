@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Artist } from '@/types/db';
@@ -49,9 +49,28 @@ export function AnimatedListenInterface({
 
   const availableDSPs = dsps.length > 0 ? dsps : mockDSPs;
 
-  const handleBackClick = () => {
-    router.push(`/${handle}`);
-  };
+  // Handle backspace key to go back
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Backspace') {
+        // Only trigger if not in an input field
+        const target = event.target as HTMLElement;
+        if (
+          target &&
+          (target.tagName === 'INPUT' ||
+            target.tagName === 'TEXTAREA' ||
+            target.isContentEditable)
+        ) {
+          return;
+        }
+        event.preventDefault();
+        router.push(`/${handle}`);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handle, router]);
 
   const handleDSPClick = async (dsp: AvailableDSP) => {
     setSelectedDSP(dsp.key);
@@ -141,23 +160,6 @@ export function AnimatedListenInterface({
     },
   };
 
-  // Back button animation variants
-  const backButtonVariants = {
-    hidden: {
-      opacity: 0,
-      x: -20,
-    },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.5,
-        ease: [0.16, 1, 0.3, 1],
-        delay: 0.1,
-      },
-    },
-  };
-
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -168,38 +170,6 @@ export function AnimatedListenInterface({
         exit="exit"
         className="w-full max-w-sm"
       >
-        {/* Back Button */}
-        <motion.div
-          variants={backButtonVariants}
-          className="flex justify-start mb-6"
-        >
-          <button
-            onClick={handleBackClick}
-            className="group flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
-          >
-            <motion.div
-              whileHover={{ x: -3 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-            </motion.div>
-            <span className="text-sm font-medium">Back</span>
-          </button>
-        </motion.div>
-
         {/* Title */}
         <motion.div variants={itemVariants} className="text-center mb-8">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">

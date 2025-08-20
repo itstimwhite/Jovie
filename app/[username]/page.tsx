@@ -11,13 +11,18 @@ import {
   convertCreatorProfileToArtist,
 } from '@/types/db';
 import { PAGE_SUBTITLES } from '@/constants/app';
+import { env } from '@/lib/env';
 
 // Create an anonymous Supabase client for public data
 function createAnonSupabase() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || // New standard key
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!; // Fallback to deprecated key
+    env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || // New standard key
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY; // Fallback to deprecated key
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Missing Supabase configuration');
+  }
 
   return createClient(supabaseUrl, supabaseKey);
 }
@@ -89,17 +94,17 @@ const getSocialLinks = cache(
 );
 
 interface Props {
-  params: Promise<{
+  params: {
     username: string;
-  }>;
-  searchParams: Promise<{
+  };
+  searchParams?: {
     mode?: 'profile' | 'listen' | 'tip';
-  }>;
+  };
 }
 
 export default async function ArtistPage({ params, searchParams }: Props) {
-  const { username } = await params;
-  const { mode = 'profile' } = await searchParams;
+  const { username } = params;
+  const { mode = 'profile' } = searchParams || {};
 
   // Parallel data fetching - profile first, then social links
   const profile = await getCreatorProfile(username);

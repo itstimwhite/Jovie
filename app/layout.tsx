@@ -6,6 +6,8 @@ import { APP_NAME, APP_URL } from '@/constants/app';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
 import '@/styles/globals.css';
 import { StatsigProviderWrapper } from '@/components/providers/StatsigProvider';
+import CookieBanner from '@/components/CookieBanner';
+import { headers } from 'next/headers';
 
 // Bypass static rendering for now to fix build issues
 export const dynamic = 'force-dynamic';
@@ -101,6 +103,13 @@ export default async function RootLayout({
   const featureFlags = await getServerFeatureFlags();
   const shouldInjectToolbar = process.env.NODE_ENV === 'development';
 
+  // Extract domain from APP_URL for analytics
+  const analyticsDomain = APP_URL.replace(/^https?:\/\//, '');
+
+  // Check if cookie banner should be shown
+  const headersList = await headers();
+  const showCookieBanner = headersList.get('x-show-cookie-banner') === '1';
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -116,7 +125,7 @@ export default async function RootLayout({
         {/* Vercel Page Speed Insights */}
         <script
           defer
-          data-domain="jov.ie"
+          data-domain={analyticsDomain}
           src="https://vitals.vercel-insights.com/v1/vitals.js"
         />
 
@@ -146,6 +155,7 @@ export default async function RootLayout({
             {children}
           </ClientProviders>
         </StatsigProviderWrapper>
+        {showCookieBanner && <CookieBanner />}
         <SpeedInsights />
         {shouldInjectToolbar && <VercelToolbar />}
       </body>

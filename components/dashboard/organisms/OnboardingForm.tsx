@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui';
 import { useAuthenticatedSupabase } from '@/lib/supabase';
+import { APP_URL } from '@/constants/app';
 
 interface OnboardingState {
   step:
@@ -39,6 +40,9 @@ export function OnboardingForm() {
   const { user } = useUser();
   const { getAuthenticatedClient } = useAuthenticatedSupabase();
   const searchParams = useSearchParams();
+
+  // Extract domain from APP_URL for display
+  const displayDomain = APP_URL.replace(/^https?:\/\//, '');
 
   // Form state
   const [handle, setHandle] = useState('');
@@ -442,7 +446,8 @@ export function OnboardingForm() {
             className="text-xs text-gray-500 dark:text-gray-400 mt-1"
             id="handle-preview-onboarding"
           >
-            Your profile will be live at jov.ie/{handle || 'your-handle'}
+            Your profile will be live at {displayDomain}/
+            {handle || 'your-handle'}
           </p>
         </FormField>
 

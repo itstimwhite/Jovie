@@ -9,7 +9,7 @@ import { env } from '@/lib/env';
 
 // Initialize Stripe client with proper configuration
 export const stripe = new Stripe(env.STRIPE_SECRET_KEY!, {
-  // Use latest API version
+  // Use supported API version for this SDK
   apiVersion: '2025-07-30.basil',
 
   // Add app info for better Stripe support
@@ -196,7 +196,7 @@ export async function getUpcomingInvoice(
   customerId: string
 ): Promise<Stripe.Invoice | null> {
   try {
-    const invoice = await (stripe.invoices as any).retrieveUpcoming({
+    const invoice = await stripe.invoices.createPreview({
       customer: customerId,
     });
     return invoice;
