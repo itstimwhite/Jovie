@@ -195,15 +195,22 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
   try {
+    const raw = invoice as unknown as Record<string, unknown>;
+    const subField = raw['subscription'];
+    const subscriptionId =
+      typeof subField === 'string'
+        ? subField
+        : subField && typeof subField === 'object' && 'id' in subField
+          ? (subField as Stripe.Subscription).id
+          : null;
+
     console.log('Processing successful payment:', {
       invoiceId: invoice.id,
       customerId: invoice.customer,
-      subscriptionId: (invoice as any).subscription,
+      subscriptionId,
     });
 
     // If this is for a subscription, ensure the user's status is up to date
-    const subscriptionId = (invoice as any).subscription;
-
     if (subscriptionId && typeof subscriptionId === 'string') {
       const subscription = await stripe.subscriptions.retrieve(subscriptionId);
       const userId = subscription.metadata?.clerk_user_id;
@@ -220,10 +227,19 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
   try {
+    const raw = invoice as unknown as Record<string, unknown>;
+    const subField = raw['subscription'];
+    const subscriptionId =
+      typeof subField === 'string'
+        ? subField
+        : subField && typeof subField === 'object' && 'id' in subField
+          ? (subField as Stripe.Subscription).id
+          : null;
+
     console.log('Processing failed payment:', {
       invoiceId: invoice.id,
       customerId: invoice.customer,
-      subscriptionId: (invoice as any).subscription,
+      subscriptionId,
     });
 
     // Log payment failure for monitoring

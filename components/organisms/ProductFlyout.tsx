@@ -72,7 +72,7 @@ export function ProductFlyout({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose, triggerRef]);
 
-  // Focus management
+  // Simplified focus management
   useEffect(() => {
     if (!isOpen) return;
 
@@ -85,16 +85,18 @@ export function ProductFlyout({
     }
   }, [currentFocusIndex, isOpen]);
 
-  // Focus first item when opened
+  // Focus first item when opened - only for keyboard navigation
   useEffect(() => {
     if (isOpen) {
       setCurrentFocusIndex(0);
-      // Small delay to ensure DOM is ready
-      setTimeout(() => {
-        firstItemRef.current?.focus();
-      }, 10);
+      // Only focus if triggered by keyboard
+      if (document.activeElement === triggerRef.current) {
+        setTimeout(() => {
+          firstItemRef.current?.focus();
+        }, 50);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, triggerRef]);
 
   // Click outside handler
   useEffect(() => {

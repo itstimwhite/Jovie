@@ -24,7 +24,6 @@ export async function getDashboardData(): Promise<DashboardData> {
   }
 
   const supabase = createServerClient();
-
   if (!supabase) {
     throw new Error('Failed to create Supabase client');
   }
@@ -90,6 +89,55 @@ export async function getDashboardData(): Promise<DashboardData> {
     };
   } catch (error) {
     console.error('Error fetching dashboard data:', error);
+    throw error;
+  }
+}
+
+export async function updateCreatorProfile(
+  profileId: string,
+  updates: Partial<{
+    marketing_opt_out: boolean;
+    display_name: string;
+    bio: string;
+    avatar_url: string;
+    // Add other updatable fields as needed
+  }>
+): Promise<CreatorProfile> {
+  const { userId } = await auth();
+
+  if (!userId) {
+    throw new Error('Unauthorized');
+  }
+
+  const supabase = createServerClient();
+  if (!supabase) {
+    throw new Error('Failed to create Supabase client');
+  }
+
+  try {
+    // Update the creator profile
+    const { data, error } = await supabase
+      .from('creator_profiles')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', profileId)
+      .eq('user_id', userId) // Ensure user can only update their own profile
+      .select('*')
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      throw new Error('Profile not found or not updated');
+    }
+
+    return data as CreatorProfile;
+  } catch (error) {
+    console.error('Error updating creator profile:', error);
     throw error;
   }
 }

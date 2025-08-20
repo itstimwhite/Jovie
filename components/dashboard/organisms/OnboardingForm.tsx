@@ -8,8 +8,8 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui';
-import { useAuthenticatedSupabase } from '@/lib/supabase';
 import { APP_URL } from '@/constants/app';
+import { completeOnboarding } from '@/app/onboarding/actions';
 
 interface OnboardingState {
   step:
@@ -38,7 +38,6 @@ interface SelectedArtist {
 
 export function OnboardingForm() {
   const { user } = useUser();
-  const { getAuthenticatedClient } = useAuthenticatedSupabase();
   const searchParams = useSearchParams();
 
   // Extract domain from APP_URL for display
@@ -93,63 +92,45 @@ export function OnboardingForm() {
   }, [searchParams]);
 
   // Debounced handle validation
-  const validateHandle = useCallback(
-    async (handleValue: string) => {
-      if (!handleValue || handleValue.length < 3) {
-        setHandleValidation({ available: false, checking: false, error: null });
-        return;
-      }
+  const validateHandle = useCallback(async (handleValue: string) => {
+    if (!handleValue || handleValue.length < 3) {
+      setHandleValidation({ available: false, checking: false, error: null });
+      return;
+    }
 
-      setHandleValidation({ available: false, checking: true, error: null });
+    setHandleValidation({ available: false, checking: true, error: null });
 
-      try {
-        const supabase = getAuthenticatedClient();
+    try {
+      // Use the API endpoint instead of direct database access during onboarding
+      const response = await fetch(
+        `/api/handle/check?handle=${encodeURIComponent(
+          handleValue.toLowerCase()
+        )}`
+      );
+      const result = await response.json();
 
-        if (!supabase) {
-          setHandleValidation({
-            available: false,
-            checking: false,
-            error: 'Database connection failed',
-          });
-          return;
-        }
-
-        const { data, error: validationError } = await supabase
-          .from('creator_profiles')
-          .select('id')
-          .eq('username', handleValue.toLowerCase())
-          .single();
-
-        if (validationError && validationError.code !== 'PGRST116') {
-          setHandleValidation({
-            available: false,
-            checking: false,
-            error: 'Error checking availability',
-          });
-        } else if (data) {
-          setHandleValidation({
-            available: false,
-            checking: false,
-            error: 'Handle already taken',
-          });
-        } else {
-          setHandleValidation({
-            available: true,
-            checking: false,
-            error: null,
-          });
-        }
-      } catch (validationError) {
-        console.error('Handle validation error:', validationError);
+      if (!response.ok) {
         setHandleValidation({
           available: false,
           checking: false,
-          error: 'Network error',
+          error: result.error || 'Error checking availability',
+        });
+      } else {
+        setHandleValidation({
+          available: result.available,
+          checking: false,
+          error: result.available ? null : 'Handle already taken',
         });
       }
-    },
-    [getAuthenticatedClient]
-  );
+    } catch (validationError) {
+      console.error('Handle validation error:', validationError);
+      setHandleValidation({
+        available: false,
+        checking: false,
+        error: 'Network error',
+      });
+    }
+  }, []);
 
   // Validate handle when it changes
   useEffect(() => {
@@ -190,7 +171,7 @@ export function OnboardingForm() {
     }));
   }, []);
 
-  // Main submission handler with improved error handling
+  // Main submission handler using server action
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -204,97 +185,33 @@ export function OnboardingForm() {
       }));
 
       try {
-        // Step 1: Get authentication token
-        setState((prev) => ({ ...prev, step: 'validating', progress: 10 }));
-        // Get authenticated Supabase client using native integration
-        const supabase = getAuthenticatedClient();
-
-        if (!supabase) {
-          throw new Error('Database connection failed');
-        }
-
-        // Step 2: Create or get user
-        setState((prev) => ({ ...prev, step: 'creating-user', progress: 30 }));
-        let userId: string;
-
-        try {
-          // Create or verify app_users entry (using Clerk user.id as primary key)
-          const userEmail = user.emailAddresses[0]?.emailAddress;
-          if (!userEmail) throw new Error('Email address is required');
-
-          const { error: upsertError } = await supabase
-            .from('app_users')
-            .upsert({
-              id: user.id, // Use Clerk's user.id as primary key
-              email: userEmail,
-            });
-
-          if (upsertError) throw upsertError;
-          userId = user.id; // Use Clerk's user.id directly
-        } catch (error) {
-          throw new Error(
-            `User creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-          );
-        }
-
-        // Step 3: Final handle availability check
+        setState((prev) => ({ ...prev, step: 'creating-user', progress: 25 }));
         setState((prev) => ({
           ...prev,
           step: 'checking-handle',
-          progress: 60,
+          progress: 50,
         }));
-        try {
-          const { data: existingProfile, error: checkError } = await supabase
-            .from('creator_profiles')
-            .select('id')
-            .eq('username', handle.toLowerCase())
-            .single();
-
-          if (checkError && checkError.code !== 'PGRST116') throw checkError;
-          if (existingProfile)
-            throw new Error('Username is no longer available');
-        } catch (error) {
-          throw new Error(
-            `Handle validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-          );
-        }
-
-        // Step 4: Create artist profile
         setState((prev) => ({
           ...prev,
           step: 'creating-artist',
-          progress: 80,
+          progress: 75,
         }));
-        try {
-          const { error: profileError } = await supabase
-            .from('creator_profiles')
-            .insert({
-              user_id: userId,
-              creator_type: 'artist',
-              username: handle.toLowerCase(),
-              display_name: selectedArtist?.artistName || 'Your Artist Name',
-              avatar_url: selectedArtist?.imageUrl || null,
-              is_public: true,
-            })
-            .select('*')
-            .single();
 
-          if (profileError) throw profileError;
+        // Use the server action which handles authentication properly
+        await completeOnboarding({
+          username: handle.toLowerCase(),
+          displayName: selectedArtist?.artistName || handle,
+        });
 
-          // Success!
-          setState((prev) => ({ ...prev, step: 'complete', progress: 100 }));
+        // Success!
+        setState((prev) => ({ ...prev, step: 'complete', progress: 100 }));
 
-          // Clear session data
-          sessionStorage.removeItem('selectedArtist');
-          sessionStorage.removeItem('pendingClaim');
+        // Clear session data
+        sessionStorage.removeItem('selectedArtist');
+        sessionStorage.removeItem('pendingClaim');
 
-          // Redirect immediately to the dashboard to reduce wait time
-          window.location.href = '/dashboard';
-        } catch (error) {
-          throw new Error(
-            `Artist creation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-          );
-        }
+        // Redirect immediately to the dashboard to reduce wait time
+        window.location.href = '/dashboard';
       } catch (error) {
         console.error('Onboarding error:', error);
         setState((prev) => ({
@@ -308,7 +225,7 @@ export function OnboardingForm() {
         }));
       }
     },
-    [user, handle, selectedArtist, isFormValid, getAuthenticatedClient]
+    [user, handle, selectedArtist, isFormValid]
   );
 
   // Progress indicator

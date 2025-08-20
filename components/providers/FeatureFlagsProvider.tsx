@@ -16,6 +16,7 @@ const FeatureFlagsContext = createContext<FeatureFlagsContextType>({
     tipPromoEnabled: true,
     pricingUseClerk: false,
     universalNotificationsEnabled: false,
+    featureClickAnalyticsRpc: false,
   },
   isLoading: true,
   error: null,
@@ -41,6 +42,7 @@ export function FeatureFlagsProvider({
       tipPromoEnabled: true,
       pricingUseClerk: false,
       universalNotificationsEnabled: false,
+      featureClickAnalyticsRpc: false,
     }
   );
   const [isLoading, setIsLoading] = useState(!initialFlags);

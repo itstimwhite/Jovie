@@ -12,6 +12,7 @@ import {
   SocialsForm,
   ListenNowForm,
   AnalyticsCards,
+  SettingsForm,
 } from '@/components/dashboard';
 import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
 import { PendingClaimHandler } from './PendingClaimHandler';
@@ -27,6 +28,7 @@ const tabs = [
   { id: 'social', label: 'Social Links' },
   { id: 'listen', label: 'Listen Now' },
   { id: 'analytics', label: 'Analytics' },
+  { id: 'settings', label: 'Settings' },
 ];
 
 interface DashboardClientProps {
@@ -253,6 +255,12 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   />
                 )}
                 {activeTab === 'analytics' && <AnalyticsCards />}
+                {activeTab === 'settings' && artist && (
+                  <SettingsForm
+                    artist={artist}
+                    onUpdate={handleArtistUpdated}
+                  />
+                )}
               </div>
             </div>
           </div>

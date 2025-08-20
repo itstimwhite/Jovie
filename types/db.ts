@@ -8,7 +8,7 @@ export type CreatorType = 'artist' | 'podcaster' | 'influencer' | 'creator';
 
 export interface CreatorProfile {
   id: string;
-  user_id: string;
+  user_id: string | null; // Nullable to support unclaimed profiles
   creator_type: CreatorType;
   username: string;
   display_name: string | null;
@@ -22,6 +22,12 @@ export interface CreatorProfile {
   // Visibility and metadata
   is_public: boolean;
   is_verified: boolean;
+  is_featured: boolean;
+  marketing_opt_out: boolean;
+  // Claiming functionality
+  is_claimed: boolean;
+  claim_token: string | null;
+  claimed_at: string | null;
   settings: Record<string, unknown> | null;
   theme: Record<string, unknown> | null;
   created_at: string;
@@ -46,6 +52,8 @@ export interface Artist {
   youtube_url?: string;
   published: boolean; // maps to is_public
   is_verified: boolean;
+  is_featured: boolean;
+  marketing_opt_out: boolean;
   created_at: string;
 }
 
@@ -146,7 +154,7 @@ export function isPodcasterProfile(
 export function convertCreatorProfileToArtist(profile: CreatorProfile): Artist {
   return {
     id: profile.id,
-    owner_user_id: profile.user_id,
+    owner_user_id: profile.user_id || '', // Handle null user_id for unclaimed profiles
     handle: profile.username,
     spotify_id: profile.spotify_id || '',
     name: profile.display_name || profile.username,
@@ -161,6 +169,8 @@ export function convertCreatorProfileToArtist(profile: CreatorProfile): Artist {
     youtube_url: profile.youtube_url || undefined,
     published: profile.is_public,
     is_verified: profile.is_verified,
+    is_featured: profile.is_featured,
+    marketing_opt_out: profile.marketing_opt_out,
     created_at: profile.created_at,
   };
 }
@@ -181,6 +191,8 @@ export function convertArtistToCreatorProfile(
     spotify_id: artist.spotify_id,
     is_public: artist.published,
     is_verified: artist.is_verified,
+    is_featured: artist.is_featured,
+    marketing_opt_out: artist.marketing_opt_out,
     settings: artist.settings,
     theme: artist.theme,
   };

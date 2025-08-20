@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAuthenticatedServerClient } from '@/lib/supabase-server';
 import { detectPlatformFromUA } from '@/lib/utils';
+import { getServerFeatureFlags } from '@/lib/feature-flags';
 
 // API routes should be dynamic
 export const dynamic = 'force-dynamic';
@@ -26,6 +27,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const userAgent = request.headers.get('user-agent');
+    const platformDetected = detectPlatformFromUA(userAgent || undefined);
+
+    const flags = await getServerFeatureFlags();
+
+    if (flags.featureClickAnalyticsRpc) {
+      // Use SECURITY DEFINER RPC to safely log click events for anonymous users
+      const { data: clickId, error: rpcError } = await supabase.rpc(
+        'log_click_event',
+        {
+          handle,
+          link_type: linkType,
+          target,
+          ua: userAgent,
+          platform: platformDetected,
+          link_id: linkId ?? null,
+        }
+      );
+
+      if (rpcError) {
+        console.error('Error logging click event via RPC:', rpcError);
+        return NextResponse.json(
+          { error: 'Failed to log click event' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({ success: true, id: clickId ?? null });
+    }
+
+    // Fallback (flag OFF): previous direct insert semantics
     const { data: profile, error: profileError } = await supabase
       .from('creator_profiles')
       .select('id')
@@ -36,9 +68,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    const userAgent = request.headers.get('user-agent');
-    const platformDetected = detectPlatformFromUA(userAgent || undefined);
-
     const { error: clickError } = await supabase.from('click_events').insert({
       artist_id: profile.id,
       link_type: linkType,
@@ -48,7 +77,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (clickError) {
-      console.error('Error inserting click event:', clickError);
+      console.error('Error inserting click event (fallback):', clickError);
     }
 
     if (linkType === 'social' && linkId) {
@@ -57,7 +86,10 @@ export async function POST(request: NextRequest) {
       });
 
       if (updateError) {
-        console.error('Error updating social link clicks:', updateError);
+        console.error(
+          'Error updating social link clicks (fallback):',
+          updateError
+        );
       }
     }
 
