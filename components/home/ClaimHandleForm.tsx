@@ -220,7 +220,6 @@ export function ClaimHandleForm() {
           helperText ? 'handle-helper-text' : 'handle-preview-text'
         }
         aria-invalid={unavailable ? 'true' : 'false'}
-        aria-live="polite"
         autoCapitalize="none"
         autoCorrect="off"
         className={`${isShaking ? 'jv-shake' : ''} ${available === true ? 'jv-available' : ''} transition-all duration-150 hover:shadow-lg focus-within:shadow-lg`}

@@ -19,6 +19,8 @@ export function IconBadge({ Icon, colorVar, className = '' }: IconBadgeProps) {
         style={{
           color: `var(${colorVar})`,
         }}
+        role="img"
+        aria-hidden="true"
       />
     </div>
   );

@@ -37,7 +37,7 @@ const getCreatorProfile = cache(
     const { data, error } = await supabase
       .from('creator_profiles')
       .select(
-        'id, user_id, creator_type, username, display_name, bio, avatar_url, spotify_url, apple_music_url, youtube_url, spotify_id, is_public, is_verified, is_featured, marketing_opt_out, settings, theme, created_at, updated_at'
+        'id, user_id, creator_type, username, display_name, bio, avatar_url, spotify_url, apple_music_url, youtube_url, spotify_id, is_public, is_verified, is_claimed, claim_token, claimed_at, settings, theme, created_at, updated_at'
       )
       .eq('username', username.toLowerCase())
       .eq('is_public', true) // Only fetch public profiles
@@ -47,7 +47,13 @@ const getCreatorProfile = cache(
       return null;
     }
 
-    return data;
+    // Add default values for fields that might not exist in the database yet
+    const d = data as Partial<CreatorProfile>;
+    return {
+      ...data,
+      is_featured: d.is_featured ?? false,
+      marketing_opt_out: d.marketing_opt_out ?? false,
+    } as CreatorProfile;
   }
 );
 

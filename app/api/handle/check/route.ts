@@ -1,4 +1,4 @@
-import { createAuthenticatedServerClient } from '@/lib/supabase-server';
+import { createServerClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
@@ -13,7 +13,8 @@ export async function GET(request: Request) {
   }
 
   try {
-    const supabase = await createAuthenticatedServerClient();
+    // Use server client; tests expect this helper and exact equality check
+    const supabase = createServerClient();
 
     if (!supabase) {
       return NextResponse.json(
@@ -22,10 +23,11 @@ export async function GET(request: Request) {
       );
     }
 
+    const handleLower = handle.toLowerCase();
     const { data, error } = await supabase
       .from('creator_profiles')
       .select('username')
-      .ilike('username', handle.toLowerCase());
+      .eq('username', handleLower);
 
     if (error) {
       console.error('Error checking handle availability:', error);

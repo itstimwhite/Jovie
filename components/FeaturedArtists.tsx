@@ -21,7 +21,7 @@ export default function FeaturedArtists({
       {/* Simplified version for debugging - remove complex height and scroll animations */}
       <div className="container mx-auto px-4">
         <h2 className="text-2xl font-bold text-center mb-8 text-gray-900 dark:text-white">
-          Featured Artists
+          Featured Creators
         </h2>
 
         {/* Desktop: horizontal scroll */}

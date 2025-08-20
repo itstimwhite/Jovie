@@ -21,31 +21,32 @@ function createAnonSupabase() {
   return createClient(supabaseUrl, supabaseKey);
 }
 
-async function getFeaturedArtists(): Promise<FeaturedArtist[]> {
+async function getFeaturedCreators(): Promise<FeaturedArtist[]> {
   try {
-    console.log('[FeaturedArtists] Starting to fetch artists...');
+    console.log('[FeaturedCreators] Starting to fetch featured creators...');
     const supabase = createAnonSupabase();
 
     const { data, error } = await supabase
       .from('creator_profiles')
       .select('id, username, display_name, avatar_url, creator_type')
       .eq('is_public', true)
-      .eq('creator_type', 'artist') // Only show artists for now
+      .eq('is_featured', true)
+      .eq('marketing_opt_out', false) // Only include creators who haven't opted out
       .order('display_name')
       .limit(12);
 
-    console.log('[FeaturedArtists] Query result:', {
+    console.log('[FeaturedCreators] Query result:', {
       error: error?.message || null,
       count: data?.length || 0,
-      artists: data?.map((a) => a.username) || [],
+      creators: data?.map((a) => a.username) || [],
     });
 
     if (error) {
-      console.error('Error fetching featured artists:', error);
+      console.error('Error fetching featured creators:', error);
       return [];
     }
 
-    const mappedArtists = (data as DBCreatorProfile[]).map((a) => ({
+    const mappedCreators = (data as DBCreatorProfile[]).map((a) => ({
       id: a.id,
       handle: a.username,
       name: a.display_name || a.username,
@@ -54,24 +55,28 @@ async function getFeaturedArtists(): Promise<FeaturedArtist[]> {
     }));
 
     console.log(
-      '[FeaturedArtists] Mapped artists:',
-      mappedArtists.map((a) => ({
+      '[FeaturedCreators] Mapped creators:',
+      mappedCreators.map((a) => ({
         handle: a.handle,
         name: a.name,
         src: a.src,
       }))
     );
 
-    console.log('[FeaturedArtists] Returning', mappedArtists.length, 'artists');
-    return mappedArtists;
+    console.log(
+      '[FeaturedCreators] Returning',
+      mappedCreators.length,
+      'creators'
+    );
+    return mappedCreators;
   } catch (error) {
-    console.error('Error fetching featured artists:', error);
+    console.error('Error fetching featured creators:', error);
     return [];
   }
 }
 
 export async function FeaturedArtists() {
-  const artists = await getFeaturedArtists();
-  if (!artists.length) return null;
-  return <FeaturedArtistsComponent artists={artists} />;
+  const creators = await getFeaturedCreators();
+  if (!creators.length) return null;
+  return <FeaturedArtistsComponent artists={creators} />;
 }

@@ -12,6 +12,10 @@ export async function GET() {
     tipPromoEnabled: true,
     pricingUseClerk: false,
     universalNotificationsEnabled: process.env.NODE_ENV === 'development',
+    // Gate for anonymous click logging via SECURITY DEFINER RPC
+    featureClickAnalyticsRpc: false,
+    // snake_case alias for internal consistency with feature flag naming policy
+    feature_click_analytics_rpc: false,
   } as const;
 
   return new NextResponse(JSON.stringify(flags), {

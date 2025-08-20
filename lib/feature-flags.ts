@@ -5,6 +5,8 @@ export interface FeatureFlags {
   tipPromoEnabled: boolean;
   pricingUseClerk: boolean;
   universalNotificationsEnabled: boolean;
+  // Gate new anonymous click logging via SECURITY DEFINER RPC
+  featureClickAnalyticsRpc: boolean;
 }
 
 // Default feature flags (fallback)
@@ -16,6 +18,7 @@ const defaultFeatureFlags: FeatureFlags = {
   pricingUseClerk: false,
   // Universal notifications only enabled in development for now
   universalNotificationsEnabled: process.env.NODE_ENV === 'development',
+  featureClickAnalyticsRpc: false,
 };
 
 // Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
@@ -31,11 +34,21 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
     if (res.ok) {
       const data: Record<string, unknown> = await res.json();
       // New app-internal shape: direct booleans
+      const hasRpcFlag =
+        Object.prototype.hasOwnProperty.call(
+          data,
+          'featureClickAnalyticsRpc'
+        ) ||
+        Object.prototype.hasOwnProperty.call(
+          data,
+          'feature_click_analytics_rpc'
+        );
       if (
         typeof data?.artistSearchEnabled !== 'undefined' ||
         typeof data?.debugBannerEnabled !== 'undefined' ||
         typeof data?.tipPromoEnabled !== 'undefined' ||
-        typeof data?.universalNotificationsEnabled !== 'undefined'
+        typeof data?.universalNotificationsEnabled !== 'undefined' ||
+        hasRpcFlag
       ) {
         return {
           artistSearchEnabled: Boolean(
@@ -54,6 +67,16 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
             data.universalNotificationsEnabled ??
               defaultFeatureFlags.universalNotificationsEnabled
           ),
+          featureClickAnalyticsRpc: Boolean(
+            hasRpcFlag
+              ? ((data as Record<string, unknown>)[
+                  'featureClickAnalyticsRpc'
+                ] ??
+                  (data as Record<string, unknown>)[
+                    'feature_click_analytics_rpc'
+                  ])
+              : defaultFeatureFlags.featureClickAnalyticsRpc
+          ),
         };
       }
     }
@@ -71,6 +94,9 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
         flags?: Record<string, { default?: unknown }>;
       };
       if (typeof data2?.version === 'number') {
+        const rpcFlag =
+          data2.flags?.['featureClickAnalyticsRpc']?.default ??
+          data2.flags?.['feature_click_analytics_rpc']?.default;
         return {
           artistSearchEnabled: Boolean(
             data2.flags?.artistSearchEnabled?.default ??
@@ -91,6 +117,11 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
           universalNotificationsEnabled: Boolean(
             data2.flags?.universalNotificationsEnabled?.default ??
               defaultFeatureFlags.universalNotificationsEnabled
+          ),
+          featureClickAnalyticsRpc: Boolean(
+            typeof rpcFlag !== 'undefined'
+              ? rpcFlag
+              : defaultFeatureFlags.featureClickAnalyticsRpc
           ),
         };
       }
@@ -121,10 +152,20 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
     let res = await fetch(url, { cache: 'no-store' });
     if (res.ok) {
       const data: Record<string, unknown> = await res.json();
+      const hasRpcFlag =
+        Object.prototype.hasOwnProperty.call(
+          data,
+          'featureClickAnalyticsRpc'
+        ) ||
+        Object.prototype.hasOwnProperty.call(
+          data,
+          'feature_click_analytics_rpc'
+        );
       if (
         typeof data?.artistSearchEnabled !== 'undefined' ||
         typeof data?.debugBannerEnabled !== 'undefined' ||
-        typeof data?.tipPromoEnabled !== 'undefined'
+        typeof data?.tipPromoEnabled !== 'undefined' ||
+        hasRpcFlag
       ) {
         return {
           artistSearchEnabled: Boolean(
@@ -143,6 +184,16 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
             data.universalNotificationsEnabled ??
               defaultFeatureFlags.universalNotificationsEnabled
           ),
+          featureClickAnalyticsRpc: Boolean(
+            hasRpcFlag
+              ? ((data as Record<string, unknown>)[
+                  'featureClickAnalyticsRpc'
+                ] ??
+                  (data as Record<string, unknown>)[
+                    'feature_click_analytics_rpc'
+                  ])
+              : defaultFeatureFlags.featureClickAnalyticsRpc
+          ),
         };
       }
     }
@@ -156,6 +207,9 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
         flags?: Record<string, { default?: unknown }>;
       };
       if (typeof data?.version === 'number') {
+        const rpcFlag =
+          data.flags?.['featureClickAnalyticsRpc']?.default ??
+          data.flags?.['feature_click_analytics_rpc']?.default;
         return {
           artistSearchEnabled: Boolean(
             data.flags?.artistSearchEnabled?.default ??
@@ -176,6 +230,11 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
           universalNotificationsEnabled: Boolean(
             data.flags?.universalNotificationsEnabled?.default ??
               defaultFeatureFlags.universalNotificationsEnabled
+          ),
+          featureClickAnalyticsRpc: Boolean(
+            typeof rpcFlag !== 'undefined'
+              ? rpcFlag
+              : defaultFeatureFlags.featureClickAnalyticsRpc
           ),
         };
       }

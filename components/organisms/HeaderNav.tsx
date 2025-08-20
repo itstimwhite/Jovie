@@ -11,32 +11,46 @@ export function HeaderNav() {
   const [isProductFlyoutOpen, setIsProductFlyoutOpen] = useState(false);
   const productTriggerRef = useRef<HTMLButtonElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout>();
+  const isHoveringRef = useRef(false);
 
-  // Desktop hover handlers
-  const handleProductMouseEnter = () => {
+  // Simple, stable hover handlers
+  const handleTriggerMouseEnter = () => {
     if (window.matchMedia('(min-width: 768px)').matches) {
+      isHoveringRef.current = true;
       clearTimeout(hoverTimeoutRef.current);
       setIsProductFlyoutOpen(true);
     }
   };
 
-  const handleProductMouseLeave = () => {
-    clearTimeout(hoverTimeoutRef.current);
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsProductFlyoutOpen(false);
-    }, 150);
+  const handleTriggerMouseLeave = () => {
+    if (window.matchMedia('(min-width: 768px)').matches) {
+      isHoveringRef.current = false;
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = setTimeout(() => {
+        if (!isHoveringRef.current) {
+          setIsProductFlyoutOpen(false);
+        }
+      }, 100);
+    }
   };
 
-  // Flyout hover handlers to keep it open when hovering over the panel
   const handleFlyoutMouseEnter = () => {
-    clearTimeout(hoverTimeoutRef.current);
+    if (window.matchMedia('(min-width: 768px)').matches) {
+      isHoveringRef.current = true;
+      clearTimeout(hoverTimeoutRef.current);
+    }
   };
 
   const handleFlyoutMouseLeave = () => {
-    clearTimeout(hoverTimeoutRef.current);
-    hoverTimeoutRef.current = setTimeout(() => {
-      setIsProductFlyoutOpen(false);
-    }, 150);
+    if (window.matchMedia('(min-width: 768px)').matches) {
+      isHoveringRef.current = false;
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = setTimeout(() => {
+        if (!isHoveringRef.current) {
+          setIsProductFlyoutOpen(false);
+        }
+      }, 100);
+    }
   };
 
   // Mobile tap handler
@@ -46,18 +60,27 @@ export function HeaderNav() {
     }
   };
 
-  // Focus handlers
+  // Simplified focus handlers
   const handleProductFocus = () => {
-    setIsProductFlyoutOpen(true);
+    if (!window.matchMedia('(min-width: 768px)').matches) {
+      setIsProductFlyoutOpen(true);
+    }
   };
 
   const handleProductBlur = (e: React.FocusEvent) => {
+    // Only handle blur on mobile
+    if (window.matchMedia('(min-width: 768px)').matches) {
+      return;
+    }
     // Don't close if focus is moving to the flyout panel
     const relatedTarget = e.relatedTarget as HTMLElement;
     if (relatedTarget?.closest('[role="menu"]')) {
       return;
     }
-    setIsProductFlyoutOpen(false);
+    // Small delay to prevent flickering when tabbing
+    setTimeout(() => {
+      setIsProductFlyoutOpen(false);
+    }, 100);
   };
 
   // Close flyout
@@ -73,6 +96,14 @@ export function HeaderNav() {
     }
   }, [isProductFlyoutOpen]);
 
+  // Cleanup timeout and hover state on unmount
+  useEffect(() => {
+    return () => {
+      clearTimeout(hoverTimeoutRef.current);
+      isHoveringRef.current = false;
+    };
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200/10 dark:border-white/10 bg-white/95 dark:bg-[#0D0E12]/95 backdrop-blur-sm supports-backdrop-filter:bg-white/60 dark:supports-backdrop-filter:bg-[#0D0E12]/60">
       <Container>
@@ -85,17 +116,15 @@ export function HeaderNav() {
           {/* Navigation - Center (hidden on mobile) */}
           <div className="hidden md:flex flex-1 justify-center">
             <nav className="flex items-center space-x-6">
-              <div
-                className="relative"
-                onMouseEnter={handleProductMouseEnter}
-                onMouseLeave={handleProductMouseLeave}
-              >
+              <div className="relative">
                 <button
                   ref={productTriggerRef}
                   id="product-trigger"
                   onClick={handleProductClick}
                   onFocus={handleProductFocus}
                   onBlur={handleProductBlur}
+                  onMouseEnter={handleTriggerMouseEnter}
+                  onMouseLeave={handleTriggerMouseLeave}
                   aria-expanded={isProductFlyoutOpen}
                   aria-haspopup="menu"
                   className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 rounded px-2 py-1"
@@ -124,9 +153,9 @@ export function HeaderNav() {
             <nav className="flex items-center space-x-4">
               <div className="relative">
                 <button
-                  ref={productTriggerRef}
-                  id="product-trigger"
                   onClick={handleProductClick}
+                  onFocus={handleProductFocus}
+                  onBlur={handleProductBlur}
                   aria-expanded={isProductFlyoutOpen}
                   aria-haspopup="menu"
                   className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 rounded px-2 py-1 min-h-[44px] flex items-center"
@@ -137,8 +166,6 @@ export function HeaderNav() {
                   isOpen={isProductFlyoutOpen}
                   onClose={closeFlyout}
                   triggerRef={productTriggerRef}
-                  onMouseEnter={handleFlyoutMouseEnter}
-                  onMouseLeave={handleFlyoutMouseLeave}
                 />
               </div>
               <Link

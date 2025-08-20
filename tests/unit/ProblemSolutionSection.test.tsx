@@ -1,11 +1,12 @@
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { ProblemSolutionSection } from '@/components/home/ProblemSolutionSection';
-
-// Mock analytics
+// Mock analytics BEFORE importing the component so the real module isn't loaded
 vi.mock('@/lib/analytics', () => ({
   track: vi.fn(),
 }));
+
+import { track } from '@/lib/analytics';
+import { ProblemSolutionSection } from '@/components/home/ProblemSolutionSection';
 
 describe('ProblemSolutionSection', () => {
   afterEach(() => {
@@ -56,7 +57,6 @@ describe('ProblemSolutionSection', () => {
   });
 
   it('tracks analytics when CTA button is clicked', () => {
-    const { track } = require('@/lib/analytics');
     render(<ProblemSolutionSection />);
 
     const ctaButton = screen.getByRole('link', { name: /Claim your handle/i });

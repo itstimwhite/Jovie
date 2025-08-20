@@ -42,6 +42,33 @@ export function createServerClient() {
   });
 }
 
+// Create anonymous server client (no authentication)
+export function createAnonymousServerClient() {
+  if (!supabaseUrl || !supabaseKey) {
+    return null;
+  }
+
+  // For local development, ensure we use localhost instead of 127.0.0.1 for server-side requests
+  const serverSupabaseUrl =
+    process.env.NODE_ENV === 'development'
+      ? supabaseUrl.replace('127.0.0.1', 'localhost')
+      : supabaseUrl;
+
+  return createClient(serverSupabaseUrl, supabaseKey, {
+    auth: {
+      persistSession: false, // Prevent multiple auth instances
+    },
+    global: {
+      // Add custom fetch for local development to handle networking issues
+      fetch:
+        process.env.NODE_ENV === 'development'
+          ? createLocalDevFetch()
+          : undefined,
+    },
+    // No accessToken function - truly anonymous
+  });
+}
+
 // Custom fetch function for local development that handles networking issues
 function createLocalDevFetch() {
   return async (input: RequestInfo | URL, init?: RequestInit) => {
