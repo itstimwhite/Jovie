@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
 import {
@@ -161,12 +161,15 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                       >
                         <div className="flex items-center gap-3">
                           {profile.avatar_url ? (
-                            <Image
+                            <OptimizedImage
                               src={profile.avatar_url}
                               alt={profile.display_name || profile.username}
-                              width={32}
-                              height={32}
-                              className="w-8 h-8 rounded-full object-cover"
+                              size="sm"
+                              shape="circle"
+                              aspectRatio="square"
+                              objectFit="cover"
+                              priority={true}
+                              quality={90}
                             />
                           ) : (
                             <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">

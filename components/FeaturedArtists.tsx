@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 export type FeaturedArtist = {
   id: string;
@@ -36,14 +36,23 @@ export default function FeaturedArtists({
                   className="group block cursor-pointer"
                 >
                   <div className="text-center">
-                    <Image
+                    <OptimizedImage
                       src={a.src}
                       alt={a.alt ?? a.name}
-                      width={256}
-                      height={256}
-                      loading="lazy"
-                      decoding="async"
-                      className="size-40 rounded-full object-cover ring-1 ring-white/15 shadow-2xl group-hover:ring-white/25 mx-auto"
+                      width={160}
+                      height={160}
+                      aspectRatio="square"
+                      objectFit="cover"
+                      objectPosition="center"
+                      priority={false}
+                      quality={85}
+                      placeholder="blur"
+                      sizes="(max-width: 768px) 160px, 160px"
+                      className="size-40 ring-1 ring-white/15 shadow-2xl group-hover:ring-white/25 mx-auto"
+                      shape="circle"
+                      artistName={a.name}
+                      imageType="avatar"
+                      enableVersioning={true}
                     />
                     <p className="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                       {a.name}
@@ -67,14 +76,23 @@ export default function FeaturedArtists({
                   className="group block cursor-pointer"
                 >
                   <div className="text-center">
-                    <Image
+                    <OptimizedImage
                       src={a.src}
                       alt={a.alt ?? a.name}
-                      width={176}
-                      height={176}
-                      loading="lazy"
-                      decoding="async"
-                      className="size-28 rounded-full object-cover ring-1 ring-black/10 dark:ring-white/15 shadow-lg group-hover:ring-white/25 mx-auto"
+                      width={112}
+                      height={112}
+                      aspectRatio="square"
+                      objectFit="cover"
+                      objectPosition="center"
+                      priority={false}
+                      quality={85}
+                      placeholder="blur"
+                      sizes="(max-width: 768px) 112px, 112px"
+                      className="size-28 ring-1 ring-black/10 dark:ring-white/15 shadow-lg group-hover:ring-white/25 mx-auto"
+                      shape="circle"
+                      artistName={a.name}
+                      imageType="avatar"
+                      enableVersioning={true}
                     />
                     <p className="mt-2 text-xs font-medium text-gray-700 dark:text-gray-300">
                       {a.name}
