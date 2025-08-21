@@ -6,7 +6,6 @@ import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
 import { AnimatedListenInterface } from '@/components/profile/AnimatedListenInterface';
 import VenmoTipSelector from '@/components/profile/VenmoTipSelector';
 import { ProfileSection } from '@/components/organisms/ProfileSection';
-import { FrostedButton } from '@/components/atoms/FrostedButton';
 import { Artist, LegacySocialLink } from '@/types/db';
 import Link from 'next/link';
 
@@ -81,10 +80,11 @@ function renderContent(
           transition={{ duration: 0.6 }}
         >
           <div className="space-y-4">
-            <Link href={`/${artist.handle}?mode=listen`}>
-              <FrostedButton variant="default" size="lg" className="w-full">
-                🎵 Listen Now
-              </FrostedButton>
+            <Link
+              href={`/${artist.handle}?mode=listen`}
+              className="inline-flex items-center justify-center w-full px-8 py-4 text-lg font-semibold text-white bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100 rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:ring-offset-2"
+            >
+              🎵 Listen Now
             </Link>
           </div>
         </motion.div>
