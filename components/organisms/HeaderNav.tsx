@@ -11,44 +11,20 @@ export function HeaderNav() {
   const [isProductFlyoutOpen, setIsProductFlyoutOpen] = useState(false);
   const productTriggerRef = useRef<HTMLButtonElement>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout>();
-  const isHoveringRef = useRef(false);
 
-  // Simple, stable hover handlers
-  const handleTriggerMouseEnter = () => {
+  // Stable hover handlers on container
+  const handleHoverEnter = () => {
     if (window.matchMedia('(min-width: 768px)').matches) {
-      isHoveringRef.current = true;
       clearTimeout(hoverTimeoutRef.current);
       setIsProductFlyoutOpen(true);
     }
   };
 
-  const handleTriggerMouseLeave = () => {
+  const handleHoverLeave = () => {
     if (window.matchMedia('(min-width: 768px)').matches) {
-      isHoveringRef.current = false;
       clearTimeout(hoverTimeoutRef.current);
       hoverTimeoutRef.current = setTimeout(() => {
-        if (!isHoveringRef.current) {
-          setIsProductFlyoutOpen(false);
-        }
-      }, 100);
-    }
-  };
-
-  const handleFlyoutMouseEnter = () => {
-    if (window.matchMedia('(min-width: 768px)').matches) {
-      isHoveringRef.current = true;
-      clearTimeout(hoverTimeoutRef.current);
-    }
-  };
-
-  const handleFlyoutMouseLeave = () => {
-    if (window.matchMedia('(min-width: 768px)').matches) {
-      isHoveringRef.current = false;
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = setTimeout(() => {
-        if (!isHoveringRef.current) {
-          setIsProductFlyoutOpen(false);
-        }
+        setIsProductFlyoutOpen(false);
       }, 100);
     }
   };
@@ -96,11 +72,10 @@ export function HeaderNav() {
     }
   }, [isProductFlyoutOpen]);
 
-  // Cleanup timeout and hover state on unmount
+  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       clearTimeout(hoverTimeoutRef.current);
-      isHoveringRef.current = false;
     };
   }, []);
 
@@ -116,15 +91,18 @@ export function HeaderNav() {
           {/* Navigation - Center (hidden on mobile) */}
           <div className="hidden md:flex flex-1 justify-center">
             <nav className="flex items-center space-x-6">
-              <div className="relative">
+              <div
+                className="relative"
+                onPointerEnter={handleHoverEnter}
+                onPointerLeave={handleHoverLeave}
+                data-testid="product-flyout-wrapper"
+              >
                 <button
                   ref={productTriggerRef}
                   id="product-trigger"
                   onClick={handleProductClick}
                   onFocus={handleProductFocus}
                   onBlur={handleProductBlur}
-                  onMouseEnter={handleTriggerMouseEnter}
-                  onMouseLeave={handleTriggerMouseLeave}
                   aria-expanded={isProductFlyoutOpen}
                   aria-haspopup="menu"
                   className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 rounded px-2 py-1"
@@ -135,8 +113,6 @@ export function HeaderNav() {
                   isOpen={isProductFlyoutOpen}
                   onClose={closeFlyout}
                   triggerRef={productTriggerRef}
-                  onMouseEnter={handleFlyoutMouseEnter}
-                  onMouseLeave={handleFlyoutMouseLeave}
                 />
               </div>
               <Link
