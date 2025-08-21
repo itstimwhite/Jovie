@@ -81,22 +81,20 @@ function renderContent(
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <ProfileSection artist={artist} subtitle={subtitle}>
-            <div className="space-y-4">
-              <Link href={`/${artist.handle}?mode=listen`}>
-                <FrostedButton variant="default" size="lg" className="w-full">
-                  🎵 Listen Now
+          <div className="space-y-4">
+            <Link href={`/${artist.handle}?mode=listen`}>
+              <FrostedButton variant="default" size="lg" className="w-full">
+                🎵 Listen Now
+              </FrostedButton>
+            </Link>
+            {showTipButton && (
+              <Link href={`/${artist.handle}?mode=tip`}>
+                <FrostedButton variant="outline" size="lg" className="w-full">
+                  💰 Send Tip
                 </FrostedButton>
               </Link>
-              {showTipButton && (
-                <Link href={`/${artist.handle}?mode=tip`}>
-                  <FrostedButton variant="outline" size="lg" className="w-full">
-                    💰 Send Tip
-                  </FrostedButton>
-                </Link>
-              )}
-            </div>
-          </ProfileSection>
+            )}
+          </div>
         </motion.div>
       );
   }
