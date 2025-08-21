@@ -43,8 +43,6 @@ function TestWrapper({
         isOpen={isOpen}
         onClose={onClose}
         triggerRef={triggerRef}
-        onMouseEnter={() => {}}
-        onMouseLeave={() => {}}
       />
     </div>
   );
