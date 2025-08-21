@@ -8,8 +8,8 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
-import { APP_URL } from '@/constants/app';
 import { completeOnboarding } from '@/app/onboarding/actions';
+import clsx from 'clsx';
 
 interface OnboardingState {
   step:
@@ -40,9 +40,6 @@ interface SelectedArtist {
 export function OnboardingForm() {
   const { user } = useUser();
   const searchParams = useSearchParams();
-
-  // Extract domain from APP_URL for display
-  const displayDomain = APP_URL.replace(/^https?:\/\//, '');
 
   // Form state
   const [handle, setHandle] = useState('');
@@ -198,6 +195,14 @@ export function OnboardingForm() {
     }));
   }, []);
 
+  useEffect(() => {
+    if (state.step === 'complete') {
+      import('canvas-confetti').then((confetti) =>
+        confetti.default({ spread: 70, origin: { y: 0.6 } })
+      );
+    }
+  }, [state.step]);
+
   // Main submission handler using server action
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -352,7 +357,7 @@ export function OnboardingForm() {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <FormField
           label="Handle"
           error={handleError || handleValidation.error || undefined}
@@ -362,10 +367,11 @@ export function OnboardingForm() {
               type="text"
               value={handle}
               onChange={(e) => setHandle(e.target.value)}
-              placeholder="your-handle"
+              placeholder="@yourname"
               required
               disabled={state.step !== 'validating'}
-              className="font-mono pr-8"
+              className="rounded-full before:rounded-full font-mono"
+              inputClassName="rounded-full bg-white/5 px-6 py-4 text-base text-white placeholder:text-gray-500 focus:bg-white/10 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-neutral-950"
               aria-describedby="handle-preview-onboarding"
               aria-invalid={
                 handleError || handleValidation.error ? 'true' : 'false'
@@ -373,15 +379,15 @@ export function OnboardingForm() {
               aria-label="Enter your desired handle"
             />
             {handleValidation.checking && (
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              <div className="absolute right-4 top-1/2 -translate-y-1/2">
                 <LoadingSpinner size="sm" />
               </div>
             )}
             {handleValidation.available && !handleValidation.checking && (
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+              <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500">
                   <svg
-                    className="w-2.5 h-2.5 text-white"
+                    className="h-3 w-3 text-white"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -394,34 +400,58 @@ export function OnboardingForm() {
                 </div>
               </div>
             )}
+            {handleError && !handleValidation.checking && (
+              <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500">
+                  <svg
+                    className="h-3 w-3 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 8.586l4.95-4.95a1 1 0 111.414 1.414L11.414 10l4.95 4.95a1 1 0 01-1.414 1.414L10 11.414l-4.95 4.95a1 1 0 01-1.414-1.414L8.586 10l-4.95-4.95A1 1 0 115.05 3.636L10 8.586z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </div>
+            )}
           </div>
           <p
-            className="text-xs text-gray-500 dark:text-gray-400 mt-1"
+            className="mt-2 text-xs text-gray-400"
             id="handle-preview-onboarding"
           >
-            Your profile will be live at {displayDomain}/
-            {handle || 'your-handle'}
+            preview.jov.ie/@{handle || 'yourname'}
           </p>
         </FormField>
 
-        <Button
-          type="submit"
-          disabled={
-            !isFormValid || state.step !== 'validating' || state.isSubmitting
-          }
-          variant="primary"
-          className="w-full"
-          aria-describedby="form-status"
-        >
-          {state.step === 'validating' && !state.isSubmitting ? (
-            'Create Profile'
-          ) : (
-            <div className="flex items-center justify-center space-x-2">
-              <LoadingSpinner size="sm" />
-              <span>{getProgressText()}</span>
-            </div>
-          )}
-        </Button>
+        <div className="space-y-2">
+          <Button
+            type="submit"
+            disabled={
+              !isFormValid || state.step !== 'validating' || state.isSubmitting
+            }
+            variant="primary"
+            className={clsx(
+              'w-full rounded-full bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-6 py-4 text-lg font-semibold text-white transition-transform duration-200 hover:scale-[1.02] active:scale-95',
+              isFormValid && !state.isSubmitting && 'animate-pulse'
+            )}
+            aria-describedby="form-status"
+          >
+            {state.step === 'validating' && !state.isSubmitting ? (
+              'Claim Profile'
+            ) : (
+              <div className="flex items-center justify-center space-x-2">
+                <LoadingSpinner size="sm" />
+                <span>{getProgressText()}</span>
+              </div>
+            )}
+          </Button>
+          <p className="text-center text-xs text-gray-500">
+            It’s free and takes 30 seconds.
+          </p>
+        </div>
       </form>
     </div>
   );
