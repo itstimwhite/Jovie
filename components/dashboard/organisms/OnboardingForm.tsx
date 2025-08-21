@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
+import { APP_URL } from '@/constants/app';
 import { completeOnboarding } from '@/app/onboarding/actions';
-import clsx from 'clsx';
 
 interface OnboardingState {
   step:
@@ -40,6 +40,10 @@ interface SelectedArtist {
 export function OnboardingForm() {
   const { user } = useUser();
   const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Extract domain from APP_URL for display
+  const displayDomain = APP_URL.replace(/^https?:\/\//, '');
 
   // Form state
   const [handle, setHandle] = useState('');
@@ -92,78 +96,111 @@ export function OnboardingForm() {
 
   // Abort controller for canceling in-flight requests
   const abortControllerRef = useRef<AbortController | null>(null);
+  const loaderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastValidatedRef = useRef<{
+    handle: string;
+    available: boolean;
+  } | null>(null);
+  const [showLoader, setShowLoader] = useState(false);
 
   // Debounced handle validation with race condition protection
-  const validateHandle = useCallback(async (handleValue: string) => {
-    // Cancel any in-flight request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
+  const validateHandle = useCallback(
+    async (handleValue: string): Promise<boolean> => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
 
-    if (!handleValue || handleValue.length < 3) {
-      setHandleValidation({ available: false, checking: false, error: null });
-      return;
-    }
+      if (loaderTimeoutRef.current) {
+        clearTimeout(loaderTimeoutRef.current);
+      }
+      setShowLoader(false);
 
-    // Create new abort controller for this request
-    const abortController = new AbortController();
-    abortControllerRef.current = abortController;
+      if (!handleValue || handleValue.length < 3) {
+        setHandleValidation({ available: false, checking: false, error: null });
+        return false;
+      }
 
-    setHandleValidation({ available: false, checking: true, error: null });
+      if (lastValidatedRef.current?.handle === handleValue) {
+        const { available } = lastValidatedRef.current;
+        setHandleValidation({
+          available,
+          checking: false,
+          error: available ? null : 'Handle already taken',
+        });
+        return available;
+      }
 
-    try {
-      // Use the API endpoint instead of direct database access during onboarding
-      const response = await fetch(
-        `/api/handle/check?handle=${encodeURIComponent(
-          handleValue.toLowerCase()
-        )}`,
-        { signal: abortController.signal }
-      );
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
 
-      // Check if request was aborted
-      if (abortController.signal.aborted) return;
+      setHandleValidation((prev) => ({ ...prev, checking: true, error: null }));
+      loaderTimeoutRef.current = setTimeout(() => setShowLoader(true), 150);
 
-      const result = await response.json();
+      try {
+        const response = await fetch(
+          `/api/handle/check?handle=${encodeURIComponent(
+            handleValue.toLowerCase()
+          )}`,
+          { signal: abortController.signal }
+        );
 
-      if (!response.ok) {
+        if (abortController.signal.aborted) return false;
+
+        const result = await response.json();
+
+        const available = !!result.available && response.ok;
+        setHandleValidation({
+          available,
+          checking: false,
+          error: response.ok
+            ? available
+              ? null
+              : 'Handle already taken'
+            : result.error || 'Error checking availability',
+        });
+        lastValidatedRef.current = { handle: handleValue, available };
+        return available;
+      } catch (validationError) {
+        if (
+          validationError instanceof Error &&
+          validationError.name === 'AbortError'
+        ) {
+          return false;
+        }
+        console.error('Handle validation error:', validationError);
         setHandleValidation({
           available: false,
           checking: false,
-          error: result.error || 'Error checking availability',
+          error: 'Network error',
         });
-      } else {
-        setHandleValidation({
-          available: result.available,
-          checking: false,
-          error: result.available ? null : 'Handle already taken',
-        });
+        lastValidatedRef.current = { handle: handleValue, available: false };
+        return false;
+      } finally {
+        if (loaderTimeoutRef.current) {
+          clearTimeout(loaderTimeoutRef.current);
+        }
+        setShowLoader(false);
       }
-    } catch (validationError) {
-      // Ignore aborted requests
-      if (
-        validationError instanceof Error &&
-        validationError.name === 'AbortError'
-      ) {
-        return;
-      }
-
-      console.error('Handle validation error:', validationError);
-      setHandleValidation({
-        available: false,
-        checking: false,
-        error: 'Network error',
-      });
-    }
-  }, []);
+    },
+    []
+  );
 
   // Validate handle when it changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      validateHandle(handle);
+      void validateHandle(handle);
     }, 500);
 
     return () => clearTimeout(timeoutId);
   }, [handle, validateHandle]);
+
+  // Prefetch dashboard route when handle is valid
+  useEffect(() => {
+    if (handleValidation.available && !handleValidation.checking) {
+      // Prefetch dashboard assets for faster navigation after onboarding
+      router.prefetch('/dashboard');
+    }
+  }, [handleValidation.available, handleValidation.checking, router]);
 
   // Handle validation rules
   const handleError = useMemo(() => {
@@ -176,15 +213,13 @@ export function OnboardingForm() {
     return null;
   }, [handle, handleValidation.error]);
 
-  const isFormValid = useMemo(() => {
+  const baseHandleValid = useMemo(() => {
     return (
       handle.length >= 3 &&
       handle.length <= 30 &&
-      /^[a-zA-Z0-9-]+$/.test(handle) &&
-      handleValidation.available &&
-      !state.error
+      /^[a-zA-Z0-9-]+$/.test(handle)
     );
-  }, [handle, handleValidation.available, state.error]);
+  }, [handle]);
 
   // Retry mechanism
   const retryOperation = useCallback(() => {
@@ -195,19 +230,21 @@ export function OnboardingForm() {
     }));
   }, []);
 
-  useEffect(() => {
-    if (state.step === 'complete') {
-      import('canvas-confetti').then((confetti) =>
-        confetti.default({ spread: 70, origin: { y: 0.6 } })
-      );
-    }
-  }, [state.step]);
 
   // Main submission handler using server action
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      if (!user || !isFormValid || state.isSubmitting) return;
+      if (!user || state.isSubmitting) return;
+
+      let available = handleValidation.available;
+      if (handleValidation.checking || !available) {
+        available = await validateHandle(handle);
+      }
+
+      const isValid = baseHandleValid && available && !state.error;
+
+      if (!isValid) return;
 
       setState((prev) => ({
         ...prev,
@@ -266,7 +303,17 @@ export function OnboardingForm() {
         }));
       }
     },
-    [user, handle, selectedArtist, isFormValid, state.isSubmitting]
+    [
+      user,
+      handle,
+      selectedArtist,
+      state.error,
+      state.isSubmitting,
+      handleValidation.available,
+      handleValidation.checking,
+      baseHandleValid,
+      validateHandle,
+    ]
   );
 
   // Progress indicator
@@ -357,7 +404,7 @@ export function OnboardingForm() {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <FormField
           label="Handle"
           error={handleError || handleValidation.error || undefined}
@@ -367,91 +414,71 @@ export function OnboardingForm() {
               type="text"
               value={handle}
               onChange={(e) => setHandle(e.target.value)}
-              placeholder="@yourname"
+              placeholder="your-handle"
               required
               disabled={state.step !== 'validating'}
-              className="rounded-full before:rounded-full font-mono"
-              inputClassName="rounded-full bg-white/5 px-6 py-4 text-base text-white placeholder:text-gray-500 focus:bg-white/10 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-neutral-950"
+              className="font-mono pr-8"
               aria-describedby="handle-preview-onboarding"
               aria-invalid={
                 handleError || handleValidation.error ? 'true' : 'false'
               }
               aria-label="Enter your desired handle"
+              autoCapitalize="none"
+              autoCorrect="off"
+              autoComplete="off"
+              inputMode="text"
             />
-            {handleValidation.checking && (
-              <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
+              {handleValidation.checking && showLoader && (
                 <LoadingSpinner size="sm" />
-              </div>
-            )}
-            {handleValidation.available && !handleValidation.checking && (
-              <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500">
-                  <svg
-                    className="h-3 w-3 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-              </div>
-            )}
-            {handleError && !handleValidation.checking && (
-              <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500">
-                  <svg
-                    className="h-3 w-3 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 8.586l4.95-4.95a1 1 0 111.414 1.414L11.414 10l4.95 4.95a1 1 0 01-1.414 1.414L10 11.414l-4.95 4.95a1 1 0 01-1.414-1.414L8.586 10l-4.95-4.95A1 1 0 115.05 3.636L10 8.586z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-              </div>
-            )}
+              )}
+              {handleValidation.available &&
+                (!handleValidation.checking || !showLoader) && (
+                  <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg
+                      className="w-2.5 h-2.5 text-white"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                )}
+            </div>
           </div>
           <p
-            className="mt-2 text-xs text-gray-400"
+            className="text-xs text-gray-500 dark:text-gray-400 mt-1"
             id="handle-preview-onboarding"
           >
-            preview.jov.ie/@{handle || 'yourname'}
+            Your profile will be live at {displayDomain}/
+            {handle || 'your-handle'}
           </p>
         </FormField>
 
-        <div className="space-y-2">
-          <Button
-            type="submit"
-            disabled={
-              !isFormValid || state.step !== 'validating' || state.isSubmitting
-            }
-            variant="primary"
-            className={clsx(
-              'w-full rounded-full bg-gradient-to-r from-indigo-500 to-fuchsia-500 px-6 py-4 text-lg font-semibold text-white transition-transform duration-200 hover:scale-[1.02] active:scale-95',
-              isFormValid && !state.isSubmitting && 'animate-pulse'
-            )}
-            aria-describedby="form-status"
-          >
-            {state.step === 'validating' && !state.isSubmitting ? (
-              'Claim Profile'
-            ) : (
-              <div className="flex items-center justify-center space-x-2">
-                <LoadingSpinner size="sm" />
-                <span>{getProgressText()}</span>
-              </div>
-            )}
-          </Button>
-          <p className="text-center text-xs text-gray-500">
-            It’s free and takes 30 seconds.
-          </p>
-        </div>
+        <Button
+          type="submit"
+          disabled={
+            !baseHandleValid ||
+            state.step !== 'validating' ||
+            state.isSubmitting
+          }
+          variant="primary"
+          className="w-full"
+          aria-describedby="form-status"
+        >
+          {state.step === 'validating' && !state.isSubmitting ? (
+            'Create Profile'
+          ) : (
+            <div className="flex items-center justify-center space-x-2">
+              <LoadingSpinner size="sm" />
+              <span>{getProgressText()}</span>
+            </div>
+          )}
+        </Button>
       </form>
     </div>
   );
