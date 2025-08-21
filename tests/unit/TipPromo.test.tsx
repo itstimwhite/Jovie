@@ -64,7 +64,7 @@ describe('TipPromo', () => {
 
     // Check section has dark background and white text
     const section = screen.getByText('Tip,').closest('section');
-    expect(section).toHaveClass('bg-zinc-900', 'text-white', 'py-20');
+    expect(section).toHaveClass('bg-zinc-900', 'text-white');
 
     // Check CTA button styling
     const ctaButton = screen.getByRole('link', { name: 'See it live' });

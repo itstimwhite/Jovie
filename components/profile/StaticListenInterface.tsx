@@ -141,16 +141,6 @@ export const StaticListenInterface = React.memo(function StaticListenInterface({
 
   return (
     <div className="w-full max-w-sm">
-      {/* Title */}
-      <div className="text-center mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-          Choose a Service
-        </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Your preference will be saved for next time
-        </p>
-      </div>
-
       {/* DSP Buttons */}
       <div className="space-y-3">
         {availableDSPs.map((dsp) => (

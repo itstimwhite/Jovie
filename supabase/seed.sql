@@ -41,7 +41,8 @@ INSERT INTO creator_profiles (
   is_featured,
   marketing_opt_out,
   theme,
-  settings
+  settings,
+  social_links
 ) VALUES
   (
     'seed_user_1', 
@@ -59,7 +60,8 @@ INSERT INTO creator_profiles (
     true,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/musicmaker","tiktok":"https://tiktok.com/@musicmaker"}'
   ),
   (
     'seed_user_2', 
@@ -77,7 +79,8 @@ INSERT INTO creator_profiles (
     false,
     false,
     null,
-    '{"hide_branding": true}'
+    '{"hide_branding": true}',
+    '{"instagram":"https://instagram.com/privateartist","x":"https://x.com/privateartist"}'
   ),
   (
     'seed_user_3', 
@@ -95,7 +98,8 @@ INSERT INTO creator_profiles (
     true,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/popstar","tiktok":"https://tiktok.com/@popstar"}'
   ),
   (
     'seed_user_4', 
@@ -113,7 +117,8 @@ INSERT INTO creator_profiles (
     false,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/techtalks","x":"https://x.com/techtalks"}'
   ),
   (
     'seed_user_5', 
@@ -131,7 +136,8 @@ INSERT INTO creator_profiles (
     false,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/lifestyleguru","tiktok":"https://tiktok.com/@lifestyleguru"}'
   ),
   (
     'seed_user_6', 
@@ -149,7 +155,8 @@ INSERT INTO creator_profiles (
     true,
     false,
     null, 
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/tim","tiktok":"https://tiktok.com/@tim"}'
   ),
   (
     'seed_user_7',
@@ -167,7 +174,8 @@ INSERT INTO creator_profiles (
     true,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/taylorswift","tiktok":"https://tiktok.com/@taylorswift"}'
   ),
   (
     'seed_user_8',
@@ -185,7 +193,8 @@ INSERT INTO creator_profiles (
     true,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/oliviarodrigo","tiktok":"https://tiktok.com/@oliviarodrigo"}'
   ),
   (
     'seed_user_9',
@@ -203,7 +212,8 @@ INSERT INTO creator_profiles (
     true,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/sza","tiktok":"https://tiktok.com/@sza"}'
   ),
   (
     'seed_user_10',
@@ -221,7 +231,8 @@ INSERT INTO creator_profiles (
     true,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/theweeknd","tiktok":"https://tiktok.com/@theweeknd"}'
   ),
   (
     'seed_user_11',
@@ -239,7 +250,8 @@ INSERT INTO creator_profiles (
     true,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/badbunny","tiktok":"https://tiktok.com/@badbunny"}'
   ),
   (
     'seed_user_12',
@@ -257,7 +269,8 @@ INSERT INTO creator_profiles (
     true,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/karolg","tiktok":"https://tiktok.com/@karolg"}'
   ),
   (
     'seed_user_13',
@@ -275,7 +288,8 @@ INSERT INTO creator_profiles (
     true,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/newjeans","tiktok":"https://tiktok.com/@newjeans"}'
   ),
   (
     'seed_user_14',
@@ -293,7 +307,8 @@ INSERT INTO creator_profiles (
     true,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/maneskin","tiktok":"https://tiktok.com/@maneskin"}'
   ),
   (
     'seed_user_15',
@@ -311,7 +326,8 @@ INSERT INTO creator_profiles (
     true,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/pinkpantheress","tiktok":"https://tiktok.com/@pinkpantheress"}'
   ),
   (
     'seed_user_16',
@@ -329,7 +345,8 @@ INSERT INTO creator_profiles (
     true,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/lukecombs","tiktok":"https://tiktok.com/@lukecombs"}'
   )
 ON CONFLICT (username) DO NOTHING;
 
@@ -352,7 +369,8 @@ INSERT INTO creator_profiles (
   marketing_opt_out,
   is_claimed,
   theme,
-  settings
+  settings,
+  social_links
 ) VALUES
   (
     NULL, -- No user_id - this is unclaimed
@@ -371,7 +389,8 @@ INSERT INTO creator_profiles (
     false,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/beyonce","x":"https://x.com/beyonce"}'
   ),
   (
     NULL,
@@ -390,7 +409,8 @@ INSERT INTO creator_profiles (
     false,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/dualipa","tiktok":"https://tiktok.com/@dualipa"}'
   ),
   (
     NULL,
@@ -409,7 +429,8 @@ INSERT INTO creator_profiles (
     false,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/arianagrande","tiktok":"https://tiktok.com/@arianagrande"}'
   ),
   (
     NULL,
@@ -428,7 +449,8 @@ INSERT INTO creator_profiles (
     false,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/edsheeran","tiktok":"https://tiktok.com/@edsheeran"}'
   ),
   (
     NULL,
@@ -447,6 +469,7 @@ INSERT INTO creator_profiles (
     false,
     false,
     null,
-    '{"hide_branding": false}'
+    '{"hide_branding": false}',
+    '{"instagram":"https://instagram.com/billieeilish","tiktok":"https://tiktok.com/@billieeilish"}'
   )
 ON CONFLICT (username) DO NOTHING;

@@ -13,15 +13,12 @@ export function ProfileSkeleton() {
             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-lg w-48 mx-auto"></div>
           </div>
 
-          {/* Action Button */}
-          <div className="mb-6">
+          {/* Action Buttons */}
+          <div className="space-y-4">
+            {/* Listen Now Button */}
             <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-xl w-full"></div>
-          </div>
-
-          {/* Social Links */}
-          <div className="space-y-3">
-            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-full"></div>
-            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-full"></div>
+            {/* Optional Tip Button */}
+            <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-xl w-full"></div>
           </div>
         </div>
       </div>

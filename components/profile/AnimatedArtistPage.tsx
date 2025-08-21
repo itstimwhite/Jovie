@@ -6,7 +6,10 @@ import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
 import { ListenNow } from '@/components/profile/ListenNow';
 import { AnimatedListenInterface } from '@/components/profile/AnimatedListenInterface';
 import VenmoTipSelector from '@/components/profile/VenmoTipSelector';
+import { ProfileSection } from '@/components/organisms/ProfileSection';
+import { FrostedButton } from '@/components/atoms/FrostedButton';
 import { Artist, LegacySocialLink } from '@/types/db';
+import Link from 'next/link';
 
 interface AnimatedArtistPageProps {
   mode: string;
@@ -53,27 +56,47 @@ function renderContent(
       const venmoUsername = extractVenmoUsername(venmoLink);
       const AMOUNTS = [3, 5, 7];
 
-      return venmoLink ? (
-        <VenmoTipSelector
-          venmoLink={venmoLink}
-          venmoUsername={venmoUsername ?? undefined}
-          amounts={AMOUNTS}
-        />
-      ) : (
-        <div className="text-center">
-          <div className="bg-white/60 dark:bg-white/5 backdrop-blur-lg border border-gray-200/30 dark:border-white/10 rounded-2xl p-8 shadow-xl shadow-black/5">
-            <p className="text-gray-600 dark:text-gray-400">
-              Venmo tipping is not available for this artist yet.
-            </p>
-          </div>
-        </div>
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <ProfileSection artist={artist} subtitle={subtitle}>
+            <VenmoTipSelector
+              venmoLink={venmoLink || ''}
+              venmoUsername={venmoUsername ?? undefined}
+              amounts={AMOUNTS}
+              className="w-full max-w-sm"
+            />
+          </ProfileSection>
+        </motion.div>
       );
 
     default: // 'profile' mode
       return (
-        <div className="flex justify-center">
-          <ListenNow handle={artist.handle} artistName={artist.name} />
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <ProfileSection artist={artist} subtitle={subtitle}>
+            <div className="space-y-4">
+              <Link href={`/${artist.handle}?mode=listen`}>
+                <FrostedButton variant="default" size="lg" className="w-full">
+                  🎵 Listen Now
+                </FrostedButton>
+              </Link>
+              {showTipButton && (
+                <Link href={`/${artist.handle}?mode=tip`}>
+                  <FrostedButton variant="outline" size="lg" className="w-full">
+                    💰 Send Tip
+                  </FrostedButton>
+                </Link>
+              )}
+            </div>
+          </ProfileSection>
+        </motion.div>
       );
   }
 }

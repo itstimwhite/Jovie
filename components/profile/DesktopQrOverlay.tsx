@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { XMarkIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
+import { QRCode } from '@/components/atoms/QRCode';
 
 interface DesktopQrOverlayProps {
   handle: string;
@@ -116,15 +117,10 @@ export function DesktopQrOverlay({ handle }: DesktopQrOverlayProps) {
             <XMarkIcon className="h-4 w-4" />
           </button>
           {url && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(
-                url
-              )}`}
-              alt="Scan to view on mobile"
-              width={120}
-              height={120}
-              className="h-[120px] w-[120px]"
+            <QRCode
+              data={url}
+              size={120}
+              label="Scan to view on mobile"
             />
           )}
           <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">

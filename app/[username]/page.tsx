@@ -231,5 +231,5 @@ export async function generateMetadata({ params }: Props) {
 // Enable ISR with 30 minute revalidation for fresher content
 export const revalidate = 1800;
 
-// Enable edge runtime for better performance
-export const runtime = 'edge';
+// Temporarily disable edge runtime for debugging
+// export const runtime = 'edge';

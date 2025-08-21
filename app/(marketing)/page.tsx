@@ -6,7 +6,7 @@ import { ProblemSolutionSection } from '@/components/home/ProblemSolutionSection
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { BenefitsSection } from '@/components/home/BenefitsSection';
 import { SocialProofSection } from '@/components/home/ComparisonSection';
-import { PreFooterCTA } from '@/components/PreFooterCTA';
+import { CTASection } from '@/components/organisms/CTASection';
 import dynamic from 'next/dynamic';
 const TipPromo = dynamic(() => import('@/components/TipPromo'));
 import { APP_NAME, APP_URL } from '@/constants/app';
@@ -191,7 +191,13 @@ export default function HomePage() {
       </div>
 
       {/* CTA section with glass morphism */}
-      <PreFooterCTA />
+      <CTASection
+        title="Ready to showcase your music?"
+        buttonText="Get Started Free"
+        buttonHref="/onboarding"
+        description="Join thousands of artists already using Jovie to connect with their fans."
+        variant="primary"
+      />
     </>
   );
 }

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { APP_URL } from '@/constants/app';
 
 export function ClaimHandleForm() {

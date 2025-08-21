@@ -6,7 +6,7 @@ import { ThemeProvider } from 'next-themes';
 import { Analytics } from '@/components/Analytics';
 import { FeatureFlagsProvider } from './FeatureFlagsProvider';
 import { FeatureFlags } from '@/lib/feature-flags';
-import { Spinner } from '@/components/ui';
+import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { env } from '@/lib/env';
 import { logger } from '@/lib/utils/logger';
 // import { Toolbar } from '@vercel/toolbar/next';
@@ -88,7 +88,7 @@ export function ClientProviders({
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <Spinner size="lg" />
+          <LoadingSpinner size="lg" showDebounce />
           <p className="mt-2 text-gray-600">Loading...</p>
         </div>
       </div>

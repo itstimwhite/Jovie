@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { clsx } from 'clsx';
-import { Spinner } from '@/components/ui/Spinner';
+import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 
 type PrimaryCTAProps = {
   children: React.ReactNode;
@@ -94,7 +94,7 @@ export default function PrimaryCTA({
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
           aria-hidden="true"
         >
-          <Spinner size="sm" variant="dark" />
+          <LoadingSpinner size="sm" variant="light" />
         </div>
       )}
     </button>

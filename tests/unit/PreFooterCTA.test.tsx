@@ -1,12 +1,19 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { render, screen, cleanup } from '@testing-library/react';
-import { PreFooterCTA } from '@/components/PreFooterCTA';
+import { CTASection } from '@/components/organisms/CTASection';
 
-describe('PreFooterCTA', () => {
+describe('CTASection', () => {
   afterEach(cleanup);
 
   it('renders the main headline text', () => {
-    render(<PreFooterCTA />);
+    render(
+      <CTASection
+        title="Launch your artist page in minutes. Convert visitors into fans."
+        buttonText="Claim your handle →"
+        buttonHref="/sign-up"
+        variant="primary"
+      />
+    );
 
     expect(
       screen.getByText(
@@ -16,7 +23,14 @@ describe('PreFooterCTA', () => {
   });
 
   it('renders the CTA button with correct text', () => {
-    render(<PreFooterCTA />);
+    render(
+      <CTASection
+        title="Launch your artist page in minutes. Convert visitors into fans."
+        buttonText="Claim your handle →"
+        buttonHref="/sign-up"
+        variant="primary"
+      />
+    );
 
     expect(
       screen.getByRole('link', { name: /claim your handle/i })
@@ -24,7 +38,14 @@ describe('PreFooterCTA', () => {
   });
 
   it('has proper accessibility attributes', () => {
-    render(<PreFooterCTA />);
+    render(
+      <CTASection
+        title="Launch your artist page in minutes. Convert visitors into fans."
+        buttonText="Claim your handle →"
+        buttonHref="/sign-up"
+        variant="primary"
+      />
+    );
 
     const section = screen.getByRole('region');
     expect(section).toHaveAttribute('aria-labelledby', 'cta-heading');
@@ -36,7 +57,14 @@ describe('PreFooterCTA', () => {
   });
 
   it('applies correct styling classes for emphasis', () => {
-    render(<PreFooterCTA />);
+    render(
+      <CTASection
+        title="Launch your artist page in minutes. Convert visitors into fans."
+        buttonText="Claim your handle →"
+        buttonHref="/sign-up"
+        variant="primary"
+      />
+    );
 
     const headline = screen.getByText(
       'Launch your artist page in minutes. Convert visitors into fans.'
@@ -50,7 +78,14 @@ describe('PreFooterCTA', () => {
   });
 
   it('has proper responsive layout structure', () => {
-    render(<PreFooterCTA />);
+    render(
+      <CTASection
+        title="Launch your artist page in minutes. Convert visitors into fans."
+        buttonText="Claim your handle →"
+        buttonHref="/sign-up"
+        variant="primary"
+      />
+    );
 
     const section = screen.getByRole('region');
     expect(section).toBeInTheDocument();

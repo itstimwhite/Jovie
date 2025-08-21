@@ -1,78 +1,24 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import PrimaryCTA from '@/components/ui/PrimaryCTA';
-import { Spinner } from '@/components/ui';
+import { ListenSection } from '@/components/organisms/ListenSection';
+import { getAvailableDSPs } from '@/lib/dsp';
+import type { Artist } from '@/types/db';
 
 interface ListenNowProps {
   handle: string;
   artistName: string;
+  artist?: Artist;
 }
 
-export function ListenNow({ handle, artistName }: ListenNowProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-
-  const handleClick = async () => {
-    if (isLoading) return;
-
-    setIsLoading(true);
-
-    try {
-      // Simple tracking without analytics library
-      await fetch('/api/track', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          handle,
-          linkType: 'listen',
-          target: 'spotify',
-        }),
-      });
-
-      // Navigate to listen mode on same page instead of new window
-      router.push(`/${handle}?mode=listen`);
-    } catch (error) {
-      console.error('Failed to track listen click:', error);
-      // Still navigate even if tracking fails
-      router.push(`/${handle}?mode=listen`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+export function ListenNow({ handle, artistName, artist }: ListenNowProps) {
+  // Generate DSPs from artist data if available, otherwise empty array
+  const dsps = artist ? getAvailableDSPs(artist) : [];
 
   return (
-    <div className="w-full max-w-sm">
-      {/* Frosted backdrop wrapper for premium look */}
-      <div className="rounded-xl bg-white/50 dark:bg-white/5 backdrop-blur-md p-1 ring-1 ring-black/5 dark:ring-white/10 shadow-sm">
-        <PrimaryCTA
-          onClick={handleClick}
-          ariaLabel={`Listen to ${artistName}`}
-          autoFocus
-          disabled={isLoading}
-          className="relative"
-        >
-          {/* Cross-fade label/spinner without layout shift */}
-          <div className="relative flex min-h-[1.5rem] items-center justify-center">
-            <span
-              className={`transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-            >
-              Listen Now
-            </span>
-            <span
-              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${isLoading ? 'opacity-100' : 'opacity-0'}`}
-            >
-              <span className="inline-flex items-center gap-2">
-                <Spinner size="sm" variant="dark" />
-                <span>Opening...</span>
-              </span>
-            </span>
-          </div>
-        </PrimaryCTA>
-      </div>
-    </div>
+    <ListenSection
+      handle={handle}
+      dsps={dsps}
+      className=""
+    />
   );
 }

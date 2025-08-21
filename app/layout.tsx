@@ -6,7 +6,7 @@ import { APP_NAME, APP_URL } from '@/constants/app';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
 import '@/styles/globals.css';
 import { StatsigProviderWrapper } from '@/components/providers/StatsigProvider';
-import CookieBanner from '@/components/CookieBanner';
+import { CookieBannerSection } from '@/components/organisms/CookieBannerSection';
 import { headers } from 'next/headers';
 
 // Bypass static rendering for now to fix build issues
@@ -174,7 +174,7 @@ export default async function RootLayout({
             {children}
           </ClientProviders>
         </StatsigProviderWrapper>
-        {showCookieBanner && <CookieBanner />}
+        {showCookieBanner && <CookieBannerSection />}
         <SpeedInsights />
         {shouldInjectToolbar && <VercelToolbar />}
       </body>

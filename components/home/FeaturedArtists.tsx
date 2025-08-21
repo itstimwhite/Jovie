@@ -1,7 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import FeaturedArtistsComponent, {
-  type FeaturedArtist,
-} from '@/components/FeaturedArtists';
+import { FeaturedArtistsSection, type FeaturedArtist } from '@/components/organisms/FeaturedArtistsSection';
 
 interface DBCreatorProfile {
   id: string;
@@ -78,5 +76,5 @@ async function getFeaturedCreators(): Promise<FeaturedArtist[]> {
 export async function FeaturedArtists() {
   const creators = await getFeaturedCreators();
   if (!creators.length) return null;
-  return <FeaturedArtistsComponent artists={creators} />;
+  return <FeaturedArtistsSection artists={creators} />;
 }

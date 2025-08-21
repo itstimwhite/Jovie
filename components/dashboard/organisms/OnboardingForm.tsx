@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { Spinner } from '@/components/ui';
+import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { APP_URL } from '@/constants/app';
 import { completeOnboarding } from '@/app/onboarding/actions';
 
@@ -345,7 +345,7 @@ export function OnboardingForm() {
             />
             {handleValidation.checking && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <Spinner size="sm" />
+                <LoadingSpinner size="sm" />
               </div>
             )}
             {handleValidation.available && !handleValidation.checking && (
@@ -386,7 +386,7 @@ export function OnboardingForm() {
             'Create Profile'
           ) : (
             <div className="flex items-center justify-center space-x-2">
-              <Spinner size="sm" />
+              <LoadingSpinner size="sm" />
               <span>{getProgressText()}</span>
             </div>
           )}
