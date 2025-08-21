@@ -10,8 +10,6 @@ interface ProductFlyoutProps {
   onClose: () => void;
   triggerRef: React.RefObject<HTMLElement>;
   className?: string;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
 }
 
 export function ProductFlyout({
@@ -19,8 +17,6 @@ export function ProductFlyout({
   onClose,
   triggerRef,
   className = '',
-  onMouseEnter,
-  onMouseLeave,
 }: ProductFlyoutProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const firstItemRef = useRef<HTMLAnchorElement>(null);
@@ -129,8 +125,6 @@ export function ProductFlyout({
       style={{
         animation: 'flyout-enter 100ms ease-out',
       }}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
     >
       {/* Desktop Layout */}
       <div className="hidden md:block">
