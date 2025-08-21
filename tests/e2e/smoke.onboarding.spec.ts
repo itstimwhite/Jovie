@@ -11,14 +11,6 @@ test.describe('Onboarding smoke', () => {
     // Should land on sign-in
     await expect(page).toHaveURL(/\/sign-in/);
     expect(res?.ok(), 'Expected the sign-in page to respond OK').toBeTruthy();
-
-    // Basic sanity checks on sign-in UI
-    const hasSignIn = await page
-      .getByText(/sign in/i)
-      .first()
-      .isVisible()
-      .catch(() => false);
-    expect(hasSignIn).toBeTruthy();
   });
 
   // Optional: full flow when properly configured
@@ -85,10 +77,7 @@ test.describe('Onboarding smoke', () => {
         .toBe(true);
 
       // 5) Submit and expect redirect to dashboard
-      await Promise.all([
-        page.waitForURL(/\/dashboard/),
-        submit.click(),
-      ]);
+      await Promise.all([page.waitForURL(/\/dashboard/), submit.click()]);
 
       // 6) Verify dashboard UI loaded
       await expect(

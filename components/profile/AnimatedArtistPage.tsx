@@ -23,7 +23,9 @@ interface AnimatedArtistPageProps {
 function renderContent(
   mode: string,
   artist: Artist,
-  socialLinks: LegacySocialLink[]
+  socialLinks: LegacySocialLink[],
+  subtitle: string,
+  showTipButton: boolean
 ) {
   switch (mode) {
     case 'listen':
@@ -169,7 +171,7 @@ export function AnimatedArtistPage({
               },
             }}
           >
-            {renderContent(mode, artist, socialLinks)}
+            {renderContent(mode, artist, socialLinks, subtitle, showTipButton)}
           </motion.div>
         </ArtistPageShell>
       </motion.div>

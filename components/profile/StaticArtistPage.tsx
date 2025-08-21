@@ -1,6 +1,5 @@
 import React from 'react';
 import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
-import { ListenNow } from '@/components/profile/ListenNow';
 import { StaticListenInterface } from '@/components/profile/StaticListenInterface';
 import VenmoTipSelector from '@/components/profile/VenmoTipSelector';
 import { ProfileSection } from '@/components/organisms/ProfileSection';
@@ -20,7 +19,9 @@ interface StaticArtistPageProps {
 function renderContent(
   mode: string,
   artist: Artist,
-  socialLinks: LegacySocialLink[]
+  socialLinks: LegacySocialLink[],
+  subtitle: string,
+  showTipButton: boolean
 ) {
   switch (mode) {
     case 'listen':
@@ -113,7 +114,7 @@ export function StaticArtistPage({
         showTipButton={showTipButton}
         showBackButton={showBackButton}
       >
-        <div>{renderContent(mode, artist, socialLinks)}</div>
+        <div>{renderContent(mode, artist, socialLinks, subtitle, showTipButton)}</div>
       </ArtistPageShell>
     </div>
   );
