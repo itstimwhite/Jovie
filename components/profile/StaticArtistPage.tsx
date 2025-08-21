@@ -20,8 +20,7 @@ function renderContent(
   mode: string,
   artist: Artist,
   socialLinks: LegacySocialLink[],
-  subtitle: string,
-  showTipButton: boolean
+  subtitle: string
 ) {
   switch (mode) {
     case 'listen':
@@ -82,13 +81,6 @@ function renderContent(
               🎵 Listen Now
             </FrostedButton>
           </Link>
-          {showTipButton && (
-            <Link href={`/${artist.handle}?mode=tip`}>
-              <FrostedButton variant="outline" size="lg" className="w-full">
-                💰 Send Tip
-              </FrostedButton>
-            </Link>
-          )}
         </div>
       );
   }
@@ -112,9 +104,7 @@ export function StaticArtistPage({
         showTipButton={showTipButton}
         showBackButton={showBackButton}
       >
-        <div>
-          {renderContent(mode, artist, socialLinks, subtitle, showTipButton)}
-        </div>
+        <div>{renderContent(mode, artist, socialLinks, subtitle)}</div>
       </ArtistPageShell>
     </div>
   );

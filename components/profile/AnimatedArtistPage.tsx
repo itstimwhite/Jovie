@@ -23,8 +23,7 @@ function renderContent(
   mode: string,
   artist: Artist,
   socialLinks: LegacySocialLink[],
-  subtitle: string,
-  showTipButton: boolean
+  subtitle: string
 ) {
   switch (mode) {
     case 'listen':
@@ -87,13 +86,6 @@ function renderContent(
                 🎵 Listen Now
               </FrostedButton>
             </Link>
-            {showTipButton && (
-              <Link href={`/${artist.handle}?mode=tip`}>
-                <FrostedButton variant="outline" size="lg" className="w-full">
-                  💰 Send Tip
-                </FrostedButton>
-              </Link>
-            )}
           </div>
         </motion.div>
       );
@@ -168,7 +160,7 @@ export function AnimatedArtistPage({
               },
             }}
           >
-            {renderContent(mode, artist, socialLinks, subtitle, showTipButton)}
+            {renderContent(mode, artist, socialLinks, subtitle)}
           </motion.div>
         </ArtistPageShell>
       </motion.div>
