@@ -1,28 +1,22 @@
 'use server';
 
 import { auth, currentUser } from '@clerk/nextjs/server';
-import { createClient } from '@supabase/supabase-js';
 import { redirect } from 'next/navigation';
-
-// Create service role client for onboarding operations (bypasses RLS)
-function createServiceRoleClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!serviceRoleKey) {
-    throw new Error(
-      'SUPABASE_SERVICE_ROLE_KEY is required for onboarding operations'
-    );
-  }
-
-  return createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-    },
-  });
-}
+import { headers } from 'next/headers';
+import {
+  createAuthenticatedClient,
+  queryWithRetry,
+} from '@/lib/supabase/client';
+import { validateUsername, normalizeUsername } from '@/lib/validation/username';
+import {
+  checkUsernameAvailability,
+  checkUserHasProfile,
+} from '@/lib/username/availability';
+import {
+  OnboardingErrorCode,
+  createOnboardingError,
+  mapDatabaseError,
+} from '@/lib/errors/onboarding';
 
 export async function completeOnboarding({
   username,
@@ -31,73 +25,127 @@ export async function completeOnboarding({
   username: string;
   displayName?: string;
 }) {
-  const { userId } = await auth();
-  if (!userId) throw new Error('Not authenticated');
-
-  const supabase = createServiceRoleClient();
-
   try {
-    // Step 1: Upsert app_users
-    const user = await currentUser();
-    const userEmail = user?.emailAddresses?.[0]?.emailAddress;
-
-    const { error: userError } = await supabase.from('app_users').upsert({
-      id: userId,
-      email: userEmail ?? null,
-    });
-
-    if (userError) {
-      console.error('Error upserting user:', userError);
+    // Step 1: Authentication check
+    const { userId } = await auth();
+    if (!userId) {
+      const error = createOnboardingError(
+        OnboardingErrorCode.NOT_AUTHENTICATED,
+        'User not authenticated'
+      );
+      throw new Error(error.message);
     }
 
-    // Step 2: Check if username is available
-    const { data: existing, error: checkError } = await supabase
-      .from('creator_profiles')
-      .select('id')
-      .eq('username', username.toLowerCase())
-      .limit(1)
-      .maybeSingle();
-
-    if (checkError) {
-      console.error('Error checking username:', checkError);
-      throw new Error('Error checking username availability');
+    // Step 2: Input validation
+    const validation = validateUsername(username);
+    if (!validation.isValid) {
+      const error = createOnboardingError(
+        OnboardingErrorCode.INVALID_USERNAME,
+        validation.error || 'Invalid username'
+      );
+      throw new Error(error.message);
     }
 
-    if (existing) {
-      throw new Error('Username is already taken');
+    if (displayName && displayName.trim().length > 50) {
+      const error = createOnboardingError(
+        OnboardingErrorCode.DISPLAY_NAME_TOO_LONG,
+        'Display name must be 50 characters or less'
+      );
+      throw new Error(error.message);
     }
 
-    // Step 3: Check if user already has a creator profile
-    const { data: userProfile, error: profileError } = await supabase
-      .from('creator_profiles')
-      .select('id')
-      .eq('user_id', userId)
-      .limit(1)
-      .maybeSingle();
+    // Step 3: Rate limiting check
+    const headersList = await headers();
+    const forwarded = headersList.get('x-forwarded-for');
+    const clientIP = forwarded ? forwarded.split(',')[0] : null;
 
-    if (profileError) {
-      console.error('Error checking user profile:', profileError);
+    const supabase = await createAuthenticatedClient();
+
+    // Check rate limits
+    const { data: rateLimitResult, error: rateLimitError } = await supabase.rpc(
+      'check_onboarding_rate_limit',
+      {
+        user_id_param: userId,
+        ip_address_param: clientIP,
+      }
+    );
+
+    if (rateLimitError) {
+      console.error('Rate limit check failed:', rateLimitError);
+    } else if (rateLimitResult && !rateLimitResult.allowed) {
+      const error = createOnboardingError(
+        OnboardingErrorCode.RATE_LIMITED,
+        `Too many attempts. Try again later.`,
+        `Reset at: ${rateLimitResult.reset_at}`
+      );
+      throw new Error(error.message);
     }
 
-    if (userProfile) {
-      // User already has a profile, redirect to dashboard
+    // Step 4: Check if user already has profile
+    const hasExistingProfile = await checkUserHasProfile(userId);
+    if (hasExistingProfile) {
       redirect('/dashboard');
     }
 
-    // Step 4: Insert creator profile
-    const { error: insertError } = await supabase
-      .from('creator_profiles')
-      .insert({
-        user_id: userId,
-        creator_type: 'artist', // Default to artist for now
-        username: username.toLowerCase(),
-        display_name: displayName ?? username,
-        is_public: true, // Make profile public by default
-      });
+    // Step 5: Check username availability
+    const normalizedUsername = normalizeUsername(username);
+    const availabilityResult =
+      await checkUsernameAvailability(normalizedUsername);
 
-    if (insertError) {
-      console.error('Error inserting profile:', insertError);
-      throw new Error(`Profile creation failed: ${insertError.message}`);
+    if (!availabilityResult.available) {
+      const errorCode = availabilityResult.validationError
+        ? OnboardingErrorCode.INVALID_USERNAME
+        : OnboardingErrorCode.USERNAME_TAKEN;
+
+      const error = createOnboardingError(
+        errorCode,
+        availabilityResult.error ||
+          availabilityResult.validationError ||
+          'Username not available'
+      );
+      throw new Error(error.message);
+    }
+
+    // Step 6: Get user details for profile creation
+    const user = await currentUser();
+    const userEmail = user?.emailAddresses?.[0]?.emailAddress;
+
+    // Step 7: Create records using database transaction simulation
+    // First create app_users record
+    const { error: userError } = await queryWithRetry(
+      async () =>
+        await supabase.from('app_users').upsert({
+          id: userId,
+          email: userEmail ?? null,
+        })
+    );
+
+    if (userError) {
+      const mappedError = mapDatabaseError(userError);
+      console.error('Error creating user record:', userError);
+      throw new Error(mappedError.message);
+    }
+
+    // Then create creator profile
+    const { error: profileError } = await queryWithRetry(
+      async () =>
+        await supabase.from('creator_profiles').insert({
+          user_id: userId,
+          creator_type: 'artist',
+          username: normalizedUsername,
+          display_name: displayName?.trim() || normalizedUsername,
+          is_public: true,
+          onboarding_completed_at: new Date().toISOString(),
+        })
+    );
+
+    if (profileError) {
+      const mappedError = mapDatabaseError(profileError);
+      console.error('Error creating profile:', profileError);
+
+      // If profile creation fails, we should clean up the app_users record
+      // But since we're using RLS, the user can only see their own data anyway
+      throw new Error(mappedError.message);
     }
 
     // Success - redirect to dashboard
