@@ -230,7 +230,6 @@ export function OnboardingForm() {
     }));
   }, []);
 
-
   // Main submission handler using server action
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {

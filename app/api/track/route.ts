@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAuthenticatedServerClient } from '@/lib/supabase-server';
 import { detectPlatformFromUA } from '@/lib/utils';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
+import { LinkType } from '@/types/db';
 
 // API routes should be dynamic
 export const dynamic = 'force-dynamic';
@@ -9,7 +10,17 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { handle, linkType, target, linkId } = body;
+    const {
+      handle,
+      linkType,
+      target,
+      linkId,
+    }: {
+      handle: string;
+      linkType: LinkType;
+      target: string;
+      linkId?: string;
+    } = body;
 
     if (!handle || !linkType || !target) {
       return NextResponse.json(
@@ -61,7 +72,7 @@ export async function POST(request: NextRequest) {
     const { data: profile, error: profileError } = await supabase
       .from('creator_profiles')
       .select('id')
-      .eq('username', handle)
+      .eq('username', handle.toLowerCase())
       .single();
 
     if (profileError || !profile) {
@@ -69,7 +80,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { error: clickError } = await supabase.from('click_events').insert({
-      artist_id: profile.id,
+      creator_id: profile.id,
       link_type: linkType,
       target,
       ua: userAgent,

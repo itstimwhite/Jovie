@@ -45,12 +45,13 @@ export async function checkUsernameAvailability(
     const supabase = createAnonymousClient();
 
     // Query only for existence - don't return any profile data
+    // Use case-insensitive lookup to match the unique constraint
     const { data, error } = await queryWithRetry(
       async () =>
         await supabase
           .from('creator_profiles')
           .select('username') // Only select username to minimize data exposure
-          .eq('username', normalizedUsername)
+          .eq('username', normalizedUsername) // Use normalized (lowercase) username
           .limit(1)
           .maybeSingle()
     );
