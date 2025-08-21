@@ -2,8 +2,6 @@ import React from 'react';
 import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
 import { StaticListenInterface } from '@/components/profile/StaticListenInterface';
 import VenmoTipSelector from '@/components/profile/VenmoTipSelector';
-import { ProfileSection } from '@/components/organisms/ProfileSection';
-import { FrostedButton } from '@/components/atoms/FrostedButton';
 import { Artist, LegacySocialLink } from '@/types/db';
 import Link from 'next/link';
 
@@ -19,9 +17,7 @@ interface StaticArtistPageProps {
 function renderContent(
   mode: string,
   artist: Artist,
-  socialLinks: LegacySocialLink[],
-  subtitle: string,
-  showTipButton: boolean
+  socialLinks: LegacySocialLink[]
 ) {
   switch (mode) {
     case 'listen':
@@ -55,7 +51,7 @@ function renderContent(
       const AMOUNTS = [3, 5, 7];
 
       return (
-        <ProfileSection artist={artist} subtitle={subtitle}>
+        <div className="space-y-4">
           {venmoLink ? (
             <VenmoTipSelector
               venmoLink={venmoLink}
@@ -71,27 +67,19 @@ function renderContent(
               </div>
             </div>
           )}
-        </ProfileSection>
+        </div>
       );
 
     default: // 'profile' mode
       return (
-        <ProfileSection artist={artist} subtitle={subtitle}>
-          <div className="space-y-4">
-            <Link href={`/${artist.handle}?mode=listen`}>
-              <FrostedButton variant="default" size="lg" className="w-full">
-                🎵 Listen Now
-              </FrostedButton>
-            </Link>
-            {showTipButton && (
-              <Link href={`/${artist.handle}?mode=tip`}>
-                <FrostedButton variant="outline" size="lg" className="w-full">
-                  💰 Send Tip
-                </FrostedButton>
-              </Link>
-            )}
-          </div>
-        </ProfileSection>
+        <div className="space-y-4">
+          <Link
+            href={`/${artist.handle}?mode=listen`}
+            className="inline-flex items-center justify-center w-full px-8 py-4 text-lg font-semibold text-white bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100 rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:ring-offset-2"
+          >
+            🎵 Listen Now
+          </Link>
+        </div>
       );
   }
 }
@@ -114,9 +102,7 @@ export function StaticArtistPage({
         showTipButton={showTipButton}
         showBackButton={showBackButton}
       >
-        <div>
-          {renderContent(mode, artist, socialLinks, subtitle, showTipButton)}
-        </div>
+        <div>{renderContent(mode, artist, socialLinks)}</div>
       </ArtistPageShell>
     </div>
   );
