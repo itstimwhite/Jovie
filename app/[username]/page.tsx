@@ -100,17 +100,17 @@ const getSocialLinks = cache(
 );
 
 interface Props {
-  params: Promise<{
+  params: {
     username: string;
-  }>;
-  searchParams?: Promise<{
+  };
+  searchParams?: {
     mode?: 'profile' | 'listen' | 'tip';
-  }>;
+  };
 }
 
 export default async function ArtistPage({ params, searchParams }: Props) {
-  const { username } = await params;
-  const { mode = 'profile' } = (await searchParams) || {};
+  const { username } = params;
+  const { mode = 'profile' } = searchParams || {};
 
   // Parallel data fetching - profile first, then social links
   const profile = await getCreatorProfile(username);
@@ -163,7 +163,7 @@ export default async function ArtistPage({ params, searchParams }: Props) {
 
 // Generate metadata for the page
 export async function generateMetadata({ params }: Props) {
-  const { username } = await params;
+  const { username } = params;
   const profile = await getCreatorProfile(username);
 
   if (!profile) {

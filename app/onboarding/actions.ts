@@ -4,17 +4,15 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 import { redirect } from 'next/navigation';
 
-// Create a service-role client for onboarding operations
+// Create service role client for onboarding operations (bypasses RLS)
 function createServiceRoleClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!serviceRoleKey) {
-    // Fallback to anon key if service role not available
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    return createClient(supabaseUrl, anonKey, {
-      auth: { persistSession: false },
-    });
+    throw new Error(
+      'SUPABASE_SERVICE_ROLE_KEY is required for onboarding operations'
+    );
   }
 
   return createClient(supabaseUrl, serviceRoleKey, {
@@ -95,8 +93,6 @@ export async function completeOnboarding({
         username: username.toLowerCase(),
         display_name: displayName ?? username,
         is_public: true, // Make profile public by default
-        is_claimed: true, // Mark as claimed since user is creating it
-        claimed_at: new Date().toISOString(),
       });
 
     if (insertError) {

@@ -12,6 +12,31 @@ export async function GET(request: Request) {
     );
   }
 
+  // Validate handle format
+  if (handle.length < 3) {
+    return NextResponse.json(
+      { available: false, error: 'Handle must be at least 3 characters' },
+      { status: 400 }
+    );
+  }
+
+  if (handle.length > 30) {
+    return NextResponse.json(
+      { available: false, error: 'Handle must be less than 30 characters' },
+      { status: 400 }
+    );
+  }
+
+  if (!/^[a-zA-Z0-9-]+$/.test(handle)) {
+    return NextResponse.json(
+      {
+        available: false,
+        error: 'Handle can only contain letters, numbers, and hyphens',
+      },
+      { status: 400 }
+    );
+  }
+
   try {
     // Use anonymous client since handle checking doesn't require authentication
     const supabase = createAnonymousServerClient();

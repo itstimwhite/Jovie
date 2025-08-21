@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
@@ -21,6 +21,7 @@ interface OnboardingState {
   progress: number;
   error: string | null;
   retryCount: number;
+  isSubmitting: boolean; // Prevent double submissions
 }
 
 interface HandleValidation {
@@ -55,6 +56,7 @@ export function OnboardingForm() {
     progress: 0,
     error: null,
     retryCount: 0,
+    isSubmitting: false,
   });
 
   // Handle validation state
@@ -91,12 +93,24 @@ export function OnboardingForm() {
     }
   }, [searchParams]);
 
-  // Debounced handle validation
+  // Abort controller for canceling in-flight requests
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Debounced handle validation with race condition protection
   const validateHandle = useCallback(async (handleValue: string) => {
+    // Cancel any in-flight request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
     if (!handleValue || handleValue.length < 3) {
       setHandleValidation({ available: false, checking: false, error: null });
       return;
     }
+
+    // Create new abort controller for this request
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
 
     setHandleValidation({ available: false, checking: true, error: null });
 
@@ -105,8 +119,13 @@ export function OnboardingForm() {
       const response = await fetch(
         `/api/handle/check?handle=${encodeURIComponent(
           handleValue.toLowerCase()
-        )}`
+        )}`,
+        { signal: abortController.signal }
       );
+
+      // Check if request was aborted
+      if (abortController.signal.aborted) return;
+
       const result = await response.json();
 
       if (!response.ok) {
@@ -123,6 +142,14 @@ export function OnboardingForm() {
         });
       }
     } catch (validationError) {
+      // Ignore aborted requests
+      if (
+        validationError instanceof Error &&
+        validationError.name === 'AbortError'
+      ) {
+        return;
+      }
+
       console.error('Handle validation error:', validationError);
       setHandleValidation({
         available: false,
@@ -175,13 +202,14 @@ export function OnboardingForm() {
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      if (!user || !isFormValid) return;
+      if (!user || !isFormValid || state.isSubmitting) return;
 
       setState((prev) => ({
         ...prev,
         error: null,
         step: 'validating',
         progress: 0,
+        isSubmitting: true,
       }));
 
       try {
@@ -229,10 +257,11 @@ export function OnboardingForm() {
               : 'An unexpected error occurred',
           step: 'validating',
           progress: 0,
+          isSubmitting: false,
         }));
       }
     },
-    [user, handle, selectedArtist, isFormValid]
+    [user, handle, selectedArtist, isFormValid, state.isSubmitting]
   );
 
   // Progress indicator
@@ -377,12 +406,14 @@ export function OnboardingForm() {
 
         <Button
           type="submit"
-          disabled={!isFormValid || state.step !== 'validating'}
+          disabled={
+            !isFormValid || state.step !== 'validating' || state.isSubmitting
+          }
           variant="primary"
           className="w-full"
           aria-describedby="form-status"
         >
-          {state.step === 'validating' ? (
+          {state.step === 'validating' && !state.isSubmitting ? (
             'Create Profile'
           ) : (
             <div className="flex items-center justify-center space-x-2">
