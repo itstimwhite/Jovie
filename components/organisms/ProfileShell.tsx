@@ -132,6 +132,7 @@ export function ProfileShell({
                     <div className="flex-shrink-0">
                       <Link
                         href={`/${artist.handle}?mode=tip`}
+                        prefetch
                         className="inline-flex items-center px-3 py-1.5 bg-white/10 hover:bg-white/20 dark:bg-white/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 font-medium text-xs rounded-full transition-all duration-200 border border-gray-200/30 dark:border-white/10 backdrop-blur-sm cursor-pointer"
                       >
                         <span className="mr-1.5 text-xs">💸</span>
