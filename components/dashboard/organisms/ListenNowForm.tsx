@@ -77,6 +77,10 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
             setFormData({ ...formData, spotify_url: e.target.value })
           }
           placeholder="https://open.spotify.com/artist/..."
+          inputMode="url"
+          autoCapitalize="none"
+          autoCorrect="off"
+          autoComplete="off"
         />
       </FormField>
 
@@ -88,6 +92,10 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
             setFormData({ ...formData, apple_music_url: e.target.value })
           }
           placeholder="https://music.apple.com/..."
+          inputMode="url"
+          autoCapitalize="none"
+          autoCorrect="off"
+          autoComplete="off"
         />
       </FormField>
 
@@ -99,6 +107,10 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
             setFormData({ ...formData, youtube_url: e.target.value })
           }
           placeholder="https://youtube.com/..."
+          inputMode="url"
+          autoCapitalize="none"
+          autoCorrect="off"
+          autoComplete="off"
         />
       </FormField>
 

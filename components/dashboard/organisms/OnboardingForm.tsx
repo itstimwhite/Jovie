@@ -380,6 +380,10 @@ export function OnboardingForm() {
                 handleError || handleValidation.error ? 'true' : 'false'
               }
               aria-label="Enter your desired handle"
+              autoCapitalize="none"
+              autoCorrect="off"
+              autoComplete="off"
+              inputMode="text"
             />
             {handleValidation.checking && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
