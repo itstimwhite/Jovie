@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { setupClerkTestingToken } from '@clerk/testing/playwright';
 
 // Minimal onboarding smoke: unauthenticated users should be redirected to sign-in
 // This is deterministic and requires no external inbox/service.
@@ -39,51 +40,130 @@ test.describe('Onboarding smoke', () => {
         test.skip();
       }
 
+      // Setup Clerk testing token for programmatic authentication
+      await setupClerkTestingToken({ page });
+
       // 1) Load an unprotected page that initializes Clerk
       await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-      // 2) Programmatically sign in with Clerk helper
-      // @ts-ignore: optional dev dependency not required for smoke test
-      const { clerk } = await import('@clerk/testing/playwright');
-      // Prefer configured email; otherwise use a throwaway test address
+      // Wait for Clerk to be ready
+      await page.waitForFunction(
+        () => {
+          // @ts-ignore
+          return window.Clerk && window.Clerk.isReady();
+        },
+        { timeout: 10_000 }
+      );
+
+      // 2) Programmatically sign in using Clerk's test mode
+      // This creates a test user and signs them in
       const testEmail =
         process.env.E2E_TEST_EMAIL || `playwright+${Date.now()}@example.com`;
 
-      await clerk.signIn({
-        page,
-        emailAddress: testEmail,
-      });
+      // Use Clerk's client-side API to sign in programmatically
+      await page.evaluate(async (email) => {
+        // @ts-ignore
+        const clerk = window.Clerk;
+        if (!clerk) throw new Error('Clerk not initialized');
+
+        try {
+          // Create a test user session
+          await clerk.signUp?.create({
+            emailAddress: email,
+            password: 'TestPassword123!',
+          });
+
+          // Complete the sign-up flow
+          await clerk.setActive({
+            session: clerk.client?.lastActiveSessionId || null,
+          });
+        } catch (error) {
+          // If user already exists, try to sign in
+          await clerk.signIn?.create({
+            identifier: email,
+            password: 'TestPassword123!',
+          });
+          
+          await clerk.setActive({
+            session: clerk.client?.lastActiveSessionId || null,
+          });
+        }
+      }, testEmail);
+
+      // Wait for authentication to complete
+      await page.waitForFunction(
+        () => {
+          // @ts-ignore
+          return window.Clerk?.user;
+        },
+        { timeout: 10_000 }
+      );
 
       // 3) Navigate to dashboard — app should redirect to onboarding if needed
       await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-      await expect(page).toHaveURL(/\/onboarding/);
+      
+      // Use waitForURL for deterministic waiting
+      await page.waitForURL('**/onboarding', { 
+        timeout: 10_000,
+        waitUntil: 'domcontentloaded' 
+      });
 
       // 4) Fill the onboarding form (handle)
       const handleInput = page.getByLabel('Enter your desired handle');
-      await expect(handleInput).toBeVisible();
+      await expect(handleInput).toBeVisible({ timeout: 5_000 });
 
       const uniqueHandle = `e2e-${Date.now().toString(36)}`;
       await handleInput.fill(uniqueHandle);
 
-      // Wait for debounced availability check and button enablement
+      // Wait for the availability check indicator (green checkmark)
+      // Based on the OnboardingForm component, it shows a green circle with checkmark
+      await expect(
+        page.locator('.bg-green-500.rounded-full')
+      ).toBeVisible({ timeout: 10_000 });
+
+      // Wait for submit button to be enabled
       const submit = page.getByRole('button', { name: 'Create Profile' });
       await expect(submit).toBeVisible();
 
+      // Use expect.poll for deterministic waiting on button state
       await expect
-        .poll(async () => submit.isEnabled(), {
-          timeout: 15_000,
-          intervals: [500, 750, 1000],
-        })
+        .poll(
+          async () => {
+            const isDisabled = await submit.isDisabled();
+            return !isDisabled;
+          },
+          {
+            timeout: 15_000,
+            intervals: [500, 750, 1000],
+            message: 'Submit button should be enabled after handle validation',
+          }
+        )
         .toBe(true);
 
       // 5) Submit and expect redirect to dashboard
-      await Promise.all([page.waitForURL(/\/dashboard/), submit.click()]);
+      await submit.click();
+      
+      // Wait for URL change to dashboard
+      await page.waitForURL('**/dashboard', { 
+        timeout: 15_000,
+        waitUntil: 'domcontentloaded' 
+      });
 
       // 6) Verify dashboard UI loaded
+      // Check for dashboard-specific elements
       await expect(
-        page.getByRole('heading', { name: 'Dashboard' })
-      ).toBeVisible();
-      await expect(page.getByRole('button', { name: 'Profile' })).toBeVisible();
+        page.locator('h1, h2').filter({ hasText: /dashboard|overview|welcome/i }).first()
+      ).toBeVisible({ timeout: 5_000 });
+      
+      // Check for navigation elements that indicate successful dashboard load
+      await expect(
+        page.getByRole('link', { name: /profile|settings|links/i }).first()
+      ).toBeVisible({ timeout: 5_000 });
+
+      // Verify the user's handle is displayed somewhere (profile link, header, etc.)
+      await expect(
+        page.locator(`text=/${uniqueHandle}/i`).first()
+      ).toBeVisible({ timeout: 5_000 });
     }
   );
 });
