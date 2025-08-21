@@ -1,9 +1,24 @@
-import { OnboardingForm } from '@/components/dashboard';
+import dynamic from 'next/dynamic';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { APP_NAME } from '@/constants/app';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
+
+// Dynamic import for onboarding form to reduce initial bundle size
+const OnboardingForm = dynamic(
+  () => import('@/components/dashboard').then((mod) => ({ 
+    default: mod.OnboardingForm 
+  })),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      </div>
+    ),
+    ssr: false,
+  }
+);
 
 export default async function OnboardingPage() {
   const { userId } = await auth();

@@ -109,12 +109,19 @@ const nextConfig = {
     ];
   },
   experimental: {
-    // Disable optimizeCss to avoid critters dependency issues
-    // optimizeCss: true,
-    optimizePackageImports: ['@headlessui/react', '@heroicons/react'],
+    // Enable CSS optimization 
+    optimizeCss: true,
+    // Optimize package imports for better tree shaking
+    optimizePackageImports: [
+      '@headlessui/react', 
+      '@heroicons/react',
+      '@stripe/stripe-js',
+      '@dnd-kit/core',
+      '@dnd-kit/sortable',
+      '@dnd-kit/modifiers',
+      'framer-motion'
+    ],
     // Build optimizations
-    // Turbopack: remove unsupported option
-    // forceSwcTransforms: true,
     swcTraceProfiling: false,
   },
   compiler: {
@@ -123,19 +130,52 @@ const nextConfig = {
       process.env.NODE_ENV === 'production' &&
       process.env.VERCEL_ENV !== 'preview',
   },
-  // Webpack optimizations
+  // Enhanced webpack optimizations
   webpack: (config, { dev, isServer }) => {
     if (!dev && !isServer) {
-      // Optimize bundle size
+      // Advanced bundle splitting and optimization
       config.optimization = {
         ...config.optimization,
+        usedExports: true,
+        sideEffects: false,
         splitChunks: {
           chunks: 'all',
+          minSize: 20000,
+          maxSize: 250000,
           cacheGroups: {
+            // Vendor libraries
             vendor: {
               test: /[\\/]node_modules[\\/]/,
               name: 'vendors',
               chunks: 'all',
+              priority: 10,
+            },
+            // Heavy libraries that should be separate chunks
+            stripe: {
+              test: /[\\/]node_modules[\\/]@stripe[\\/]/,
+              name: 'stripe',
+              chunks: 'all',
+              priority: 20,
+            },
+            dnd: {
+              test: /[\\/]node_modules[\\/]@dnd-kit[\\/]/,
+              name: 'dnd-kit',
+              chunks: 'all',
+              priority: 20,
+            },
+            framer: {
+              test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
+              name: 'framer-motion',
+              chunks: 'all',
+              priority: 20,
+            },
+            // Common chunks
+            common: {
+              name: 'common',
+              minChunks: 2,
+              chunks: 'all',
+              priority: 5,
+              reuseExistingChunk: true,
             },
           },
         },

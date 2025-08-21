@@ -1,8 +1,23 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@clerk/nextjs/server';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { getDashboardData } from './actions';
-import { DashboardClient } from '@/components/dashboard/DashboardClient';
+
+// Dynamic import for dashboard client to reduce initial bundle size
+const DashboardClient = dynamic(
+  () => import('@/components/dashboard/DashboardClient').then((mod) => ({ 
+    default: mod.DashboardClient 
+  })),
+  {
+    loading: () => (
+      <div className="min-h-screen bg-white dark:bg-[#0D0E12] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    ),
+    ssr: false,
+  }
+);
 
 export default async function DashboardPage() {
   const { userId } = await auth();
