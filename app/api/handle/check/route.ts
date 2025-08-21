@@ -62,7 +62,17 @@ export async function GET(request: Request) {
       );
     }
 
-    return NextResponse.json({ available: !data || data.length === 0 });
+    return NextResponse.json(
+      { available: !data || data.length === 0 },
+      {
+        headers: {
+          'Cache-Control':
+            'no-store, no-cache, must-revalidate, proxy-revalidate',
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
+      }
+    );
   } catch (error) {
     console.error('Error checking handle availability:', error);
     return NextResponse.json(

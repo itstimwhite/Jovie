@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense, lazy } from 'react';
 import { useRouter } from 'next/navigation';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { Container } from '@/components/site/Container';
@@ -11,11 +11,21 @@ import {
   ProfileForm,
   SocialsForm,
   ListenNowForm,
-  AnalyticsCards,
-  SettingsForm,
 } from '@/components/dashboard';
 import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
 import { PendingClaimHandler } from './PendingClaimHandler';
+
+// Lazy load non-critical components for performance
+const AnalyticsCards = lazy(() =>
+  import('@/components/dashboard').then((mod) => ({
+    default: mod.AnalyticsCards,
+  }))
+);
+const SettingsForm = lazy(() =>
+  import('@/components/dashboard').then((mod) => ({
+    default: mod.SettingsForm,
+  }))
+);
 import {
   Artist,
   CreatorProfile,
@@ -257,12 +267,30 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                     onUpdate={handleArtistUpdated}
                   />
                 )}
-                {activeTab === 'analytics' && <AnalyticsCards />}
+                {activeTab === 'analytics' && (
+                  <Suspense
+                    fallback={
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                      </div>
+                    }
+                  >
+                    <AnalyticsCards />
+                  </Suspense>
+                )}
                 {activeTab === 'settings' && artist && (
-                  <SettingsForm
-                    artist={artist}
-                    onUpdate={handleArtistUpdated}
-                  />
+                  <Suspense
+                    fallback={
+                      <div className="flex items-center justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                      </div>
+                    }
+                  >
+                    <SettingsForm
+                      artist={artist}
+                      onUpdate={handleArtistUpdated}
+                    />
+                  </Suspense>
                 )}
               </div>
             </div>
