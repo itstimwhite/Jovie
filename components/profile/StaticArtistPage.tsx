@@ -75,6 +75,7 @@ function renderContent(
         <div className="space-y-4">
           <Link
             href={`/${artist.handle}?mode=listen`}
+            prefetch
             className="inline-flex items-center justify-center w-full px-8 py-4 text-lg font-semibold text-white bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100 rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:ring-offset-2"
           >
             🎵 Listen Now
