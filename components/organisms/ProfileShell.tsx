@@ -38,7 +38,10 @@ export function ProfileShell({
   showGradientBlurs = true,
 }: ProfileShellProps) {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 relative overflow-hidden">
+    <div
+      className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 relative overflow-hidden"
+      data-test="public-profile-root"
+    >
       {/* Background Effects */}
       {backgroundPattern !== 'none' && (
         <BackgroundPattern variant={backgroundPattern} />

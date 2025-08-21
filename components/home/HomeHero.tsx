@@ -30,7 +30,7 @@ export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
       <p className="text-sm text-gray-600 dark:text-white/70">
         Create your artist page in seconds.
       </p>
-      <Button as={Link} href="/sign-up" size="lg">
+      <Button as={Link} href="/sign-up" size="lg" data-test="signup-btn">
         Sign up to get started
       </Button>
     </div>

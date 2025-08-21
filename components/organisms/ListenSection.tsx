@@ -120,7 +120,7 @@ export function ListenSection({
   };
 
   return (
-    <div className={className}>
+    <div className={className} data-test="listen-btn">
       <DSPButtonGroup
         dsps={dsps}
         onDSPClick={handleDSPClick}

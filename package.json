@@ -20,6 +20,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "test:e2e:synthetic": "playwright test --config=playwright.synthetic.config.ts",
+    "test:e2e:golden-path": "playwright test tests/e2e/golden-path.spec.ts",
     "e2e:smoke": "playwright test -g @smoke",
     "e2e:full": "playwright test",
     "a11y:ci": "playwright test -g @a11y",

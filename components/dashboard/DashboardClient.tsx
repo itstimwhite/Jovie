@@ -142,7 +142,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
         <Container className="relative z-10">
           <div className="py-12">
-            <div className="mb-8">
+            <div className="mb-8" data-test="dashboard-welcome">
               <h1 className="text-4xl font-semibold text-gray-900 dark:text-white mb-2 transition-colors">
                 Dashboard
               </h1>

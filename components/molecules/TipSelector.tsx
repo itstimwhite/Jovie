@@ -25,7 +25,7 @@ export function TipSelector({
   };
 
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-4 ${className}`} data-test="tip-selector">
       <div className="grid grid-cols-3 gap-3">
         {amounts.map((amount, idx) => (
           <AmountSelector
