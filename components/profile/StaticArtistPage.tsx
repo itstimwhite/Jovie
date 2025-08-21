@@ -2,7 +2,6 @@ import React from 'react';
 import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
 import { StaticListenInterface } from '@/components/profile/StaticListenInterface';
 import VenmoTipSelector from '@/components/profile/VenmoTipSelector';
-import { ProfileSection } from '@/components/organisms/ProfileSection';
 import { Artist, LegacySocialLink } from '@/types/db';
 import Link from 'next/link';
 
@@ -18,8 +17,7 @@ interface StaticArtistPageProps {
 function renderContent(
   mode: string,
   artist: Artist,
-  socialLinks: LegacySocialLink[],
-  subtitle: string
+  socialLinks: LegacySocialLink[]
 ) {
   switch (mode) {
     case 'listen':
@@ -53,7 +51,7 @@ function renderContent(
       const AMOUNTS = [3, 5, 7];
 
       return (
-        <ProfileSection artist={artist} subtitle={subtitle}>
+        <div className="space-y-4">
           {venmoLink ? (
             <VenmoTipSelector
               venmoLink={venmoLink}
@@ -69,7 +67,7 @@ function renderContent(
               </div>
             </div>
           )}
-        </ProfileSection>
+        </div>
       );
 
     default: // 'profile' mode
@@ -104,7 +102,7 @@ export function StaticArtistPage({
         showTipButton={showTipButton}
         showBackButton={showBackButton}
       >
-        <div>{renderContent(mode, artist, socialLinks, subtitle)}</div>
+        <div>{renderContent(mode, artist, socialLinks)}</div>
       </ArtistPageShell>
     </div>
   );

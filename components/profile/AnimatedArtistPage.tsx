@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
 import { AnimatedListenInterface } from '@/components/profile/AnimatedListenInterface';
 import VenmoTipSelector from '@/components/profile/VenmoTipSelector';
-import { ProfileSection } from '@/components/organisms/ProfileSection';
 import { Artist, LegacySocialLink } from '@/types/db';
 import Link from 'next/link';
 
@@ -21,8 +20,7 @@ interface AnimatedArtistPageProps {
 function renderContent(
   mode: string,
   artist: Artist,
-  socialLinks: LegacySocialLink[],
-  subtitle: string
+  socialLinks: LegacySocialLink[]
 ) {
   switch (mode) {
     case 'listen':
@@ -61,14 +59,24 @@ function renderContent(
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <ProfileSection artist={artist} subtitle={subtitle}>
-            <VenmoTipSelector
-              venmoLink={venmoLink || ''}
-              venmoUsername={venmoUsername ?? undefined}
-              amounts={AMOUNTS}
-              className="w-full max-w-sm"
-            />
-          </ProfileSection>
+          <div className="space-y-4">
+            {venmoLink ? (
+              <VenmoTipSelector
+                venmoLink={venmoLink}
+                venmoUsername={venmoUsername ?? undefined}
+                amounts={AMOUNTS}
+                className="w-full max-w-sm"
+              />
+            ) : (
+              <div className="text-center">
+                <div className="bg-white/60 dark:bg-white/5 backdrop-blur-lg border border-gray-200/30 dark:border-white/10 rounded-2xl p-8 shadow-xl shadow-black/5">
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Venmo tipping is not available for this artist yet.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
         </motion.div>
       );
 
@@ -160,7 +168,7 @@ export function AnimatedArtistPage({
               },
             }}
           >
-            {renderContent(mode, artist, socialLinks, subtitle)}
+            {renderContent(mode, artist, socialLinks)}
           </motion.div>
         </ArtistPageShell>
       </motion.div>
