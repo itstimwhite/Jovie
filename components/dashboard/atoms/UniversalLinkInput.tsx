@@ -94,6 +94,10 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
           onChange={handleUrlChange}
           onKeyPress={handleKeyPress}
           disabled={disabled}
+          inputMode="url"
+          autoCapitalize="none"
+          autoCorrect="off"
+          autoComplete="off"
           className="pr-24"
         />
 
@@ -166,6 +170,10 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
                 value={displayTitle}
                 onChange={handleTitleChange}
                 disabled={disabled}
+                inputMode="text"
+                autoCapitalize="words"
+                autoCorrect="on"
+                autoComplete="off"
                 className="text-sm mb-2"
               />
 

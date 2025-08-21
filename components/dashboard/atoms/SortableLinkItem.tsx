@@ -143,6 +143,10 @@ export const SortableLinkItem: React.FC<SortableLinkItemProps> = ({
               onChange={handleTitleChange}
               onBlur={handleTitleSubmit}
               onKeyDown={handleTitleKeyPress}
+              inputMode="text"
+              autoCapitalize="words"
+              autoCorrect="on"
+              autoComplete="off"
               className="text-sm font-medium -my-1"
               autoFocus
             />

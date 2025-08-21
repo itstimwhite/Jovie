@@ -198,6 +198,10 @@ export function SocialsForm({ artist }: SocialsFormProps) {
                 value={link.url}
                 onChange={(e) => updateSocialLink(index, 'url', e.target.value)}
                 placeholder="https://..."
+                inputMode="url"
+                autoCapitalize="none"
+                autoCorrect="off"
+                autoComplete="off"
                 className="flex-1"
               />
 
