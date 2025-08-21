@@ -71,7 +71,8 @@ export function SettingsForm({ artist, onUpdate }: SettingsFormProps) {
                 checked={marketingOptOut}
                 onChange={(e) => handleMarketingOptOutChange(e.target.checked)}
                 disabled={isUpdating}
-                className="w-4 h-4 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50"
+                aria-label="Opt out of marketing materials"
+                className="w-5 h-5 text-indigo-600 bg-gray-100 border-gray-300 rounded focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50"
               />
             </div>
             <div className="text-sm">

@@ -116,6 +116,9 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           placeholder="Your Artist Name"
           required
+          autoCapitalize="words"
+          autoCorrect="on"
+          autoComplete="name"
         />
       </FormField>
 
@@ -128,6 +131,9 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
             setFormData({ ...formData, tagline: e.target.value })
           }
           placeholder="Share your story, music journey, or what inspires you..."
+          autoCapitalize="sentences"
+          autoCorrect="on"
+          autoComplete="off"
         />
       </FormField>
 

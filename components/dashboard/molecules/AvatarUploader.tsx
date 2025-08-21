@@ -119,7 +119,8 @@ export default function AvatarUploader({
             type="file"
             accept="image/*"
             onChange={onSelect}
-            className="block text-sm"
+            className="block text-sm cursor-pointer"
+            aria-label="Choose profile image"
           />
           <button
             type="button"

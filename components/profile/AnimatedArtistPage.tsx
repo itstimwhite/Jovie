@@ -3,10 +3,23 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
-import { AnimatedListenInterface } from '@/components/profile/AnimatedListenInterface';
-import VenmoTipSelector from '@/components/profile/VenmoTipSelector';
+import dynamic from 'next/dynamic';
 import { Artist, LegacySocialLink } from '@/types/db';
 import Link from 'next/link';
+
+// Lazily load heavy profile sub-components to keep initial bundle lean
+const AnimatedListenInterface = dynamic(
+  () =>
+    import('@/components/profile/AnimatedListenInterface').then((mod) => ({
+      default: mod.AnimatedListenInterface,
+    })),
+  { ssr: false }
+);
+
+const VenmoTipSelector = dynamic(
+  () => import('@/components/profile/VenmoTipSelector'),
+  { ssr: false }
+);
 
 interface AnimatedArtistPageProps {
   mode: string;
@@ -90,6 +103,7 @@ function renderContent(
           <div className="space-y-4">
             <Link
               href={`/${artist.handle}?mode=listen`}
+              prefetch
               className="inline-flex items-center justify-center w-full px-8 py-4 text-lg font-semibold text-white bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100 rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:ring-offset-2"
             >
               🎵 Listen Now

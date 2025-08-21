@@ -205,7 +205,7 @@ test.describe('Public Profile Performance', () => {
       const baseUrl = process.env.BASE_URL;
       
       if (!isCI || !baseUrl) {
-        test.skip('This test only runs in CI against Preview URL');
+        test.skip(true, 'This test only runs in CI against Preview URL');
       }
       
       const startTime = Date.now();

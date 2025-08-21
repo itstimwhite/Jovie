@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { StaticArtistPage } from '@/components/profile/StaticArtistPage';
 import { Artist, LegacySocialLink } from '@/types/db';
 import dynamic from 'next/dynamic';
@@ -28,6 +29,19 @@ interface ProgressiveArtistPageProps {
 
 export function ProgressiveArtistPage(props: ProgressiveArtistPageProps) {
   const [shouldUseAnimated, setShouldUseAnimated] = useState(false);
+  const router = useRouter();
+
+  // Prefetch all artist modes for snappy transitions
+  useEffect(() => {
+    const base = `/${props.artist.handle}`;
+    ['profile', 'listen', 'tip']
+      .filter((m) => m !== props.mode)
+      .forEach((mode) => {
+        const searchUrl = mode === 'profile' ? base : `${base}?mode=${mode}`;
+        router.prefetch(searchUrl);
+        router.prefetch(`${base}/${mode}`);
+      });
+  }, [router, props.artist.handle, props.mode]);
 
   useEffect(() => {
     // For listen mode, stay with static version for better performance

@@ -62,8 +62,7 @@ test.describe('Onboarding smoke', () => {
 
       // Use Clerk's client-side API to sign in programmatically
       await page.evaluate(async (email) => {
-        // @ts-ignore
-        const clerk = window.Clerk;
+        const clerk: any = (window as any).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         try {
@@ -135,7 +134,6 @@ test.describe('Onboarding smoke', () => {
           {
             timeout: 15_000,
             intervals: [500, 750, 1000],
-            message: 'Submit button should be enabled after handle validation',
           }
         )
         .toBe(true);
