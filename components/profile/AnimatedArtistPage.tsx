@@ -3,7 +3,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
-import { ListenNow } from '@/components/profile/ListenNow';
 import { AnimatedListenInterface } from '@/components/profile/AnimatedListenInterface';
 import VenmoTipSelector from '@/components/profile/VenmoTipSelector';
 import { ProfileSection } from '@/components/organisms/ProfileSection';

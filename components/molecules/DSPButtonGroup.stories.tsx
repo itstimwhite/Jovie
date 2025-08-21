@@ -120,7 +120,7 @@ export const CustomPreferenceText: Story = {
     dsps: mockDSPs,
     size: 'md',
     showPreferenceNotice: true,
-    preferenceNoticeText: 'We\'ll remember your choice',
+    preferenceNoticeText: "We'll remember your choice",
   },
 };
 

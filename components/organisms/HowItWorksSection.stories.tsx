@@ -114,7 +114,8 @@ export const BusinessProcess: Story = {
       {
         number: '01',
         title: 'Discovery',
-        description: 'We analyze your current situation and identify opportunities.',
+        description:
+          'We analyze your current situation and identify opportunities.',
       },
       {
         number: '02',

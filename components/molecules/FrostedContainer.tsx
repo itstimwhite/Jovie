@@ -9,17 +9,20 @@ interface FrostedContainerProps {
   className?: string;
 }
 
-export function FrostedContainer({ 
-  children, 
+export function FrostedContainer({
+  children,
   variant = 'default',
   backgroundPattern = 'grid',
   showGradientBlurs = true,
-  className = ''
+  className = '',
 }: FrostedContainerProps) {
   const variants = {
-    default: 'bg-white/60 dark:bg-white/5 backdrop-blur-lg border border-gray-200/30 dark:border-white/10 rounded-3xl shadow-xl shadow-black/5',
-    glass: 'bg-white/40 dark:bg-white/5 backdrop-blur-md ring-1 ring-black/5 dark:ring-white/10 rounded-xl shadow-sm',
-    solid: 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg',
+    default:
+      'bg-white/60 dark:bg-white/5 backdrop-blur-lg border border-gray-200/30 dark:border-white/10 rounded-3xl shadow-xl shadow-black/5',
+    glass:
+      'bg-white/40 dark:bg-white/5 backdrop-blur-md ring-1 ring-black/5 dark:ring-white/10 rounded-xl shadow-sm',
+    solid:
+      'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg',
   };
 
   return (
@@ -39,9 +42,7 @@ export function FrostedContainer({
 
       {/* Content */}
       <div className="relative z-10 flex min-h-screen flex-col">
-        <div className={cn(variants[variant], className)}>
-          {children}
-        </div>
+        <div className={cn(variants[variant], className)}>{children}</div>
       </div>
     </div>
   );

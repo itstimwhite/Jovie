@@ -84,11 +84,7 @@ export const ExternalLink: Story = {
 export const WithIcon: Story = {
   args: {
     href: '/dashboard',
-    children: (
-      <>
-        Get Started →
-      </>
-    ),
+    children: <>Get Started →</>,
     variant: 'primary',
     size: 'md',
   },

@@ -15,9 +15,11 @@ const sizeClasses = {
 };
 
 const variantClasses = {
-  default: 'bg-white/60 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/20',
+  default:
+    'bg-white/60 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/20',
   ghost: 'bg-white/30 dark:bg-white/5 hover:bg-white/50 dark:hover:bg-white/10',
-  outline: 'bg-transparent border border-gray-200/30 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/5',
+  outline:
+    'bg-transparent border border-gray-200/30 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/5',
 };
 
 const shapeClasses = {
@@ -27,7 +29,17 @@ const shapeClasses = {
 };
 
 export const FrostedButton = forwardRef<HTMLButtonElement, FrostedButtonProps>(
-  ({ className, variant = 'default', size = 'md', shape = 'default', children, ...props }, ref) => {
+  (
+    {
+      className,
+      variant = 'default',
+      size = 'md',
+      shape = 'default',
+      children,
+      ...props
+    },
+    ref
+  ) => {
     return (
       <button
         className={cn(

@@ -10,7 +10,10 @@ const meta: Meta<typeof FrostedButton> = {
     backgrounds: {
       default: 'gradient',
       values: [
-        { name: 'gradient', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+        {
+          name: 'gradient',
+          value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        },
         { name: 'dark', value: '#1f2937' },
       ],
     },

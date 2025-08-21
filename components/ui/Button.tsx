@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'plain';
   size?: 'sm' | 'md' | 'lg';
   color?: 'indigo' | 'red' | 'green';

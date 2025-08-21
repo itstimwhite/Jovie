@@ -1,5 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
-import { FeaturedArtistsSection, type FeaturedArtist } from '@/components/organisms/FeaturedArtistsSection';
+import {
+  FeaturedArtistsSection,
+  type FeaturedArtist,
+} from '@/components/organisms/FeaturedArtistsSection';
 
 interface DBCreatorProfile {
   id: string;

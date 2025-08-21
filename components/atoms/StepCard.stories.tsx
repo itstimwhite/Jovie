@@ -74,7 +74,8 @@ export const Default: Story = {
   args: {
     stepNumber: '01',
     title: 'Connect Your Spotify',
-    description: 'Search and verify your Spotify artist profile in seconds. We pull your latest releases automatically.',
+    description:
+      'Search and verify your Spotify artist profile in seconds. We pull your latest releases automatically.',
     icon: LinkIcon,
   },
 };
@@ -83,7 +84,8 @@ export const Step2: Story = {
   args: {
     stepNumber: '02',
     title: 'Get Your Link',
-    description: 'Get your custom jov.ie link and professional profile. Add your social media and merch links.',
+    description:
+      'Get your custom jov.ie link and professional profile. Add your social media and merch links.',
     icon: LockIcon,
   },
 };
@@ -92,7 +94,8 @@ export const Step3: Story = {
   args: {
     stepNumber: '03',
     title: 'Fans Stream Your Music',
-    description: 'Fans discover and stream your music instantly. Smart routing sends them to their preferred platform.',
+    description:
+      'Fans discover and stream your music instantly. Smart routing sends them to their preferred platform.',
     icon: MusicIcon,
   },
 };
@@ -101,7 +104,8 @@ export const WithConnectionLine: Story = {
   args: {
     stepNumber: '01',
     title: 'Connect Your Spotify',
-    description: 'Search and verify your Spotify artist profile in seconds. We pull your latest releases automatically.',
+    description:
+      'Search and verify your Spotify artist profile in seconds. We pull your latest releases automatically.',
     icon: LinkIcon,
     showConnectionLine: true,
   },
@@ -111,7 +115,8 @@ export const NonInteractive: Story = {
   args: {
     stepNumber: '01',
     title: 'Static Step Card',
-    description: 'This step card has no hover effects and is purely informational.',
+    description:
+      'This step card has no hover effects and is purely informational.',
     icon: LinkIcon,
     interactive: false,
   },

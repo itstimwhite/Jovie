@@ -16,8 +16,6 @@ interface TipSectionProps {
 }
 
 export function TipSection({
-  handle,
-  artistName,
   amounts = [2, 5, 10],
   venmoLink,
   venmoUsername,
@@ -26,11 +24,13 @@ export function TipSection({
   className = '',
 }: TipSectionProps) {
   const [loading, setLoading] = useState<number | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'venmo' | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'venmo' | null>(
+    null
+  );
 
   const handleStripePayment = async (amount: number) => {
     if (!onStripePayment) return;
-    
+
     setLoading(amount);
     try {
       await onStripePayment(amount);
@@ -45,19 +45,20 @@ export function TipSection({
 
   const handleVenmoPayment = (amount: number) => {
     if (!venmoLink || !onVenmoPayment) return;
-    
+
     const sep = venmoLink.includes('?') ? '&' : '?';
     const url = `${venmoLink}${sep}utm_amount=${amount}&utm_username=${encodeURIComponent(
       venmoUsername ?? ''
     )}`;
-    
+
     onVenmoPayment(url);
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   // If no payment methods are supported, show QR fallback
   if (!onStripePayment && !venmoLink) {
-    const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+    const currentUrl =
+      typeof window !== 'undefined' ? window.location.href : '';
     return (
       <div className={`text-center space-y-4 ${className}`}>
         <QRCodeCard
@@ -138,10 +139,7 @@ export function TipSection({
             ← Back to payment methods
           </button>
         )}
-        <TipSelector
-          amounts={amounts}
-          onContinue={handleVenmoPayment}
-        />
+        <TipSelector amounts={amounts} onContinue={handleVenmoPayment} />
       </div>
     );
   }

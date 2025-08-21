@@ -138,15 +138,9 @@ export const AllVariants: Story = {
       <StatusBadge variant="purple" icon={LightningIcon}>
         Purple Badge
       </StatusBadge>
-      <StatusBadge variant="orange">
-        Orange Badge
-      </StatusBadge>
-      <StatusBadge variant="red">
-        Red Badge
-      </StatusBadge>
-      <StatusBadge variant="gray">
-        Gray Badge
-      </StatusBadge>
+      <StatusBadge variant="orange">Orange Badge</StatusBadge>
+      <StatusBadge variant="red">Red Badge</StatusBadge>
+      <StatusBadge variant="gray">Gray Badge</StatusBadge>
     </div>
   ),
 };
@@ -179,7 +173,8 @@ export const InContext: Story = {
         Built for musicians, optimized for conversion
       </h2>
       <p className="text-gray-600 dark:text-gray-300 text-center">
-        Every element is designed to turn fans into streams. No distractions, just results.
+        Every element is designed to turn fans into streams. No distractions,
+        just results.
       </p>
     </div>
   ),

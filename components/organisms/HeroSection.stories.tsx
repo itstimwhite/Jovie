@@ -53,7 +53,8 @@ export const LinkInBioPage: Story = {
     headline: 'Jovie: Built to Convert Not to Decorate',
     highlightText: 'Convert',
     gradientVariant: 'purple-cyan',
-    subtitle: "Your fans don't care about button colors—they care about your music. Jovie's AI tests every word, layout, and CTA behind the scenes to make sure more fans click, listen, and buy.",
+    subtitle:
+      "Your fans don't care about button colors—they care about your music. Jovie's AI tests every word, layout, and CTA behind the scenes to make sure more fans click, listen, and buy.",
     icon: '🚀',
     children: (
       <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -165,10 +166,12 @@ export const WithoutBackgroundEffects: Story = {
 
 export const LongHeadline: Story = {
   args: {
-    headline: 'Transform Your Music Career With Professional Link in Bio Pages That Actually Convert Fans Into Loyal Listeners',
+    headline:
+      'Transform Your Music Career With Professional Link in Bio Pages That Actually Convert Fans Into Loyal Listeners',
     highlightText: 'Convert',
     gradientVariant: 'purple-cyan',
-    subtitle: 'Stop losing potential fans to complicated landing pages. Our optimized design gets more clicks, more streams, and more followers.',
+    subtitle:
+      'Stop losing potential fans to complicated landing pages. Our optimized design gets more clicks, more streams, and more followers.',
     children: (
       <div className="flex flex-col gap-4">
         <CTAButton href="/transform" variant="primary" size="lg">

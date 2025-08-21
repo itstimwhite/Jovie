@@ -20,7 +20,7 @@ type Story = StoryObj<typeof meta>;
 
 const mockStripePayment = async (amount: number) => {
   console.log(`Processing $${amount} via Stripe...`);
-  await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+  await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate API call
   console.log(`Payment successful: $${amount}`);
 };
 
@@ -98,7 +98,7 @@ export const LoadingDemo: Story = {
   render: () => {
     const handlePayment = async (amount: number) => {
       console.log(`Processing $${amount}...`);
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       console.log(`Payment complete: $${amount}`);
     };
 
@@ -117,7 +117,7 @@ export const InteractiveDemo: Story = {
   render: () => {
     const handleStripePayment = async (amount: number) => {
       alert(`Processing $${amount} payment via Stripe...`);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       alert(`Payment successful! Thank you for the $${amount} tip! 🎉`);
     };
 

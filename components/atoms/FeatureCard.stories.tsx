@@ -94,7 +94,8 @@ export const Green: Story = {
 export const Purple: Story = {
   args: {
     title: 'Smart Fan Routing',
-    description: "Remembers each fan's favorite platform. One click to their preferred streaming service.",
+    description:
+      "Remembers each fan's favorite platform. One click to their preferred streaming service.",
     metric: '1-click streaming',
     icon: BulbIcon,
     accent: 'purple',
@@ -104,7 +105,8 @@ export const Purple: Story = {
 export const WithoutMetric: Story = {
   args: {
     title: 'Simple Feature',
-    description: 'This is a feature card without a metric badge to show the layout.',
+    description:
+      'This is a feature card without a metric badge to show the layout.',
     icon: LightningIcon,
     accent: 'blue',
   },

@@ -37,14 +37,17 @@ const mockArtist: Artist = {
   id: '1',
   handle: 'taylorswift',
   name: 'Taylor Swift',
-  image_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop&crop=face',
-  tagline: 'Grammy Award-winning singer-songwriter known for narrative songs about her personal life.',
+  image_url:
+    'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop&crop=face',
+  tagline:
+    'Grammy Award-winning singer-songwriter known for narrative songs about her personal life.',
   is_verified: true,
-  email: 'taylor@example.com',
-  created_at: '',
-  updated_at: '',
-  settings: null,
-  theme: null,
+  owner_user_id: '1',
+  spotify_id: '',
+  published: true,
+  is_featured: false,
+  created_at: new Date().toISOString(),
+  marketing_opt_out: false,
 };
 
 export const Default: Story = {
@@ -157,7 +160,7 @@ export const SmallProfile: Story = {
 export const LargeProfile: Story = {
   args: {
     artist: mockArtist,
-    avatarSize: '2xl',
+    avatarSize: 'xl',
     nameSize: 'xl',
     maxWidthClass: 'w-full max-w-lg',
     children: (
@@ -166,7 +169,7 @@ export const LargeProfile: Story = {
           Listen Now
         </Button>
         <div className="text-center text-gray-600 dark:text-gray-400">
-          <p>Latest album: "Midnights" • 2022</p>
+          <p>Latest album: &quot;Midnights&quot; • 2022</p>
           <p>13 tracks • 44 minutes</p>
         </div>
       </div>
@@ -182,7 +185,7 @@ export const CompleteProfile: Story = {
         <Button className="w-full" size="lg">
           Listen Now
         </Button>
-        
+
         <div className="grid grid-cols-3 gap-3">
           <Button variant="outline" size="sm">
             Follow
@@ -194,7 +197,7 @@ export const CompleteProfile: Story = {
             Tip
           </Button>
         </div>
-        
+
         <div className="text-center space-y-2">
           <div className="flex justify-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
             <span>12.4M followers</span>

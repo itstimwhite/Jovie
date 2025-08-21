@@ -33,13 +33,15 @@ export const CustomBenefits: Story = {
     benefits: [
       {
         title: 'Global Reach',
-        description: 'Connect with fans worldwide through our international platform.',
+        description:
+          'Connect with fans worldwide through our international platform.',
         metric: '195 countries',
         accent: 'blue',
       },
       {
         title: 'Real-time Analytics',
-        description: 'Track your performance with detailed insights and metrics.',
+        description:
+          'Track your performance with detailed insights and metrics.',
         metric: 'Live data',
         accent: 'green',
       },
@@ -61,13 +63,15 @@ export const TwoBenefits: Story = {
     benefits: [
       {
         title: 'Easy Setup',
-        description: 'Get started in minutes with our simple onboarding process.',
+        description:
+          'Get started in minutes with our simple onboarding process.',
         metric: '2 min setup',
         accent: 'blue',
       },
       {
         title: 'Instant Results',
-        description: 'See immediate improvements in fan engagement and streams.',
+        description:
+          'See immediate improvements in fan engagement and streams.',
         metric: 'Instant',
         accent: 'green',
       },

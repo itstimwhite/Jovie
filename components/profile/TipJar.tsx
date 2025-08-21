@@ -13,7 +13,9 @@ const AMOUNTS = [2, 5, 10];
 
 export function TipJar({ handle, artistName }: TipJarProps) {
   const [stripe, setStripe] = useState<Stripe | null>(null);
-  const [paymentRequest, setPaymentRequest] = useState<PaymentRequest | null>(null);
+  const [paymentRequest, setPaymentRequest] = useState<PaymentRequest | null>(
+    null
+  );
   const [supported, setSupported] = useState(false);
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export function TipJar({ handle, artistName }: TipJarProps) {
 
   const handleStripePayment = async (amount: number) => {
     if (!stripe || !paymentRequest) return;
-    
+
     paymentRequest.show();
     try {
       const res = await fetch('/api/create-tip-intent', {

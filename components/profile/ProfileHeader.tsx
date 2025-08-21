@@ -12,7 +12,7 @@ export function ProfileHeader({ artist, subtitle }: ProfileHeaderProps) {
       <ArtistInfo
         artist={artist}
         subtitle={subtitle}
-        avatarSize="2xl"
+        avatarSize="xl"
         nameSize="lg"
       />
     </header>

@@ -68,8 +68,8 @@ export const WithCustomURL: Story = {
 export const InContainer: Story = {
   render: () => (
     <div className="text-center space-y-4 p-6 bg-white dark:bg-gray-900 rounded-lg shadow-lg">
-      <QRCode 
-        data="https://jovie.fm/arianagrande" 
+      <QRCode
+        data="https://jovie.fm/arianagrande"
         size={180}
         label="Scan to tip via Apple Pay"
         className="mx-auto"

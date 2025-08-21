@@ -8,19 +8,16 @@ interface LoadingButtonProps extends ButtonProps {
   children: React.ReactNode;
 }
 
-export function LoadingButton({ 
-  isLoading = false, 
+export function LoadingButton({
+  isLoading = false,
   loadingText,
   spinnerSize = 'sm',
-  children, 
+  children,
   disabled,
-  ...props 
+  ...props
 }: LoadingButtonProps) {
   return (
-    <Button 
-      disabled={disabled || isLoading} 
-      {...props}
-    >
+    <Button disabled={disabled || isLoading} {...props}>
       {/* Cross-fade label/spinner without layout shift */}
       <div className="relative flex min-h-[1.5rem] items-center justify-center">
         <span

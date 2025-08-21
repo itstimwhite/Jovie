@@ -8,21 +8,16 @@ interface QRCodeCardProps {
   className?: string;
 }
 
-export function QRCodeCard({ 
-  data, 
+export function QRCodeCard({
+  data,
   title = 'Scan QR Code',
   description,
   qrSize = 120,
-  className = ''
+  className = '',
 }: QRCodeCardProps) {
   return (
     <div className={`text-center space-y-4 ${className}`}>
-      <QRCode
-        data={data}
-        size={qrSize}
-        label={title}
-        className="mx-auto"
-      />
+      <QRCode data={data} size={qrSize} label={title} className="mx-auto" />
       {title && (
         <h3 className="text-sm font-medium text-gray-900 dark:text-white">
           {title}

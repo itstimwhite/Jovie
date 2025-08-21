@@ -100,7 +100,8 @@ const defaultBenefits = [
   },
   {
     title: 'Smart Fan Routing',
-    description: "Remembers each fan's favorite platform. One click to their preferred streaming service.",
+    description:
+      "Remembers each fan's favorite platform. One click to their preferred streaming service.",
     metric: '1-click streaming',
     accent: 'purple' as const,
   },

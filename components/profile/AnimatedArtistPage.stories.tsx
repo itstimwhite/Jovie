@@ -31,14 +31,17 @@ const mockArtist: Artist = {
   id: '1',
   handle: 'taylorswift',
   name: 'Taylor Swift',
-  image_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop&crop=face',
-  tagline: 'Grammy Award-winning singer-songwriter known for narrative songs about her personal life.',
+  image_url:
+    'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop&crop=face',
+  tagline:
+    'Grammy Award-winning singer-songwriter known for narrative songs about her personal life.',
   is_verified: true,
-  email: 'taylor@example.com',
-  created_at: '',
-  updated_at: '',
-  settings: null,
-  theme: null,
+  owner_user_id: '1',
+  spotify_id: '',
+  published: true,
+  is_featured: false,
+  created_at: new Date().toISOString(),
+  marketing_opt_out: false,
 };
 
 const mockSocialLinks: LegacySocialLink[] = [
@@ -47,27 +50,24 @@ const mockSocialLinks: LegacySocialLink[] = [
     artist_id: '1',
     platform: 'instagram',
     url: 'https://instagram.com/taylorswift',
-    username: 'taylorswift',
+    clicks: 0,
     created_at: '',
-    updated_at: '',
   },
   {
     id: '2',
     artist_id: '1',
     platform: 'twitter',
     url: 'https://twitter.com/taylorswift13',
-    username: 'taylorswift13',
+    clicks: 0,
     created_at: '',
-    updated_at: '',
   },
   {
     id: '3',
     artist_id: '1',
     platform: 'venmo',
     url: 'https://venmo.com/u/taylorswift',
-    username: 'taylorswift',
+    clicks: 0,
     created_at: '',
-    updated_at: '',
   },
 ];
 
@@ -108,7 +108,7 @@ export const TipModeWithoutVenmo: Story = {
   args: {
     mode: 'tip',
     artist: mockArtist,
-    socialLinks: mockSocialLinks.filter(link => link.platform !== 'venmo'),
+    socialLinks: mockSocialLinks.filter((link) => link.platform !== 'venmo'),
     subtitle: 'The Eras Tour • Live from London',
     showTipButton: false,
     showBackButton: true,
@@ -162,10 +162,11 @@ export const NoSocials: Story = {
 export const LongArtistName: Story = {
   args: {
     mode: 'profile',
-    artist: { 
-      ...mockArtist, 
+    artist: {
+      ...mockArtist,
       name: 'Florence + The Machine',
-      tagline: 'British indie rock band known for powerful vocals and ethereal soundscapes.'
+      tagline:
+        'British indie rock band known for powerful vocals and ethereal soundscapes.',
     },
     socialLinks: mockSocialLinks,
     subtitle: 'Dance Fever World Tour 2024',
@@ -177,10 +178,10 @@ export const LongArtistName: Story = {
 export const ShortArtistName: Story = {
   args: {
     mode: 'profile',
-    artist: { 
-      ...mockArtist, 
+    artist: {
+      ...mockArtist,
       name: 'Zedd',
-      tagline: 'German DJ and music producer.'
+      tagline: 'German DJ and music producer.',
     },
     socialLinks: mockSocialLinks,
     subtitle: 'Clarity Tour',
@@ -190,8 +191,10 @@ export const ShortArtistName: Story = {
 };
 
 export const InteractiveDemo: Story = {
-  render: () => {
-    const [mode, setMode] = React.useState<'profile' | 'listen' | 'tip'>('profile');
+  render: function InteractiveDemoRender() {
+    const [mode, setMode] = React.useState<'profile' | 'listen' | 'tip'>(
+      'profile'
+    );
 
     return (
       <div>
@@ -199,8 +202,8 @@ export const InteractiveDemo: Story = {
           <button
             onClick={() => setMode('profile')}
             className={`px-3 py-1 rounded text-sm ${
-              mode === 'profile' 
-                ? 'bg-blue-600 text-white' 
+              mode === 'profile'
+                ? 'bg-blue-600 text-white'
                 : 'bg-white text-gray-700 border'
             }`}
           >
@@ -209,8 +212,8 @@ export const InteractiveDemo: Story = {
           <button
             onClick={() => setMode('listen')}
             className={`px-3 py-1 rounded text-sm ${
-              mode === 'listen' 
-                ? 'bg-blue-600 text-white' 
+              mode === 'listen'
+                ? 'bg-blue-600 text-white'
                 : 'bg-white text-gray-700 border'
             }`}
           >
@@ -219,15 +222,15 @@ export const InteractiveDemo: Story = {
           <button
             onClick={() => setMode('tip')}
             className={`px-3 py-1 rounded text-sm ${
-              mode === 'tip' 
-                ? 'bg-blue-600 text-white' 
+              mode === 'tip'
+                ? 'bg-blue-600 text-white'
                 : 'bg-white text-gray-700 border'
             }`}
           >
             Tip
           </button>
         </div>
-        
+
         <AnimatedArtistPage
           mode={mode}
           artist={mockArtist}

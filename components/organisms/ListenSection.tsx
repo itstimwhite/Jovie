@@ -70,7 +70,11 @@ export function ListenSection({
           fetch('/api/track', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ handle, linkType: 'listen', target: dspKey }),
+            body: JSON.stringify({
+              handle,
+              linkType: 'listen',
+              target: dspKey,
+            }),
             keepalive: true,
           }).catch(() => {
             // Silent fail for analytics - don't disrupt user experience

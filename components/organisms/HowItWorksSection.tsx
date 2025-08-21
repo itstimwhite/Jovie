@@ -90,17 +90,20 @@ const defaultSteps = [
   {
     number: '01',
     title: 'Connect Your Spotify',
-    description: 'Search and verify your Spotify artist profile in seconds. We pull your latest releases automatically.',
+    description:
+      'Search and verify your Spotify artist profile in seconds. We pull your latest releases automatically.',
   },
   {
     number: '02',
     title: 'Get Your Link',
-    description: 'Get your custom jov.ie link and professional profile. Add your social media and merch links.',
+    description:
+      'Get your custom jov.ie link and professional profile. Add your social media and merch links.',
   },
   {
     number: '03',
     title: 'Fans Stream Your Music',
-    description: 'Fans discover and stream your music instantly. Smart routing sends them to their preferred platform.',
+    description:
+      'Fans discover and stream your music instantly. Smart routing sends them to their preferred platform.',
   },
 ];
 

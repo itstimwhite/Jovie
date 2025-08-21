@@ -46,7 +46,7 @@ export const FiveOptions: Story = {
   render: (args) => (
     <div className="w-80">
       <div className="grid grid-cols-5 gap-2 mb-4">
-        {args.amounts?.map((amount, idx) => (
+        {args.amounts?.map((amount) => (
           <button
             key={amount}
             type="button"
@@ -87,15 +87,14 @@ export const StripeAmounts: Story = {
 export const InteractiveDemo: Story = {
   render: () => {
     const handleContinue = (amount: number) => {
-      alert(`You selected $${amount}! This would normally continue to payment.`);
+      alert(
+        `You selected $${amount}! This would normally continue to payment.`
+      );
     };
 
     return (
       <div className="max-w-sm">
-        <TipSelector
-          amounts={[3, 5, 10]}
-          onContinue={handleContinue}
-        />
+        <TipSelector amounts={[3, 5, 10]} onContinue={handleContinue} />
       </div>
     );
   },

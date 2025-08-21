@@ -7,7 +7,12 @@ interface AmountSelectorProps {
   className?: string;
 }
 
-export function AmountSelector({ amount, isSelected, onClick, className }: AmountSelectorProps) {
+export function AmountSelector({
+  amount,
+  isSelected,
+  onClick,
+  className,
+}: AmountSelectorProps) {
   return (
     <button
       type="button"

@@ -9,11 +9,11 @@ interface TipSelectorProps {
   className?: string;
 }
 
-export function TipSelector({ 
-  amounts = [3, 5, 7], 
-  onContinue, 
+export function TipSelector({
+  amounts = [3, 5, 7],
+  onContinue,
   isLoading = false,
-  className = ''
+  className = '',
 }: TipSelectorProps) {
   const defaultIdx = Math.floor(Math.max(0, amounts.length - 1) / 2);
   const [selectedIdx, setSelectedIdx] = useState<number>(defaultIdx);
@@ -36,7 +36,7 @@ export function TipSelector({
           />
         ))}
       </div>
-      
+
       <hr className="mt-3 pt-3 border-t border-black/5 dark:border-white/10" />
 
       <Button

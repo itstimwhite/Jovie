@@ -10,7 +10,12 @@ export interface HeroSectionProps {
   /** Optional highlighted word(s) in the headline to apply gradient */
   highlightText?: string;
   /** Gradient variant for highlighted text */
-  gradientVariant?: 'primary' | 'secondary' | 'success' | 'warning' | 'purple-cyan';
+  gradientVariant?:
+    | 'primary'
+    | 'secondary'
+    | 'success'
+    | 'warning'
+    | 'purple-cyan';
   /** Subtitle/description text */
   subtitle?: ReactNode;
   /** Optional emoji or icon to display above headline */
@@ -40,20 +45,21 @@ export function HeroSection({
   showBackgroundEffects = true,
 }: HeroSectionProps) {
   // Process headline to add gradient to highlighted text
-  const processedHeadline = highlightText && typeof headline === 'string' 
-    ? headline.split(highlightText).reduce((acc, part, index, array) => {
-        if (index === array.length - 1) {
-          return [...acc, part];
-        }
-        return [
-          ...acc,
-          part,
-          <GradientText key={index} variant={gradientVariant}>
-            {highlightText}
-          </GradientText>,
-        ];
-      }, [] as ReactNode[])
-    : headline;
+  const processedHeadline =
+    highlightText && typeof headline === 'string'
+      ? headline.split(highlightText).reduce((acc, part, index, array) => {
+          if (index === array.length - 1) {
+            return [...acc, part];
+          }
+          return [
+            ...acc,
+            part,
+            <GradientText key={index} variant={gradientVariant}>
+              {highlightText}
+            </GradientText>,
+          ];
+        }, [] as ReactNode[])
+      : headline;
 
   return (
     <section

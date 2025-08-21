@@ -55,7 +55,7 @@ export const LargeAmount: Story = {
 };
 
 export const Interactive: Story = {
-  render: () => {
+  render: function InteractiveRender() {
     const [selected, setSelected] = useState(5);
     const amounts = [3, 5, 10];
 

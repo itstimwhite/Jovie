@@ -18,9 +18,6 @@ const meta: Meta<typeof ArtistInfo> = {
       control: { type: 'select' },
       options: ['sm', 'md', 'lg', 'xl'],
     },
-    showAvatarGlow: {
-      control: { type: 'boolean' },
-    },
   },
 };
 
@@ -31,14 +28,17 @@ const mockArtist: Artist = {
   id: '1',
   handle: 'taylorswift',
   name: 'Taylor Swift',
-  image_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop&crop=face',
-  tagline: 'Grammy Award-winning singer-songwriter known for narrative songs about her personal life.',
+  image_url:
+    'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop&crop=face',
+  tagline:
+    'Grammy Award-winning singer-songwriter known for narrative songs about her personal life.',
   is_verified: true,
-  email: 'taylor@example.com',
-  created_at: '',
-  updated_at: '',
-  settings: null,
-  theme: null,
+  owner_user_id: '1',
+  spotify_id: '',
+  published: true,
+  is_featured: false,
+  created_at: new Date().toISOString(),
+  marketing_opt_out: false,
 };
 
 export const Default: Story = {
@@ -77,15 +77,8 @@ export const SmallAvatar: Story = {
 export const LargeAvatar: Story = {
   args: {
     artist: mockArtist,
-    avatarSize: '2xl',
+    avatarSize: 'xl',
     nameSize: 'xl',
-  },
-};
-
-export const NoGlow: Story = {
-  args: {
-    artist: mockArtist,
-    showAvatarGlow: false,
   },
 };
 
@@ -93,7 +86,8 @@ export const LongTagline: Story = {
   args: {
     artist: {
       ...mockArtist,
-      tagline: 'Multi-platinum recording artist, songwriter, and performer with over 200 million records sold worldwide. Known for her storytelling through music and her massive cultural impact.',
+      tagline:
+        'Multi-platinum recording artist, songwriter, and performer with over 200 million records sold worldwide. Known for her storytelling through music and her massive cultural impact.',
     },
   },
 };

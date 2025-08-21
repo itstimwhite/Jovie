@@ -125,7 +125,7 @@ export const CustomPreferenceText: Story = {
     handle: 'arianagrande',
     dsps: mockDSPs,
     size: 'md',
-    preferenceNoticeText: 'We\'ll remember your favorite streaming platform',
+    preferenceNoticeText: "We'll remember your favorite streaming platform",
   },
 };
 

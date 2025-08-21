@@ -114,7 +114,9 @@ export function StaticArtistPage({
         showTipButton={showTipButton}
         showBackButton={showBackButton}
       >
-        <div>{renderContent(mode, artist, socialLinks, subtitle, showTipButton)}</div>
+        <div>
+          {renderContent(mode, artist, socialLinks, subtitle, showTipButton)}
+        </div>
       </ArtistPageShell>
     </div>
   );

@@ -36,7 +36,7 @@ export function StepCard({
         {interactive && (
           <div className="absolute -inset-4 bg-gradient-to-r from-white/5 to-white/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         )}
-        
+
         <div
           className={`
             relative bg-gray-50/80 dark:bg-white/5 backdrop-blur-sm 
@@ -50,18 +50,18 @@ export function StepCard({
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg">
               {icon}
             </div>
-            
+
             <div className="mt-6">
               {/* Step number */}
               <div className="text-xs font-semibold uppercase tracking-wider text-blue-500 dark:text-blue-400">
                 Step {stepNumber}
               </div>
-              
+
               {/* Title */}
               <h3 className="mt-3 text-xl font-semibold text-gray-900 dark:text-white">
                 {title}
               </h3>
-              
+
               {/* Description */}
               <p className="mt-3 text-gray-600 dark:text-white/70 leading-relaxed">
                 {description}

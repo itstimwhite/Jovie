@@ -18,22 +18,22 @@ export default function VenmoTipSelector({
   className,
   onContinue,
 }: VenmoTipSelectorProps) {
-  const handleAmountSelected = useCallback((amount: number) => {
-    const sep = venmoLink.includes('?') ? '&' : '?';
-    const url = `${venmoLink}${sep}utm_amount=${amount}&utm_username=${encodeURIComponent(
-      venmoUsername ?? ''
-    )}`;
-    
-    onContinue?.(url);
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }, [venmoLink, venmoUsername, onContinue]);
+  const handleAmountSelected = useCallback(
+    (amount: number) => {
+      const sep = venmoLink.includes('?') ? '&' : '?';
+      const url = `${venmoLink}${sep}utm_amount=${amount}&utm_username=${encodeURIComponent(
+        venmoUsername ?? ''
+      )}`;
+
+      onContinue?.(url);
+      window.open(url, '_blank', 'noopener,noreferrer');
+    },
+    [venmoLink, venmoUsername, onContinue]
+  );
 
   return (
     <div className={className}>
-      <TipSelector
-        amounts={amounts}
-        onContinue={handleAmountSelected}
-      />
+      <TipSelector amounts={amounts} onContinue={handleAmountSelected} />
     </div>
   );
 }

@@ -33,7 +33,9 @@ export function DSPButtonGroup({
   if (!dsps || !dsps.length) {
     return (
       <div className={`text-center py-8 ${className}`}>
-        <p className="text-gray-500 text-sm">No streaming platforms available</p>
+        <p className="text-gray-500 text-sm">
+          No streaming platforms available
+        </p>
       </div>
     );
   }

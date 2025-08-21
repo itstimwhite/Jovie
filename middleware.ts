@@ -71,7 +71,14 @@ export default clerkMiddleware(async (auth, req) => {
       }
     } else {
       // Handle unauthenticated users
-      res = NextResponse.next();
+      if (req.nextUrl.pathname.startsWith('/dashboard')) {
+        // Redirect unauthenticated users to sign-in
+        const signInUrl = new URL('/sign-in', req.url);
+        signInUrl.searchParams.set('redirect_url', req.nextUrl.pathname);
+        res = NextResponse.redirect(signInUrl);
+      } else {
+        res = NextResponse.next();
+      }
     }
 
     if (showBanner) {

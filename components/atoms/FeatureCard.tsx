@@ -39,7 +39,7 @@ export function FeatureCard({
       {interactive && (
         <div className="absolute -inset-4 bg-gradient-to-r from-white/5 to-white/10 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       )}
-      
+
       <div
         className={`
           relative bg-gray-50/80 dark:bg-white/5 backdrop-blur-sm 

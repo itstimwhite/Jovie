@@ -117,11 +117,7 @@ export function DesktopQrOverlay({ handle }: DesktopQrOverlayProps) {
             <XMarkIcon className="h-4 w-4" />
           </button>
           {url && (
-            <QRCode
-              data={url}
-              size={120}
-              label="Scan to view on mobile"
-            />
+            <QRCode data={url} size={120} label="Scan to view on mobile" />
           )}
           <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
             View on mobile

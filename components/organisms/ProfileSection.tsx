@@ -39,7 +39,7 @@ export function ProfileSection({
               <ArtistInfo
                 artist={artist}
                 subtitle={subtitle}
-                avatarSize={avatarSize}
+                avatarSize={avatarSize === '2xl' ? 'xl' : avatarSize}
                 nameSize={nameSize}
               />
               {children}

@@ -8,7 +8,12 @@ interface QRCodeProps {
   className?: string;
 }
 
-export function QRCode({ data, size = 120, label = 'QR Code', className }: QRCodeProps) {
+export function QRCode({
+  data,
+  size = 120,
+  label = 'QR Code',
+  className,
+}: QRCodeProps) {
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}`;
 
   return (

@@ -19,27 +19,30 @@ const sizeClasses = {
 };
 
 const badgeSizes = {
-  sm: 'xs' as const,
+  sm: 'sm' as const,
   md: 'sm' as const,
   lg: 'sm' as const,
   xl: 'md' as const,
 };
 
-export function ArtistName({ 
-  name, 
-  handle, 
-  isVerified = false, 
-  size = 'lg', 
+export function ArtistName({
+  name,
+  handle,
+  isVerified = false,
+  size = 'lg',
   showLink = true,
-  className 
+  className,
 }: ArtistNameProps) {
   const content = (
     <span className="flex items-center justify-center gap-2">
-      <span className={cn(
-        'font-semibold text-gray-900 dark:text-white',
-        showLink && 'hover:text-gray-700 dark:hover:text-gray-300 transition-colors cursor-pointer',
-        className
-      )}>
+      <span
+        className={cn(
+          'font-semibold text-gray-900 dark:text-white',
+          showLink &&
+            'hover:text-gray-700 dark:hover:text-gray-300 transition-colors cursor-pointer',
+          className
+        )}
+      >
         {name}
       </span>
       {isVerified && <VerifiedBadge size={badgeSizes[size]} />}
