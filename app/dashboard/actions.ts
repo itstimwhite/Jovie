@@ -3,6 +3,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { createServerClient } from '@/lib/supabase-server';
 import { CreatorProfile } from '@/types/db';
+import { unstable_noStore as noStore } from 'next/cache';
 
 export interface DashboardData {
   user: { id: string } | null;
@@ -12,6 +13,9 @@ export interface DashboardData {
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
+  // Prevent caching of user-specific data
+  noStore();
+
   const { userId } = await auth();
 
   if (!userId) {
@@ -29,12 +33,20 @@ export async function getDashboardData(): Promise<DashboardData> {
   }
 
   try {
-    // Check if user exists in app_users table
-    const { data: userData, error: userError } = await supabase
-      .from('app_users')
-      .select('id')
-      .eq('id', userId)
-      .maybeSingle();
+    // Parallelize user and creator profile queries
+    const [userResult, creatorResult] = await Promise.all([
+      // Check if user exists in app_users table
+      supabase.from('app_users').select('id').eq('id', userId).maybeSingle(),
+      // Get creator profiles (will fail gracefully if user doesn't exist)
+      supabase
+        .from('creator_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: true }),
+    ]);
+
+    const { data: userData, error: userError } = userResult;
+    const { data: creatorData, error: creatorError } = creatorResult;
 
     if (userError) {
       // If it's a permission error, the user likely needs to be created
@@ -59,15 +71,18 @@ export async function getDashboardData(): Promise<DashboardData> {
       };
     }
 
-    // Get all creator profiles for this user
-    const { data: creatorData, error } = await supabase
-      .from('creator_profiles')
-      .select('*')
-      .eq('user_id', userData.id)
-      .order('created_at', { ascending: true }); // Oldest first as default
-
-    if (error) {
-      throw error;
+    // Handle creator profile query errors
+    if (creatorError) {
+      // If it's a permission error, treat as no profiles
+      if (creatorError.code === 'PGRST301' || creatorError.code === '42501') {
+        return {
+          user: userData,
+          creatorProfiles: [],
+          selectedProfile: null,
+          needsOnboarding: true,
+        };
+      }
+      throw creatorError;
     }
 
     if (!creatorData || creatorData.length === 0) {
@@ -103,6 +118,9 @@ export async function updateCreatorProfile(
     // Add other updatable fields as needed
   }>
 ): Promise<CreatorProfile> {
+  // Prevent caching of mutations
+  noStore();
+
   const { userId } = await auth();
 
   if (!userId) {

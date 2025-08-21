@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import { FormField } from '@/components/ui/FormField';
@@ -40,6 +40,7 @@ interface SelectedArtist {
 export function OnboardingForm() {
   const { user } = useUser();
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Extract domain from APP_URL for display
   const displayDomain = APP_URL.replace(/^https?:\/\//, '');
@@ -167,6 +168,14 @@ export function OnboardingForm() {
 
     return () => clearTimeout(timeoutId);
   }, [handle, validateHandle]);
+
+  // Prefetch dashboard route when handle is valid
+  useEffect(() => {
+    if (handleValidation.available && !handleValidation.checking) {
+      // Prefetch dashboard assets for faster navigation after onboarding
+      router.prefetch('/dashboard');
+    }
+  }, [handleValidation.available, handleValidation.checking, router]);
 
   // Handle validation rules
   const handleError = useMemo(() => {
