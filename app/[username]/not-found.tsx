@@ -1,5 +1,7 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { Container } from '@/components/site/Container';
+import { FeaturedArtists } from '@/components/home/FeaturedArtists';
 
 export default function NotFound() {
   return (
@@ -21,10 +23,28 @@ export default function NotFound() {
 
           <Link
             href="/"
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors mb-12"
           >
             Go home
           </Link>
+        </div>
+
+        {/* Featured Creators Section */}
+        <div className="mt-16 pt-16 border-t border-gray-200 dark:border-gray-800">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white text-center mb-8">
+            Check out these creators
+          </h2>
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-pulse text-gray-600 dark:text-white/60">
+                  Loading creators...
+                </div>
+              </div>
+            }
+          >
+            <FeaturedArtists />
+          </Suspense>
         </div>
       </Container>
     </div>
