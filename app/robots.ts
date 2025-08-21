@@ -14,6 +14,8 @@ export default function robots(): MetadataRoute.Robots {
           '/_next/',
           '/private/',
           '/auth/',
+          '/go/',          // Block link wrapping redirect routes
+          '/out/',         // Block sensitive link interstitial routes
           '/*.json',
           '/*.xml',
         ],
@@ -29,6 +31,8 @@ export default function robots(): MetadataRoute.Robots {
           '/_next/',
           '/private/',
           '/auth/',
+          '/go/',          // Block link wrapping redirect routes
+          '/out/',         // Block sensitive link interstitial routes
           '/*.json',
           '/*.xml',
         ],
@@ -44,6 +48,8 @@ export default function robots(): MetadataRoute.Robots {
           '/_next/',
           '/private/',
           '/auth/',
+          '/go/',          // Block link wrapping redirect routes
+          '/out/',         // Block sensitive link interstitial routes
           '/*.json',
           '/*.xml',
         ],
@@ -59,10 +65,17 @@ export default function robots(): MetadataRoute.Robots {
           '/_next/',
           '/private/',
           '/auth/',
+          '/go/',          // Block link wrapping redirect routes
+          '/out/',         // Block sensitive link interstitial routes
           '/*.json',
           '/*.xml',
         ],
         crawlDelay: 1,
+      },
+      {
+        // Completely block Meta/Facebook crawlers from all link wrapping routes
+        userAgent: ['facebookexternalhit', 'Facebot', 'ia_archiver'],
+        disallow: ['/'],
       },
     ],
     sitemap: `${APP_URL}/sitemap.xml`,

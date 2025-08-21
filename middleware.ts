@@ -1,5 +1,6 @@
 import { clerkMiddleware } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import { detectBot } from '@/lib/link-wrapping';
 
 const EU_EEA_UK = [
   'AT',
@@ -40,6 +41,19 @@ const CA_PROVINCES = ['QC'];
 export default clerkMiddleware(async (auth, req) => {
   try {
     const { userId } = await auth();
+
+    // Anti-scrape protection for sensitive routes
+    if (req.nextUrl.pathname.startsWith('/out/') || req.nextUrl.pathname.startsWith('/api/link/')) {
+      const userAgent = req.headers.get('user-agent') || '';
+      const asn = req.headers.get('x-asn'); // Vercel provides this
+      const botResult = detectBot(userAgent, asn || undefined);
+      
+      // Block Meta crawlers entirely
+      if (botResult.isMeta) {
+        console.log(`Meta crawler blocked: ${req.nextUrl.pathname} - ${botResult.reason}`);
+        return new NextResponse(null, { status: 204 });
+      }
+    }
 
     // Safely access geo information
     let country = '';

@@ -30,11 +30,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
   }
 
-  // Get all public creator profiles
+  // Get all public creator profiles (exclude wrapped link routes from sitemap)
   const { data: profiles } = await supabase
     .from('creator_profiles')
     .select('username, updated_at')
     .eq('is_public', true);
+
+  // Note: Explicitly exclude /go/:id and /out/:id routes from sitemap
+  // These are temporary redirect links and should not be indexed
 
   const baseUrl = APP_URL;
 

@@ -73,7 +73,54 @@ const nextConfig = {
         value: 'origin-when-cross-origin',
       },
     ];
+    
+    // Enhanced security headers for link wrapping routes
+    const linkWrappingSecurityHeaders = [
+      ...securityHeaders,
+      {
+        key: 'X-Robots-Tag',
+        value: 'noindex, nofollow, nosnippet, noarchive, notranslate',
+      },
+      {
+        key: 'Referrer-Policy',
+        value: 'no-referrer',
+      },
+      {
+        key: 'Cache-Control',
+        value: 'no-cache, no-store, must-revalidate, private',
+      },
+    ];
+    
     return [
+      {
+        // Link wrapping routes - enhanced anti-scrape headers
+        source: '/out/:path*',
+        headers: linkWrappingSecurityHeaders,
+      },
+      {
+        // Link wrapping API routes - enhanced anti-scrape headers
+        source: '/api/link/:path*',
+        headers: linkWrappingSecurityHeaders,
+      },
+      {
+        // Normal redirect routes - security headers with no-referrer
+        source: '/go/:path*',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Referrer-Policy',
+            value: 'no-referrer',
+          },
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow',
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+        ],
+      },
       {
         // Ensure internal flags endpoint is never cached
         source: '/api/feature-flags',
