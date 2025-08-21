@@ -48,6 +48,13 @@ export async function getDashboardData(): Promise<DashboardData> {
     const { data: userData, error: userError } = userResult;
     const { data: creatorData, error: creatorError } = creatorResult;
 
+    // Debug logging
+    console.log('Dashboard debug - userId:', userId);
+    console.log('Dashboard debug - userData:', userData);
+    console.log('Dashboard debug - userError:', userError);
+    console.log('Dashboard debug - creatorData:', creatorData);
+    console.log('Dashboard debug - creatorError:', creatorError);
+
     if (userError) {
       // If it's a permission error, the user likely needs to be created
       if (userError.code === 'PGRST301' || userError.code === '42501') {
