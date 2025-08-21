@@ -34,7 +34,7 @@ export function DataCard({
   return (
     <div
       className={cn(
-        'flex items-center justify-between rounded-lg border border-gray-200 p-3 dark:border-gray-700',
+        'flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-colors dark:border-gray-700 dark:bg-gray-800',
         className
       )}
     >

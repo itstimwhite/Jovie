@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuthenticatedSupabase } from '@/lib/supabase';
-import { DataCard } from '@/components/ui/DataCard';
+import { AnalyticsCard } from '../atoms/AnalyticsCard';
 
 interface AnalyticsData {
   total_clicks: number;
@@ -77,11 +77,38 @@ export function AnalyticsCards() {
     fetchAnalytics();
   }, [getAuthenticatedClient]);
 
+  const cards = [
+    {
+      id: 'total_clicks',
+      title: 'Total Clicks',
+      value: data.total_clicks,
+      metadata: 'Last 30 days',
+    },
+    {
+      id: 'spotify_clicks',
+      title: 'Spotify Clicks',
+      value: data.spotify_clicks,
+      metadata: 'Music platform clicks',
+    },
+    {
+      id: 'social_clicks',
+      title: 'Social Clicks',
+      value: data.social_clicks,
+      metadata: 'Social media clicks',
+    },
+    {
+      id: 'recent_activity',
+      title: 'Recent Activity',
+      value: data.recent_clicks,
+      metadata: 'Last 7 days',
+    },
+  ];
+
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
-          <DataCard key={i} title="Loading..." subtitle="..." />
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        {cards.map((card) => (
+          <AnalyticsCard key={card.id} title="Loading..." value="..." />
         ))}
       </div>
     );
@@ -96,27 +123,15 @@ export function AnalyticsCards() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <DataCard
-        title="Total Clicks"
-        subtitle={data.total_clicks.toString()}
-        metadata="Last 30 days"
-      />
-      <DataCard
-        title="Spotify Clicks"
-        subtitle={data.spotify_clicks.toString()}
-        metadata="Music platform clicks"
-      />
-      <DataCard
-        title="Social Clicks"
-        subtitle={data.social_clicks.toString()}
-        metadata="Social media clicks"
-      />
-      <DataCard
-        title="Recent Activity"
-        subtitle={data.recent_clicks.toString()}
-        metadata="Last 7 days"
-      />
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      {cards.map((card) => (
+        <AnalyticsCard
+          key={card.id}
+          title={card.title}
+          value={card.value}
+          metadata={card.metadata}
+        />
+      ))}
     </div>
   );
 }
