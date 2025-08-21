@@ -115,14 +115,31 @@ export function ProfileShell({
                   <div className="flex-1 flex justify-start">
                     {showSocialBar && socialLinks.length > 0 && (
                       <div className="flex gap-3">
-                        {socialLinks.map((link) => (
-                          <SocialLinkComponent
-                            key={link.id}
-                            link={link}
-                            handle={artist.handle}
-                            artistName={artist.name}
-                          />
-                        ))}
+                        {socialLinks
+                          .filter((link) => {
+                            // Only show actual social network links, not payment/music platforms
+                            const socialNetworkPlatforms = [
+                              'twitter',
+                              'instagram',
+                              'tiktok',
+                              'youtube',
+                              'facebook',
+                              'linkedin',
+                              'discord',
+                              'twitch',
+                            ];
+                            return socialNetworkPlatforms.includes(
+                              link.platform.toLowerCase()
+                            );
+                          })
+                          .map((link) => (
+                            <SocialLinkComponent
+                              key={link.id}
+                              link={link}
+                              handle={artist.handle}
+                              artistName={artist.name}
+                            />
+                          ))}
                       </div>
                     )}
                   </div>

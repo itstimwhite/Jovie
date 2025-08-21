@@ -19,45 +19,48 @@ declare global {
   }
 }
 
-// Initialize PostHog on the client when key is present
+// Initialize PostHog on the client when key is present - deferred to not block paint
 if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
-  const getEnvTag = (): 'dev' | 'preview' | 'prod' => {
-    try {
-      const prodHost = new URL(publicEnv.NEXT_PUBLIC_APP_URL).hostname;
-      const host = window.location.hostname;
-      if (
-        host === 'localhost' ||
-        host === '127.0.0.1' ||
-        host.endsWith('.local')
-      ) {
-        return 'dev';
+  // Defer analytics initialization to not block initial paint
+  setTimeout(() => {
+    const getEnvTag = (): 'dev' | 'preview' | 'prod' => {
+      try {
+        const prodHost = new URL(publicEnv.NEXT_PUBLIC_APP_URL).hostname;
+        const host = window.location.hostname;
+        if (
+          host === 'localhost' ||
+          host === '127.0.0.1' ||
+          host.endsWith('.local')
+        ) {
+          return 'dev';
+        }
+        if (host === prodHost || host === `www.${prodHost}`) {
+          return 'prod';
+        }
+        return 'preview';
+      } catch {
+        return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
       }
-      if (host === prodHost || host === `www.${prodHost}`) {
-        return 'prod';
-      }
-      return 'preview';
-    } catch {
-      return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
-    }
-  };
+    };
 
-  const options: Parameters<typeof posthog.init>[1] = {
-    autocapture: true,
-    capture_pageview: false, // we'll send $pageview manually via page()
-    persistence: 'localStorage+cookie',
-  };
-  if (ANALYTICS.posthogHost) {
-    options.api_host = ANALYTICS.posthogHost;
-  }
-  try {
-    posthog.init(ANALYTICS.posthogKey, options);
-    // Ensure every event has env attached
-    posthog.register({ env: getEnvTag() });
-  } catch (e) {
-    // noop – avoid breaking the app if analytics fails to init
-    // eslint-disable-next-line no-console
-    console.warn('PostHog init failed:', e);
-  }
+    const options: Parameters<typeof posthog.init>[1] = {
+      autocapture: true,
+      capture_pageview: false, // we'll send $pageview manually via page()
+      persistence: 'localStorage+cookie',
+    };
+    if (ANALYTICS.posthogHost) {
+      options.api_host = ANALYTICS.posthogHost;
+    }
+    try {
+      posthog.init(ANALYTICS.posthogKey, options);
+      // Ensure every event has env attached
+      posthog.register({ env: getEnvTag() });
+    } catch (e) {
+      // noop – avoid breaking the app if analytics fails to init
+      // eslint-disable-next-line no-console
+      console.warn('PostHog init failed:', e);
+    }
+  }, 0); // Execute on next tick to not block initial paint
 }
 
 export function track(event: string, properties?: Record<string, unknown>) {
