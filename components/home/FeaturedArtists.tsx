@@ -24,7 +24,6 @@ function createAnonSupabase() {
 
 async function getFeaturedCreators(): Promise<FeaturedArtist[]> {
   try {
-    console.log('[FeaturedCreators] Starting to fetch featured creators...');
     const supabase = createAnonSupabase();
 
     const { data, error } = await supabase
@@ -35,12 +34,6 @@ async function getFeaturedCreators(): Promise<FeaturedArtist[]> {
       .eq('marketing_opt_out', false) // Only include creators who haven't opted out
       .order('display_name')
       .limit(12);
-
-    console.log('[FeaturedCreators] Query result:', {
-      error: error?.message || null,
-      count: data?.length || 0,
-      creators: data?.map((a) => a.username) || [],
-    });
 
     if (error) {
       console.error('Error fetching featured creators:', error);
@@ -55,20 +48,6 @@ async function getFeaturedCreators(): Promise<FeaturedArtist[]> {
       src: a.avatar_url || '/android-chrome-192x192.png', // Fallback to app icon
     }));
 
-    console.log(
-      '[FeaturedCreators] Mapped creators:',
-      mappedCreators.map((a) => ({
-        handle: a.handle,
-        name: a.name,
-        src: a.src,
-      }))
-    );
-
-    console.log(
-      '[FeaturedCreators] Returning',
-      mappedCreators.length,
-      'creators'
-    );
     return mappedCreators;
   } catch (error) {
     console.error('Error fetching featured creators:', error);
