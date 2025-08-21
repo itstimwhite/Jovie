@@ -67,8 +67,7 @@ test.describe('Onboarding Happy Path', () => {
     const testPassword = process.env.E2E_TEST_PASSWORD || 'TestPassword123!';
 
     await page.evaluate(async ({ email, password }) => {
-      // @ts-ignore
-      const clerk = window.Clerk;
+      const clerk: any = (window as any).Clerk;
       if (!clerk) throw new Error('Clerk not initialized');
 
       try {
@@ -136,8 +135,7 @@ test.describe('Onboarding Happy Path', () => {
     await expect(
       page.locator('.bg-green-500.rounded-full').first()
     ).toBeVisible({ 
-      timeout: 10_000,
-      message: 'Handle availability check should show success indicator' 
+      timeout: 10_000
     });
 
     // Ensure submit button is enabled after validation
@@ -154,7 +152,6 @@ test.describe('Onboarding Happy Path', () => {
         {
           timeout: 15_000,
           intervals: [500, 750, 1000],
-          message: 'Submit button should be enabled after handle validation',
         }
       )
       .toBe(true);
@@ -174,8 +171,7 @@ test.describe('Onboarding Happy Path', () => {
       hasText: /dashboard|overview|welcome|your profile/i 
     });
     await expect(dashboardHeading.first()).toBeVisible({ 
-      timeout: 5_000,
-      message: 'Dashboard heading should be visible' 
+      timeout: 5_000
     });
     
     // Verify navigation links are present
@@ -183,15 +179,13 @@ test.describe('Onboarding Happy Path', () => {
       name: /profile|settings|links|analytics/i 
     });
     await expect(navLinks.first()).toBeVisible({ 
-      timeout: 5_000,
-      message: 'Dashboard navigation links should be visible' 
+      timeout: 5_000
     });
 
     // Verify the user's handle appears somewhere on the page
     const handleText = page.locator(`text=/${uniqueHandle}/i`);
     await expect(handleText.first()).toBeVisible({ 
-      timeout: 5_000,
-      message: 'User handle should be displayed on dashboard' 
+      timeout: 5_000
     });
 
     // Optional: Verify we can access the profile page with the new handle
@@ -201,8 +195,7 @@ test.describe('Onboarding Happy Path', () => {
     // Verify profile page loaded successfully
     const profileName = page.locator('h1, h2').filter({ hasText: uniqueHandle });
     await expect(profileName.first()).toBeVisible({ 
-      timeout: 5_000,
-      message: 'Profile page should display the handle' 
+      timeout: 5_000
     });
   });
 
@@ -237,8 +230,7 @@ test.describe('Onboarding Happy Path', () => {
     }
 
     await page.evaluate(async ({ email, password }) => {
-      // @ts-ignore
-      const clerk = window.Clerk;
+      const clerk: any = (window as any).Clerk;
       if (!clerk) throw new Error('Clerk not initialized');
 
       const signIn = await clerk.signIn?.create({
