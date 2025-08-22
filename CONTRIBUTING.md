@@ -74,6 +74,15 @@
 - Avoid `any` types when possible
 - Use proper generics where applicable
 
+### Feature Flags
+
+- Follow the [Feature Flags documentation](docs/feature-flags.md) for implementation
+- Use the established naming conventions
+- Add new flags to the `FeatureFlags` interface in `types/feature-flags.ts`
+- Default all feature flags to `false` unless explicitly needed
+- Gate analytics features behind user consent
+- Document all new feature flags
+
 ### React/Next.js
 
 - Use functional components with hooks

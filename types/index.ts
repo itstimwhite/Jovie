@@ -14,7 +14,18 @@ import type {
   SocialPlatform,
 } from './db';
 
+// Import feature flag types
+import type {
+  FeatureFlags,
+  FeatureFlagName,
+  StatsigFeatureFlags,
+  PosthogFeatureFlagName,
+  FeatureFlagSource,
+  FeatureFlagMetadata,
+} from './feature-flags';
+
 // Re-export shared enums and types from db.ts
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export type {
   // Enums
   CreatorType,
@@ -23,6 +34,14 @@ export type {
   SubscriptionStatus,
   CurrencyCode,
   SocialPlatform,
+
+  // Feature flags
+  FeatureFlags,
+  FeatureFlagName,
+  StatsigFeatureFlags,
+  PosthogFeatureFlagName,
+  FeatureFlagMetadata,
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
   // Core interfaces
   AppUser,
@@ -59,6 +78,12 @@ export {
   convertCreatorProfileToArtist,
   convertArtistToCreatorProfile,
 } from './db';
+
+// Re-export feature flag constants
+export {
+  POSTHOG_FEATURE_FLAGS,
+  FeatureFlagSource,
+} from './feature-flags';
 
 // =====================================
 // CONSTANTS FOR SHARED ENUMS
