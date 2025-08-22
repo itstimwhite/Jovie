@@ -16,6 +16,8 @@ export async function GET() {
     featureClickAnalyticsRpc: false,
     // snake_case alias for internal consistency with feature flag naming policy
     feature_click_analytics_rpc: false,
+    // Progressive onboarding with multi-step UX improvements
+    progressiveOnboardingEnabled: true,
   } as const;
 
   return new NextResponse(JSON.stringify(flags), {

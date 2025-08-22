@@ -4,8 +4,18 @@
  */
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { categorizeDomain, getCrawlerSafeLabel } from '@/lib/utils/domain-categorizer';
-import { simpleEncryptUrl, simpleDecryptUrl, generateShortId, isValidUrl, extractDomain } from '@/lib/utils/url-encryption';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import {
+  categorizeDomain,
+  getCrawlerSafeLabel,
+} from '@/lib/utils/domain-categorizer';
+import {
+  simpleEncryptUrl,
+  simpleDecryptUrl,
+  generateShortId,
+  isValidUrl,
+  extractDomain,
+} from '@/lib/utils/url-encryption';
 
 export interface WrappedLink {
   id: string;
@@ -25,6 +35,7 @@ export interface CreateWrappedLinkOptions {
   userId?: string;
   expiresInHours?: number;
   customAlias?: string;
+  supabase?: SupabaseClient;
 }
 
 export interface LinkStats {
@@ -37,22 +48,24 @@ export interface LinkStats {
 /**
  * Creates a new wrapped link with anti-cloaking protection
  */
-export async function createWrappedLink(options: CreateWrappedLinkOptions): Promise<WrappedLink | null> {
-  const { url, userId, expiresInHours, customAlias } = options;
-  
+export async function createWrappedLink(
+  options: CreateWrappedLinkOptions
+): Promise<WrappedLink | null> {
+  const { url, userId, expiresInHours, customAlias, supabase: clientSupabase } = options;
+
   if (!isValidUrl(url)) {
     throw new Error('Invalid URL provided');
   }
-  
+
   const domain = extractDomain(url);
   const category = await categorizeDomain(url);
-  
+
   try {
-    const supabase = await createServerSupabaseClient();
-    
+    const supabase = clientSupabase || await createServerSupabaseClient();
+
     // Generate unique short ID
     let shortId = customAlias || generateShortId();
-    
+
     // Ensure short ID is unique
     let attempts = 0;
     while (attempts < 5) {
@@ -61,25 +74,25 @@ export async function createWrappedLink(options: CreateWrappedLinkOptions): Prom
         .select('id')
         .eq('short_id', shortId)
         .single();
-      
+
       if (!existing) break;
-      
+
       shortId = generateShortId();
       attempts++;
     }
-    
+
     if (attempts >= 5) {
       throw new Error('Failed to generate unique short ID');
     }
-    
+
     // Encrypt URL for storage
     const encryptedUrl = simpleEncryptUrl(url);
-    
+
     // Calculate expiration
-    const expiresAt = expiresInHours 
+    const expiresAt = expiresInHours
       ? new Date(Date.now() + expiresInHours * 60 * 60 * 1000).toISOString()
       : null;
-    
+
     // Create wrapped link record
     const { data, error } = await supabase
       .from('wrapped_links')
@@ -95,12 +108,12 @@ export async function createWrappedLink(options: CreateWrappedLinkOptions): Prom
       })
       .select()
       .single();
-    
+
     if (error) {
       console.error('Failed to create wrapped link:', error);
       return null;
     }
-    
+
     return {
       id: data.id,
       shortId: data.short_id,
@@ -122,28 +135,31 @@ export async function createWrappedLink(options: CreateWrappedLinkOptions): Prom
 /**
  * Retrieves a wrapped link by short ID
  */
-export async function getWrappedLink(shortId: string): Promise<WrappedLink | null> {
+export async function getWrappedLink(
+  shortId: string,
+  supabase?: SupabaseClient
+): Promise<WrappedLink | null> {
   try {
-    const supabase = await createServerSupabaseClient();
-    
-    const { data, error } = await supabase
+    const client = supabase || await createServerSupabaseClient();
+
+    const { data, error } = await client
       .from('wrapped_links')
       .select('*')
       .eq('short_id', shortId)
       .single();
-    
+
     if (error || !data) {
       return null;
     }
-    
+
     // Check if link has expired
     if (data.expires_at && new Date(data.expires_at) < new Date()) {
       return null;
     }
-    
+
     // Decrypt URL
     const originalUrl = simpleDecryptUrl(data.encrypted_url);
-    
+
     return {
       id: data.id,
       shortId: data.short_id,
@@ -165,17 +181,22 @@ export async function getWrappedLink(shortId: string): Promise<WrappedLink | nul
 /**
  * Increments click count for a wrapped link
  */
-export async function incrementClickCount(shortId: string): Promise<boolean> {
+export async function incrementClickCount(
+  shortId: string,
+  supabase?: SupabaseClient
+): Promise<boolean> {
   try {
-    const supabase = await createServerSupabaseClient();
-    
-    const { error } = await supabase
+    const client = supabase || await createServerSupabaseClient();
+
+    const { error } = await client
       .from('wrapped_links')
-      .update({ 
-        click_count: supabase.rpc('increment_click_count', { link_short_id: shortId })
+      .update({
+        click_count: client.rpc('increment_click_count', {
+          link_short_id: shortId,
+        }),
       })
       .eq('short_id', shortId);
-    
+
     return !error;
   } catch (error) {
     console.error('Failed to increment click count:', error);
@@ -186,18 +207,21 @@ export async function incrementClickCount(shortId: string): Promise<boolean> {
 /**
  * Gets link statistics for analytics
  */
-export async function getLinkStats(userId?: string): Promise<LinkStats> {
+export async function getLinkStats(
+  userId?: string,
+  supabase?: SupabaseClient
+): Promise<LinkStats> {
   try {
-    const supabase = await createServerSupabaseClient();
-    
-    let query = supabase.from('wrapped_links').select('*');
-    
+    const client = supabase || await createServerSupabaseClient();
+
+    let query = client.from('wrapped_links').select('*');
+
     if (userId) {
       query = query.eq('created_by', userId);
     }
-    
+
     const { data, error } = await query;
-    
+
     if (error || !data) {
       return {
         totalClicks: 0,
@@ -206,22 +230,25 @@ export async function getLinkStats(userId?: string): Promise<LinkStats> {
         topDomains: [],
       };
     }
-    
+
     const totalClicks = data.reduce((sum, link) => sum + link.click_count, 0);
-    const normalLinks = data.filter(link => link.kind === 'normal').length;
-    const sensitiveLinks = data.filter(link => link.kind === 'sensitive').length;
-    
+    const normalLinks = data.filter((link) => link.kind === 'normal').length;
+    const sensitiveLinks = data.filter(
+      (link) => link.kind === 'sensitive'
+    ).length;
+
     // Calculate top domains
     const domainCounts: Record<string, number> = {};
-    data.forEach(link => {
-      domainCounts[link.domain] = (domainCounts[link.domain] || 0) + link.click_count;
+    data.forEach((link) => {
+      domainCounts[link.domain] =
+        (domainCounts[link.domain] || 0) + link.click_count;
     });
-    
+
     const topDomains = Object.entries(domainCounts)
       .sort(([, a], [, b]) => b - a)
       .slice(0, 10)
       .map(([domain, count]) => ({ domain, count }));
-    
+
     return {
       totalClicks,
       normalLinks,
@@ -242,21 +269,23 @@ export async function getLinkStats(userId?: string): Promise<LinkStats> {
 /**
  * Deletes expired links (cleanup function)
  */
-export async function cleanupExpiredLinks(): Promise<number> {
+export async function cleanupExpiredLinks(
+  supabase?: SupabaseClient
+): Promise<number> {
   try {
-    const supabase = await createServerSupabaseClient();
-    
-    const { data, error } = await supabase
+    const client = supabase || await createServerSupabaseClient();
+
+    const { data, error } = await client
       .from('wrapped_links')
       .delete()
       .lt('expires_at', new Date().toISOString())
       .select('id');
-    
+
     if (error) {
       console.error('Failed to cleanup expired links:', error);
       return 0;
     }
-    
+
     return data?.length || 0;
   } catch (error) {
     console.error('Cleanup error:', error);
@@ -272,7 +301,7 @@ export async function createWrappedLinksBatch(
   userId?: string
 ): Promise<WrappedLink[]> {
   const results: WrappedLink[] = [];
-  
+
   for (const url of urls) {
     try {
       const wrappedLink = await createWrappedLink({ url, userId });
@@ -283,7 +312,7 @@ export async function createWrappedLinksBatch(
       console.error(`Failed to wrap URL ${url}:`, error);
     }
   }
-  
+
   return results;
 }
 
@@ -292,20 +321,21 @@ export async function createWrappedLinksBatch(
  */
 export async function updateWrappedLink(
   shortId: string,
-  updates: Partial<Pick<WrappedLink, 'titleAlias' | 'expiresAt'>>
+  updates: Partial<Pick<WrappedLink, 'titleAlias' | 'expiresAt'>>,
+  supabase?: SupabaseClient
 ): Promise<boolean> {
   try {
-    const supabase = await createServerSupabaseClient();
-    
-    const updateData: any = {};
+    const client = supabase || await createServerSupabaseClient();
+
+    const updateData: Record<string, unknown> = {};
     if (updates.titleAlias) updateData.title_alias = updates.titleAlias;
     if (updates.expiresAt) updateData.expires_at = updates.expiresAt;
-    
-    const { error } = await supabase
+
+    const { error } = await client
       .from('wrapped_links')
       .update(updateData)
       .eq('short_id', shortId);
-    
+
     return !error;
   } catch (error) {
     console.error('Failed to update wrapped link:', error);

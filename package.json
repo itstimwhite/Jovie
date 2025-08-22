@@ -14,6 +14,8 @@
     "lint:fix": "next lint --fix",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "typecheck:staged": "tsc -p tsconfig.json --noEmit",
+    "pre-push": "npm run typecheck && npm run test && npm run build:check",
+    "build:check": "npm run build",
     "check": "npm run lint && npm run typecheck && npm run build && npm test",
     "test": "vitest run",
     "test:ci": "vitest run --reporter=verbose --coverage",
@@ -72,13 +74,14 @@
     "simple-icons": "^15.9.0",
     "stripe": "^18.4.0",
     "tailwind-merge": "^3.3.1",
+    "web-vitals": "^5.1.0",
     "zod": "^4.0.17"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^4.1.1",
-    "@clerk/testing": "^1.11.2",
     "@clerk/clerk-js": "^5.0.0",
     "@clerk/dev-cli": "^0.0.12",
+    "@clerk/testing": "^1.11.2",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@playwright/test": "^1.40.1",
@@ -118,8 +121,8 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "next lint --fix --file",
-      "prettier --write"
+      "prettier --write",
+      "next lint --fix --file"
     ],
     "*.{json,md,css}": [
       "prettier --write"

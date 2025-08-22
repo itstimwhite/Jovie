@@ -16,10 +16,10 @@ export interface BotDetectionResult {
 }
 
 // Meta/Facebook ASNs that should be handled carefully
-const META_ASNS = [
-  32934, // Facebook, Inc.
-  63293, // Facebook, Inc.
-];
+// const META_ASNS = [
+//   32934, // Facebook, Inc.
+//   63293, // Facebook, Inc.
+// ];
 
 // Conservative bot detection - only block obvious crawlers on sensitive endpoints
 const META_USER_AGENTS = [
@@ -50,36 +50,41 @@ const KNOWN_CRAWLERS = [
 /**
  * Detects if request is from a bot with anti-cloaking considerations
  */
-export function detectBot(request: NextRequest, endpoint?: string): BotDetectionResult {
+export function detectBot(
+  request: NextRequest,
+  endpoint?: string
+): BotDetectionResult {
   const userAgent = request.headers.get('user-agent') || '';
-  const ip = request.headers.get('x-forwarded-for') || '';
-  
+  // const ip = request.headers.get('x-forwarded-for') || '';
+
   // Check for Meta crawlers
-  const isMeta = META_USER_AGENTS.some(agent => 
+  const isMeta = META_USER_AGENTS.some((agent) =>
     userAgent.toLowerCase().includes(agent.toLowerCase())
   );
-  
+
   // Check for other known crawlers
-  const isKnownCrawler = KNOWN_CRAWLERS.some(bot => 
+  const isKnownCrawler = KNOWN_CRAWLERS.some((bot) =>
     userAgent.toLowerCase().includes(bot.toLowerCase())
   );
-  
+
   const isBot = isMeta || isKnownCrawler;
-  
+
   // Determine blocking strategy based on endpoint
   let shouldBlock = false;
   let reason = '';
-  
+
   if (isMeta) {
     reason = 'Meta crawler detected';
     // Only block Meta crawlers on sensitive API endpoints
-    shouldBlock = Boolean(endpoint?.includes('/api/link/') || endpoint?.includes('/api/sign/'));
+    shouldBlock = Boolean(
+      endpoint?.includes('/api/link/') || endpoint?.includes('/api/sign/')
+    );
   } else if (isKnownCrawler) {
     reason = 'Known crawler detected';
     // Don't block other crawlers to avoid anti-cloaking issues
     shouldBlock = false;
   }
-  
+
   return {
     isBot,
     isMeta,
@@ -92,9 +97,10 @@ export function detectBot(request: NextRequest, endpoint?: string): BotDetection
 /**
  * Checks if IP belongs to Meta ASN
  */
-export async function checkMetaASN(ip: string): Promise<boolean> {
+export async function checkMetaASN(): Promise<boolean> {
   // In production, you'd query an IP-to-ASN service
   // For demo, we'll just return false to avoid blocking legitimate users
+  // Note: IP parameter removed as it's not currently used
   return false;
 }
 
@@ -136,7 +142,7 @@ export async function checkRateLimit(
     const supabase = await createServerSupabaseClient();
     const windowStart = new Date();
     windowStart.setMinutes(windowStart.getMinutes() - windowMinutes);
-    
+
     // Check current request count in window
     const { data, error } = await supabase
       .from('link_rate_limits')
@@ -145,30 +151,31 @@ export async function checkRateLimit(
       .eq('endpoint', endpoint)
       .gte('window_start', windowStart.toISOString())
       .single();
-    
+
     if (error && error.code !== 'PGRST116') {
       console.error('Rate limit check failed:', error);
       return false; // Allow on error to avoid false positives
     }
-    
+
     const currentCount = data?.request_count || 0;
-    
+
     if (currentCount >= limit) {
       return true; // Rate limited
     }
-    
+
     // Update or insert rate limit record
-    await supabase
-      .from('link_rate_limits')
-      .upsert({
+    await supabase.from('link_rate_limits').upsert(
+      {
         ip_address: ip,
         endpoint,
         request_count: currentCount + 1,
         window_start: new Date().toISOString(),
-      }, {
-        onConflict: 'ip_address,endpoint,window_start'
-      });
-    
+      },
+      {
+        onConflict: 'ip_address,endpoint,window_start',
+      }
+    );
+
     return false; // Not rate limited
   } catch (error) {
     console.error('Rate limiting error:', error);
@@ -182,23 +189,23 @@ export async function checkRateLimit(
 export function createBotResponse(status: number = 204): Response {
   // Return consistent responses to avoid cloaking detection
   if (status === 404) {
-    return new Response('Not Found', { 
+    return new Response('Not Found', {
       status: 404,
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-      }
+        Pragma: 'no-cache',
+        Expires: '0',
+      },
     });
   }
-  
-  return new Response('', { 
+
+  return new Response('', {
     status: 204,
     headers: {
       'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0',
-    }
+      Pragma: 'no-cache',
+      Expires: '0',
+    },
   });
 }
 
@@ -207,8 +214,8 @@ export function createBotResponse(status: number = 204): Response {
  */
 export function isSuspiciousRequest(request: NextRequest): boolean {
   const userAgent = request.headers.get('user-agent') || '';
-  const referer = request.headers.get('referer') || '';
-  
+  // const referer = request.headers.get('referer') || '';
+
   // Check for suspicious patterns
   const suspiciousPatterns = [
     // Empty or suspicious user agents
@@ -221,12 +228,12 @@ export function isSuspiciousRequest(request: NextRequest): boolean {
     /crawler/i,
     // But don't block legitimate tools that might be used by users
   ];
-  
+
   // Only flag obviously suspicious requests
-  const hasSuspiciousUA = suspiciousPatterns.some(pattern => 
-    pattern.test(userAgent)
-  ) && !userAgent.includes('Mozilla'); // Don't flag browser-based tools
-  
+  const hasSuspiciousUA =
+    suspiciousPatterns.some((pattern) => pattern.test(userAgent)) &&
+    !userAgent.includes('Mozilla'); // Don't flag browser-based tools
+
   return hasSuspiciousUA;
 }
 
@@ -236,17 +243,17 @@ export function isSuspiciousRequest(request: NextRequest): boolean {
 export function getBotSafeHeaders(isBot: boolean): Record<string, string> {
   const baseHeaders = {
     'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0',
+    Pragma: 'no-cache',
+    Expires: '0',
     'X-Robots-Tag': 'noindex, nofollow, nosnippet, noarchive',
   };
-  
+
   if (isBot) {
     return {
       ...baseHeaders,
       'Referrer-Policy': 'no-referrer',
     };
   }
-  
+
   return baseHeaders;
 }

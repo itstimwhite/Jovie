@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import React from 'react';
+import { Inter } from 'next/font/google';
 import { ClientProviders } from '@/components/providers/ClientProviders';
 import { VercelToolbar } from '@vercel/toolbar/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -8,6 +10,16 @@ import '@/styles/globals.css';
 import { StatsigProviderWrapper } from '@/components/providers/StatsigProvider';
 import { CookieBannerSection } from '@/components/organisms/CookieBannerSection';
 import { headers } from 'next/headers';
+// Import performance monitoring
+// import { initWebVitals } from '@/lib/monitoring/web-vitals'; // Currently unused
+
+// Configure Inter font
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 // Bypass static rendering for now to fix build issues
 export const dynamic = 'force-dynamic';
@@ -130,17 +142,6 @@ export default async function RootLayout({
           crossOrigin=""
         />
 
-        {/* Preload critical fonts */}
-        <link
-          rel="preload"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-          as="style"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-
         {/* Vercel Page Speed Insights */}
         <script
           defer
@@ -168,7 +169,7 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="font-sans">
+      <body className={`${inter.variable} font-sans`}>
         <StatsigProviderWrapper>
           <ClientProviders initialFeatureFlags={featureFlags}>
             {children}
@@ -176,7 +177,26 @@ export default async function RootLayout({
         </StatsigProviderWrapper>
         {showCookieBanner && <CookieBannerSection />}
         <SpeedInsights />
-        {shouldInjectToolbar && <VercelToolbar />}
+        {shouldInjectToolbar && (
+          <>
+            <VercelToolbar />
+            {/* Performance Dashboard - only shown in development */}
+            {process.env.NODE_ENV === 'development' && (
+              <div suppressHydrationWarning>
+                {/* Dynamic import to avoid SSR issues */}
+                {typeof window !== 'undefined' && (
+                  <React.Suspense fallback={null}>
+                    {/* @ts-ignore - Dynamic import */}
+                    {React.createElement(
+                      require('@/components/monitoring/PerformanceDashboard')
+                        .PerformanceDashboard
+                    )}
+                  </React.Suspense>
+                )}
+              </div>
+            )}
+          </>
+        )}
       </body>
     </html>
   );
