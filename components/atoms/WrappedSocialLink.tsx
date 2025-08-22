@@ -41,11 +41,11 @@ export function WrappedSocialLink({
 }: WrappedSocialLinkProps) {
   const [wrappedData, setWrappedData] = useState<WrappedLinkData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [_error, setError] = useState<string | null>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // Generate crawler-safe label
   const domain = extractDomain(href);
-  const isSensitive = isSensitiveDomain(href);
+  const _isSensitive = isSensitiveDomain(href); // eslint-disable-line @typescript-eslint/no-unused-vars
   const crawlerSafeLabel = getCrawlerSafeLabel(domain, platform);
 
   useEffect(() => {

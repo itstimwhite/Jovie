@@ -14,7 +14,7 @@ interface PageProps {
 }
 
 export async function generateMetadata({
-  params,
+  params: _params, // eslint-disable-line @typescript-eslint/no-unused-vars
 }: PageProps): Promise<Metadata> {
   // Generic metadata to avoid exposing sensitive information to crawlers
   return {

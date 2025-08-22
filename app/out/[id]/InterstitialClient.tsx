@@ -18,7 +18,7 @@ export function InterstitialClient({
   shortId,
   titleAlias,
   domain,
-  category,
+  category: _category, // eslint-disable-line @typescript-eslint/no-unused-vars
 }: InterstitialClientProps) {
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);

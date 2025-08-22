@@ -10,7 +10,7 @@ import { StatsigProviderWrapper } from '@/components/providers/StatsigProvider';
 import { CookieBannerSection } from '@/components/organisms/CookieBannerSection';
 import { headers } from 'next/headers';
 // Import performance monitoring
-import { initWebVitals } from '@/lib/monitoring/web-vitals';
+// import { initWebVitals } from '@/lib/monitoring/web-vitals'; // Currently unused
 
 // Bypass static rendering for now to fix build issues
 export const dynamic = 'force-dynamic';
