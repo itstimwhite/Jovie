@@ -1,226 +1,104 @@
-# Feature Flags with Statsig
+# Feature Flags System
 
-Jovie uses [Statsig](https://statsig.com/) for feature flag management and experimentation. This provides a robust, real-time feature flag system with advanced A/B testing capabilities.
+This document explains how to use the feature flags system in the Jovie application.
 
-## Setup
+## Overview
 
-### 1. Environment Variables
+The feature flags system allows toggling features on/off across different environments (Development, Preview, Production) without code changes. This is useful for:
 
-Add your Statsig client key to `.env.local`:
+- Gradual rollouts of new features
+- A/B testing
+- Environment-specific configurations
+- Emergency feature disabling
 
-```bash
-NEXT_PUBLIC_STATSIG_CLIENT_KEY=client-<your-statsig-client-key>
-```
+## How It Works
 
-### 2. Provider Integration
+Feature flags are served by the `/api/feature-flags` endpoint, which:
 
-The Statsig provider is integrated in `app/my-statsig.tsx` and wraps the entire application in `app/layout.tsx`.
+1. Reads configuration from environment variables
+2. Falls back to sensible defaults when variables aren't set
+3. Returns both camelCase and snake_case versions of each flag
+4. Uses edge runtime for optimal performance
+5. Includes cache-busting headers to ensure fresh data
 
 ## Available Feature Flags
 
-### Current Flags
+| Flag Name (camelCase)           | Environment Variable              | Default                    | Description                               |
+| ------------------------------- | --------------------------------- | -------------------------- | ----------------------------------------- |
+| `artistSearchEnabled`           | `FEATURE_ARTIST_SEARCH`           | `true`                     | Controls artist search functionality      |
+| `debugBannerEnabled`            | `FEATURE_DEBUG_BANNER`            | `false`                    | Controls debug banner visibility          |
+| `tipPromoEnabled`               | `NEXT_PUBLIC_FEATURE_TIPS`        | `true`                     | Controls tip promotion features           |
+| `pricingUseClerk`               | `FEATURE_PRICING_USE_CLERK`       | `false`                    | Controls whether to use Clerk for pricing |
+| `universalNotificationsEnabled` | `FEATURE_UNIVERSAL_NOTIFICATIONS` | `false` (or `true` in dev) | Controls universal notifications          |
+| `featureClickAnalyticsRpc`      | `FEATURE_CLICK_ANALYTICS_RPC`     | `false`                    | Controls anonymous click logging via RPC  |
 
-| Flag Name              | Type   | Description                      | Default             |
-| ---------------------- | ------ | -------------------------------- | ------------------- |
-| `waitlist_enabled`     | Gate   | Controls waitlist functionality  | `false`             |
-| `debug_banner_enabled` | Gate   | Controls debug banner visibility | `development`       |
-| `artist_search_config` | Config | Artist search configuration      | `{ enabled: true }` |
-| `tip_promo_config`     | Config | Tip promotion configuration      | `{ enabled: true }` |
+## Using Feature Flags in Code
 
-### Usage in Components
+### Client-Side
 
 ```typescript
 import { useFeatureFlags } from '@/lib/feature-flags';
 
 export function MyComponent() {
-  const { waitlistEnabled, debugBannerEnabled } = useFeatureFlags();
+  const { artistSearchEnabled, debugBannerEnabled } = useFeatureFlags();
 
   return (
     <div>
-      {waitlistEnabled && <WaitlistComponent />}
+      {artistSearchEnabled && <SearchComponent />}
       {debugBannerEnabled && <DebugBanner />}
     </div>
   );
 }
 ```
 
-## Statsig Dashboard Configuration
-
-### 1. Create Gates
-
-In the Statsig dashboard, create the following gates:
-
-#### `waitlist_enabled`
-
-- **Type**: Boolean Gate
-- **Description**: Controls waitlist functionality
-- **Default**: `false`
-
-#### `debug_banner_enabled`
-
-- **Type**: Boolean Gate
-- **Description**: Controls debug banner visibility
-- **Default**: `true` (development), `false` (production)
-
-### 2. Create Configs
-
-#### `artist_search_config`
-
-- **Type**: JSON Config
-- **Description**: Artist search configuration
-- **Default**: `{ "enabled": true }`
-
-#### `tip_promo_config`
-
-- **Type**: JSON Config
-- **Description**: Tip promotion configuration
-- **Default**: `{ "enabled": true }`
-
-## Advanced Usage
-
-### User Segmentation
-
-Statsig automatically includes user information from Clerk:
+### Server-Side
 
 ```typescript
-// User object passed to Statsig
-const statsigUser = {
-  userID: user?.id || 'anonymous-user',
-  email: user?.emailAddresses?.[0]?.emailAddress,
-  custom: {
-    plan: (user?.publicMetadata?.plan as string) || 'free',
-  },
-};
-```
+import { getServerFeatureFlags } from '@/lib/feature-flags';
 
-### A/B Testing
+export async function MyServerComponent() {
+  const flags = await getServerFeatureFlags();
 
-You can create experiments in the Statsig dashboard:
+  if (flags.tipPromoEnabled) {
+    // Do something with tip promo
+  }
 
-```typescript
-import { useExperiment } from '@statsig/react-bindings';
-
-export function MyComponent() {
-  const experiment = useExperiment('my_experiment');
-
-  return (
-    <div>
-      {experiment.get('variant') === 'A' && <VariantA />}
-      {experiment.get('variant') === 'B' && <VariantB />}
-    </div>
-  );
+  return <div>...</div>;
 }
 ```
 
-### Dynamic Configs
+## Environment Configuration
 
-```typescript
-import { useConfig } from '@statsig/react-bindings';
+### Development
 
-export function MyComponent() {
-  const config = useConfig('my_config');
+In development, you can set feature flags in your `.env.local` file:
 
-  const setting = config.get('setting', 'default');
-
-  return <div>{setting}</div>;
-}
+```
+FEATURE_ARTIST_SEARCH=true
+FEATURE_DEBUG_BANNER=true
+NEXT_PUBLIC_FEATURE_TIPS=true
 ```
 
-## Migration from Edge Config
+### Preview/Production
 
-The feature flags system has been migrated from Vercel Edge Config to Statsig:
+For preview and production environments, set the environment variables in your deployment platform (e.g., Vercel):
 
-### Before (Edge Config)
-
-```typescript
-import { createClient } from '@vercel/edge-config';
-
-const edgeConfig = createClient(process.env.EDGE_CONFIG);
-const flags = await edgeConfig.get('featureFlags');
-```
-
-### After (Statsig)
-
-```typescript
-import { useFeatureFlags } from '@/lib/feature-flags';
-
-const { waitlistEnabled, debugBannerEnabled } = useFeatureFlags();
-```
-
-## Testing
-
-### Unit Tests
-
-When testing components that use feature flags:
-
-```typescript
-import { render, screen } from '@testing-library/react';
-import { StatsigProvider } from '@statsig/react-bindings';
-
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <StatsigProvider
-    sdkKey="test-key"
-    user={{ userID: 'test-user' }}
-    options={{ logLevel: 'none' }}
-  >
-    {children}
-  </StatsigProvider>
-);
-
-test('component shows when flag is enabled', () => {
-  render(
-    <TestWrapper>
-      <MyComponent />
-    </TestWrapper>
-  );
-
-  expect(screen.getByText('Feature enabled')).toBeInTheDocument();
-});
-```
-
-### E2E Tests
-
-For end-to-end tests, you can configure feature flags per test:
-
-```typescript
-test('waitlist flow with flag enabled', async ({ page }) => {
-  // Configure Statsig for this test
-  await page.addInitScript(() => {
-    window.STATSIG_OVERRIDES = {
-      waitlist_enabled: true,
-    };
-  });
-
-  await page.goto('/');
-  await expect(page.locator('[data-testid="waitlist"]')).toBeVisible();
-});
-```
+1. Go to your project settings
+2. Navigate to the Environment Variables section
+3. Add the feature flag variables with appropriate values for each environment
 
 ## Best Practices
 
-1. **Always provide defaults**: Use fallback values for all feature flags
-2. **Test both states**: Test components with flags enabled and disabled
-3. **Use descriptive names**: Make flag names self-documenting
-4. **Document changes**: Update this file when adding new flags
-5. **Monitor usage**: Use Statsig analytics to track flag usage
+1. **Default to Off for New Features**: When adding a new feature flag, default it to `false` in code and only enable via environment variables.
+2. **Document All Flags**: Add new flags to this documentation when created.
+3. **Clean Up Unused Flags**: Remove flags and related code when features are fully launched or deprecated.
+4. **Use Descriptive Names**: Flag names should clearly indicate what feature they control.
+5. **Consider Scope**: Only use `NEXT_PUBLIC_` prefix for flags that need to be accessible on the client-side.
 
-## Troubleshooting
+## Adding New Feature Flags
 
-### Flag not working?
-
-1. Check that `NEXT_PUBLIC_STATSIG_CLIENT_KEY` is set correctly
-2. Verify the flag exists in the Statsig dashboard
-3. Check browser console for Statsig errors
-4. Ensure the component is wrapped in `StatsigProvider`
-
-### Performance issues?
-
-1. Statsig caches flags locally for performance
-2. Use `useFeatureFlags()` hook for real-time updates
-3. Consider using `useConfig()` for complex configurations
-
-## Resources
-
-- [Statsig Documentation](https://docs.statsig.com/)
-- [React Bindings Guide](https://docs.statsig.com/client-libraries/react)
-- [Feature Flag Best Practices](https://docs.statsig.com/guides/feature-flags)
+1. Add the flag to the defaults object in `app/api/feature-flags/route.ts`
+2. Add the environment variable check in the flags object
+3. Add the flag to the `.env.example` file
+4. Update this documentation
+5. Add appropriate tests
