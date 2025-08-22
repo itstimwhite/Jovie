@@ -115,7 +115,7 @@ export function transformImageUrl(
     // Fallback for relative URLs: check if it starts with /res.cloudinary.com/
     if (
       url.startsWith('/res.cloudinary.com/') ||
-      url === 'res.cloudinary.com'
+      url.startsWith('/res.cloudinary.com/')
     ) {
       return transformCloudinaryUrl(url, options);
     }
