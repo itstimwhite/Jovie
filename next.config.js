@@ -114,7 +114,16 @@ const nextConfig = {
   experimental: {
     // Disable optimizeCss to avoid critters dependency issues
     // optimizeCss: true,
-    optimizePackageImports: ['@headlessui/react', '@heroicons/react'],
+    optimizePackageImports: [
+      '@headlessui/react', 
+      '@heroicons/react',
+      '@clerk/nextjs',
+      '@supabase/supabase-js',
+      'framer-motion',
+      'react-hook-form',
+      'date-fns',
+      'zod'
+    ],
     // Build optimizations
     // Turbopack: remove unsupported option
     // forceSwcTransforms: true,
@@ -133,16 +142,55 @@ const nextConfig = {
   // Webpack optimizations
   webpack: (config, { dev, isServer }) => {
     if (!dev && !isServer) {
-      // Optimize bundle size
+      // Enhanced tree shaking and optimization
       config.optimization = {
         ...config.optimization,
+        usedExports: true,
+        sideEffects: false,
         splitChunks: {
           chunks: 'all',
+          minSize: 20000,
+          maxSize: 250000,
           cacheGroups: {
+            // Heavy libraries that benefit from code splitting
+            stripe: {
+              test: /[\\/]node_modules[\\/]@stripe[\\/]/,
+              name: 'stripe',
+              chunks: 'all',
+              priority: 30,
+            },
+            dndKit: {
+              test: /[\\/]node_modules[\\/]@dnd-kit[\\/]/,
+              name: 'dnd-kit',
+              chunks: 'all',
+              priority: 25,
+            },
+            framerMotion: {
+              test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
+              name: 'framer-motion',
+              chunks: 'all',
+              priority: 20,
+            },
+            // Clerk chunks (authentication)
+            clerk: {
+              test: /[\\/]node_modules[\\/]@clerk[\\/]/,
+              name: 'clerk',
+              chunks: 'all',
+              priority: 15,
+            },
+            // React and core libraries
+            react: {
+              test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+              name: 'react',
+              chunks: 'all',
+              priority: 10,
+            },
+            // Other vendor libraries
             vendor: {
               test: /[\\/]node_modules[\\/]/,
               name: 'vendors',
               chunks: 'all',
+              priority: 5,
             },
           },
         },
@@ -164,4 +212,12 @@ const nextConfig = {
 // Enable Vercel Toolbar in Next.js (local/dev)
 const withVercelToolbar = require('@vercel/toolbar/plugins/next')();
 
-module.exports = withVercelToolbar(nextConfig);
+// Enable bundle analyzer conditionally
+const withBundleAnalyzer = process.env.ANALYZE === 'true' 
+  ? require('@next/bundle-analyzer')({
+      enabled: true,
+      openAnalyzer: false, // Don't auto-open in CI
+    })
+  : (config) => config;
+
+module.exports = withBundleAnalyzer(withVercelToolbar(nextConfig));

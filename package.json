@@ -38,7 +38,9 @@
     "db:seed-enhanced": "node scripts/seed-enhanced-profiles.js",
     "db:seed-tim": "node scripts/seed-tim-user.js",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "analyze": "cross-env ANALYZE=true npm run build",
+    "analyze:install": "npm install --save-dev @next/bundle-analyzer cross-env"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.31.1",

@@ -1,9 +1,38 @@
-import { OnboardingForm } from '@/components/dashboard';
+import dynamic from 'next/dynamic';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { APP_NAME } from '@/constants/app';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
+
+// Onboarding form skeleton component
+function OnboardingFormSkeleton() {
+  return (
+    <div className="space-y-4">
+      {/* Progress bar skeleton */}
+      <div className="h-2 bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
+      
+      {/* Form field skeleton */}
+      <div className="space-y-2">
+        <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-16" />
+        <div className="h-12 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
+        <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded animate-pulse w-3/4" />
+      </div>
+      
+      {/* Button skeleton */}
+      <div className="h-12 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse" />
+    </div>
+  );
+}
+
+// Dynamic import of OnboardingForm for code splitting
+const OnboardingForm = dynamic(
+  () => import('@/components/dashboard/organisms/OnboardingForm').then(mod => ({ default: mod.OnboardingForm })),
+  {
+    loading: () => <OnboardingFormSkeleton />,
+    ssr: false, // Form handling doesn't need SSR
+  }
+);
 
 export default async function OnboardingPage() {
   const { userId } = await auth();
