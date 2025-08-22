@@ -8,15 +8,21 @@ import { createClient } from '@supabase/supabase-js';
 import { auth } from '@clerk/nextjs/server';
 import { cache } from 'react';
 
-// Environment variables with fallback support
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+/**
+ * Get Supabase configuration with runtime validation
+ * This is called at runtime instead of module load time to avoid build issues
+ */
+function getSupabaseConfig() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Validate environment variables at module load
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing required Supabase environment variables');
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing required Supabase environment variables');
+  }
+
+  return { supabaseUrl, supabaseAnonKey };
 }
 
 /**
@@ -59,6 +65,7 @@ const baseConfig = {
  * @returns Supabase client with Clerk authentication
  */
 export async function createAuthenticatedClient() {
+  const { supabaseUrl, supabaseAnonKey } = getSupabaseConfig();
   return createClient(supabaseUrl, supabaseAnonKey, {
     ...baseConfig,
     async accessToken() {
@@ -74,6 +81,7 @@ export async function createAuthenticatedClient() {
  * @returns Supabase client without authentication
  */
 export function createAnonymousClient() {
+  const { supabaseUrl, supabaseAnonKey } = getSupabaseConfig();
   return createClient(supabaseUrl, supabaseAnonKey, baseConfig);
 }
 
