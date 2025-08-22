@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import Image from 'next/image';
 import { flags } from '@/lib/env';
 
-interface UploadResult {
+export interface UploadResult {
   public_id: string;
   secure_url: string;
   width?: number;
@@ -135,3 +135,4 @@ export default function AvatarUploader({
     </div>
   );
 }
+
