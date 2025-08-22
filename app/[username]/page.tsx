@@ -12,6 +12,7 @@ import {
 } from '@/types/db';
 import { PAGE_SUBTITLES } from '@/constants/app';
 import { env } from '@/lib/env';
+import { profileCache, cacheMonitoring, CACHE_TTL } from '@/lib/cache';
 
 // Create an anonymous Supabase client for public data
 function createAnonSupabase() {
@@ -29,31 +30,52 @@ function createAnonSupabase() {
 
 // Using CreatorProfile type and convertCreatorProfileToArtist utility from types/db.ts
 
-// Cache the database query to prevent duplicate calls during page + metadata generation
+// Multi-level cached database query with Redis + React cache
 const getCreatorProfile = cache(
   async (username: string): Promise<CreatorProfile | null> => {
-    const supabase = createAnonSupabase();
+    const cleanUsername = username.toLowerCase();
+    
+    try {
+      // Check Redis cache first
+      const cached = await profileCache.getProfile(cleanUsername);
+      if (cached) {
+        cacheMonitoring.trackCacheHit('redis', `profile:${cleanUsername}`);
+        return cached;
+      }
+      
+      cacheMonitoring.trackCacheMiss('redis', `profile:${cleanUsername}`);
+      
+      // Fetch from database
+      const supabase = createAnonSupabase();
+      const { data, error } = await supabase
+        .from('creator_profiles')
+        .select(
+          'id, user_id, creator_type, username, display_name, bio, avatar_url, spotify_url, apple_music_url, youtube_url, spotify_id, is_public, is_verified, is_claimed, claim_token, claimed_at, settings, theme, created_at, updated_at'
+        )
+        .eq('username', cleanUsername)
+        .eq('is_public', true)
+        .single();
 
-    const { data, error } = await supabase
-      .from('creator_profiles')
-      .select(
-        'id, user_id, creator_type, username, display_name, bio, avatar_url, spotify_url, apple_music_url, youtube_url, spotify_id, is_public, is_verified, is_claimed, claim_token, claimed_at, settings, theme, created_at, updated_at'
-      )
-      .eq('username', username.toLowerCase())
-      .eq('is_public', true) // Only fetch public profiles
-      .single();
+      if (error || !data) {
+        return null;
+      }
 
-    if (error || !data) {
+      // Add default values for fields that might not exist in the database yet
+      const d = data as Partial<CreatorProfile>;
+      const profile = {
+        ...data,
+        is_featured: d.is_featured ?? false,
+        marketing_opt_out: d.marketing_opt_out ?? false,
+      } as CreatorProfile;
+      
+      // Cache in Redis for future requests
+      await profileCache.setProfile(cleanUsername, profile, CACHE_TTL.PROFILE);
+      
+      return profile;
+    } catch (error) {
+      console.error('Profile fetch error:', error);
       return null;
     }
-
-    // Add default values for fields that might not exist in the database yet
-    const d = data as Partial<CreatorProfile>;
-    return {
-      ...data,
-      is_featured: d.is_featured ?? false,
-      marketing_opt_out: d.marketing_opt_out ?? false,
-    } as CreatorProfile;
   }
 );
 
@@ -209,8 +231,8 @@ export async function generateMetadata({ params }: Props) {
 // Note: generateStaticParams removed to allow edge runtime
 // Edge runtime provides better performance for dynamic profile pages
 
-// Enable ISR with 30 minute revalidation for fresher content
-export const revalidate = 1800;
+// Enable edge runtime for better performance
+export const runtime = 'edge';
 
-// Temporarily disable edge runtime for debugging
-// export const runtime = 'edge';
+// Enable ISR with 5 minute revalidation for edge cache
+export const revalidate = 300;

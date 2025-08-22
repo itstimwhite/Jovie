@@ -102,9 +102,30 @@ export default clerkMiddleware(async (auth, req) => {
       res.headers.set('x-show-cookie-banner', '1');
     }
 
+    // Add cache optimization headers for static assets
+    if (pathname.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$/)) {
+      res.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+
+    // Add edge cache headers for profile pages
+    if (pathname.match(/^\/[^\/]+$/)) {
+      res.headers.set('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=1800');
+      res.headers.set('X-Edge-Cache', 'enabled');
+    }
+
+    // Add cache headers for API routes
+    if (pathname.startsWith('/api/')) {
+      if (pathname.includes('/profiles/')) {
+        res.headers.set('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=600');
+      } else if (pathname.includes('/health')) {
+        res.headers.set('Cache-Control', 'public, max-age=60, s-maxage=60');
+      }
+    }
+
     // Add performance monitoring headers
     const duration = Date.now() - startTime;
     res.headers.set('Server-Timing', `middleware;dur=${duration}`);
+    res.headers.set('X-Response-Time', `${duration}ms`);
     
     // Add performance monitoring for API routes
     if (pathname.startsWith('/api/')) {
@@ -115,6 +136,11 @@ export default clerkMiddleware(async (auth, req) => {
       if (process.env.NODE_ENV === 'development') {
         console.log(`[API] ${req.method} ${pathname} - ${duration}ms`);
       }
+    }
+
+    // Add cache debugging headers in development
+    if (process.env.NODE_ENV === 'development') {
+      res.headers.set('X-Cache-Debug', 'enabled');
     }
 
     return res;

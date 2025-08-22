@@ -60,6 +60,9 @@ const nextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     // Enable blur placeholders for better UX
     unoptimized: false,
+    // CDN optimization
+    loader: 'default',
+    path: '/_next/image',
   },
   async headers() {
     const securityHeaders = [
@@ -78,6 +81,39 @@ const nextConfig = {
     ];
     return [
       {
+        // Static assets - long-term caching with immutable
+        source: '/(.*)\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp|avif)$',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable', // 1 year
+          },
+        ],
+      },
+      {
+        // API routes with shorter cache for dynamic content
+        source: '/api/health',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=60, s-maxage=60', // 1 minute
+          },
+        ],
+      },
+      {
+        // Profile API routes - medium caching
+        source: '/api/profiles/(.*)',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=300, s-maxage=300, stale-while-revalidate=600', // 5 minutes + SWR
+          },
+        ],
+      },
+      {
         // Ensure internal flags endpoint is never cached
         source: '/api/feature-flags',
         headers: [
@@ -89,6 +125,7 @@ const nextConfig = {
         ],
       },
       {
+        // Other API routes - default caching
         source: '/api/(.*)',
         headers: [
           ...securityHeaders,
@@ -99,8 +136,19 @@ const nextConfig = {
         ],
       },
       {
+        // Profile pages - edge cache with stale-while-revalidate
+        source: '/([^/]+)$',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=300, s-maxage=300, stale-while-revalidate=1800', // 5 min + 30 min SWR
+          },
+        ],
+      },
+      {
         // Exclude Vercel Flags discovery endpoint from global cache headers
-        source: '/((?!\.well-known/vercel/flags).*)',
+        source: '/((?!\\.well-known/vercel/flags).*)',
         headers: [
           ...securityHeaders,
           {
@@ -123,6 +171,13 @@ const nextConfig = {
     webVitalsAttribution: ['web-vital', 'element', 'largest-contentful-paint', 'layout-shift'],
     // Apply performance budgets from the imported config
     performanceBudget: performanceBudgets.budgets,
+    // Enable edge runtime support
+    useSwcLoader: true,
+    // Cache optimization
+    cacheHandlers: {
+      // Enable edge caching
+      edge: true,
+    },
   },
   compiler: {
     // Keep console logs in Vercel Preview builds for debugging
