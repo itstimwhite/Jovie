@@ -12,6 +12,7 @@ import {
 } from '@/types/db';
 import { PAGE_SUBTITLES } from '@/constants/app';
 import { env } from '@/lib/env';
+import { getSocialLinksFromDB } from '@/lib/utils/platform-detection';
 
 // Create an anonymous Supabase client for public data
 function createAnonSupabase() {
@@ -57,45 +58,11 @@ const getCreatorProfile = cache(
   }
 );
 
-// Cache function for social links - could be from database in future
+// Cache function for social links from database
 const getSocialLinks = cache(
   async (profile: CreatorProfile): Promise<LegacySocialLink[]> => {
-    // For now, return hardcoded links but this could be a parallel DB query
-    // TODO: Replace with actual social_links table query when available
-    const socialLinks: LegacySocialLink[] =
-      profile.username === 'ladygaga'
-        ? [
-            {
-              id: 'venmo-link-1',
-              artist_id: profile.id,
-              platform: 'venmo',
-              url: 'https://venmo.com/u/ladygaga',
-              clicks: 0,
-              created_at: new Date().toISOString(),
-            },
-            {
-              id: 'spotify-link-1',
-              artist_id: profile.id,
-              platform: 'spotify',
-              url: 'https://open.spotify.com/artist/1HY2Jd0NmPuamShAr6KMms',
-              clicks: 0,
-              created_at: new Date().toISOString(),
-            },
-          ]
-        : profile.username === 'tim'
-          ? [
-              {
-                id: 'venmo-link-2',
-                artist_id: profile.id,
-                platform: 'venmo',
-                url: 'https://venmo.com/u/timwhite',
-                clicks: 0,
-                created_at: new Date().toISOString(),
-              },
-            ]
-          : [];
-
-    return socialLinks;
+    // Fetch social links from the database
+    return getSocialLinksFromDB(profile);
   }
 );
 

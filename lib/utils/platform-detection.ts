@@ -2,6 +2,8 @@
  * Platform Detection and Link Normalization Service
  * Atomic utility for identifying and normalizing social/music platform links
  */
+import { createServerClient } from '@/lib/supabase-server';
+import type { CreatorProfile, LegacySocialLink } from '@/types/db';
 
 export interface PlatformInfo {
   id: string;
@@ -412,4 +414,53 @@ export function isProduction(): boolean {
     process.env.NODE_ENV === 'production' &&
     process.env.VERCEL_ENV === 'production'
   );
+}
+
+/**
+ * Fetch social links for a creator profile from the database
+ * @param profile The creator profile to fetch social links for
+ * @returns Array of social links in LegacySocialLink format
+ */
+export async function getSocialLinksFromDB(
+  profile: CreatorProfile
+): Promise<LegacySocialLink[]> {
+  try {
+    // Create an anonymous server client (no auth needed for public data)
+    const supabase = createServerClient();
+
+    if (!supabase) {
+      console.error('Failed to create Supabase client');
+      return [];
+    }
+
+    // Query the social_links table for active links associated with this profile
+    const { data, error } = await supabase
+      .from('social_links')
+      .select(
+        'id, creator_profile_id, platform, platform_type, url, clicks, created_at'
+      )
+      .eq('creator_profile_id', profile.id)
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching social links:', error);
+      return [];
+    }
+
+    // Map the database records to the LegacySocialLink format
+    const socialLinks: LegacySocialLink[] = data.map((link) => ({
+      id: link.id,
+      artist_id: link.creator_profile_id, // Map creator_profile_id to artist_id for backwards compatibility
+      platform: link.platform, // Use the free-form platform name for backwards compatibility
+      url: link.url,
+      clicks: link.clicks || 0,
+      created_at: link.created_at,
+    }));
+
+    return socialLinks;
+  } catch (error) {
+    console.error('Unexpected error fetching social links:', error);
+    return [];
+  }
 }
