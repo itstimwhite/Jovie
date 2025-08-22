@@ -8,25 +8,25 @@ import { track } from '@/lib/analytics';
  * @returns A function that wraps the query function and tracks its performance
  */
 export function trackDatabaseQuery(operation: string) {
-  return async function<T>(queryFn: () => Promise<T>): Promise<T> {
+  return async function <T>(queryFn: () => Promise<T>): Promise<T> {
     const start = performance.now();
-    
+
     try {
       // Execute the query
       const result = await queryFn();
       const duration = performance.now() - start;
-      
+
       // Send success metric
       sendDatabaseMetric('database_query', {
         operation,
         duration,
         success: true,
       });
-      
+
       return result;
     } catch (error) {
       const duration = performance.now() - start;
-      
+
       // Send error metric
       sendDatabaseMetric('database_query', {
         operation,
@@ -34,7 +34,7 @@ export function trackDatabaseQuery(operation: string) {
         success: false,
         error: error instanceof Error ? error.message : String(error),
       });
-      
+
       // Re-throw the error to maintain normal error flow
       throw error;
     }
@@ -47,7 +47,10 @@ export function trackDatabaseQuery(operation: string) {
  * @param queryType The type of query (select, insert, update, delete)
  * @returns A function that wraps the Supabase query and tracks its performance
  */
-export function trackSupabaseQuery(tableName: string, queryType: 'select' | 'insert' | 'update' | 'delete') {
+export function trackSupabaseQuery(
+  tableName: string,
+  queryType: 'select' | 'insert' | 'update' | 'delete'
+) {
   return trackDatabaseQuery(`supabase_${tableName}_${queryType}`);
 }
 
@@ -60,7 +63,7 @@ function sendDatabaseMetric(metricType: string, data: Record<string, unknown>) {
     ...data,
     timestamp: Date.now(),
   };
-  
+
   // Send to analytics
   track(`performance_${metricType}`, payload);
 }
@@ -70,7 +73,10 @@ function sendDatabaseMetric(metricType: string, data: Record<string, unknown>) {
  * @param duration Query duration in milliseconds
  * @param threshold Threshold in milliseconds (default: 500ms)
  */
-export function isSlowQuery(duration: number, threshold: number = 500): boolean {
+export function isSlowQuery(
+  duration: number,
+  threshold: number = 500
+): boolean {
   return duration > threshold;
 }
 
@@ -82,42 +88,42 @@ export function isSlowQuery(duration: number, threshold: number = 500): boolean 
 export function createTrackedSupabaseClient(supabaseClient: any) {
   // This is a simplified example - in a real implementation,
   // you would wrap all methods of the Supabase client
-  
+
   const originalFrom = supabaseClient.from;
-  
+
   supabaseClient.from = (tableName: string) => {
     const tableQuery = originalFrom.call(supabaseClient, tableName);
-    
+
     // Wrap select method
     const originalSelect = tableQuery.select;
-    tableQuery.select = function(...args: any[]) {
+    tableQuery.select = function (...args: any[]) {
       const wrappedQuery = trackSupabaseQuery(tableName, 'select');
       return wrappedQuery(() => originalSelect.apply(this, args));
     };
-    
+
     // Wrap insert method
     const originalInsert = tableQuery.insert;
-    tableQuery.insert = function(...args: any[]) {
+    tableQuery.insert = function (...args: any[]) {
       const wrappedQuery = trackSupabaseQuery(tableName, 'insert');
       return wrappedQuery(() => originalInsert.apply(this, args));
     };
-    
+
     // Wrap update method
     const originalUpdate = tableQuery.update;
-    tableQuery.update = function(...args: any[]) {
+    tableQuery.update = function (...args: any[]) {
       const wrappedQuery = trackSupabaseQuery(tableName, 'update');
       return wrappedQuery(() => originalUpdate.apply(this, args));
     };
-    
+
     // Wrap delete method
     const originalDelete = tableQuery.delete;
-    tableQuery.delete = function(...args: any[]) {
+    tableQuery.delete = function (...args: any[]) {
       const wrappedQuery = trackSupabaseQuery(tableName, 'delete');
       return wrappedQuery(() => originalDelete.apply(this, args));
     };
-    
+
     return tableQuery;
   };
-  
+
   return supabaseClient;
 }

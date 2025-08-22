@@ -93,6 +93,7 @@ jobs:
           echo "ok=false" >> "$GITHUB_OUTPUT"
           echo "Wildcard alias did not become ready within time window" >&2
           exit 1
+
 # NOTE: PR commenting has been moved to the consolidated-vercel-preview.yml workflow
 # to avoid duplicate comments. This step is kept for reference but is disabled.
 #      - name: Comment Preview URL on PR

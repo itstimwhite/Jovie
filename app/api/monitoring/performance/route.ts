@@ -11,19 +11,18 @@ interface PerformanceResponse {
  * GET handler for performance metrics API
  * This endpoint is protected and only accessible to authenticated users
  */
-export async function GET(req: NextRequest): Promise<NextResponse<PerformanceResponse>> {
+export async function GET(
+  req: NextRequest
+): Promise<NextResponse<PerformanceResponse>> {
   try {
     // Check authentication
     const { userId } = await auth();
-    
+
     // Only allow authenticated users
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     // In a real implementation, you would fetch metrics from your database or analytics service
     // For now, we'll return mock data
     const mockMetrics = [
@@ -58,7 +57,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<PerformanceRes
         timestamp: Date.now() - 60000,
       },
     ];
-    
+
     return NextResponse.json({ metrics: mockMetrics });
   } catch (error) {
     console.error('Error fetching performance metrics:', error);
@@ -68,4 +67,3 @@ export async function GET(req: NextRequest): Promise<NextResponse<PerformanceRes
     );
   }
 }
-

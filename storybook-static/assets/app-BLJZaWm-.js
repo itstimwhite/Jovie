@@ -1,1 +1,0 @@
-import{e as s}from"./env-CfNjJZ1e.js";const o="Jovie",_=s.NEXT_PUBLIC_APP_URL??"https://jov.ie",e="jovie_dsp",A="Artist",L={posthogKey:s.NEXT_PUBLIC_POSTHOG_KEY||""};new Date().getFullYear();export{_ as A,A as D,e as L,o as a,L as b};

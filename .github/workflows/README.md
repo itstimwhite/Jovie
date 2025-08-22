@@ -40,4 +40,3 @@ These workflows are maintained for backward compatibility but their PR commentin
 - `VERCEL_ORG_ID` - Vercel organization ID
 - `VERCEL_PROJECT_ID` - Vercel project ID
 - `GITHUB_TOKEN` - Automatically provided by GitHub Actions
-

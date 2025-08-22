@@ -10,12 +10,12 @@ export function withPerformanceMonitoring(handler: NextApiHandler) {
     const start = Date.now();
     const route = req.url || 'unknown';
     const method = req.method || 'unknown';
-    
+
     // Add response listener to capture when the response finishes
     res.on('finish', () => {
       const duration = Date.now() - start;
       const status = res.statusCode;
-      
+
       // Prepare metric data
       const metricData = {
         route,
@@ -28,18 +28,18 @@ export function withPerformanceMonitoring(handler: NextApiHandler) {
         region: req.headers['x-vercel-ip-region'],
         city: req.headers['x-vercel-ip-city'],
       };
-      
+
       // Log performance data
       if (process.env.NODE_ENV === 'development') {
         console.log(`[API] ${method} ${route} - ${status} - ${duration}ms`);
       }
-      
+
       // Send to server-side analytics
       // In a real implementation, you would send this to your analytics service
       // This could be done via a background job, edge function, or direct API call
       sendApiMetric(metricData);
     });
-    
+
     // Call the original handler
     return handler(req, res);
   };
@@ -52,12 +52,12 @@ export function withPerformanceMonitoring(handler: NextApiHandler) {
 function sendApiMetric(data: Record<string, any>) {
   // In a real implementation, you would send this to your analytics service
   // For example, using a server-side analytics SDK or API
-  
+
   // For now, we'll just log it in development
   if (process.env.NODE_ENV === 'development') {
     console.log('[API Metric]', data);
   }
-  
+
   // In production, you might use:
   // - Server-side PostHog
   // - Datadog
@@ -65,4 +65,3 @@ function sendApiMetric(data: Record<string, any>) {
   // - Custom logging to Supabase
   // - etc.
 }
-

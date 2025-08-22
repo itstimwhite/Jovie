@@ -20,7 +20,7 @@ export class PerformanceTracker {
       list.getEntries().forEach((entry) => {
         if (entry.entryType === 'navigation') {
           const navEntry = entry as PerformanceNavigationTiming;
-          
+
           this.sendMetric('page_load', {
             page: pageName,
             dns: navEntry.domainLookupEnd - navEntry.domainLookupStart,
@@ -35,7 +35,7 @@ export class PerformanceTracker {
         }
       });
     });
-    
+
     // Start observing navigation entries
     try {
       observer.observe({ entryTypes: ['navigation'] });
@@ -57,12 +57,12 @@ export class PerformanceTracker {
       list.getEntries().forEach((entry) => {
         if (entry.entryType === 'resource') {
           const resourceEntry = entry as PerformanceResourceTiming;
-          
+
           // Skip if resourceType is specified and doesn't match
           if (resourceType && !resourceEntry.name.includes(resourceType)) {
             return;
           }
-          
+
           this.sendMetric('resource_load', {
             name: resourceEntry.name,
             type: resourceEntry.initiatorType,
@@ -73,7 +73,7 @@ export class PerformanceTracker {
         }
       });
     });
-    
+
     try {
       observer.observe({ entryTypes: ['resource'] });
     } catch (error) {
