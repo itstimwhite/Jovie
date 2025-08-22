@@ -1,3 +1,7 @@
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   turbopack: {},
@@ -111,7 +115,14 @@ const nextConfig = {
   experimental: {
     // Disable optimizeCss to avoid critters dependency issues
     // optimizeCss: true,
-    optimizePackageImports: ['@headlessui/react', '@heroicons/react'],
+    optimizePackageImports: [
+      '@headlessui/react',
+      '@heroicons/react', 
+      'framer-motion',
+      'date-fns',
+      'react-hook-form',
+      '@hookform/resolvers'
+    ],
     // Build optimizations
     // Turbopack: remove unsupported option
     // forceSwcTransforms: true,
@@ -157,4 +168,4 @@ const nextConfig = {
 // Enable Vercel Toolbar in Next.js (local/dev)
 const withVercelToolbar = require('@vercel/toolbar/plugins/next')();
 
-module.exports = withVercelToolbar(nextConfig);
+module.exports = withBundleAnalyzer(withVercelToolbar(nextConfig));

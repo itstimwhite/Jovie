@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "analyze": "ANALYZE=true npm run build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
@@ -75,6 +76,7 @@
     "zod": "^4.0.17"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^15.4.5",
     "@chromatic-com/storybook": "^4.1.1",
     "@clerk/testing": "^1.11.2",
     "@clerk/clerk-js": "^5.0.0",

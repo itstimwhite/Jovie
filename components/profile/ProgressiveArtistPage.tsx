@@ -1,17 +1,29 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { StaticArtistPage } from '@/components/profile/StaticArtistPage';
 import { Artist, LegacySocialLink } from '@/types/db';
 import dynamic from 'next/dynamic';
+import { trackDynamicImportSuccess, trackDynamicImportFailure } from '@/lib/analytics';
 
-// Lazy load the animated version
+// Lazy load the animated version with monitoring
 const AnimatedArtistPage = dynamic(
-  () =>
-    import('@/components/profile/AnimatedArtistPage').then((mod) => ({
-      default: mod.AnimatedArtistPage,
-    })),
+  () => {
+    const startTime = performance.now();
+    const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+    
+    return import('@/components/profile/AnimatedArtistPage')
+      .then((mod) => {
+        const loadTime = performance.now() - startTime;
+        trackDynamicImportSuccess('AnimatedArtistPage', loadTime, pathname);
+        return { default: mod.AnimatedArtistPage };
+      })
+      .catch((error) => {
+        trackDynamicImportFailure('AnimatedArtistPage', error.message, pathname);
+        throw error;
+      });
+  },
   {
     ssr: false,
     loading: () => null, // Don't show loading, use static version

@@ -172,6 +172,7 @@ export function identify(userId: string, traits?: Record<string, unknown>) {
 // Feature flag constants for type safety
 export const FEATURE_FLAGS = {
   CLAIM_HANDLE: 'feature_claim_handle',
+  BUNDLE_SPLIT: 'feature_bundle_split',
 } as const;
 
 export type FeatureFlagName =
@@ -299,4 +300,57 @@ export function useFeatureFlagWithLoading(
   }, [flag, defaultValue]);
 
   return { enabled, loading };
+}
+
+// Bundle monitoring functions
+export function trackBundleLoad(
+  bundleName: string,
+  loadTime: number,
+  route: string
+) {
+  track('bundle_load', {
+    bundle_name: bundleName,
+    load_time_ms: loadTime,
+    route,
+    bundle_size_kb: Math.round(loadTime / 10), // Rough estimate, replace with actual size if available
+  });
+}
+
+export function trackDynamicImportSuccess(
+  componentName: string,
+  loadTime: number,
+  route: string
+) {
+  track('dynamic_import_success', {
+    component_name: componentName,
+    load_time_ms: loadTime,
+    route,
+  });
+}
+
+export function trackDynamicImportFailure(
+  componentName: string,
+  error: string,
+  route: string
+) {
+  track('dynamic_import_failure', {
+    component_name: componentName,
+    error_message: error,
+    route,
+  });
+}
+
+export function trackPagePerformance(
+  route: string,
+  metrics: {
+    lcp?: number; // Largest Contentful Paint
+    fid?: number; // First Input Delay  
+    cls?: number; // Cumulative Layout Shift
+    ttfb?: number; // Time to First Byte
+  }
+) {
+  track('page_performance', {
+    route,
+    ...metrics,
+  });
 }
