@@ -18,28 +18,28 @@ export function initAllMonitoring() {
     // Initialize Web Vitals
     const { initWebVitals } = require('./web-vitals');
     initWebVitals();
-    
+
     // Initialize Performance Tracking
     const { PerformanceTracker } = require('./performance');
     const performanceTracker = new PerformanceTracker();
-    
+
     // Get the current page name from the URL
     const pageName = window.location.pathname;
-    
+
     // Track page load performance
     performanceTracker.trackPageLoad(pageName);
-    
+
     // Track resource loading
     performanceTracker.trackResourceLoad();
-    
+
     // Initialize Regression Detection
     const { RegressionDetector } = require('./regression');
     const regressionDetector = new RegressionDetector();
-    
+
     // Initialize Performance Alerts
     const { PerformanceAlerts } = require('./alerts');
     const performanceAlerts = new PerformanceAlerts();
-    
+
     // Return the initialized trackers for further configuration
     return {
       performanceTracker,
@@ -47,7 +47,6 @@ export function initAllMonitoring() {
       performanceAlerts,
     };
   }
-  
+
   return null;
 }
-

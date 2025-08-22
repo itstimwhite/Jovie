@@ -14,7 +14,9 @@ interface PerformanceDashboardProps {
   showDebug?: boolean;
 }
 
-export function PerformanceDashboard({ showDebug = false }: PerformanceDashboardProps) {
+export function PerformanceDashboard({
+  showDebug = false,
+}: PerformanceDashboardProps) {
   const [metrics, setMetrics] = useState<Record<string, PerformanceMetric>>({});
   const [expanded, setExpanded] = useState<boolean>(false);
 
@@ -24,9 +26,11 @@ export function PerformanceDashboard({ showDebug = false }: PerformanceDashboard
 
     // Create a custom event listener for web vitals metrics
     const handleWebVitalMetric = (event: CustomEvent) => {
-      const metric = event.detail as Metric & { rating: 'good' | 'needs-improvement' | 'poor' };
-      
-      setMetrics(prev => ({
+      const metric = event.detail as Metric & {
+        rating: 'good' | 'needs-improvement' | 'poor';
+      };
+
+      setMetrics((prev) => ({
         ...prev,
         [metric.name]: {
           name: metric.name,
@@ -38,11 +42,17 @@ export function PerformanceDashboard({ showDebug = false }: PerformanceDashboard
     };
 
     // Add event listener
-    window.addEventListener('web-vitals', handleWebVitalMetric as EventListener);
+    window.addEventListener(
+      'web-vitals',
+      handleWebVitalMetric as EventListener
+    );
 
     // Clean up
     return () => {
-      window.removeEventListener('web-vitals', handleWebVitalMetric as EventListener);
+      window.removeEventListener(
+        'web-vitals',
+        handleWebVitalMetric as EventListener
+      );
     };
   }, []);
 
@@ -101,14 +111,14 @@ export function PerformanceDashboard({ showDebug = false }: PerformanceDashboard
   return (
     <div className="fixed bottom-4 right-4 z-50">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div 
+        <div
           className="px-4 py-2 bg-indigo-600 text-white cursor-pointer flex justify-between items-center"
           onClick={() => setExpanded(!expanded)}
         >
           <h3 className="text-sm font-medium">Performance Metrics</h3>
           <span>{expanded ? '▼' : '▲'}</span>
         </div>
-        
+
         {expanded && (
           <div className="p-4">
             {Object.keys(metrics).length === 0 ? (
@@ -116,9 +126,16 @@ export function PerformanceDashboard({ showDebug = false }: PerformanceDashboard
             ) : (
               <div className="space-y-2">
                 {Object.values(metrics).map((metric) => (
-                  <div key={metric.name} className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{getMetricDisplayName(metric.name)}:</span>
-                    <span className={`text-sm px-2 py-1 rounded ${getRatingColor(metric.rating)}`}>
+                  <div
+                    key={metric.name}
+                    className="flex items-center justify-between"
+                  >
+                    <span className="text-sm font-medium">
+                      {getMetricDisplayName(metric.name)}:
+                    </span>
+                    <span
+                      className={`text-sm px-2 py-1 rounded ${getRatingColor(metric.rating)}`}
+                    >
                       {formatMetricValue(metric.name, metric.value)}
                     </span>
                   </div>
@@ -131,4 +148,3 @@ export function PerformanceDashboard({ showDebug = false }: PerformanceDashboard
     </div>
   );
 }
-

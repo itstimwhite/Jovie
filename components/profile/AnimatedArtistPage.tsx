@@ -191,7 +191,14 @@ export function AnimatedArtistPage({
               },
             }}
           >
-            {renderContent(mode, artist, socialLinks, router, isNavigating, setIsNavigating)}
+            {renderContent(
+              mode,
+              artist,
+              socialLinks,
+              router,
+              isNavigating,
+              setIsNavigating
+            )}
           </motion.div>
         </ArtistPageShell>
       </motion.div>

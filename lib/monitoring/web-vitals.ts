@@ -1,12 +1,12 @@
 'use client';
 
-import { 
-  getCLS, 
-  getFID, 
-  getFCP, 
-  getLCP, 
+import {
+  getCLS,
+  getFID,
+  getFCP,
+  getLCP,
   getTTFB,
-  type Metric 
+  type Metric,
 } from 'web-vitals';
 import { track } from '@/lib/analytics';
 
@@ -24,7 +24,7 @@ export function initWebVitals(onMetric?: MetricHandler) {
     if (onMetric) {
       onMetric(metric);
     }
-    
+
     // Send to our analytics providers
     sendToAnalytics(metric);
   };
@@ -43,7 +43,7 @@ export function initWebVitals(onMetric?: MetricHandler) {
 function sendToAnalytics(metric: Metric) {
   // Normalize the metric name to lowercase for consistency
   const name = metric.name.toLowerCase();
-  
+
   // Create a standardized payload for all providers
   const payload = {
     name,
@@ -71,18 +71,41 @@ function sendToAnalytics(metric: Metric) {
  * Using Google's Core Web Vitals thresholds
  * https://web.dev/vitals/
  */
-function getRating(name: string, value: number): 'good' | 'needs-improvement' | 'poor' {
+function getRating(
+  name: string,
+  value: number
+): 'good' | 'needs-improvement' | 'poor' {
   switch (name) {
     case 'cls':
-      return value <= 0.1 ? 'good' : value <= 0.25 ? 'needs-improvement' : 'poor';
+      return value <= 0.1
+        ? 'good'
+        : value <= 0.25
+          ? 'needs-improvement'
+          : 'poor';
     case 'fid':
-      return value <= 100 ? 'good' : value <= 300 ? 'needs-improvement' : 'poor';
+      return value <= 100
+        ? 'good'
+        : value <= 300
+          ? 'needs-improvement'
+          : 'poor';
     case 'lcp':
-      return value <= 2500 ? 'good' : value <= 4000 ? 'needs-improvement' : 'poor';
+      return value <= 2500
+        ? 'good'
+        : value <= 4000
+          ? 'needs-improvement'
+          : 'poor';
     case 'fcp':
-      return value <= 1800 ? 'good' : value <= 3000 ? 'needs-improvement' : 'poor';
+      return value <= 1800
+        ? 'good'
+        : value <= 3000
+          ? 'needs-improvement'
+          : 'poor';
     case 'ttfb':
-      return value <= 800 ? 'good' : value <= 1800 ? 'needs-improvement' : 'poor';
+      return value <= 800
+        ? 'good'
+        : value <= 1800
+          ? 'needs-improvement'
+          : 'poor';
     default:
       return 'good';
   }
@@ -91,7 +114,10 @@ function getRating(name: string, value: number): 'good' | 'needs-improvement' | 
 /**
  * Track performance for A/B testing experiments
  */
-export function trackPerformanceExperiment(experiment: string, variant: string) {
+export function trackPerformanceExperiment(
+  experiment: string,
+  variant: string
+) {
   initWebVitals((metric) => {
     sendToAnalytics({
       ...metric,
@@ -103,4 +129,3 @@ export function trackPerformanceExperiment(experiment: string, variant: string) 
     });
   });
 }
-

@@ -120,7 +120,12 @@ const nextConfig = {
     // forceSwcTransforms: true,
     swcTraceProfiling: false,
     // Performance budgets (using the imported config)
-    webVitalsAttribution: ['web-vital', 'element', 'largest-contentful-paint', 'layout-shift'],
+    webVitalsAttribution: [
+      'web-vital',
+      'element',
+      'largest-contentful-paint',
+      'layout-shift',
+    ],
     // Apply performance budgets from the imported config
     performanceBudget: performanceBudgets.budgets,
   },

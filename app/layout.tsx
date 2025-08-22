@@ -190,7 +190,8 @@ export default async function RootLayout({
                   <React.Suspense fallback={null}>
                     {/* @ts-ignore - Dynamic import */}
                     {React.createElement(
-                      require('@/components/monitoring/PerformanceDashboard').PerformanceDashboard
+                      require('@/components/monitoring/PerformanceDashboard')
+                        .PerformanceDashboard
                     )}
                   </React.Suspense>
                 )}

@@ -107,14 +107,14 @@ jobs:
             | tr '[:upper:]' '[:lower:]' \
             | sed -E 's#[^a-z0-9]+#-#g; s#-+#-#g; s#(^-|-$)##g' \
             | cut -c1-48)
-          
+
           # If PR number is available, include it in the alias
           if [ -n "$PR" ]; then
             host="pr-$PR-$slug.${{ vars.PREVIEW_ALIAS_DOMAIN }}"
           else
             host="$slug.${{ vars.PREVIEW_ALIAS_DOMAIN }}"
           fi
-          
+
           echo "Computed alias host: $host"
           echo "alias_host=$host" >> "$GITHUB_OUTPUT"
 
@@ -163,7 +163,7 @@ jobs:
           script: |
             const url = `${{ steps.deploy.outputs.url }}`;
             if (!url) return;
-            
+
             // Determine PR number based on event type
             let pr;
             if ('${{ github.event_name }}' === 'workflow_dispatch') {
@@ -171,24 +171,23 @@ jobs:
             } else {
               pr = context.payload.pull_request.number;
             }
-            
+
             const alias = `${{ steps.alias.outputs.alias_host }}`;
             const ok = `${{ steps.verify.outputs.ok }}`;
-            
+
             let body = `## 🚀 Vercel Preview\n\n`;
             body += `- **Preview URL**: ${url}\n`;
-            
+
             if (alias) {
               const aliasStatus = ok === 'true' ? '✅' : '⏳ (probing...)';
               body += `- **Alias URL**: https://${alias} ${aliasStatus}\n`;
             } else if ('${{ vars.PREVIEW_ALIAS_DOMAIN }}' === '') {
               body += `- **Alias URL**: (not configured - set PREVIEW_ALIAS_DOMAIN)\n`;
             }
-            
+
             await github.rest.issues.createComment({ 
               owner: context.repo.owner, 
               repo: context.repo.repo, 
               issue_number: pr, 
               body 
             });
-

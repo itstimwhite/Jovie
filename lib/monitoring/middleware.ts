@@ -10,16 +10,16 @@ export function monitorApiPerformance(req: NextRequest) {
   if (!req.nextUrl.pathname.startsWith('/api/')) {
     return NextResponse.next();
   }
-  
+
   const start = Date.now();
   const response = NextResponse.next();
-  
+
   // Add timing headers to the response
   response.headers.set('Server-Timing', `route;dur=${Date.now() - start}`);
-  
+
   // In a real implementation, you would also log this data to your analytics service
   // This could be done via a background job, edge function, or direct API call
-  
+
   return response;
 }
 
@@ -33,19 +33,19 @@ export function withPerformanceMonitoring(
 ) {
   return async (req: NextRequest) => {
     const start = Date.now();
-    
+
     // Call the original middleware
     const response = await middleware(req);
-    
+
     // Add timing headers to the response
     const duration = Date.now() - start;
     response.headers.set('Server-Timing', `middleware;dur=${duration}`);
-    
+
     // Log performance data for API routes
     if (req.nextUrl.pathname.startsWith('/api/')) {
       const route = req.nextUrl.pathname;
       const method = req.method;
-      
+
       // Prepare metric data
       const metricData = {
         route,
@@ -57,15 +57,14 @@ export function withPerformanceMonitoring(
         region: req.headers.get('x-vercel-ip-region'),
         city: req.headers.get('x-vercel-ip-city'),
       };
-      
+
       // In a real implementation, you would send this to your analytics service
       // For now, we'll just log it in development
       if (process.env.NODE_ENV === 'development') {
         console.log(`[API Middleware] ${method} ${route} - ${duration}ms`);
       }
     }
-    
+
     return response;
   };
 }
-

@@ -11,11 +11,11 @@ import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { OptimisticProgress } from '@/components/ui/OptimisticProgress';
 import { APP_URL } from '@/constants/app';
 import { completeOnboarding } from '@/app/onboarding/actions';
-import { 
-  validateUsernameFormat, 
+import {
+  validateUsernameFormat,
   generateUsernameSuggestions,
   debounce,
-  type ClientValidationResult 
+  type ClientValidationResult,
 } from '@/lib/validation/client-username';
 
 interface OnboardingState {
@@ -113,12 +113,18 @@ export function OnboardingForm() {
   } | null>(null);
 
   // Instant client-side validation (optimized for <50ms response time)
-  const validateClientSide = useCallback((handleValue: string): ClientValidationResult => {
-    return validateUsernameFormat(handleValue);
-  }, []);
+  const validateClientSide = useCallback(
+    (handleValue: string): ClientValidationResult => {
+      return validateUsernameFormat(handleValue);
+    },
+    []
+  );
 
   // Memoized client validation result
-  const clientValidation = useMemo(() => validateClientSide(handle), [handle, validateClientSide]);
+  const clientValidation = useMemo(
+    () => validateClientSide(handle),
+    [handle, validateClientSide]
+  );
 
   // Memoized username suggestions
   const usernameSuggestions = useMemo(() => {
@@ -128,72 +134,79 @@ export function OnboardingForm() {
 
   // Debounced API validation (only for format-valid handles)
   const debouncedApiValidation = useMemo(
-    () => debounce(async (handleValue: string) => {
-      if (!clientValidation.valid) return;
+    () =>
+      debounce(async (handleValue: string) => {
+        if (!clientValidation.valid) return;
 
-      // Check cache first
-      if (lastValidatedRef.current?.handle === handleValue) {
-        const { available } = lastValidatedRef.current;
-        setHandleValidation(prev => ({
+        // Check cache first
+        if (lastValidatedRef.current?.handle === handleValue) {
+          const { available } = lastValidatedRef.current;
+          setHandleValidation((prev) => ({
+            ...prev,
+            available,
+            checking: false,
+            error: available ? null : 'Handle already taken',
+          }));
+          return;
+        }
+
+        // Cancel previous request
+        if (abortControllerRef.current) {
+          abortControllerRef.current.abort();
+        }
+
+        const abortController = new AbortController();
+        abortControllerRef.current = abortController;
+
+        setHandleValidation((prev) => ({
           ...prev,
-          available,
-          checking: false,
-          error: available ? null : 'Handle already taken',
-        }));
-        return;
-      }
-
-      // Cancel previous request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-
-      const abortController = new AbortController();
-      abortControllerRef.current = abortController;
-
-      setHandleValidation(prev => ({ ...prev, checking: true, error: null }));
-
-      try {
-        const response = await fetch(
-          `/api/handle/check?handle=${encodeURIComponent(handleValue.toLowerCase())}`,
-          { signal: abortController.signal }
-        );
-
-        if (abortController.signal.aborted) return;
-
-        const result = await response.json();
-        const available = !!result.available && response.ok;
-
-        setHandleValidation(prev => ({
-          ...prev,
-          available,
-          checking: false,
-          error: response.ok 
-            ? (available ? null : 'Handle already taken')
-            : (result.error || 'Error checking availability'),
+          checking: true,
+          error: null,
         }));
 
-        lastValidatedRef.current = { handle: handleValue, available };
-      } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') return;
-        
-        console.error('Handle validation error:', error);
-        setHandleValidation(prev => ({
-          ...prev,
-          available: false,
-          checking: false,
-          error: 'Network error',
-        }));
-        lastValidatedRef.current = { handle: handleValue, available: false };
-      }
-    }, 1000), // Increased debounce to 1000ms (less frequent API calls)
+        try {
+          const response = await fetch(
+            `/api/handle/check?handle=${encodeURIComponent(handleValue.toLowerCase())}`,
+            { signal: abortController.signal }
+          );
+
+          if (abortController.signal.aborted) return;
+
+          const result = await response.json();
+          const available = !!result.available && response.ok;
+
+          setHandleValidation((prev) => ({
+            ...prev,
+            available,
+            checking: false,
+            error: response.ok
+              ? available
+                ? null
+                : 'Handle already taken'
+              : result.error || 'Error checking availability',
+          }));
+
+          lastValidatedRef.current = { handle: handleValue, available };
+        } catch (error) {
+          if (error instanceof Error && error.name === 'AbortError') return;
+
+          console.error('Handle validation error:', error);
+          setHandleValidation((prev) => ({
+            ...prev,
+            available: false,
+            checking: false,
+            error: 'Network error',
+          }));
+          lastValidatedRef.current = { handle: handleValue, available: false };
+        }
+      }, 1000), // Increased debounce to 1000ms (less frequent API calls)
     [clientValidation.valid]
   );
 
   // Update validation state when handle or client validation changes
   useEffect(() => {
     // Update client validation state immediately
-    setHandleValidation(prev => ({
+    setHandleValidation((prev) => ({
       ...prev,
       clientValid: clientValidation.valid,
       error: clientValidation.error,
@@ -216,21 +229,30 @@ export function OnboardingForm() {
   }, [handleValidation.available, handleValidation.checking, router]);
 
   // Memoized validation state for performance
-  const validationState = useMemo(() => ({
-    error: handleValidation.error,
-    isClientValid: handleValidation.clientValid,
-    isAvailable: handleValidation.available,
-    isChecking: handleValidation.checking,
-    canSubmit: handleValidation.clientValid && handleValidation.available && !handleValidation.checking
-  }), [handleValidation]);
+  const validationState = useMemo(
+    () => ({
+      error: handleValidation.error,
+      isClientValid: handleValidation.clientValid,
+      isAvailable: handleValidation.available,
+      isChecking: handleValidation.checking,
+      canSubmit:
+        handleValidation.clientValid &&
+        handleValidation.available &&
+        !handleValidation.checking,
+    }),
+    [handleValidation]
+  );
 
   // Memoized progress steps for optimistic UI
-  const progressSteps = useMemo(() => [
-    { key: 'validating', label: 'Validating credentials', duration: 300 },
-    { key: 'creating-user', label: 'Setting up account', duration: 400 },
-    { key: 'checking-handle', label: 'Securing handle', duration: 300 },
-    { key: 'creating-artist', label: 'Creating profile', duration: 500 },
-  ], []);
+  const progressSteps = useMemo(
+    () => [
+      { key: 'validating', label: 'Validating credentials', duration: 300 },
+      { key: 'creating-user', label: 'Setting up account', duration: 400 },
+      { key: 'checking-handle', label: 'Securing handle', duration: 300 },
+      { key: 'creating-artist', label: 'Creating profile', duration: 500 },
+    ],
+    []
+  );
 
   // Retry mechanism
   const retryOperation = useCallback(() => {
@@ -292,26 +314,32 @@ export function OnboardingForm() {
         }));
       }
     },
-    [user, handle, selectedArtist, state.isSubmitting, validationState.canSubmit]
+    [
+      user,
+      handle,
+      selectedArtist,
+      state.isSubmitting,
+      validationState.canSubmit,
+    ]
   );
 
-  // Progress indicator
-  const getProgressText = () => {
-    switch (state.step) {
-      case 'validating':
-        return 'Validating...';
-      case 'creating-user':
-        return 'Setting up your account...';
-      case 'checking-handle':
-        return 'Securing your handle...';
-      case 'creating-artist':
-        return 'Creating your profile...';
-      case 'complete':
-        return 'Profile created successfully!';
-      default:
-        return 'Processing...';
-    }
-  };
+  // Progress indicator - currently unused
+  // const getProgressText = () => {
+  //   switch (state.step) {
+  //     case 'validating':
+  //       return 'Validating...';
+  //     case 'creating-user':
+  //       return 'Setting up your account...';
+  //     case 'checking-handle':
+  //       return 'Securing your handle...';
+  //     case 'creating-artist':
+  //       return 'Creating your profile...';
+  //     case 'complete':
+  //       return 'Profile created successfully!';
+  //     default:
+  //       return 'Processing...';
+  //   }
+  // };
 
   return (
     <div className="space-y-4">
@@ -372,10 +400,7 @@ export function OnboardingForm() {
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <FormField
-          label="Handle"
-          error={validationState.error || undefined}
-        >
+        <FormField label="Handle" error={validationState.error || undefined}>
           <div className="relative">
             <Input
               type="text"
@@ -395,9 +420,7 @@ export function OnboardingForm() {
               data-test="username-input"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
-              {validationState.isChecking && (
-                <LoadingSpinner size="sm" />
-              )}
+              {validationState.isChecking && <LoadingSpinner size="sm" />}
               {validationState.isAvailable && !validationState.isChecking && (
                 <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
                   <svg
@@ -422,11 +445,13 @@ export function OnboardingForm() {
             Your profile will be live at {displayDomain}/
             {handle || 'your-handle'}
           </p>
-          
+
           {/* Username suggestions */}
           {handleValidation.suggestions.length > 0 && (
             <div className="mt-2 space-y-1">
-              <p className="text-xs text-gray-600 dark:text-gray-400">Suggestions:</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">
+                Suggestions:
+              </p>
               <div className="flex flex-wrap gap-1">
                 {handleValidation.suggestions.slice(0, 3).map((suggestion) => (
                   <button

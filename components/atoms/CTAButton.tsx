@@ -29,7 +29,9 @@ export interface CTAButtonProps {
   /** Optional icon to display before text */
   icon?: React.ReactNode;
   /** Optional click handler (for button mode) */
-  onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
+  onClick?: (
+    e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>
+  ) => void;
   /** Optional aria-label for better accessibility */
   ariaLabel?: string;
   /** Whether to use reduced motion */
@@ -145,15 +147,15 @@ export const CTAButton = forwardRef<
     // Animation variants for success icon
     const successVariants = {
       hidden: { scale: 0.5, opacity: 0 },
-      visible: { 
-        scale: 1, 
+      visible: {
+        scale: 1,
         opacity: 1,
-        transition: { 
-          type: 'spring', 
-          stiffness: 500, 
+        transition: {
+          type: 'spring',
+          stiffness: 500,
           damping: 15,
-          duration: 0.3
-        } 
+          duration: 0.3,
+        },
       },
       exit: { scale: 0.5, opacity: 0 },
     };
@@ -177,7 +179,10 @@ export const CTAButton = forwardRef<
             exit="exit"
             variants={reducedMotion ? {} : successVariants}
           >
-            <CheckIcon className={`${iconSize[size]} text-current`} aria-hidden="true" />
+            <CheckIcon
+              className={`${iconSize[size]} text-current`}
+              aria-hidden="true"
+            />
           </motion.div>
         ) : isLoading ? (
           <motion.div
@@ -188,14 +193,19 @@ export const CTAButton = forwardRef<
             exit="exit"
             variants={reducedMotion ? {} : contentVariants}
           >
-            <Spinner 
-              size={size === 'lg' ? 'md' : size === 'md' ? 'sm' : 'sm'} 
+            <Spinner
+              size={size === 'lg' ? 'md' : size === 'md' ? 'sm' : 'sm'}
               variant={
-                variant === 'white' ? 'dark' : // White buttons need dark spinner
-                variant === 'primary' ? (currentTheme === 'dark' ? 'dark' : 'light') : // Primary: light spinner on dark theme, dark spinner on light theme
-                variant === 'secondary' ? 'light' : // Secondary always has dark background, needs light spinner
-                'auto' // Outline uses auto to match current theme
-              } 
+                variant === 'white'
+                  ? 'dark' // White buttons need dark spinner
+                  : variant === 'primary'
+                    ? currentTheme === 'dark'
+                      ? 'dark'
+                      : 'light' // Primary: light spinner on dark theme, dark spinner on light theme
+                    : variant === 'secondary'
+                      ? 'light' // Secondary always has dark background, needs light spinner
+                      : 'auto' // Outline uses auto to match current theme
+              }
             />
           </motion.div>
         ) : (
@@ -217,11 +227,21 @@ export const CTAButton = forwardRef<
     // Common props for both button and link
     const commonProps = {
       className: buttonClasses,
-      'aria-label': ariaLabel || (typeof children === 'string' ? children : undefined),
-      'data-state': isSuccess ? 'success' : isLoading ? 'loading' : disabled ? 'disabled' : 'idle',
+      'aria-label':
+        ariaLabel || (typeof children === 'string' ? children : undefined),
+      'data-state': isSuccess
+        ? 'success'
+        : isLoading
+          ? 'loading'
+          : disabled
+            ? 'disabled'
+            : 'idle',
       'data-theme': currentTheme,
       'data-reduced-motion': reducedMotion,
-      onClick: !disabled && !isLoading ? onClick : (e: React.MouseEvent) => e.preventDefault(),
+      onClick:
+        !disabled && !isLoading
+          ? onClick
+          : (e: React.MouseEvent) => e.preventDefault(),
     };
 
     // If href is provided and not disabled, render as a link
@@ -273,4 +293,3 @@ export const CTAButton = forwardRef<
 );
 
 CTAButton.displayName = 'CTAButton';
-
