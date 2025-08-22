@@ -23,6 +23,7 @@ import {
 
 import { UniversalLinkInput } from '../atoms/UniversalLinkInput';
 import { SortableLinkItem } from '../atoms/SortableLinkItem';
+import { useToast } from '@/components/ui/ToastContainer';
 import type { DetectedLink } from '@/lib/utils/platform-detection';
 
 interface LinkItem extends DetectedLink {
@@ -58,6 +59,7 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
   const [deletedLinks, setDeletedLinks] = useState<
     { link: LinkItem; timeout: NodeJS.Timeout }[]
   >([]);
+  const { showToast } = useToast();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -83,11 +85,44 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
     [onLinksChange]
   );
 
+  // Undo delete
+  const handleUndoDelete = useCallback(
+    (linkId: string) => {
+      const deletedItem = deletedLinks.find((item) => item.link.id === linkId);
+      if (!deletedItem) return;
+
+      // Clear the timeout
+      clearTimeout(deletedItem.timeout);
+
+      // Remove from deleted links
+      setDeletedLinks((prev) => prev.filter((item) => item.link.id !== linkId));
+
+      // Add back to active links at original position
+      const newLinks = [...links];
+      const insertIndex = Math.min(deletedItem.link.order, newLinks.length);
+      newLinks.splice(insertIndex, 0, deletedItem.link);
+
+      updateLinks(newLinks);
+
+      // Show confirmation toast
+      showToast({
+        message: `Restored "${deletedItem.link.title}"`,
+        type: 'success',
+        duration: 2000,
+      });
+    },
+    [deletedLinks, links, updateLinks, showToast]
+  );
+
   // Add new link
   const handleAddLink = useCallback(
     (detectedLink: DetectedLink) => {
       if (links.length >= maxLinks) {
-        // TODO: Show toast notification about max links
+        showToast({
+          message: `Maximum of ${maxLinks} links allowed`,
+          type: 'warning',
+          duration: 3000,
+        });
         return;
       }
 
@@ -96,7 +131,11 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
         allowedCategory !== 'all' &&
         detectedLink.platform.category !== allowedCategory
       ) {
-        // TODO: Show toast notification about invalid platform type
+        showToast({
+          message: `${detectedLink.platform.name} links are not allowed in this section`,
+          type: 'error',
+          duration: 3000,
+        });
         console.warn(
           `Platform ${detectedLink.platform.name} (${detectedLink.platform.category}) not allowed in ${allowedCategory} link manager`
         );
@@ -113,7 +152,7 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
 
       updateLinks([...links, newLink]);
     },
-    [links, maxLinks, updateLinks, allowedCategory]
+    [links, maxLinks, updateLinks, allowedCategory, showToast]
   );
 
   // Update existing link
@@ -144,31 +183,18 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
 
       setDeletedLinks((prev) => [...prev, { link: linkToDelete, timeout }]);
 
-      // TODO: Show undo toast notification
+      // Show undo toast notification
+      showToast({
+        message: `Deleted "${linkToDelete.title}"`,
+        type: 'info',
+        duration: 5000,
+        action: {
+          label: 'Undo',
+          onClick: () => handleUndoDelete(id),
+        },
+      });
     },
-    [links, updateLinks]
-  );
-
-  // Undo delete
-  const handleUndoDelete = useCallback(
-    (linkId: string) => {
-      const deletedItem = deletedLinks.find((item) => item.link.id === linkId);
-      if (!deletedItem) return;
-
-      // Clear the timeout
-      clearTimeout(deletedItem.timeout);
-
-      // Remove from deleted links
-      setDeletedLinks((prev) => prev.filter((item) => item.link.id !== linkId));
-
-      // Add back to active links at original position
-      const newLinks = [...links];
-      const insertIndex = Math.min(deletedItem.link.order, newLinks.length);
-      newLinks.splice(insertIndex, 0, deletedItem.link);
-
-      updateLinks(newLinks);
-    },
-    [deletedLinks, links, updateLinks]
+    [links, updateLinks, showToast, handleUndoDelete]
   );
 
   // Handle drag end
@@ -265,24 +291,7 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
           </p>
         </div>
       )}
-
-      {/* Undo Toasts for Deleted Links */}
-      {deletedLinks.map((item) => (
-        <div
-          key={item.link.id}
-          className="fixed bottom-4 right-4 bg-gray-900 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-in slide-in-from-bottom-2 z-50"
-        >
-          <span className="text-sm">
-            Deleted &ldquo;{item.link.title}&rdquo;
-          </span>
-          <button
-            onClick={() => handleUndoDelete(item.link.id)}
-            className="text-sm text-blue-400 hover:text-blue-300 font-medium"
-          >
-            Undo
-          </button>
-        </div>
-      ))}
     </div>
   );
 };
+

@@ -5,6 +5,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from 'next-themes';
 import { Analytics } from '@/components/Analytics';
 import { FeatureFlagsProvider } from './FeatureFlagsProvider';
+import { ToastProvider } from './ToastProvider';
 import { FeatureFlags } from '@/lib/feature-flags';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { env } from '@/lib/env';
@@ -105,9 +106,11 @@ export function ClientProviders({
           disableTransitionOnChange
           storageKey="jovie-theme"
         >
-          {children}
-          <Analytics />
-          {/* <Toolbar /> */}
+          <ToastProvider>
+            {children}
+            <Analytics />
+            {/* <Toolbar /> */}
+          </ToastProvider>
         </ThemeProvider>
       </FeatureFlagsProvider>
     </ClerkWrapper>
