@@ -179,29 +179,9 @@ export async function generateMetadata({ params }: Props) {
     ? `${profile.bio.slice(0, 160)}${profile.bio.length > 160 ? '...' : ''}`
     : `Check out ${profile.display_name || profile.username}'s artist profile on Jovie.`;
 
-  // Generate resource hints for performance optimization
-  const resourceHints = [];
-
-  // Preload critical avatar image
-  if (profile.avatar_url) {
-    resourceHints.push(
-      <link
-        key="preload-avatar"
-        rel="preload"
-        as="image"
-        href={profile.avatar_url}
-        fetchPriority="high"
-      />
-    );
-  }
-
   return {
     title,
     description,
-    other: {
-      // Add resource hints via other metadata
-      'preload-critical-resources': 'enabled',
-    },
     // OpenGraph with optimized image
     openGraph: {
       title,
