@@ -52,7 +52,7 @@ const KNOWN_CRAWLERS = [
  */
 export function detectBot(request: NextRequest, endpoint?: string): BotDetectionResult {
   const userAgent = request.headers.get('user-agent') || '';
-  const ip = request.ip || request.headers.get('x-forwarded-for') || '';
+  const ip = request.headers.get('x-forwarded-for') || '';
   
   // Check for Meta crawlers
   const isMeta = META_USER_AGENTS.some(agent => 
@@ -73,7 +73,7 @@ export function detectBot(request: NextRequest, endpoint?: string): BotDetection
   if (isMeta) {
     reason = 'Meta crawler detected';
     // Only block Meta crawlers on sensitive API endpoints
-    shouldBlock = endpoint?.includes('/api/link/') || endpoint?.includes('/api/sign/');
+    shouldBlock = Boolean(endpoint?.includes('/api/link/') || endpoint?.includes('/api/sign/'));
   } else if (isKnownCrawler) {
     reason = 'Known crawler detected';
     // Don't block other crawlers to avoid anti-cloaking issues

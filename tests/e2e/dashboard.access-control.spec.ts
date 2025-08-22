@@ -310,7 +310,7 @@ test.describe('Dashboard Access Control', () => {
       } catch (error) {
         return {
           status: 500,
-          error: error.message,
+          error: (error as Error).message,
         };
       }
     });
