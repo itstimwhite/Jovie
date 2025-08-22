@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <mask id="hole">
+      <rect width="100%" height="100%" fill="white"/>
+      <circle cx="256" cy="300" r="120" fill="black"/>
+    </mask>
+  </defs>
+  <!-- White circular background -->
+  <circle cx="256" cy="256" r="256" fill="white" mask="url(#hole)"/>
+  <!-- White cherry stem -->
+  <path d="M256 120 Q280 90, 320 100 Q340 110, 350 130 Q360 150, 340 160 Q320 170, 300 180 Q280 190, 256 200" fill="white" stroke="none"/>
+  <!-- Cherry hole (transparent) -->
+  <circle cx="256" cy="300" r="120" fill="transparent"/>
+</svg>

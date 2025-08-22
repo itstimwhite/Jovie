@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { clsx } from 'clsx';
+import { useTheme } from 'next-themes';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 
 type PrimaryCTAProps = {
@@ -35,8 +36,12 @@ export default function PrimaryCTA({
   id,
   dataTestId,
 }: PrimaryCTAProps) {
+  const { theme, systemTheme } = useTheme();
   const isLoading = Boolean(loading);
   const a11yLabel = isLoading && loadingLabel ? loadingLabel : ariaLabel;
+
+  // Determine effective theme
+  const effectiveTheme = theme === 'system' ? systemTheme : theme;
 
   const base =
     'relative inline-flex items-center justify-center overflow-hidden group rounded-xl font-semibold tracking-tight shadow-lg transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2 dark:focus-visible:ring-white/40 cursor-pointer';
@@ -94,7 +99,10 @@ export default function PrimaryCTA({
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
           aria-hidden="true"
         >
-          <LoadingSpinner size="sm" variant="light" />
+          <LoadingSpinner 
+            size="sm" 
+            variant={effectiveTheme === 'dark' ? 'dark' : 'light'} 
+          />
         </div>
       )}
     </button>

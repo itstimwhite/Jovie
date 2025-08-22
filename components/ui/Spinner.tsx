@@ -47,13 +47,8 @@ export function Spinner({
     lg: 'h-8 w-8',
   };
 
-  // Choose app icon based on size (from public/) - use transparent android-chrome icon to avoid spinning square issue
-  const iconSrcBySize: Record<'sm' | 'md' | 'lg', string> = {
-    sm: '/android-chrome-512x512.png',
-    md: '/android-chrome-512x512.png',
-    lg: '/android-chrome-512x512.png',
-  };
-  const iconSrc = iconSrcBySize[size];
+  // Choose app icon based on size and theme - use white version for dark variant
+  const iconSrc = effectiveTheme === 'dark' ? '/jovie-logo-white.svg' : '/android-chrome-512x512.png';
   const pixelBySize: Record<'sm' | 'md' | 'lg', number> = {
     sm: 16,
     md: 24,

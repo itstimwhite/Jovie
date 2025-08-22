@@ -11,6 +11,7 @@ interface LoadingSpinnerProps {
 
 export function LoadingSpinner({
   size = 'md',
+  variant = 'auto',
   className,
   showDebounce = false,
 }: LoadingSpinnerProps) {
@@ -35,8 +36,8 @@ export function LoadingSpinner({
     lg: 'h-6 w-6',
   };
 
-  // Use Jovie logo for all spinners site-wide
-  const iconSrc = '/android-chrome-512x512.png';
+  // Use Jovie logo - white version for light variant (on dark backgrounds), regular for dark variant (on light backgrounds)
+  const iconSrc = variant === 'light' ? '/jovie-logo-white.svg' : '/android-chrome-512x512.png';
   const pixelBySize: Record<'xs' | 'sm' | 'md' | 'lg', number> = {
     xs: 12,
     sm: 16,
