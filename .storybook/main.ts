@@ -1,4 +1,5 @@
 import type { StorybookConfig } from '@storybook/nextjs-vite';
+import nextJsMocks from './mocks/next-stubs-decorator';
 
 const config: StorybookConfig = {
   stories: [
@@ -12,7 +13,11 @@ const config: StorybookConfig = {
   ],
   framework: {
     name: '@storybook/nextjs-vite',
-    options: {},
+    options: {
+      builder: {
+        viteConfigPath: 'vite.config.ts',
+      },
+    },
   },
   docs: {},
   typescript: {
@@ -22,6 +27,22 @@ const config: StorybookConfig = {
       shouldExtractLiteralValuesFromEnum: true,
       propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
     },
+  },
+  // Mock Next.js modules
+  async viteFinal(config) {
+    if (!config.resolve) {
+      config.resolve = {};
+    }
+    if (!config.resolve.alias) {
+      config.resolve.alias = {};
+    }
+
+    // Add mocks for Next.js modules
+    for (const [moduleName, mockImplementation] of Object.entries(nextJsMocks)) {
+      config.resolve.alias[moduleName] = mockImplementation;
+    }
+
+    return config;
   },
 };
 
