@@ -3,6 +3,8 @@
  * Generates time-limited signed URLs for sensitive links with bot protection
  */
 
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from 'next/server';
 import {
   getWrappedLink,
