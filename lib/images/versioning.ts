@@ -106,8 +106,19 @@ export function transformImageUrl(
   if (!url) return url;
 
   // Handle Cloudinary URLs
-  if (url.includes('res.cloudinary.com')) {
-    return transformCloudinaryUrl(url, options);
+  try {
+    const urlObj = new URL(url, 'http://dummy-base/');
+    if (urlObj.hostname === 'res.cloudinary.com') {
+      return transformCloudinaryUrl(url, options);
+    }
+  } catch {
+    // Fallback for relative URLs: check if it starts with /res.cloudinary.com/
+    if (
+      url.startsWith('/res.cloudinary.com/') ||
+      url === 'res.cloudinary.com'
+    ) {
+      return transformCloudinaryUrl(url, options);
+    }
   }
 
   // Handle other CDN URLs or return as-is
