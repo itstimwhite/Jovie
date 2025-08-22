@@ -13,7 +13,7 @@ export interface CTAButtonProps {
   /** Button content */
   children: React.ReactNode;
   /** Visual style variant */
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'outline' | 'white';
   /** Size variant */
   size?: 'sm' | 'md' | 'lg';
   /** Additional CSS classes */
@@ -111,6 +111,13 @@ export const CTAButton = forwardRef<
         focus-visible:ring-neutral-500 dark:focus-visible:ring-neutral-400
         dark:focus-visible:ring-offset-gray-900
       `,
+      white: `
+        bg-white text-black hover:bg-gray-50 border border-gray-200
+        dark:bg-white dark:text-black dark:hover:bg-gray-100 dark:border-gray-300
+        focus-visible:ring-neutral-500 dark:focus-visible:ring-neutral-400
+        focus-visible:ring-offset-transparent
+        shadow-sm hover:shadow-md
+      `,
     };
 
     // Size-specific classes
@@ -183,7 +190,12 @@ export const CTAButton = forwardRef<
           >
             <Spinner 
               size={size === 'lg' ? 'md' : size === 'md' ? 'sm' : 'sm'} 
-              variant={currentTheme === 'dark' ? 'light' : 'dark'} 
+              variant={
+                variant === 'white' ? 'dark' : // White buttons need dark spinner
+                variant === 'primary' ? (currentTheme === 'dark' ? 'dark' : 'light') : // Primary: light spinner on dark theme, dark spinner on light theme
+                variant === 'secondary' ? 'light' : // Secondary always has dark background, needs light spinner
+                'auto' // Outline uses auto to match current theme
+              } 
             />
           </motion.div>
         ) : (

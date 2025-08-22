@@ -23,6 +23,24 @@ const config: StorybookConfig = {
       propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
     },
   },
+  viteFinal: async (config) => {
+    // Handle Node.js modules for browser compatibility
+    config.define = {
+      ...config.define,
+      global: 'globalThis',
+    };
+    
+    config.resolve = {
+      ...config.resolve,
+      alias: {
+        ...config.resolve?.alias,
+        // Mock Node.js modules that can't run in browser
+        'node:async_hooks': require.resolve('./empty-module.js'),
+      },
+    };
+
+    return config;
+  },
 };
 
 export default config;

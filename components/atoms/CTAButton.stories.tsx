@@ -18,7 +18,7 @@ const meta: Meta<typeof CTAButton> = {
   argTypes: {
     variant: {
       control: { type: 'select' },
-      options: ['primary', 'secondary', 'outline'],
+      options: ['primary', 'secondary', 'outline', 'white'],
       description: 'Visual style variant',
     },
     size: {
@@ -83,6 +83,23 @@ export const Outline: Story = {
     ...Default.args,
     children: 'View Details',
     variant: 'outline',
+  },
+};
+
+export const White: Story = {
+  args: {
+    ...Default.args,
+    children: 'White Button',
+    variant: 'white',
+  },
+  parameters: {
+    backgrounds: {
+      default: 'dark',
+      values: [
+        { name: 'dark', value: '#1f2937' },
+        { name: 'light', value: '#f9fafb' },
+      ],
+    },
   },
 };
 
@@ -197,6 +214,17 @@ export const StateTransitions: Story = {
           Success
         </CTAButton>
       </div>
+      <div className="grid grid-cols-3 gap-4">
+        <CTAButton href="/dashboard" variant="white" size="md">
+          Idle
+        </CTAButton>
+        <CTAButton href="/dashboard" variant="white" size="md" isLoading>
+          Loading
+        </CTAButton>
+        <CTAButton href="/dashboard" variant="white" size="md" isSuccess>
+          Success
+        </CTAButton>
+      </div>
     </div>
   ),
 };
@@ -231,6 +259,9 @@ export const AllVariants: Story = {
       <CTAButton href="/dashboard" variant="outline" size="md">
         Outline Button
       </CTAButton>
+      <CTAButton href="/dashboard" variant="white" size="md">
+        White Button
+      </CTAButton>
     </div>
   ),
 };
@@ -250,6 +281,9 @@ export const ThemeComparison: Story = {
         <CTAButton href="/dashboard" variant="outline" size="md">
           Outline
         </CTAButton>
+        <CTAButton href="/dashboard" variant="white" size="md">
+          White
+        </CTAButton>
       </div>
       <div className="flex flex-col gap-4 p-6 bg-gray-900 rounded-lg">
         <h3 className="text-lg font-semibold mb-2 text-white">Dark Theme</h3>
@@ -261,6 +295,9 @@ export const ThemeComparison: Story = {
         </CTAButton>
         <CTAButton href="/dashboard" variant="outline" size="md">
           Outline
+        </CTAButton>
+        <CTAButton href="/dashboard" variant="white" size="md">
+          White
         </CTAButton>
       </div>
     </div>
