@@ -78,9 +78,46 @@ jobs:
       - name: Install
         run: npm ci
       - name: Typecheck
-        run: npm run typecheck --if-present
+        id: typecheck
+        run: npm run typecheck --if-present > typecheck-output.log || echo "Typecheck failed"
+        continue-on-error: true
+      - name: Format TypeScript errors for summary
+        if: steps.typecheck.outcome == 'failure'
+        run: |
+          chmod +x .github/scripts/format-typescript-output.js
+          node .github/scripts/format-typescript-output.js < typecheck-output.log > typescript-summary.md
+          cat typescript-summary.md >> $GITHUB_STEP_SUMMARY
+      - name: Upload TypeScript errors
+        if: steps.typecheck.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: typescript-errors
+          path: |
+            typecheck-output.log
+            typescript-summary.md
+          retention-days: 7
       - name: Lint
-        run: npm run lint --if-present
+        id: lint
+        run: npm run lint --if-present > eslint-output.log || echo "Lint failed"
+        continue-on-error: true
+      - name: Format ESLint errors for summary
+        if: steps.lint.outcome == 'failure'
+        run: |
+          chmod +x .github/scripts/format-eslint-output.js
+          node .github/scripts/format-eslint-output.js < eslint-output.log > eslint-summary.md
+          cat eslint-summary.md >> $GITHUB_STEP_SUMMARY
+      - name: Upload ESLint errors
+        if: steps.lint.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-errors
+          path: |
+            eslint-output.log
+            eslint-summary.md
+          retention-days: 7
+      - name: Fail if checks failed
+        if: steps.typecheck.outcome == 'failure' || steps.lint.outcome == 'failure'
+        run: exit 1
 
   ci-full:
     name: Full CI (label or push)
