@@ -1,4 +1,7 @@
 /** @type {import('next').NextConfig} */
+// Import performance budgets
+const performanceBudgets = require('./performance-budgets.config');
+
 const nextConfig = {
   turbopack: {},
   typescript: {
@@ -116,6 +119,15 @@ const nextConfig = {
     // Turbopack: remove unsupported option
     // forceSwcTransforms: true,
     swcTraceProfiling: false,
+    // Performance budgets (using the imported config)
+    webVitalsAttribution: [
+      'web-vital',
+      'element',
+      'largest-contentful-paint',
+      'layout-shift',
+    ],
+    // Apply performance budgets from the imported config
+    performanceBudget: performanceBudgets.budgets,
   },
   compiler: {
     // Keep console logs in Vercel Preview builds for debugging

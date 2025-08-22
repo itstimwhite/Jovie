@@ -19,15 +19,21 @@ interface RequestBody {
 export async function POST(request: NextRequest) {
   try {
     // Basic bot detection (less aggressive for this endpoint)
-    const botResult = detectBot(request, '/api/wrap-link');
-    const ip = request.headers.get('x-forwarded-for') || 'unknown';
-    
+    const _botResult = detectBot(request, '/api/wrap-link'); // eslint-disable-line @typescript-eslint/no-unused-vars
+    const ip =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
+
     // Rate limiting
     const isRateLimited = await checkRateLimit(ip, '/api/wrap-link', 50, 60); // 50 requests per hour
     if (isRateLimited) {
-      return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
+      return NextResponse.json(
+        { error: 'Rate limit exceeded' },
+        { status: 429 }
+      );
     }
-    
+
     // Parse request body
     let body: RequestBody;
     try {
@@ -35,14 +41,15 @@ export async function POST(request: NextRequest) {
     } catch {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
-    
-    const { url, platform = 'external', customAlias, expiresInHours } = body;
-    
+
+    const { url, customAlias, expiresInHours } = body;
+    const _platform = body.platform || 'external'; // eslint-disable-line @typescript-eslint/no-unused-vars
+
     // Validate URL
     if (!url || !isValidUrl(url)) {
       return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
     }
-    
+
     // Get user ID if authenticated
     let userId: string | undefined;
     try {
@@ -51,7 +58,7 @@ export async function POST(request: NextRequest) {
     } catch {
       // Not authenticated, continue without user ID
     }
-    
+
     // Create wrapped link
     const wrappedLink = await createWrappedLink({
       url,
@@ -59,11 +66,14 @@ export async function POST(request: NextRequest) {
       customAlias,
       expiresInHours,
     });
-    
+
     if (!wrappedLink) {
-      return NextResponse.json({ error: 'Failed to create wrapped link' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Failed to create wrapped link' },
+        { status: 500 }
+      );
     }
-    
+
     // Return wrapped link data
     const response = NextResponse.json({
       shortId: wrappedLink.shortId,
@@ -76,16 +86,22 @@ export async function POST(request: NextRequest) {
       createdAt: wrappedLink.createdAt,
       expiresAt: wrappedLink.expiresAt,
     });
-    
+
     // Add security headers
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    response.headers.set(
+      'Cache-Control',
+      'no-cache, no-store, must-revalidate'
+    );
     response.headers.set('Pragma', 'no-cache');
     response.headers.set('Expires', '0');
-    
+
     return response;
   } catch (error) {
     console.error('Link wrapping API error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 

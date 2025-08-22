@@ -125,16 +125,18 @@ jobs:
           echo "Aliasing $DEPLOY_ID -> $HOST"
           vercel alias set "$DEPLOY_ID" "$HOST" --token "$VERCEL_TOKEN"
 
-      - name: Comment PR with preview links
-        env:
-          DEPLOY_URL: ${{ steps.get_deployment.outputs.deploy_url }}
-          ALIAS_URL: ${{ steps.alias.outputs.alias_url }}
-          PR_NUMBER: ${{ steps.get_deployment.outputs.pr }}
-        run: |
-          BODY="Preview deployment:\n\n- URL: $DEPLOY_URL\n"
-          if [ -n "$ALIAS_URL" ]; then
-            BODY="$BODY- Alias: $ALIAS_URL\n"
-          else
-            BODY="$BODY- Alias: (not set; configure PREVIEW_ALIAS_DOMAIN and wildcard DNS)\n"
-          fi
-          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "$BODY"
+# NOTE: PR commenting has been moved to the consolidated-vercel-preview.yml workflow
+# to avoid duplicate comments. This step is kept for reference but is disabled.
+#      - name: Comment PR with preview links
+#        env:
+#          DEPLOY_URL: ${{ steps.get_deployment.outputs.deploy_url }}
+#          ALIAS_URL: ${{ steps.alias.outputs.alias_url }}
+#          PR_NUMBER: ${{ steps.get_deployment.outputs.pr }}
+#        run: |
+#          BODY="Preview deployment:\n\n- URL: $DEPLOY_URL\n"
+#          if [ -n "$ALIAS_URL" ]; then
+#            BODY="$BODY- Alias: $ALIAS_URL\n"
+#          else
+#            BODY="$BODY- Alias: (not set; configure PREVIEW_ALIAS_DOMAIN and wildcard DNS)\n"
+#          fi
+#          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "$BODY"

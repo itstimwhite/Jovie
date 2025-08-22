@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import React from 'react';
 import { ClientProviders } from '@/components/providers/ClientProviders';
 import { VercelToolbar } from '@vercel/toolbar/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -8,6 +9,8 @@ import '@/styles/globals.css';
 import { StatsigProviderWrapper } from '@/components/providers/StatsigProvider';
 import { CookieBannerSection } from '@/components/organisms/CookieBannerSection';
 import { headers } from 'next/headers';
+// Import performance monitoring
+// import { initWebVitals } from '@/lib/monitoring/web-vitals'; // Currently unused
 
 // Bypass static rendering for now to fix build issues
 export const dynamic = 'force-dynamic';
@@ -176,7 +179,26 @@ export default async function RootLayout({
         </StatsigProviderWrapper>
         {showCookieBanner && <CookieBannerSection />}
         <SpeedInsights />
-        {shouldInjectToolbar && <VercelToolbar />}
+        {shouldInjectToolbar && (
+          <>
+            <VercelToolbar />
+            {/* Performance Dashboard - only shown in development */}
+            {process.env.NODE_ENV === 'development' && (
+              <div suppressHydrationWarning>
+                {/* Dynamic import to avoid SSR issues */}
+                {typeof window !== 'undefined' && (
+                  <React.Suspense fallback={null}>
+                    {/* @ts-ignore - Dynamic import */}
+                    {React.createElement(
+                      require('@/components/monitoring/PerformanceDashboard')
+                        .PerformanceDashboard
+                    )}
+                  </React.Suspense>
+                )}
+              </div>
+            )}
+          </>
+        )}
       </body>
     </html>
   );

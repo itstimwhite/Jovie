@@ -77,8 +77,24 @@ export function ClientProviders({
         logger.debug('Initial feature flags', initialFeatureFlags);
       }
       logger.groupEnd();
-    } catch {
-      // ignore
+
+      // Initialize Web Vitals tracking - temporarily disabled due to import issues
+      // import('@/lib/monitoring/web-vitals').then(({ initWebVitals }) => {
+      //   initWebVitals((metric) => {
+      //     // Create a custom event for the performance dashboard
+      //     if (typeof window !== 'undefined') {
+      //       const event = new CustomEvent('web-vitals', { detail: metric });
+      //       window.dispatchEvent(event);
+      //     }
+      //   });
+      // });
+
+      // Initialize other performance monitoring - temporarily disabled
+      // import('@/lib/monitoring').then(({ initAllMonitoring }) => {
+      //   initAllMonitoring();
+      // });
+    } catch (error) {
+      console.error('Error initializing monitoring:', error);
     }
 
     return () => clearTimeout(timer);
