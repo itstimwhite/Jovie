@@ -1,0 +1,137 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Documentation/Storybook Guide" />
+
+# Storybook Guide
+
+This guide explains how to use the Storybook features for the Jovie project.
+
+## Dark Mode / Light Mode
+
+All components in Storybook can be viewed in both dark and light modes. There are two ways to toggle between themes:
+
+1. **Global Theme Toggle**: Use the theme selector in the Storybook toolbar (top) to switch between light and dark mode for all stories.
+
+2. **Per-Story Theme**: You can set a specific theme for a story using parameters:
+
+```tsx
+export const DarkModeExample = {
+  parameters: {
+    theme: 'dark', // Force dark mode for this story
+  },
+};
+
+export const LightModeExample = {
+  parameters: {
+    theme: 'light', // Force light mode for this story
+  },
+};
+```
+
+## Responsive Testing
+
+You can test components at different viewport sizes:
+
+1. **Global Viewport**: Use the viewport selector in the Storybook toolbar to switch between different device sizes.
+
+2. **Custom Viewports**: We've added custom viewports for:
+   - Mobile (375px)
+   - Tablet (768px)
+   - Desktop (1280px)
+
+3. **Per-Story Viewport**: You can set a specific viewport for a story:
+
+```tsx
+export const MobileExample = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile',
+    },
+  },
+};
+```
+
+## Accessibility (a11y) Testing
+
+All stories are automatically checked for accessibility issues:
+
+1. **A11y Tab**: Check the "Accessibility" tab in the addon panel to see any accessibility issues.
+
+2. **Automated Checks**: The following checks are enabled by default:
+   - Image alt text
+   - Button accessibility
+   - Color contrast
+   - WCAG 2.0 Level A and AA compliance
+
+3. **Fixing Issues**: Address any accessibility issues highlighted in the panel to ensure your components are accessible.
+
+## Best Practices
+
+1. **Test Both Themes**: Ensure your components look good in both light and dark modes.
+
+2. **Test Responsive Behavior**: Check how your components behave at different viewport sizes.
+
+3. **Fix A11y Issues**: Address any accessibility issues before considering a component complete.
+
+4. **Document Edge Cases**: Create specific stories for edge cases and different states of your components.
+
+## Example Story with All Features
+
+```tsx
+import type { Meta, StoryObj } from '@storybook/react';
+import { MyComponent } from './MyComponent';
+
+const meta: Meta<typeof MyComponent> = {
+  title: 'Components/MyComponent',
+  component: MyComponent,
+  parameters: {
+    // Optional default parameters for all stories
+  },
+};
+
+export default meta;
+type Story = StoryObj<typeof MyComponent>;
+
+// Basic story
+export const Default: Story = {
+  args: {
+    // Component props
+  },
+};
+
+// Dark mode story
+export const DarkMode: Story = {
+  args: {
+    // Component props
+  },
+  parameters: {
+    theme: 'dark',
+  },
+};
+
+// Mobile viewport story
+export const Mobile: Story = {
+  args: {
+    // Component props
+  },
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile',
+    },
+  },
+};
+
+// Combined: Dark mode + Mobile
+export const DarkMobile: Story = {
+  args: {
+    // Component props
+  },
+  parameters: {
+    theme: 'dark',
+    viewport: {
+      defaultViewport: 'mobile',
+    },
+  },
+};
+```
+
