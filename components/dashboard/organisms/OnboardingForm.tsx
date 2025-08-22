@@ -8,8 +8,15 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
+import { OptimisticProgress } from '@/components/ui/OptimisticProgress';
 import { APP_URL } from '@/constants/app';
 import { completeOnboarding } from '@/app/onboarding/actions';
+import { 
+  validateUsernameFormat, 
+  generateUsernameSuggestions,
+  debounce,
+  type ClientValidationResult 
+} from '@/lib/validation/client-username';
 
 interface OnboardingState {
   step:
@@ -28,6 +35,8 @@ interface HandleValidation {
   available: boolean;
   checking: boolean;
   error: string | null;
+  clientValid: boolean;
+  suggestions: string[];
 }
 
 interface SelectedArtist {
@@ -65,6 +74,8 @@ export function OnboardingForm() {
     available: false,
     checking: false,
     error: null,
+    clientValid: false,
+    suggestions: [],
   });
 
   // Prefill handle and selected artist data
@@ -96,103 +107,105 @@ export function OnboardingForm() {
 
   // Abort controller for canceling in-flight requests
   const abortControllerRef = useRef<AbortController | null>(null);
-  const loaderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastValidatedRef = useRef<{
     handle: string;
     available: boolean;
   } | null>(null);
-  const [showLoader, setShowLoader] = useState(false);
 
-  // Debounced handle validation with race condition protection
-  const validateHandle = useCallback(
-    async (handleValue: string): Promise<boolean> => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+  // Instant client-side validation (optimized for <50ms response time)
+  const validateClientSide = useCallback((handleValue: string): ClientValidationResult => {
+    return validateUsernameFormat(handleValue);
+  }, []);
 
-      if (loaderTimeoutRef.current) {
-        clearTimeout(loaderTimeoutRef.current);
-      }
-      setShowLoader(false);
+  // Memoized client validation result
+  const clientValidation = useMemo(() => validateClientSide(handle), [handle, validateClientSide]);
 
-      if (!handleValue || handleValue.length < 3) {
-        setHandleValidation({ available: false, checking: false, error: null });
-        return false;
-      }
+  // Memoized username suggestions
+  const usernameSuggestions = useMemo(() => {
+    if (clientValidation.valid || !handle) return [];
+    return generateUsernameSuggestions(handle, selectedArtist?.artistName);
+  }, [handle, selectedArtist?.artistName, clientValidation.valid]);
 
+  // Debounced API validation (only for format-valid handles)
+  const debouncedApiValidation = useMemo(
+    () => debounce(async (handleValue: string) => {
+      if (!clientValidation.valid) return;
+
+      // Check cache first
       if (lastValidatedRef.current?.handle === handleValue) {
         const { available } = lastValidatedRef.current;
-        setHandleValidation({
+        setHandleValidation(prev => ({
+          ...prev,
           available,
           checking: false,
           error: available ? null : 'Handle already taken',
-        });
-        return available;
+        }));
+        return;
+      }
+
+      // Cancel previous request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
 
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
 
-      setHandleValidation((prev) => ({ ...prev, checking: true, error: null }));
-      loaderTimeoutRef.current = setTimeout(() => setShowLoader(true), 150);
+      setHandleValidation(prev => ({ ...prev, checking: true, error: null }));
 
       try {
         const response = await fetch(
-          `/api/handle/check?handle=${encodeURIComponent(
-            handleValue.toLowerCase()
-          )}`,
+          `/api/handle/check?handle=${encodeURIComponent(handleValue.toLowerCase())}`,
           { signal: abortController.signal }
         );
 
-        if (abortController.signal.aborted) return false;
+        if (abortController.signal.aborted) return;
 
         const result = await response.json();
-
         const available = !!result.available && response.ok;
-        setHandleValidation({
+
+        setHandleValidation(prev => ({
+          ...prev,
           available,
           checking: false,
-          error: response.ok
-            ? available
-              ? null
-              : 'Handle already taken'
-            : result.error || 'Error checking availability',
-        });
+          error: response.ok 
+            ? (available ? null : 'Handle already taken')
+            : (result.error || 'Error checking availability'),
+        }));
+
         lastValidatedRef.current = { handle: handleValue, available };
-        return available;
-      } catch (validationError) {
-        if (
-          validationError instanceof Error &&
-          validationError.name === 'AbortError'
-        ) {
-          return false;
-        }
-        console.error('Handle validation error:', validationError);
-        setHandleValidation({
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') return;
+        
+        console.error('Handle validation error:', error);
+        setHandleValidation(prev => ({
+          ...prev,
           available: false,
           checking: false,
           error: 'Network error',
-        });
+        }));
         lastValidatedRef.current = { handle: handleValue, available: false };
-        return false;
-      } finally {
-        if (loaderTimeoutRef.current) {
-          clearTimeout(loaderTimeoutRef.current);
-        }
-        setShowLoader(false);
       }
-    },
-    []
+    }, 1000), // Increased debounce to 1000ms (less frequent API calls)
+    [clientValidation.valid]
   );
 
-  // Validate handle when it changes
+  // Update validation state when handle or client validation changes
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      void validateHandle(handle);
-    }, 500);
+    // Update client validation state immediately
+    setHandleValidation(prev => ({
+      ...prev,
+      clientValid: clientValidation.valid,
+      error: clientValidation.error,
+      suggestions: usernameSuggestions,
+      available: clientValidation.valid ? prev.available : false,
+    }));
 
-    return () => clearTimeout(timeoutId);
-  }, [handle, validateHandle]);
+    // Only trigger API validation for format-valid handles
+    if (clientValidation.valid && handle.length >= 3) {
+      debouncedApiValidation(handle);
+    }
+  }, [handle, clientValidation, usernameSuggestions, debouncedApiValidation]);
 
   // Prefetch dashboard route when handle is valid
   useEffect(() => {
@@ -202,24 +215,22 @@ export function OnboardingForm() {
     }
   }, [handleValidation.available, handleValidation.checking, router]);
 
-  // Handle validation rules
-  const handleError = useMemo(() => {
-    if (!handle) return null;
-    if (handle.length < 3) return 'Handle must be at least 3 characters';
-    if (handle.length > 30) return 'Handle must be less than 30 characters';
-    if (!/^[a-zA-Z0-9-]+$/.test(handle))
-      return 'Handle can only contain letters, numbers, and hyphens';
-    if (handleValidation.error) return handleValidation.error;
-    return null;
-  }, [handle, handleValidation.error]);
+  // Memoized validation state for performance
+  const validationState = useMemo(() => ({
+    error: handleValidation.error,
+    isClientValid: handleValidation.clientValid,
+    isAvailable: handleValidation.available,
+    isChecking: handleValidation.checking,
+    canSubmit: handleValidation.clientValid && handleValidation.available && !handleValidation.checking
+  }), [handleValidation]);
 
-  const baseHandleValid = useMemo(() => {
-    return (
-      handle.length >= 3 &&
-      handle.length <= 30 &&
-      /^[a-zA-Z0-9-]+$/.test(handle)
-    );
-  }, [handle]);
+  // Memoized progress steps for optimistic UI
+  const progressSteps = useMemo(() => [
+    { key: 'validating', label: 'Validating credentials', duration: 300 },
+    { key: 'creating-user', label: 'Setting up account', duration: 400 },
+    { key: 'checking-handle', label: 'Securing handle', duration: 300 },
+    { key: 'creating-artist', label: 'Creating profile', duration: 500 },
+  ], []);
 
   // Retry mechanism
   const retryOperation = useCallback(() => {
@@ -230,20 +241,11 @@ export function OnboardingForm() {
     }));
   }, []);
 
-  // Main submission handler using server action
+  // Optimized submission handler with memoized dependencies
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      if (!user || state.isSubmitting) return;
-
-      let available = handleValidation.available;
-      if (handleValidation.checking || !available) {
-        available = await validateHandle(handle);
-      }
-
-      const isValid = baseHandleValid && available && !state.error;
-
-      if (!isValid) return;
+      if (!user || state.isSubmitting || !validationState.canSubmit) return;
 
       setState((prev) => ({
         ...prev,
@@ -254,18 +256,6 @@ export function OnboardingForm() {
       }));
 
       try {
-        setState((prev) => ({ ...prev, step: 'creating-user', progress: 25 }));
-        setState((prev) => ({
-          ...prev,
-          step: 'checking-handle',
-          progress: 50,
-        }));
-        setState((prev) => ({
-          ...prev,
-          step: 'creating-artist',
-          progress: 75,
-        }));
-
         // Use the server action which handles authentication properly
         await completeOnboarding({
           username: handle.toLowerCase(),
@@ -302,17 +292,7 @@ export function OnboardingForm() {
         }));
       }
     },
-    [
-      user,
-      handle,
-      selectedArtist,
-      state.error,
-      state.isSubmitting,
-      handleValidation.available,
-      handleValidation.checking,
-      baseHandleValid,
-      validateHandle,
-    ]
+    [user, handle, selectedArtist, state.isSubmitting, validationState.canSubmit]
   );
 
   // Progress indicator
@@ -335,26 +315,14 @@ export function OnboardingForm() {
 
   return (
     <div className="space-y-4">
-      {/* Progress indicator */}
-      {state.step !== 'validating' && (
-        <div className="space-y-2" id="form-status" aria-live="polite">
-          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
-            <span>{getProgressText()}</span>
-            <span>{state.progress}%</span>
-          </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-            <div
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${state.progress}%` }}
-              role="progressbar"
-              aria-valuenow={state.progress}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label="Onboarding progress"
-            />
-          </div>
-        </div>
-      )}
+      {/* Optimistic Progress indicator */}
+      <OptimisticProgress
+        isActive={state.isSubmitting}
+        steps={progressSteps}
+        onComplete={() => {
+          // Progress complete, waiting for server redirect
+        }}
+      />
 
       {/* Selected artist info */}
       {selectedArtist && (
@@ -406,7 +374,7 @@ export function OnboardingForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormField
           label="Handle"
-          error={handleError || handleValidation.error || undefined}
+          error={validationState.error || undefined}
         >
           <div className="relative">
             <Input
@@ -415,12 +383,10 @@ export function OnboardingForm() {
               onChange={(e) => setHandle(e.target.value)}
               placeholder="your-handle"
               required
-              disabled={state.step !== 'validating'}
+              disabled={state.isSubmitting}
               className="font-mono pr-8"
               aria-describedby="handle-preview-onboarding"
-              aria-invalid={
-                handleError || handleValidation.error ? 'true' : 'false'
-              }
+              aria-invalid={validationState.error ? 'true' : 'false'}
               aria-label="Enter your desired handle"
               autoCapitalize="none"
               autoCorrect="off"
@@ -429,25 +395,24 @@ export function OnboardingForm() {
               data-test="username-input"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
-              {handleValidation.checking && showLoader && (
+              {validationState.isChecking && (
                 <LoadingSpinner size="sm" />
               )}
-              {handleValidation.available &&
-                (!handleValidation.checking || !showLoader) && (
-                  <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                    <svg
-                      className="w-2.5 h-2.5 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                )}
+              {validationState.isAvailable && !validationState.isChecking && (
+                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-2.5 h-2.5 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              )}
             </div>
           </div>
           <p
@@ -457,26 +422,41 @@ export function OnboardingForm() {
             Your profile will be live at {displayDomain}/
             {handle || 'your-handle'}
           </p>
+          
+          {/* Username suggestions */}
+          {handleValidation.suggestions.length > 0 && (
+            <div className="mt-2 space-y-1">
+              <p className="text-xs text-gray-600 dark:text-gray-400">Suggestions:</p>
+              <div className="flex flex-wrap gap-1">
+                {handleValidation.suggestions.slice(0, 3).map((suggestion) => (
+                  <button
+                    key={suggestion}
+                    type="button"
+                    onClick={() => setHandle(suggestion)}
+                    className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors duration-150"
+                    disabled={state.isSubmitting}
+                  >
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </FormField>
 
         <Button
           type="submit"
-          disabled={
-            !baseHandleValid ||
-            state.step !== 'validating' ||
-            state.isSubmitting
-          }
+          disabled={!validationState.canSubmit || state.isSubmitting}
           variant="primary"
           className="w-full"
-          aria-describedby="form-status"
           data-test="claim-btn"
         >
-          {state.step === 'validating' && !state.isSubmitting ? (
+          {!state.isSubmitting ? (
             'Create Profile'
           ) : (
             <div className="flex items-center justify-center space-x-2">
               <LoadingSpinner size="sm" />
-              <span>{getProgressText()}</span>
+              <span>Creating profile...</span>
             </div>
           )}
         </Button>

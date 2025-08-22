@@ -50,8 +50,8 @@ const nextConfig = {
       },
     ],
     formats: ['image/avif', 'image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    deviceSizes: [640, 750, 828, 1080, 1200],
+    imageSizes: [64, 96, 128, 256, 384, 400],
     minimumCacheTTL: 60 * 60 * 24 * 365, // 1 year for better caching
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
@@ -141,7 +141,7 @@ const nextConfig = {
         },
       };
     }
-    
+
     // Exclude Storybook files from production builds
     if (!dev) {
       config.module.rules.push({
@@ -149,7 +149,7 @@ const nextConfig = {
         use: 'ignore-loader',
       });
     }
-    
+
     return config;
   },
 };

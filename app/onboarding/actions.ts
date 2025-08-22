@@ -92,17 +92,22 @@ export async function completeOnboarding({
       throw new Error(error.message);
     }
 
-    // Step 4: Check if user already has profile
-    const hasExistingProfile = await checkUserHasProfile(userId);
+    // Step 4-6: Parallel operations for performance optimization
+    const normalizedUsername = normalizeUsername(username);
+    
+    // Run checks in parallel to reduce total operation time
+    const [hasExistingProfile, availabilityResult, user] = await Promise.all([
+      checkUserHasProfile(userId),
+      checkUsernameAvailability(normalizedUsername),
+      currentUser(),
+    ]);
+
+    // Early exit if user already has profile
     if (hasExistingProfile) {
       redirect('/dashboard');
     }
 
-    // Step 5: Check username availability
-    const normalizedUsername = normalizeUsername(username);
-    const availabilityResult =
-      await checkUsernameAvailability(normalizedUsername);
-
+    // Check username availability
     if (!availabilityResult.available) {
       const errorCode = availabilityResult.validationError
         ? OnboardingErrorCode.INVALID_USERNAME
@@ -117,11 +122,10 @@ export async function completeOnboarding({
       throw new Error(error.message);
     }
 
-    // Step 6: Get user details for profile creation
-    const user = await currentUser();
+    // Step 7: Prepare user data for database operations
     const userEmail = user?.emailAddresses?.[0]?.emailAddress;
 
-    // Step 7: Create records using database transaction simulation
+    // Step 8: Create records using database transaction simulation
     // First create app_users record
     const { error: userError } = await queryWithRetry(
       async () =>
