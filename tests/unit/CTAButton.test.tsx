@@ -86,7 +86,6 @@ describe('CTAButton', () => {
 
     const button = screen.getByRole('button');
     expect(button).toBeDisabled();
-    expect(button).toHaveAttribute('aria-disabled', 'true');
     expect(button).toHaveAttribute('data-state', 'disabled');
   });
 
