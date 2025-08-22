@@ -4,6 +4,8 @@ import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { ANALYTICS } from '@/constants/app';
 import { env as publicEnv } from '@/lib/env';
+import { useConsent } from '@/lib/cookies/useConsent';
+import type { Consent } from '@/lib/cookies/consent';
 
 // Type definitions for analytics
 
@@ -16,78 +18,133 @@ declare global {
       event: string,
       properties?: Record<string, unknown>
     ) => void;
+    // Add PostHog initialization state
+    _JV_POSTHOG_INITIALIZED?: boolean;
   }
 }
 
-// Initialize PostHog on the client when key is present - deferred to not block paint
-if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
-  // Defer analytics initialization to not block initial paint
-  setTimeout(() => {
-    const getEnvTag = (): 'dev' | 'preview' | 'prod' => {
-      try {
-        const prodHost = new URL(publicEnv.NEXT_PUBLIC_APP_URL).hostname;
-        const host = window.location.hostname;
-        if (
-          host === 'localhost' ||
-          host === '127.0.0.1' ||
-          host.endsWith('.local')
-        ) {
-          return 'dev';
-        }
-        if (host === prodHost || host === `www.${prodHost}`) {
-          return 'prod';
-        }
-        return 'preview';
-      } catch {
-        return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
-      }
-    };
+// Helper to determine environment tag
+const getEnvTag = (): 'dev' | 'preview' | 'prod' => {
+  try {
+    if (typeof window === 'undefined') {
+      return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
+    }
+    
+    const prodHost = new URL(publicEnv.NEXT_PUBLIC_APP_URL).hostname;
+    const host = window.location.hostname;
+    if (
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host.endsWith('.local')
+    ) {
+      return 'dev';
+    }
+    if (host === prodHost || host === `www.${prodHost}`) {
+      return 'prod';
+    }
+    return 'preview';
+  } catch {
+    return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
+  }
+};
 
-    const options: Parameters<typeof posthog.init>[1] = {
-      autocapture: true,
-      capture_pageview: false, // we'll send $pageview manually via page()
-      persistence: 'localStorage+cookie',
-    };
-    if (ANALYTICS.posthogHost) {
-      options.api_host = ANALYTICS.posthogHost;
+// Check if current path should be excluded from analytics
+const shouldExcludePath = (path: string): boolean => {
+  // Exclude sensitive routes and error pages
+  return (
+    path.startsWith('/go/') ||
+    path.startsWith('/out/') ||
+    path.startsWith('/api/') ||
+    path.includes('/404') ||
+    path.includes('/500')
+  );
+};
+
+// Initialize PostHog with privacy-focused settings
+const initializePostHog = (consent: Consent) => {
+  // Skip if already initialized or no key available
+  if (
+    typeof window === 'undefined' ||
+    !ANALYTICS.posthogKey ||
+    window._JV_POSTHOG_INITIALIZED ||
+    !consent.analytics // Only initialize if analytics consent is given
+  ) {
+    return;
+  }
+
+  // Mark as initialized to prevent duplicate initialization
+  window._JV_POSTHOG_INITIALIZED = true;
+
+  // Configure PostHog with privacy-focused settings
+  const options: posthog.Config = {
+    // Disable autocapture by default for privacy
+    autocapture: false,
+    // We'll send $pageview manually via page()
+    capture_pageview: false,
+    // Use both localStorage and cookie for persistence
+    persistence: 'localStorage+cookie',
+    // Respect Do Not Track setting
+    respect_dnt: true,
+    // Mask text inputs by default
+    mask_all_text: true,
+    // Don't capture performance metrics
+    capture_performance: false,
+  };
+
+  // Set custom API host if configured
+  if (ANALYTICS.posthogHost) {
+    options.api_host = ANALYTICS.posthogHost;
+  }
+
+  try {
+    posthog.init(ANALYTICS.posthogKey, options);
+    // Ensure every event has env attached
+    posthog.register({ env: getEnvTag() });
+  } catch (error) {
+    // noop – avoid breaking the app if analytics fails to init
+    // eslint-disable-next-line no-console
+    console.warn('PostHog init failed:', error);
+  }
+};
+
+// Hook to initialize PostHog when consent is available
+export function useInitializeAnalytics() {
+  const consent = useConsent();
+  
+  useEffect(() => {
+    if (consent && typeof window !== 'undefined') {
+      // Initialize PostHog when consent is available
+      if (consent.analytics && ANALYTICS.posthogKey) {
+        // Defer analytics initialization to not block initial paint
+        setTimeout(() => {
+          initializePostHog(consent);
+        }, 0);
+      } else if (!consent.analytics && window._JV_POSTHOG_INITIALIZED) {
+        // If consent was revoked, attempt to clear PostHog data
+        try {
+          posthog.opt_out_capturing();
+          // Reset initialization flag
+          window._JV_POSTHOG_INITIALIZED = false;
+        } catch {
+          // Ignore errors
+        }
+      }
     }
-    try {
-      posthog.init(ANALYTICS.posthogKey, options);
-      // Ensure every event has env attached
-      posthog.register({ env: getEnvTag() });
-    } catch (e) {
-      // noop – avoid breaking the app if analytics fails to init
-      // eslint-disable-next-line no-console
-      console.warn('PostHog init failed:', e);
-    }
-  }, 0); // Execute on next tick to not block initial paint
+  }, [consent]);
 }
 
 export function track(event: string, properties?: Record<string, unknown>) {
   if (typeof window !== 'undefined') {
-    const envTag = (() => {
-      try {
-        const prodHost = new URL(publicEnv.NEXT_PUBLIC_APP_URL).hostname;
-        const host = window.location.hostname;
-        if (
-          host === 'localhost' ||
-          host === '127.0.0.1' ||
-          host.endsWith('.local')
-        ) {
-          return 'dev';
-        }
-        if (host === prodHost || host === `www.${prodHost}`) {
-          return 'prod';
-        }
-        return 'preview';
-      } catch {
-        return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
-      }
-    })();
+    // Skip tracking on excluded paths
+    if (shouldExcludePath(window.location.pathname)) {
+      return;
+    }
+
+    const envTag = getEnvTag();
 
     // Track with PostHog
     try {
-      if (ANALYTICS.posthogKey) {
+      if (ANALYTICS.posthogKey && window._JV_POSTHOG_INITIALIZED) {
         posthog.capture(event, properties);
       }
     } catch {}
@@ -109,29 +166,16 @@ export function track(event: string, properties?: Record<string, unknown>) {
 
 export function page(name?: string, properties?: Record<string, unknown>) {
   if (typeof window !== 'undefined') {
-    const envTag = (() => {
-      try {
-        const prodHost = new URL(publicEnv.NEXT_PUBLIC_APP_URL).hostname;
-        const host = window.location.hostname;
-        if (
-          host === 'localhost' ||
-          host === '127.0.0.1' ||
-          host.endsWith('.local')
-        ) {
-          return 'dev';
-        }
-        if (host === prodHost || host === `www.${prodHost}`) {
-          return 'prod';
-        }
-        return 'preview';
-      } catch {
-        return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
-      }
-    })();
+    // Skip tracking on excluded paths
+    if (shouldExcludePath(window.location.pathname)) {
+      return;
+    }
+
+    const envTag = getEnvTag();
 
     // Track with PostHog as a pageview
     try {
-      if (ANALYTICS.posthogKey) {
+      if (ANALYTICS.posthogKey && window._JV_POSTHOG_INITIALIZED) {
         posthog.capture('$pageview', {
           name,
           url: window.location.pathname,
@@ -154,7 +198,7 @@ export function identify(userId: string, traits?: Record<string, unknown>) {
   if (typeof window !== 'undefined') {
     // Identify in PostHog
     try {
-      if (ANALYTICS.posthogKey) {
+      if (ANALYTICS.posthogKey && window._JV_POSTHOG_INITIALIZED) {
         posthog.identify(userId, traits);
       }
     } catch {}
@@ -181,7 +225,7 @@ export type FeatureFlagName =
 // Use defaultValue for safe rendering before flags load
 export function isFeatureEnabled(flag: FeatureFlagName | string): boolean {
   if (typeof window === 'undefined') return false;
-  if (!ANALYTICS.posthogKey) return false;
+  if (!ANALYTICS.posthogKey || !window._JV_POSTHOG_INITIALIZED) return false;
   try {
     return Boolean(posthog.isFeatureEnabled(flag));
   } catch {
@@ -194,9 +238,10 @@ export function useFeatureFlag(
   defaultValue: boolean = false
 ): boolean {
   const [enabled, setEnabled] = useState<boolean>(defaultValue);
+  const consent = useConsent();
 
   useEffect(() => {
-    if (!ANALYTICS.posthogKey) {
+    if (!ANALYTICS.posthogKey || !window._JV_POSTHOG_INITIALIZED || !consent?.analytics) {
       setEnabled(defaultValue);
       return;
     }
@@ -229,7 +274,7 @@ export function useFeatureFlag(
         error
       );
     }
-  }, [flag, defaultValue]);
+  }, [flag, defaultValue, consent]);
 
   return enabled;
 }
@@ -241,9 +286,10 @@ export function useFeatureFlagWithLoading(
 ): { enabled: boolean; loading: boolean } {
   const [enabled, setEnabled] = useState<boolean>(defaultValue);
   const [loading, setLoading] = useState<boolean>(true);
+  const consent = useConsent();
 
   useEffect(() => {
-    if (!ANALYTICS.posthogKey) {
+    if (!ANALYTICS.posthogKey || !window._JV_POSTHOG_INITIALIZED || !consent?.analytics) {
       setEnabled(defaultValue);
       setLoading(false);
       return;
@@ -296,7 +342,8 @@ export function useFeatureFlagWithLoading(
 
       return () => clearTimeout(timeout);
     }
-  }, [flag, defaultValue]);
+  }, [flag, defaultValue, consent]);
 
   return { enabled, loading };
 }
+

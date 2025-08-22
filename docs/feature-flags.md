@@ -2,6 +2,8 @@
 
 Jovie uses [Statsig](https://statsig.com/) for feature flag management and experimentation. This provides a robust, real-time feature flag system with advanced A/B testing capabilities.
 
+> **Note:** Feature flags are tied to analytics consent. See [Analytics Privacy](./analytics-privacy.md) for details on how analytics respects user consent and privacy.
+
 ## Setup
 
 ### 1. Environment Variables

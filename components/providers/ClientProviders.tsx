@@ -9,6 +9,7 @@ import { FeatureFlags } from '@/lib/feature-flags';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { env } from '@/lib/env';
 import { logger } from '@/lib/utils/logger';
+import { AnalyticsProvider } from './AnalyticsProvider';
 // import { Toolbar } from '@vercel/toolbar/next';
 
 interface ClientProvidersProps {
@@ -105,8 +106,11 @@ export function ClientProviders({
           disableTransitionOnChange
           storageKey="jovie-theme"
         >
-          {children}
-          <Analytics />
+          {/* Add AnalyticsProvider to initialize analytics when consent is available */}
+          <AnalyticsProvider>
+            {children}
+            <Analytics />
+          </AnalyticsProvider>
           {/* <Toolbar /> */}
         </ThemeProvider>
       </FeatureFlagsProvider>
