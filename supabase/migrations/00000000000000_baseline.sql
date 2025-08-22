@@ -743,8 +743,286 @@ INSERT INTO creator_profiles (user_id, creator_type, username, display_name, bio
   ('test_user_1', 'artist', 'testartist1', 'Test Artist One', 'This is a test public artist profile.', null, null, null, true, false),
   ('test_user_2', 'artist', 'testartist2', 'Test Artist Two', 'This is a test private artist profile.', null, null, null, false, false),
   ('artist_1', 'artist', 'ladygaga', 'Lady Gaga', 'Grammy Award-winning artist known for hits like "Bad Romance" and "Shallow". Advocate for mental health awareness and LGBTQ+ rights.', 'https://i.scdn.co/image/ab6761610000e5ebc36dd9eb55fb0db4911f25dd', 'https://open.spotify.com/artist/1HY2Jd0NmPuamShAr6KMms', '1HY2Jd0NmPuamShAr6KMms', true, true),
-  ('artist_5', 'artist', 'tim', 'Tim White', 'Independent artist exploring electronic and ambient sounds. Latest release: "Never Say A Word" (2024).', 'https://i.scdn.co/image/ab6761610000e5ebbab7ca6e76db7da72b58aa5c', null, null, true, false)
+  ('artist_5', 'artist', 'tim', 'Tim White', 'Independent artist exploring electronic and ambient sounds. Latest release: "Never Say A Word" (2024).', 'https://i.scdn.co/image/ab6761610000e5ebbab7ca6e76db7da72b58aa5c', null, null, true, false);
+
+-- Add featured artists from seed data
+INSERT INTO app_users (id, email) VALUES 
+  ('seed_user_7', 'taylorswift@example.com'),
+  ('seed_user_8', 'oliviarodrigo@example.com'),
+  ('seed_user_9', 'sza@example.com'),
+  ('seed_user_10', 'theweeknd@example.com'),
+  ('seed_user_11', 'badbunny@example.com'),
+  ('seed_user_12', 'karolg@example.com'),
+  ('seed_user_13', 'newjeans@example.com'),
+  ('seed_user_15', 'pinkpantheress@example.com')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO creator_profiles (user_id, creator_type, username, display_name, bio, avatar_url, spotify_url, apple_music_url, youtube_url, spotify_id, is_public, is_verified, is_featured) VALUES
+  ('seed_user_7', 'artist', 'taylorswift', 'Taylor Swift', 'Singer-songwriter with multiple Grammy Awards. Known for storytelling through music across country, pop, and folk genres.', 'https://i.scdn.co/image/ab6761610000e5eb859e4fdcae060b15797769b3', 'https://open.spotify.com/artist/06HL4z0CvFAxyc27GXpf02', 'https://music.apple.com/us/artist/taylor-swift/159260351', 'https://youtube.com/@TaylorSwift', '06HL4z0CvFAxyc27GXpf02', true, true, true),
+  ('seed_user_8', 'artist', 'oliviarodrigo', 'Olivia Rodrigo', 'Singer-songwriter and actress. Grammy winner known for "drivers license" and albums "SOUR" and "GUTS".', 'https://i.scdn.co/image/ab6761610000e5ebe03a98785f3658f0b6461ec4', 'https://open.spotify.com/artist/1McMsnEElThX1knmY9oliG', 'https://music.apple.com/us/artist/olivia-rodrigo/1440623969', 'https://youtube.com/@OliviaRodrigo', '1McMsnEElThX1knmY9oliG', true, true, true),
+  ('seed_user_9', 'artist', 'sza', 'SZA', 'R&B singer-songwriter known for introspective lyrics and smooth vocals. Grammy-nominated artist with albums "Ctrl" and "SOS".', 'https://i.scdn.co/image/ab6761610000e5eb0895066d172e1f51f520bc65', 'https://open.spotify.com/artist/7tYKF4w9nC0nq9CsPZTHyP', 'https://music.apple.com/us/artist/sza/1050239550', 'https://youtube.com/@sza', '7tYKF4w9nC0nq9CsPZTHyP', true, true, true),
+  ('seed_user_10', 'artist', 'theweeknd', 'The Weeknd', 'Multi-platinum recording artist known for hits like "Blinding Lights" and "Can''t Feel My Face". Three-time Grammy winner.', 'https://i.scdn.co/image/ab6761610000e5eb214f3cf1cbe7139c1e26ffbb', 'https://open.spotify.com/artist/1Xyo4u8uXC1ZmMpatF05PJ', 'https://music.apple.com/us/artist/the-weeknd/479756766', 'https://youtube.com/@theweeknd', '1Xyo4u8uXC1ZmMpatF05PJ', true, true, true),
+  ('seed_user_11', 'artist', 'badbunny', 'Bad Bunny', 'Puerto Rican reggaeton and Latin trap artist. Global superstar known for "Un Verano Sin Ti" and collaborations worldwide.', 'https://i.scdn.co/image/ab6761610000e5eb4c1d23de5dd3c7ed3e10b7e1', 'https://open.spotify.com/artist/4q3ewBCX7sLwd24euuV69X', 'https://music.apple.com/us/artist/bad-bunny/1126808565', 'https://youtube.com/@badbunnypr', '4q3ewBCX7sLwd24euuV69X', true, true, true),
+  ('seed_user_12', 'artist', 'karolg', 'KAROL G', 'Colombian reggaeton artist and Latin Grammy winner. Known for empowering anthems and hits like "Tusa" and "Provenza".', 'https://i.scdn.co/image/ab6761610000e5ebec0a39e27f8a8b96e7d3d9d5', 'https://open.spotify.com/artist/790FomKkXshlbRYZFtlgla', 'https://music.apple.com/us/artist/karol-g/1133792108', 'https://youtube.com/@KarolG', '790FomKkXshlbRYZFtlgla', true, true, true),
+  ('seed_user_13', 'artist', 'newjeans', 'NewJeans', 'K-pop girl group known for their Y2K-inspired sound and visuals. Members: Minji, Hanni, Danielle, Haerin, and Hyein.', 'https://i.scdn.co/image/ab6761610000e5ebdbc0ffede80a6a0eebdb6b3d', 'https://open.spotify.com/artist/6HvZYsbFfjnjFrWF950C9d', 'https://music.apple.com/us/artist/newjeans/1640048757', 'https://youtube.com/@NewJeans_official', '6HvZYsbFfjnjFrWF950C9d', true, true, true),
+  ('seed_user_15', 'artist', 'pinkpantheress', 'PinkPantheress', 'British singer-songwriter blending Y2K nostalgia with modern production. Known for viral hits and dreamy, nostalgic soundscapes.', 'https://i.scdn.co/image/ab6761610000e5ebb71c0986c96e3f4eca3f16e4', 'https://open.spotify.com/artist/9nqJZe8XLi6mHyQhEWCRH0', 'https://music.apple.com/us/artist/pinkpantheress/1560624444', 'https://youtube.com/@PinkPantheress', '9nqJZe8XLi6mHyQhEWCRH0', true, true, true)
 ON CONFLICT (username_normalized) DO NOTHING;
+
+-- =====================================
+-- LINK WRAPPING & ANTI-CLOAKING SYSTEM
+-- =====================================
+
+-- Create wrapped_links table for link management
+CREATE TABLE wrapped_links (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  short_id VARCHAR(12) UNIQUE NOT NULL,
+  encrypted_url TEXT NOT NULL,
+  kind VARCHAR(20) NOT NULL DEFAULT 'normal' CHECK (kind IN ('normal', 'sensitive')),
+  domain VARCHAR(255) NOT NULL,
+  category VARCHAR(50),
+  title_alias VARCHAR(255), -- Generic title for crawlers
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  expires_at TIMESTAMPTZ, -- For temporary links
+  click_count INTEGER DEFAULT 0,
+  created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
+);
+
+-- Create indexes for wrapped_links
+CREATE INDEX wrapped_links_short_id_idx ON wrapped_links(short_id);
+CREATE INDEX wrapped_links_domain_idx ON wrapped_links(domain);
+CREATE INDEX wrapped_links_kind_idx ON wrapped_links(kind);
+CREATE INDEX wrapped_links_created_by_idx ON wrapped_links(created_by);
+
+-- Create sensitive domain categories table
+CREATE TABLE sensitive_domains (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  domain VARCHAR(255) UNIQUE NOT NULL,
+  category VARCHAR(50) NOT NULL,
+  alias VARCHAR(100) NOT NULL, -- Generic alias for crawlers
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create indexes for sensitive_domains
+CREATE INDEX sensitive_domains_domain_idx ON sensitive_domains(domain);
+CREATE INDEX sensitive_domains_category_idx ON sensitive_domains(category);
+
+-- Create signed URLs table for temporary access
+CREATE TABLE signed_link_access (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  link_id UUID NOT NULL REFERENCES wrapped_links(id) ON DELETE CASCADE,
+  signed_token VARCHAR(255) UNIQUE NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  used_at TIMESTAMPTZ,
+  ip_address INET,
+  user_agent TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create indexes for signed_link_access
+CREATE INDEX signed_link_access_token_idx ON signed_link_access(signed_token);
+CREATE INDEX signed_link_access_link_id_idx ON signed_link_access(link_id);
+CREATE INDEX signed_link_access_expires_idx ON signed_link_access(expires_at);
+
+-- Create rate limiting table
+CREATE TABLE link_rate_limits (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  ip_address INET NOT NULL,
+  endpoint VARCHAR(100) NOT NULL,
+  request_count INTEGER DEFAULT 1,
+  window_start TIMESTAMPTZ DEFAULT NOW(),
+  
+  UNIQUE(ip_address, endpoint, window_start)
+);
+
+-- Create bot detection log table
+CREATE TABLE bot_detection_log (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  ip_address INET,
+  user_agent TEXT,
+  asn INTEGER,
+  blocked_reason VARCHAR(100),
+  endpoint VARCHAR(255),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create indexes for bot_detection_log
+CREATE INDEX bot_detection_log_ip_idx ON bot_detection_log(ip_address);
+CREATE INDEX bot_detection_log_asn_idx ON bot_detection_log(asn);
+CREATE INDEX bot_detection_log_created_idx ON bot_detection_log(created_at);
+
+-- Enable RLS on link wrapping tables
+ALTER TABLE wrapped_links ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sensitive_domains ENABLE ROW LEVEL SECURITY;
+ALTER TABLE signed_link_access ENABLE ROW LEVEL SECURITY;
+ALTER TABLE link_rate_limits ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bot_detection_log ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for wrapped_links
+CREATE POLICY "Users can read all wrapped links" ON wrapped_links
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can create wrapped links" ON wrapped_links
+  FOR INSERT WITH CHECK (auth.jwt()->>'sub' = created_by::text OR created_by IS NULL);
+
+CREATE POLICY "Users can update their own wrapped links" ON wrapped_links
+  FOR UPDATE USING (auth.jwt()->>'sub' = created_by::text OR created_by IS NULL);
+
+-- RLS Policies for sensitive_domains (read-only for most operations)
+CREATE POLICY "Anyone can read sensitive domains" ON sensitive_domains
+  FOR SELECT USING (true);
+
+-- RLS Policies for signed_link_access (service usage)
+CREATE POLICY "Service can manage signed access" ON signed_link_access
+  FOR ALL USING (true);
+
+-- RLS Policies for rate limiting (service usage)
+CREATE POLICY "Service can manage rate limits" ON link_rate_limits
+  FOR ALL USING (true);
+
+-- RLS Policies for bot detection (service usage)
+CREATE POLICY "Service can log bot detection" ON bot_detection_log
+  FOR ALL USING (true);
+
+-- Seed sensitive domains with generic aliases
+INSERT INTO sensitive_domains (domain, category, alias) VALUES
+  -- Adult Content
+  ('onlyfans.com', 'adult', 'Premium Content'),
+  ('fansly.com', 'adult', 'Exclusive Content'),
+  ('pornhub.com', 'adult', 'Adult Entertainment'),
+  ('xvideos.com', 'adult', 'Adult Entertainment'),
+  ('xhamster.com', 'adult', 'Adult Entertainment'),
+  ('redtube.com', 'adult', 'Adult Entertainment'),
+  ('chaturbate.com', 'adult', 'Live Streaming'),
+  ('cam4.com', 'adult', 'Live Streaming'),
+  ('stripchat.com', 'adult', 'Live Streaming'),
+  ('myfreecams.com', 'adult', 'Live Streaming'),
+  
+  -- Gambling
+  ('draftkings.com', 'gambling', 'Sports Entertainment'),
+  ('fanduel.com', 'gambling', 'Sports Entertainment'),
+  ('betmgm.com', 'gambling', 'Gaming Platform'),
+  ('caesars.com', 'gambling', 'Entertainment'),
+  ('bet365.com', 'gambling', 'Sports Platform'),
+  ('pokerstars.com', 'gambling', 'Card Games'),
+  ('888casino.com', 'gambling', 'Gaming Platform'),
+  ('bovada.lv', 'gambling', 'Sports Platform'),
+  
+  -- Crypto/Trading (high volatility)
+  ('coinbase.com', 'crypto', 'Digital Assets'),
+  ('binance.com', 'crypto', 'Trading Platform'),
+  ('crypto.com', 'crypto', 'Digital Finance'),
+  ('robinhood.com', 'trading', 'Investment Platform'),
+  ('webull.com', 'trading', 'Investment Platform'),
+  
+  -- Dating (can be sensitive)
+  ('tinder.com', 'dating', 'Social Platform'),
+  ('bumble.com', 'dating', 'Social Network'),
+  ('seeking.com', 'dating', 'Premium Dating'),
+  ('adultfriendfinder.com', 'dating', 'Social Platform'),
+  
+  -- Payday/High-Interest Lending
+  ('cashadvance.com', 'lending', 'Financial Services'),
+  ('paydayloan.com', 'lending', 'Financial Services'),
+  ('quickcash.com', 'lending', 'Financial Services');
+
+-- Create function to generate short IDs
+CREATE OR REPLACE FUNCTION generate_short_id()
+RETURNS VARCHAR(12) AS $$
+DECLARE
+  chars TEXT := 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  short_id VARCHAR(12) := '';
+  i INTEGER;
+BEGIN
+  FOR i IN 1..12 LOOP
+    short_id := short_id || substr(chars, floor(random() * length(chars) + 1)::int, 1);
+  END LOOP;
+  
+  -- Ensure uniqueness
+  WHILE EXISTS (SELECT 1 FROM wrapped_links WHERE wrapped_links.short_id = generate_short_id.short_id) LOOP
+    short_id := '';
+    FOR i IN 1..12 LOOP
+      short_id := short_id || substr(chars, floor(random() * length(chars) + 1)::int, 1);
+    END LOOP;
+  END LOOP;
+  
+  RETURN short_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create function to encrypt URLs (simplified - use proper encryption in production)
+CREATE OR REPLACE FUNCTION encrypt_url(url TEXT)
+RETURNS TEXT AS $$
+BEGIN
+  -- Simple base64 encoding for demo - use pgcrypto in production
+  RETURN encode(url::bytea, 'base64');
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create function to decrypt URLs
+CREATE OR REPLACE FUNCTION decrypt_url(encrypted_url TEXT)
+RETURNS TEXT AS $$
+BEGIN
+  -- Simple base64 decoding for demo - use pgcrypto in production
+  RETURN convert_from(decode(encrypted_url, 'base64'), 'UTF8');
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create function to categorize domain
+CREATE OR REPLACE FUNCTION categorize_domain(url TEXT)
+RETURNS TABLE(category VARCHAR(50), alias VARCHAR(100), kind VARCHAR(20)) AS $$
+DECLARE
+  domain_name TEXT;
+  sensitive_record RECORD;
+BEGIN
+  -- Extract domain from URL
+  domain_name := lower(regexp_replace(url, '^https?://(www\.)?([^/]+).*', '\2'));
+  
+  -- Check if domain is in sensitive list
+  SELECT sd.category, sd.alias INTO sensitive_record
+  FROM sensitive_domains sd
+  WHERE sd.domain = domain_name;
+  
+  IF FOUND THEN
+    RETURN QUERY SELECT sensitive_record.category, sensitive_record.alias, 'sensitive'::VARCHAR(20);
+  ELSE
+    RETURN QUERY SELECT NULL::VARCHAR(50), NULL::VARCHAR(100), 'normal'::VARCHAR(20);
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create updated_at trigger for wrapped_links
+CREATE TRIGGER update_wrapped_links_updated_at
+  BEFORE UPDATE ON wrapped_links
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Create cleanup function for expired links
+CREATE OR REPLACE FUNCTION cleanup_expired_links()
+RETURNS INTEGER AS $$
+DECLARE
+  deleted_count INTEGER;
+BEGIN
+  DELETE FROM signed_link_access WHERE expires_at < NOW();
+  GET DIAGNOSTICS deleted_count = ROW_COUNT;
+  
+  DELETE FROM wrapped_links WHERE expires_at IS NOT NULL AND expires_at < NOW();
+  
+  RETURN deleted_count;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Grant permissions for link wrapping tables
+GRANT ALL ON wrapped_links TO authenticated;
+GRANT ALL ON sensitive_domains TO authenticated;
+GRANT ALL ON signed_link_access TO authenticated;
+GRANT ALL ON link_rate_limits TO authenticated;
+GRANT ALL ON bot_detection_log TO authenticated;
+
+GRANT EXECUTE ON FUNCTION generate_short_id() TO authenticated;
+GRANT EXECUTE ON FUNCTION encrypt_url(TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION decrypt_url(TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION categorize_domain(TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION cleanup_expired_links() TO authenticated;
 
 -- Update table statistics
 ANALYZE app_users;
@@ -755,6 +1033,11 @@ ANALYZE tips;
 ANALYZE subscriptions;
 ANALYZE click_events;
 ANALYZE onboarding_rate_limit;
+ANALYZE wrapped_links;
+ANALYZE sensitive_domains;
+ANALYZE signed_link_access;
+ANALYZE link_rate_limits;
+ANALYZE bot_detection_log;
 
 -- =====================================
 -- SCHEMA COMMENTS
