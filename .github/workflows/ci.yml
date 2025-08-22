@@ -101,9 +101,9 @@ jobs:
         run: npm run lint --if-present
 
   ci-full:
-    name: Full CI (label or push)
+    name: Full CI (all PRs to preview, pushes, or label)
     needs: [ci-typecheck, ci-lint]
-    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'full-ci')) }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && (github.event.pull_request.base.ref == 'preview' || contains(github.event.pull_request.labels.*.name, 'full-ci'))) }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -111,13 +111,20 @@ jobs:
         with:
           fetch-depth: 2
 
-      # Path guard: Check if changes affect critical files
+      # Path guard: Check if changes affect critical files (only for pushes and non-preview PRs)
       - name: Check for relevant changes
         id: check_changes
         run: |
           # Force run if full-ci label is present
           if [[ "${{ contains(github.event.pull_request.labels.*.name, 'full-ci') }}" == "true" ]]; then
             echo "Forcing full CI run due to 'full-ci' label"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # For PRs to preview, always run full CI (skip path guards)
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.base.ref }}" == "preview" ]]; then
+            echo "Running full CI for PR to preview branch"
             echo "run_full_ci=true" >> $GITHUB_OUTPUT
             exit 0
           fi
@@ -178,8 +185,18 @@ jobs:
 
       - name: E2E smoke
         if: ${{ steps.check_changes.outputs.run_full_ci == 'true' && github.ref != 'refs/heads/main' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
-        run: npm run e2e:smoke --if-present
-        continue-on-error: true
+        run: npm run e2e:smoke --if-present -- --trace=retain-on-failure --video=on
+        continue-on-error: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'preview' && contains(github.event.pull_request.labels.*.name, 'skip-e2e-smoke') }}
+
+      - name: Upload Playwright artifacts on failure
+        if: ${{ failure() && steps.check_changes.outputs.run_full_ci == 'true' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
 
       - name: Run tests
         if: steps.check_changes.outputs.run_full_ci == 'true'
@@ -190,7 +207,7 @@ jobs:
         run: npm run build --if-present
 
   deploy:
-    needs: [ci-typecheck, ci-lint] # change to [ci-full] if you want build/tests first
+    needs: [ci-full] # Requires full CI including build/tests before preview deploy
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/preview' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -212,7 +229,7 @@ jobs:
         run: npm run db:seed
         env:
           GIT_BRANCH: preview
-        continue-on-error: true
+        continue-on-error: false
       - name: Pull env (preview)
         run: vercel pull --yes --environment=preview --token ${{ secrets.VERCEL_TOKEN }}
         env:
@@ -224,10 +241,39 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       - name: Deploy (prebuilt)
-        run: vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }}
+        id: deploy
+        run: |
+          deployment_url=$(vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }})
+          echo "deployment_url=$deployment_url" >> $GITHUB_OUTPUT
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Canary health check
+        run: |
+          echo "Running canary health check on preview deployment..."
+          deployment_url="${{ steps.deploy.outputs.deployment_url }}"
+          
+          # Wait a moment for deployment to be ready
+          sleep 10
+          
+          # Basic health check - verify site loads and key elements exist
+          response_code=$(curl -s -o /dev/null -w "%{http_code}" "$deployment_url" || echo "000")
+          
+          if [ "$response_code" != "200" ]; then
+            echo "❌ Canary failed: HTTP $response_code"
+            exit 1
+          fi
+          
+          # Check for key content (adjust selector as needed)
+          page_content=$(curl -s "$deployment_url" || echo "")
+          if [[ ! "$page_content" =~ "Jovie" ]]; then
+            echo "❌ Canary failed: Key content missing"
+            exit 1
+          fi
+          
+          echo "✅ Canary passed: Preview deployment healthy"
+        continue-on-error: true
 
   promote:
     needs: [deploy]
@@ -244,18 +290,49 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Create PR body with QA checklist
+          pr_body="## Release Promotion: preview → main
+
+          **⚠️ Manual Review Required**
+
+          This PR promotes changes from \`preview\` to \`main\` for production release.
+
+          ### Pre-merge Checklist
+          - [ ] **Full CI passed** (ci-full job completed successfully)
+          - [ ] **CodeQL security scan passed** (if applicable)
+          - [ ] **Preview environment tested** and verified working
+          - [ ] **Database migrations reviewed** (if any)
+          - [ ] **Feature flags configured** appropriately for production
+          - [ ] **Monitoring/alerts reviewed** for new features
+          - [ ] **Performance impact assessed** (no regressions)
+          - [ ] **Rollback plan documented** (feature flags, DB, etc.)
+
+          ### Release QA
+          - [ ] **Smoke tests passed** in preview environment
+          - [ ] **Key user journeys verified** manually
+          - [ ] **Mobile/responsive tested** (if UI changes)
+          - [ ] **Cross-browser compatibility** verified (if applicable)
+          - [ ] **Error handling tested** (edge cases, failures)
+
+          ### Documentation
+          - [ ] **CHANGELOG updated** with user-facing changes
+          - [ ] **Feature documentation** updated (if applicable)
+          - [ ] **API docs updated** (if API changes)
+
+          **🚨 Do not merge until all checks pass and manual QA is complete.**"
+
           # Check if PR already exists
           existing_pr=$(gh pr list --head preview --base main --json number --jq '.[0].number // empty')
           if [ -z "$existing_pr" ]; then
             echo "Creating new PR: preview → main"
-            gh pr create --base main --head preview --title "Promote: preview → main" --body "Automated promotion PR (manual review required)"
+            gh pr create --base main --head preview --title "🚀 Release: Promote preview → main" --body "$pr_body"
           else
-            echo "PR already exists: #$existing_pr (no auto-merge; manual review required)"
-            gh pr edit "$existing_pr" --title "Promote: preview → main" --body "Automated promotion PR (manual review required)"
+            echo "PR already exists: #$existing_pr (updating with latest checklist)"
+            gh pr edit "$existing_pr" --title "🚀 Release: Promote preview → main" --body "$pr_body"
           fi
 
   deploy-prod:
-    needs: [ci-typecheck, ci-lint]
+    needs: [ci-full]
     if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
