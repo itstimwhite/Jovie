@@ -1,13 +1,48 @@
-// Feature flags interface
+// Canonical feature flag keys in snake_case
+export const FEATURE_FLAGS = {
+  ARTIST_SEARCH: 'feature_artist_search',
+  DEBUG_BANNER: 'feature_debug_banner',
+  TIP_PROMO: 'feature_tip_promo',
+  PRICING_CLERK: 'feature_pricing_clerk',
+  UNIVERSAL_NOTIFICATIONS: 'feature_universal_notifications',
+  CLICK_ANALYTICS_RPC: 'feature_click_analytics_rpc',
+  CLAIM_HANDLE: 'feature_claim_handle',
+} as const;
+
+// Type for canonical feature flag keys
+export type FeatureFlagKey = (typeof FEATURE_FLAGS)[keyof typeof FEATURE_FLAGS];
+
+// Feature flags interface with camelCase for TypeScript ergonomics
 export interface FeatureFlags {
   artistSearchEnabled: boolean;
   debugBannerEnabled: boolean;
   tipPromoEnabled: boolean;
   pricingUseClerk: boolean;
   universalNotificationsEnabled: boolean;
-  // Gate new anonymous click logging via SECURITY DEFINER RPC
   featureClickAnalyticsRpc: boolean;
+  claimHandleEnabled: boolean;
 }
+
+// Mapping between snake_case keys and camelCase properties
+const flagKeyToProperty: Record<FeatureFlagKey, keyof FeatureFlags> = {
+  [FEATURE_FLAGS.ARTIST_SEARCH]: 'artistSearchEnabled',
+  [FEATURE_FLAGS.DEBUG_BANNER]: 'debugBannerEnabled',
+  [FEATURE_FLAGS.TIP_PROMO]: 'tipPromoEnabled',
+  [FEATURE_FLAGS.PRICING_CLERK]: 'pricingUseClerk',
+  [FEATURE_FLAGS.UNIVERSAL_NOTIFICATIONS]: 'universalNotificationsEnabled',
+  [FEATURE_FLAGS.CLICK_ANALYTICS_RPC]: 'featureClickAnalyticsRpc',
+  [FEATURE_FLAGS.CLAIM_HANDLE]: 'claimHandleEnabled',
+};
+
+// Reverse mapping from camelCase properties to snake_case keys
+const propertyToFlagKey: Record<keyof FeatureFlags, FeatureFlagKey> =
+  Object.entries(flagKeyToProperty).reduce(
+    (acc, [key, value]) => {
+      acc[value as keyof FeatureFlags] = key as FeatureFlagKey;
+      return acc;
+    },
+    {} as Record<keyof FeatureFlags, FeatureFlagKey>
+  );
 
 // Default feature flags (fallback)
 const defaultFeatureFlags: FeatureFlags = {
@@ -19,7 +54,30 @@ const defaultFeatureFlags: FeatureFlags = {
   // Universal notifications only enabled in development for now
   universalNotificationsEnabled: process.env.NODE_ENV === 'development',
   featureClickAnalyticsRpc: false,
+  claimHandleEnabled: false,
 };
+
+// Helper function to convert snake_case data to camelCase FeatureFlags
+function convertToFeatureFlags(data: Record<string, unknown>): FeatureFlags {
+  const result = { ...defaultFeatureFlags };
+
+  // Process snake_case keys
+  Object.values(FEATURE_FLAGS).forEach((snakeKey) => {
+    if (Object.prototype.hasOwnProperty.call(data, snakeKey)) {
+      const camelKey = flagKeyToProperty[snakeKey as FeatureFlagKey];
+      result[camelKey] = Boolean(data[snakeKey]);
+    }
+  });
+
+  // Process legacy camelCase keys for backward compatibility
+  Object.keys(defaultFeatureFlags).forEach((camelKey) => {
+    if (Object.prototype.hasOwnProperty.call(data, camelKey)) {
+      (result as Record<string, boolean>)[camelKey] = Boolean(data[camelKey]);
+    }
+  });
+
+  return result;
+}
 
 // Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
 export async function getFeatureFlags(): Promise<FeatureFlags> {
@@ -33,51 +91,14 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
     const res = await fetch('/api/feature-flags', { cache: 'no-store' });
     if (res.ok) {
       const data: Record<string, unknown> = await res.json();
-      // New app-internal shape: direct booleans
-      const hasRpcFlag =
-        Object.prototype.hasOwnProperty.call(
-          data,
-          'featureClickAnalyticsRpc'
-        ) ||
-        Object.prototype.hasOwnProperty.call(
-          data,
-          'feature_click_analytics_rpc'
-        );
-      if (
-        typeof data?.artistSearchEnabled !== 'undefined' ||
-        typeof data?.debugBannerEnabled !== 'undefined' ||
-        typeof data?.tipPromoEnabled !== 'undefined' ||
-        typeof data?.universalNotificationsEnabled !== 'undefined' ||
-        hasRpcFlag
-      ) {
-        return {
-          artistSearchEnabled: Boolean(
-            data.artistSearchEnabled ?? defaultFeatureFlags.artistSearchEnabled
-          ),
-          debugBannerEnabled: Boolean(
-            data.debugBannerEnabled ?? defaultFeatureFlags.debugBannerEnabled
-          ),
-          tipPromoEnabled: Boolean(
-            data.tipPromoEnabled ?? defaultFeatureFlags.tipPromoEnabled
-          ),
-          pricingUseClerk: Boolean(
-            data.pricingUseClerk ?? defaultFeatureFlags.pricingUseClerk
-          ),
-          universalNotificationsEnabled: Boolean(
-            data.universalNotificationsEnabled ??
-              defaultFeatureFlags.universalNotificationsEnabled
-          ),
-          featureClickAnalyticsRpc: Boolean(
-            hasRpcFlag
-              ? ((data as Record<string, unknown>)[
-                  'featureClickAnalyticsRpc'
-                ] ??
-                  (data as Record<string, unknown>)[
-                    'feature_click_analytics_rpc'
-                  ])
-              : defaultFeatureFlags.featureClickAnalyticsRpc
-          ),
-        };
+      // Check if we have any feature flags in the response
+      const hasAnyFlag =
+        Object.keys(FEATURE_FLAGS).some(
+          (_, i) => Object.values(FEATURE_FLAGS)[i] in data
+        ) || Object.keys(defaultFeatureFlags).some((key) => key in data);
+
+      if (hasAnyFlag) {
+        return convertToFeatureFlags(data);
       }
     }
   } catch {
@@ -93,37 +114,16 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
         version?: number;
         flags?: Record<string, { default?: unknown }>;
       };
-      if (typeof data2?.version === 'number') {
-        const rpcFlag =
-          data2.flags?.['featureClickAnalyticsRpc']?.default ??
-          data2.flags?.['feature_click_analytics_rpc']?.default;
-        return {
-          artistSearchEnabled: Boolean(
-            data2.flags?.artistSearchEnabled?.default ??
-              defaultFeatureFlags.artistSearchEnabled
-          ),
-          debugBannerEnabled: Boolean(
-            data2.flags?.debugBannerEnabled?.default ??
-              defaultFeatureFlags.debugBannerEnabled
-          ),
-          tipPromoEnabled: Boolean(
-            data2.flags?.tipPromoEnabled?.default ??
-              defaultFeatureFlags.tipPromoEnabled
-          ),
-          pricingUseClerk: Boolean(
-            data2.flags?.pricingUseClerk?.default ??
-              defaultFeatureFlags.pricingUseClerk
-          ),
-          universalNotificationsEnabled: Boolean(
-            data2.flags?.universalNotificationsEnabled?.default ??
-              defaultFeatureFlags.universalNotificationsEnabled
-          ),
-          featureClickAnalyticsRpc: Boolean(
-            typeof rpcFlag !== 'undefined'
-              ? rpcFlag
-              : defaultFeatureFlags.featureClickAnalyticsRpc
-          ),
-        };
+      if (typeof data2?.version === 'number' && data2.flags) {
+        // Convert Vercel flags format to our format
+        const flattenedData: Record<string, unknown> = {};
+
+        // Process both snake_case and camelCase keys
+        Object.entries(data2.flags).forEach(([key, value]) => {
+          flattenedData[key] = value.default;
+        });
+
+        return convertToFeatureFlags(flattenedData);
       }
     }
   } catch {
@@ -152,49 +152,14 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
     let res = await fetch(url, { cache: 'no-store' });
     if (res.ok) {
       const data: Record<string, unknown> = await res.json();
-      const hasRpcFlag =
-        Object.prototype.hasOwnProperty.call(
-          data,
-          'featureClickAnalyticsRpc'
-        ) ||
-        Object.prototype.hasOwnProperty.call(
-          data,
-          'feature_click_analytics_rpc'
-        );
-      if (
-        typeof data?.artistSearchEnabled !== 'undefined' ||
-        typeof data?.debugBannerEnabled !== 'undefined' ||
-        typeof data?.tipPromoEnabled !== 'undefined' ||
-        hasRpcFlag
-      ) {
-        return {
-          artistSearchEnabled: Boolean(
-            data.artistSearchEnabled ?? defaultFeatureFlags.artistSearchEnabled
-          ),
-          debugBannerEnabled: Boolean(
-            data.debugBannerEnabled ?? defaultFeatureFlags.debugBannerEnabled
-          ),
-          tipPromoEnabled: Boolean(
-            data.tipPromoEnabled ?? defaultFeatureFlags.tipPromoEnabled
-          ),
-          pricingUseClerk: Boolean(
-            data.pricingUseClerk ?? defaultFeatureFlags.pricingUseClerk
-          ),
-          universalNotificationsEnabled: Boolean(
-            data.universalNotificationsEnabled ??
-              defaultFeatureFlags.universalNotificationsEnabled
-          ),
-          featureClickAnalyticsRpc: Boolean(
-            hasRpcFlag
-              ? ((data as Record<string, unknown>)[
-                  'featureClickAnalyticsRpc'
-                ] ??
-                  (data as Record<string, unknown>)[
-                    'feature_click_analytics_rpc'
-                  ])
-              : defaultFeatureFlags.featureClickAnalyticsRpc
-          ),
-        };
+      // Check if we have any feature flags in the response
+      const hasAnyFlag =
+        Object.keys(FEATURE_FLAGS).some(
+          (_, i) => Object.values(FEATURE_FLAGS)[i] in data
+        ) || Object.keys(defaultFeatureFlags).some((key) => key in data);
+
+      if (hasAnyFlag) {
+        return convertToFeatureFlags(data);
       }
     }
 
@@ -206,41 +171,36 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
         version?: number;
         flags?: Record<string, { default?: unknown }>;
       };
-      if (typeof data?.version === 'number') {
-        const rpcFlag =
-          data.flags?.['featureClickAnalyticsRpc']?.default ??
-          data.flags?.['feature_click_analytics_rpc']?.default;
-        return {
-          artistSearchEnabled: Boolean(
-            data.flags?.artistSearchEnabled?.default ??
-              defaultFeatureFlags.artistSearchEnabled
-          ),
-          debugBannerEnabled: Boolean(
-            data.flags?.debugBannerEnabled?.default ??
-              defaultFeatureFlags.debugBannerEnabled
-          ),
-          tipPromoEnabled: Boolean(
-            data.flags?.tipPromoEnabled?.default ??
-              defaultFeatureFlags.tipPromoEnabled
-          ),
-          pricingUseClerk: Boolean(
-            data.flags?.pricingUseClerk?.default ??
-              defaultFeatureFlags.pricingUseClerk
-          ),
-          universalNotificationsEnabled: Boolean(
-            data.flags?.universalNotificationsEnabled?.default ??
-              defaultFeatureFlags.universalNotificationsEnabled
-          ),
-          featureClickAnalyticsRpc: Boolean(
-            typeof rpcFlag !== 'undefined'
-              ? rpcFlag
-              : defaultFeatureFlags.featureClickAnalyticsRpc
-          ),
-        };
+      if (typeof data?.version === 'number' && data.flags) {
+        // Convert Vercel flags format to our format
+        const flattenedData: Record<string, unknown> = {};
+
+        // Process both snake_case and camelCase keys
+        Object.entries(data.flags).forEach(([key, value]) => {
+          flattenedData[key] = value.default;
+        });
+
+        return convertToFeatureFlags(flattenedData);
       }
     }
   } catch {
     // fallthrough to defaults
   }
   return defaultFeatureFlags;
+}
+
+// Helper function to get a feature flag value by its canonical snake_case key
+export function getFeatureFlagByKey(
+  flags: FeatureFlags,
+  key: FeatureFlagKey
+): boolean {
+  const propertyName = flagKeyToProperty[key];
+  return flags[propertyName];
+}
+
+// Helper function to get the canonical snake_case key for a camelCase property
+export function getKeyForFeatureFlag(
+  propertyName: keyof FeatureFlags
+): FeatureFlagKey {
+  return propertyToFlagKey[propertyName];
 }

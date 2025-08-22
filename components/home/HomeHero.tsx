@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { HeroSection } from '@/components/organisms/HeroSection';
 import { ClaimHandleForm } from './ClaimHandleForm';
 import { Button } from '@/components/ui/Button';
-import { useFeatureFlagWithLoading, FEATURE_FLAGS } from '@/lib/analytics';
+import { useFeatureFlagWithLoading } from '@/lib/analytics';
+import { FEATURE_FLAGS } from '@/lib/feature-flags';
 
 export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
   const { enabled: showClaimHandle, loading } = useFeatureFlagWithLoading(
@@ -53,3 +54,4 @@ export function HomeHero({ subtitle }: { subtitle?: ReactNode }) {
     </HeroSection>
   );
 }
+

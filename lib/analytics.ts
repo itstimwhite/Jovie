@@ -4,6 +4,7 @@ import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { ANALYTICS } from '@/constants/app';
 import { env as publicEnv } from '@/lib/env';
+import { FeatureFlagKey } from '@/lib/feature-flags';
 
 // Type definitions for analytics
 
@@ -169,17 +170,9 @@ export function identify(userId: string, traits?: Record<string, unknown>) {
   }
 }
 
-// Feature flag constants for type safety
-export const FEATURE_FLAGS = {
-  CLAIM_HANDLE: 'feature_claim_handle',
-} as const;
-
-export type FeatureFlagName =
-  (typeof FEATURE_FLAGS)[keyof typeof FEATURE_FLAGS];
-
 // Lightweight feature flag helpers (client-only)
 // Use defaultValue for safe rendering before flags load
-export function isFeatureEnabled(flag: FeatureFlagName | string): boolean {
+export function isFeatureEnabled(flag: FeatureFlagKey): boolean {
   if (typeof window === 'undefined') return false;
   if (!ANALYTICS.posthogKey) return false;
   try {
@@ -190,7 +183,7 @@ export function isFeatureEnabled(flag: FeatureFlagName | string): boolean {
 }
 
 export function useFeatureFlag(
-  flag: FeatureFlagName | string,
+  flag: FeatureFlagKey,
   defaultValue: boolean = false
 ): boolean {
   const [enabled, setEnabled] = useState<boolean>(defaultValue);
@@ -236,7 +229,7 @@ export function useFeatureFlag(
 
 // Hook with loading state to prevent flash of content
 export function useFeatureFlagWithLoading(
-  flag: FeatureFlagName | string,
+  flag: FeatureFlagKey,
   defaultValue: boolean = false
 ): { enabled: boolean; loading: boolean } {
   const [enabled, setEnabled] = useState<boolean>(defaultValue);
