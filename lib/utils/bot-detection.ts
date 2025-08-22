@@ -4,7 +4,7 @@
  */
 
 import { NextRequest } from 'next/server';
-import { createPublicSupabaseClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export interface BotDetectionResult {
   isBot: boolean;
@@ -116,7 +116,7 @@ export async function logBotDetection(
   asn?: number
 ): Promise<void> {
   try {
-    const supabase = createPublicSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     await supabase.from('bot_detection_log').insert({
       ip_address: ip,
       user_agent: userAgent,
@@ -139,7 +139,7 @@ export async function checkRateLimit(
   windowMinutes: number = 60
 ): Promise<boolean> {
   try {
-    const supabase = createPublicSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     const windowStart = new Date();
     windowStart.setMinutes(windowStart.getMinutes() - windowMinutes);
 

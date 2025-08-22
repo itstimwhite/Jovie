@@ -3,7 +3,7 @@
  * Categorizes domains and provides crawler-safe aliases
  */
 
-import { createPublicSupabaseClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { extractDomain } from './url-encryption';
 
 export interface DomainCategory {
@@ -203,7 +203,7 @@ export async function categorizeDomain(url: string): Promise<DomainCategory> {
 
   // Check database for additional sensitive domains
   try {
-    const supabase = createPublicSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     const { data, error } = await supabase
       .from('sensitive_domains')
       .select('category, alias')
@@ -276,7 +276,7 @@ export async function addSensitiveDomain(
   alias: string
 ): Promise<boolean> {
   try {
-    const supabase = createPublicSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     const { error } = await supabase.from('sensitive_domains').insert({
       domain: domain.toLowerCase(),
       category,

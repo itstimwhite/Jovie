@@ -18,8 +18,16 @@ function getSupabaseConfig() {
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing required Supabase environment variables');
+  if (!supabaseUrl) {
+    throw new Error(
+      'Missing NEXT_PUBLIC_SUPABASE_URL environment variable. Please configure it in your .env.local file or deployment environment.'
+    );
+  }
+
+  if (!supabaseAnonKey) {
+    throw new Error(
+      'Missing Supabase anonymous key. Please set either NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY in your .env.local file or deployment environment.'
+    );
   }
 
   return { supabaseUrl, supabaseAnonKey };
