@@ -17,7 +17,7 @@ import {
   createBotResponse,
 } from '@/lib/utils/bot-detection';
 import { generateSignedToken } from '@/lib/utils/url-encryption';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createPublicSupabaseClient } from '@/lib/supabase/server';
 
 interface RequestBody {
   verified?: boolean;
@@ -102,7 +102,7 @@ export async function POST(
     const expiresAt = new Date(Date.now() + 60 * 1000); // 60 seconds TTL
 
     // Store signed access record
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
     const { error: insertError } = await supabase
       .from('signed_link_access')
       .insert({

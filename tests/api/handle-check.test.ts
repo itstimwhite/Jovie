@@ -9,7 +9,7 @@ import { GET } from '@/app/api/handle/check/route';
 
 // Mock the supabase client
 vi.mock('@/lib/supabase-server', () => ({
-  createServerClient: vi.fn(),
+  createAnonymousServerClient: vi.fn(),
 }));
 
 describe('Handle Check API', () => {
@@ -24,9 +24,11 @@ describe('Handle Check API', () => {
     const mockSupabase = { from: mockFrom };
 
     // Mock the server supabase function
-    const { createServerClient } = await import('@/lib/supabase-server');
-    vi.mocked(createServerClient).mockReturnValue(
-      mockSupabase as unknown as ReturnType<typeof createServerClient>
+    const { createAnonymousServerClient } = await import(
+      '@/lib/supabase-server'
+    );
+    vi.mocked(createAnonymousServerClient).mockReturnValue(
+      mockSupabase as unknown as ReturnType<typeof createAnonymousServerClient>
     );
 
     const request = new NextRequest(
@@ -54,9 +56,11 @@ describe('Handle Check API', () => {
     const mockFrom = vi.fn().mockReturnValue({ select: mockSelect });
     const mockSupabase = { from: mockFrom };
 
-    const { createServerClient } = await import('@/lib/supabase-server');
-    vi.mocked(createServerClient).mockReturnValue(
-      mockSupabase as unknown as ReturnType<typeof createServerClient>
+    const { createAnonymousServerClient } = await import(
+      '@/lib/supabase-server'
+    );
+    vi.mocked(createAnonymousServerClient).mockReturnValue(
+      mockSupabase as unknown as ReturnType<typeof createAnonymousServerClient>
     );
 
     const request = new NextRequest(
