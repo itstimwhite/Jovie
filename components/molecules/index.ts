@@ -12,3 +12,4 @@ export * from './TipSelector';
 export * from './LoadingButton';
 export * from './QRCodeCard';
 export * from './FrostedContainer';
+export * from './ThemeToggle';

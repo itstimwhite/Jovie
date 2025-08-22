@@ -1,18 +1,41 @@
 'use client';
 
-import { useTheme } from 'next-themes';
 import React, { useEffect, useState } from 'react';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/Button';
+import { ThemeToggle as ImprovedThemeToggle } from '@/components/molecules/ThemeToggle';
+import { getFeatureFlags } from '@/lib/feature-flags';
 
+/**
+ * Site-wide theme toggle component that conditionally uses the enhanced
+ * version based on feature flags, with fallback to the original implementation.
+ */
 export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
+  const [useEnhanced, setUseEnhanced] = useState(false);
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
+    
+    // Check feature flag for enhanced theme toggle
+    getFeatureFlags().then((flags) => {
+      setUseEnhanced(flags.featureEnhancedThemeToggle);
+    });
   }, []);
 
-  // Don't render anything until mounted to prevent hydration mismatch
+  // Use enhanced version if feature flag is enabled
+  if (useEnhanced) {
+    return (
+      <ImprovedThemeToggle
+        variant="subtle"
+        size="sm"
+        className="h-8 w-8"
+      />
+    );
+  }
+
+  // Original implementation as fallback
   if (!mounted) {
     return (
       <Button variant="ghost" size="sm" className="h-8 w-8 px-0" disabled>
@@ -34,7 +57,6 @@ export function ThemeToggle() {
 
   const getThemeIcon = () => {
     if (theme === 'system') {
-      // System theme - show a computer/auto icon
       return (
         <svg
           className="h-5 w-5"
@@ -51,7 +73,6 @@ export function ThemeToggle() {
         </svg>
       );
     } else if (resolvedTheme === 'light') {
-      // Light theme - show moon (to switch to dark)
       return (
         <svg
           className="h-5 w-5"
@@ -68,7 +89,6 @@ export function ThemeToggle() {
         </svg>
       );
     } else {
-      // Dark theme - show sun (to switch to light)
       return (
         <svg
           className="h-5 w-5"

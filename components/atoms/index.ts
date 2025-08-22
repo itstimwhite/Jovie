@@ -20,3 +20,4 @@ export * from './AmountSelector';
 export * from './ArtistName';
 export * from './QRCode';
 export * from './BackgroundPattern';
+export * from './ThemeIcon';

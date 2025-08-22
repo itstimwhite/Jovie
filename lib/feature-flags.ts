@@ -7,6 +7,8 @@ export interface FeatureFlags {
   universalNotificationsEnabled: boolean;
   // Gate new anonymous click logging via SECURITY DEFINER RPC
   featureClickAnalyticsRpc: boolean;
+  // Enhanced dark mode toggle with Heroicons v2 and premium UX
+  featureEnhancedThemeToggle: boolean;
 }
 
 // Default feature flags (fallback)
@@ -19,6 +21,8 @@ const defaultFeatureFlags: FeatureFlags = {
   // Universal notifications only enabled in development for now
   universalNotificationsEnabled: process.env.NODE_ENV === 'development',
   featureClickAnalyticsRpc: false,
+  // Enhanced theme toggle starts as disabled, can be enabled via feature flags
+  featureEnhancedThemeToggle: false,
 };
 
 // Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
@@ -48,6 +52,7 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
         typeof data?.debugBannerEnabled !== 'undefined' ||
         typeof data?.tipPromoEnabled !== 'undefined' ||
         typeof data?.universalNotificationsEnabled !== 'undefined' ||
+        typeof data?.featureEnhancedThemeToggle !== 'undefined' ||
         hasRpcFlag
       ) {
         return {
@@ -76,6 +81,9 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
                     'feature_click_analytics_rpc'
                   ])
               : defaultFeatureFlags.featureClickAnalyticsRpc
+          ),
+          featureEnhancedThemeToggle: Boolean(
+            data.featureEnhancedThemeToggle ?? defaultFeatureFlags.featureEnhancedThemeToggle
           ),
         };
       }
@@ -123,6 +131,9 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
               ? rpcFlag
               : defaultFeatureFlags.featureClickAnalyticsRpc
           ),
+          featureEnhancedThemeToggle: Boolean(
+            data2.flags?.featureEnhancedThemeToggle?.default ?? defaultFeatureFlags.featureEnhancedThemeToggle
+          ),
         };
       }
     }
@@ -165,6 +176,7 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
         typeof data?.artistSearchEnabled !== 'undefined' ||
         typeof data?.debugBannerEnabled !== 'undefined' ||
         typeof data?.tipPromoEnabled !== 'undefined' ||
+        typeof data?.featureEnhancedThemeToggle !== 'undefined' ||
         hasRpcFlag
       ) {
         return {
@@ -193,6 +205,9 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
                     'feature_click_analytics_rpc'
                   ])
               : defaultFeatureFlags.featureClickAnalyticsRpc
+          ),
+          featureEnhancedThemeToggle: Boolean(
+            data.featureEnhancedThemeToggle ?? defaultFeatureFlags.featureEnhancedThemeToggle
           ),
         };
       }
@@ -235,6 +250,9 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
             typeof rpcFlag !== 'undefined'
               ? rpcFlag
               : defaultFeatureFlags.featureClickAnalyticsRpc
+          ),
+          featureEnhancedThemeToggle: Boolean(
+            data2.flags?.featureEnhancedThemeToggle?.default ?? defaultFeatureFlags.featureEnhancedThemeToggle
           ),
         };
       }
