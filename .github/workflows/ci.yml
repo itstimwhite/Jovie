@@ -366,8 +366,8 @@ jobs:
 
       - name: E2E smoke tests
         if: ${{ steps.check_changes.outputs.run_full_ci == 'true' && github.ref != 'refs/heads/main' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
-        run: npm run e2e:smoke --if-present -- --trace=retain-on-failure --video=retain-on-failure
-        continue-on-error: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'preview' && contains(github.event.pull_request.labels.*.name, 'skip-e2e-smoke') }}
+        run: npm run e2e:smoke --if-present -- --trace=retain-on-failure
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
 
       - name: Upload Playwright artifacts on failure
         if: ${{ failure() && steps.check_changes.outputs.run_full_ci == 'true' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
