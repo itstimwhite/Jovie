@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
   try {
     // Basic bot detection (less aggressive for this endpoint)
     const botResult = detectBot(request, '/api/wrap-link');
-    const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
     
     // Rate limiting
     const isRateLimited = await checkRateLimit(ip, '/api/wrap-link', 50, 60); // 50 requests per hour
