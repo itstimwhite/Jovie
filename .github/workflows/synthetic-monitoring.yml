@@ -118,34 +118,83 @@ jobs:
         if: steps.test-results.outputs.test_status != 'passed'
         uses: 8398a7/action-slack@v3
         with:
-          status: failure
+          status: custom
           channel: '#alerts-production'
           author_name: 'Synthetic Monitoring'
-          title: '🚨 Golden Path Test Failed'
-          text: |
-            *Environment:* ${{ matrix.environment }}
-            *URL:* ${{ env.BASE_URL }}
-            *Failed Tests:*
-            ```
-            ${{ steps.test-results.outputs.failed_tests }}
-            ```
-            *Action:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>
-          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          custom_payload: |
+            {
+              "text": "🚨 Golden Path Test Failed",
+              "attachments": [
+                {
+                  "color": "danger",
+                  "fields": [
+                    {
+                      "title": "Environment",
+                      "value": "${{ matrix.environment }}",
+                      "short": true
+                    },
+                    {
+                      "title": "URL",
+                      "value": "${{ env.BASE_URL }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Failed Tests",
+                      "value": "```\n${{ steps.test-results.outputs.failed_tests }}\n```",
+                      "short": false
+                    },
+                    {
+                      "title": "Action",
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>",
+                      "short": false
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           
       - name: Send Slack Success Notification (Daily Summary)
         if: steps.test-results.outputs.test_status == 'passed' && github.event.schedule == '0 21 * * *'
         uses: 8398a7/action-slack@v3
         with:
-          status: success
+          status: custom
           channel: '#monitoring'
           author_name: 'Synthetic Monitoring'
-          title: '✅ Daily Golden Path Health Check'
-          text: |
-            *Environment:* ${{ matrix.environment }}
-            *URL:* ${{ env.BASE_URL }}
-            *Status:* All critical user journeys passing
-            *Tests Passed:* ${{ steps.test-results.outputs.passed_tests }}/${{ steps.test-results.outputs.total_tests }}
-          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          custom_payload: |
+            {
+              "text": "✅ Daily Golden Path Health Check",
+              "attachments": [
+                {
+                  "color": "good",
+                  "fields": [
+                    {
+                      "title": "Environment",
+                      "value": "${{ matrix.environment }}",
+                      "short": true
+                    },
+                    {
+                      "title": "URL",
+                      "value": "${{ env.BASE_URL }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Status",
+                      "value": "All critical user journeys passing",
+                      "short": false
+                    },
+                    {
+                      "title": "Tests Passed",
+                      "value": "${{ steps.test-results.outputs.passed_tests }}/${{ steps.test-results.outputs.total_tests }}",
+                      "short": true
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   aggregate-results:
     name: Aggregate Results
@@ -167,15 +216,18 @@ jobs:
         if: env.OVERALL_STATUS == 'failed'
         uses: 8398a7/action-slack@v3
         with:
-          status: failure
+          status: custom
           channel: '#alerts-critical'
           author_name: 'Synthetic Monitoring'
-          title: '🔥 CRITICAL: Multiple Environment Failures'
-          text: |
-            Multiple environments are experiencing issues with the golden path user journey.
-            This indicates a potential service-wide problem.
-            
-            *Immediate Action Required*
-            
-            <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Full Results>
-          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          custom_payload: |
+            {
+              "text": "🔥 CRITICAL: Multiple Environment Failures",
+              "attachments": [
+                {
+                  "color": "danger",
+                  "text": "Multiple environments are experiencing issues with the golden path user journey.\nThis indicates a potential service-wide problem.\n\n*Immediate Action Required*\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Full Results>"
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
