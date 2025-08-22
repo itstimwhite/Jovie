@@ -1,5 +1,6 @@
 import { clerkMiddleware } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import { detectBot, createBotResponse } from '@/lib/utils/bot-detection';
 
 const EU_EEA_UK = [
   'AT',
@@ -39,6 +40,19 @@ const CA_PROVINCES = ['QC'];
 
 export default clerkMiddleware(async (auth, req) => {
   try {
+    // Conservative bot blocking - only on sensitive API endpoints
+    const pathname = req.nextUrl.pathname;
+    const isSensitiveAPI = pathname.startsWith('/api/link/');
+    
+    if (isSensitiveAPI) {
+      const botResult = detectBot(req, pathname);
+      
+      // Only block Meta crawlers on sensitive API endpoints to avoid anti-cloaking penalties
+      if (botResult.shouldBlock) {
+        return createBotResponse(204);
+      }
+    }
+
     const { userId } = await auth();
 
     // Safely access geo information
