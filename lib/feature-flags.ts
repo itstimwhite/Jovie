@@ -7,6 +7,8 @@ export interface FeatureFlags {
   universalNotificationsEnabled: boolean;
   // Gate new anonymous click logging via SECURITY DEFINER RPC
   featureClickAnalyticsRpc: boolean;
+  // Progressive onboarding with multi-step UX improvements
+  progressiveOnboardingEnabled: boolean;
 }
 
 // Default feature flags (fallback)
@@ -19,6 +21,8 @@ const defaultFeatureFlags: FeatureFlags = {
   // Universal notifications only enabled in development for now
   universalNotificationsEnabled: process.env.NODE_ENV === 'development',
   featureClickAnalyticsRpc: false,
+  // Progressive onboarding enabled by default for better UX
+  progressiveOnboardingEnabled: true,
 };
 
 // Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
@@ -48,6 +52,7 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
         typeof data?.debugBannerEnabled !== 'undefined' ||
         typeof data?.tipPromoEnabled !== 'undefined' ||
         typeof data?.universalNotificationsEnabled !== 'undefined' ||
+        typeof data?.progressiveOnboardingEnabled !== 'undefined' ||
         hasRpcFlag
       ) {
         return {
@@ -66,6 +71,10 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
           universalNotificationsEnabled: Boolean(
             data.universalNotificationsEnabled ??
               defaultFeatureFlags.universalNotificationsEnabled
+          ),
+          progressiveOnboardingEnabled: Boolean(
+            data.progressiveOnboardingEnabled ??
+              defaultFeatureFlags.progressiveOnboardingEnabled
           ),
           featureClickAnalyticsRpc: Boolean(
             hasRpcFlag
@@ -165,6 +174,7 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
         typeof data?.artistSearchEnabled !== 'undefined' ||
         typeof data?.debugBannerEnabled !== 'undefined' ||
         typeof data?.tipPromoEnabled !== 'undefined' ||
+        typeof data?.progressiveOnboardingEnabled !== 'undefined' ||
         hasRpcFlag
       ) {
         return {
@@ -183,6 +193,10 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
           universalNotificationsEnabled: Boolean(
             data.universalNotificationsEnabled ??
               defaultFeatureFlags.universalNotificationsEnabled
+          ),
+          progressiveOnboardingEnabled: Boolean(
+            data.progressiveOnboardingEnabled ??
+              defaultFeatureFlags.progressiveOnboardingEnabled
           ),
           featureClickAnalyticsRpc: Boolean(
             hasRpcFlag
@@ -230,6 +244,10 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
           universalNotificationsEnabled: Boolean(
             data.flags?.universalNotificationsEnabled?.default ??
               defaultFeatureFlags.universalNotificationsEnabled
+          ),
+          progressiveOnboardingEnabled: Boolean(
+            data.flags?.progressiveOnboardingEnabled?.default ??
+              defaultFeatureFlags.progressiveOnboardingEnabled
           ),
           featureClickAnalyticsRpc: Boolean(
             typeof rpcFlag !== 'undefined'

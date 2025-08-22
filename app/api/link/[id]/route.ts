@@ -27,7 +27,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   const shortId = params.id;
-  const ip = request.headers.get('x-forwarded-for') || 'unknown';
+  const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
 
   if (!shortId || shortId.length > 20) {
     return NextResponse.json({ error: 'Invalid link ID' }, { status: 400 });

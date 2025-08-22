@@ -771,85 +771,119 @@ ON CONFLICT (username_normalized) DO NOTHING;
 -- =====================================
 -- LINK WRAPPING & ANTI-CLOAKING SYSTEM
 -- =====================================
+-- This system provides secure link wrapping with anti-cloaking protection
+-- Includes: wrapped links, sensitive domains, signed access, rate limiting, bot detection
 
--- Create wrapped_links table for link management
+-- Link wrapping kind enum - categorizes link security levels
+CREATE TYPE link_kind AS ENUM ('normal', 'sensitive');
+
+-- Wrapped links table - stores shortened links with metadata
 CREATE TABLE wrapped_links (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  short_id VARCHAR(12) UNIQUE NOT NULL,
-  encrypted_url TEXT NOT NULL,
-  kind VARCHAR(20) NOT NULL DEFAULT 'normal' CHECK (kind IN ('normal', 'sensitive')),
-  domain VARCHAR(255) NOT NULL,
-  category VARCHAR(50),
-  title_alias VARCHAR(255), -- Generic title for crawlers
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  expires_at TIMESTAMPTZ, -- For temporary links
-  click_count INTEGER DEFAULT 0,
-  created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  short_id text UNIQUE NOT NULL, -- User-facing short identifier (e.g., 'abc123')
+  original_url text NOT NULL,
+  created_by text REFERENCES app_users(id) ON DELETE CASCADE, -- Optional: link creator
+  click_count integer DEFAULT 0,
+  kind link_kind DEFAULT 'normal',
+  
+  -- Security and access control
+  requires_verification boolean DEFAULT false,
+  
+  -- Metadata and categorization
+  platform text, -- 'social', 'dsp', 'external', etc.
+  domain_category text, -- Auto-categorized based on domain
+  custom_alias text, -- User-provided alias (optional)
+  
+  -- Expiration support
+  expires_at timestamptz DEFAULT NULL,
+  
+  -- Audit fields  
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
 );
 
--- Create indexes for wrapped_links
-CREATE INDEX wrapped_links_short_id_idx ON wrapped_links(short_id);
-CREATE INDEX wrapped_links_domain_idx ON wrapped_links(domain);
-CREATE INDEX wrapped_links_kind_idx ON wrapped_links(kind);
-CREATE INDEX wrapped_links_created_by_idx ON wrapped_links(created_by);
-
--- Create sensitive domain categories table
+-- Sensitive domains configuration - domains requiring extra protection
 CREATE TABLE sensitive_domains (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  domain VARCHAR(255) UNIQUE NOT NULL,
-  category VARCHAR(50) NOT NULL,
-  alias VARCHAR(100) NOT NULL, -- Generic alias for crawlers
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  domain text UNIQUE NOT NULL,
+  category text NOT NULL, -- 'social', 'financial', 'adult', etc.
+  requires_interstitial boolean DEFAULT true,
+  created_at timestamptz DEFAULT now()
 );
 
--- Create indexes for sensitive_domains
-CREATE INDEX sensitive_domains_domain_idx ON sensitive_domains(domain);
+-- Signed link access - one-time access tokens for sensitive links
+CREATE TABLE signed_link_access (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  token text UNIQUE NOT NULL,
+  wrapped_link_id uuid NOT NULL REFERENCES wrapped_links(id) ON DELETE CASCADE,
+  expires_at timestamptz NOT NULL,
+  used_at timestamptz DEFAULT NULL,
+  ip_address text,
+  user_agent text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Rate limiting for link wrapping APIs
+CREATE TABLE link_rate_limits (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  key text NOT NULL, -- IP address or user ID
+  endpoint text NOT NULL, -- API endpoint being rate limited
+  requests integer DEFAULT 1,
+  window_start timestamptz DEFAULT now(),
+  created_at timestamptz DEFAULT now(),
+  
+  UNIQUE(key, endpoint)
+);
+
+-- Bot detection log - tracks and analyzes bot traffic
+CREATE TABLE bot_detection_log (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  ip_address text NOT NULL,
+  user_agent text,
+  request_path text NOT NULL,
+  is_bot boolean NOT NULL,
+  bot_type text, -- 'social_crawler', 'search_engine', 'malicious', etc.
+  confidence_score decimal(3,2), -- 0.00 to 1.00
+  blocked boolean DEFAULT false,
+  headers jsonb, -- Store relevant headers for analysis
+  created_at timestamptz DEFAULT now()
+);
+
+-- =====================================
+-- LINK WRAPPING INDEXES
+-- =====================================
+
+-- Wrapped links indexes
+CREATE UNIQUE INDEX wrapped_links_short_id_idx ON wrapped_links(short_id);
+CREATE INDEX wrapped_links_created_by_idx ON wrapped_links(created_by);
+CREATE INDEX wrapped_links_platform_idx ON wrapped_links(platform);
+CREATE INDEX wrapped_links_kind_idx ON wrapped_links(kind);
+CREATE INDEX wrapped_links_expires_at_idx ON wrapped_links(expires_at) WHERE expires_at IS NOT NULL;
+CREATE INDEX wrapped_links_click_count_idx ON wrapped_links(click_count DESC);
+
+-- Sensitive domains indexes
+CREATE UNIQUE INDEX sensitive_domains_domain_idx ON sensitive_domains(domain);
 CREATE INDEX sensitive_domains_category_idx ON sensitive_domains(category);
 
--- Create signed URLs table for temporary access
-CREATE TABLE signed_link_access (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  link_id UUID NOT NULL REFERENCES wrapped_links(id) ON DELETE CASCADE,
-  signed_token VARCHAR(255) UNIQUE NOT NULL,
-  expires_at TIMESTAMPTZ NOT NULL,
-  used_at TIMESTAMPTZ,
-  ip_address INET,
-  user_agent TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+-- Signed access indexes
+CREATE UNIQUE INDEX signed_link_access_token_idx ON signed_link_access(token);
+CREATE INDEX signed_link_access_wrapped_link_id_idx ON signed_link_access(wrapped_link_id);
+CREATE INDEX signed_link_access_expires_at_idx ON signed_link_access(expires_at);
+CREATE INDEX signed_link_access_used_at_idx ON signed_link_access(used_at) WHERE used_at IS NOT NULL;
 
--- Create indexes for signed_link_access
-CREATE INDEX signed_link_access_token_idx ON signed_link_access(signed_token);
-CREATE INDEX signed_link_access_link_id_idx ON signed_link_access(link_id);
-CREATE INDEX signed_link_access_expires_idx ON signed_link_access(expires_at);
+-- Rate limiting indexes
+CREATE UNIQUE INDEX link_rate_limits_key_endpoint_idx ON link_rate_limits(key, endpoint);
+CREATE INDEX link_rate_limits_window_start_idx ON link_rate_limits(window_start);
 
--- Create rate limiting table
-CREATE TABLE link_rate_limits (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  ip_address INET NOT NULL,
-  endpoint VARCHAR(100) NOT NULL,
-  request_count INTEGER DEFAULT 1,
-  window_start TIMESTAMPTZ DEFAULT NOW(),
-  
-  UNIQUE(ip_address, endpoint, window_start)
-);
+-- Bot detection indexes
+CREATE INDEX bot_detection_log_ip_address_idx ON bot_detection_log(ip_address);
+CREATE INDEX bot_detection_log_is_bot_idx ON bot_detection_log(is_bot, created_at);
+CREATE INDEX bot_detection_log_blocked_idx ON bot_detection_log(blocked) WHERE blocked = true;
+CREATE INDEX bot_detection_log_created_at_idx ON bot_detection_log(created_at);
 
--- Create bot detection log table
-CREATE TABLE bot_detection_log (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  ip_address INET,
-  user_agent TEXT,
-  asn INTEGER,
-  blocked_reason VARCHAR(100),
-  endpoint VARCHAR(255),
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Create indexes for bot_detection_log
-CREATE INDEX bot_detection_log_ip_idx ON bot_detection_log(ip_address);
-CREATE INDEX bot_detection_log_asn_idx ON bot_detection_log(asn);
-CREATE INDEX bot_detection_log_created_idx ON bot_detection_log(created_at);
+-- =====================================
+-- LINK WRAPPING RLS POLICIES
+-- =====================================
 
 -- Enable RLS on link wrapping tables
 ALTER TABLE wrapped_links ENABLE ROW LEVEL SECURITY;
@@ -858,149 +892,138 @@ ALTER TABLE signed_link_access ENABLE ROW LEVEL SECURITY;
 ALTER TABLE link_rate_limits ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bot_detection_log ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies for wrapped_links
-CREATE POLICY "Users can read all wrapped links" ON wrapped_links
-  FOR SELECT USING (true);
+-- Wrapped links policies
+CREATE POLICY "wrapped_links_public_read" ON wrapped_links
+  FOR SELECT TO anon
+  USING (true); -- Public links are readable by anyone
 
-CREATE POLICY "Users can create wrapped links" ON wrapped_links
-  FOR INSERT WITH CHECK (auth.jwt()->>'sub' = created_by::text OR created_by IS NULL);
+CREATE POLICY "wrapped_links_authenticated_read" ON wrapped_links
+  FOR SELECT TO authenticated
+  USING (true);
 
-CREATE POLICY "Users can update their own wrapped links" ON wrapped_links
-  FOR UPDATE USING (auth.jwt()->>'sub' = created_by::text OR created_by IS NULL);
+CREATE POLICY "wrapped_links_owner_manage" ON wrapped_links
+  FOR ALL TO authenticated
+  USING (created_by = auth.jwt()->>'sub' OR created_by IS NULL)
+  WITH CHECK (created_by = auth.jwt()->>'sub' OR created_by IS NULL);
 
--- RLS Policies for sensitive_domains (read-only for most operations)
-CREATE POLICY "Anyone can read sensitive domains" ON sensitive_domains
-  FOR SELECT USING (true);
+-- Sensitive domains policies (admin-only)
+CREATE POLICY "sensitive_domains_public_read" ON sensitive_domains
+  FOR SELECT TO anon
+  USING (true);
 
--- RLS Policies for signed_link_access (service usage)
-CREATE POLICY "Service can manage signed access" ON signed_link_access
-  FOR ALL USING (true);
+CREATE POLICY "sensitive_domains_authenticated_read" ON sensitive_domains
+  FOR SELECT TO authenticated
+  USING (true);
 
--- RLS Policies for rate limiting (service usage)
-CREATE POLICY "Service can manage rate limits" ON link_rate_limits
-  FOR ALL USING (true);
+-- Signed access policies (system-managed)
+CREATE POLICY "signed_link_access_system_only" ON signed_link_access
+  FOR ALL TO authenticated
+  USING (false)
+  WITH CHECK (false);
 
--- RLS Policies for bot detection (service usage)
-CREATE POLICY "Service can log bot detection" ON bot_detection_log
-  FOR ALL USING (true);
+-- Rate limiting policies (system-managed)
+CREATE POLICY "link_rate_limits_system_only" ON link_rate_limits
+  FOR ALL TO anon
+  USING (true)
+  WITH CHECK (true);
 
--- Seed sensitive domains with generic aliases
-INSERT INTO sensitive_domains (domain, category, alias) VALUES
-  -- Adult Content
-  ('onlyfans.com', 'adult', 'Premium Content'),
-  ('fansly.com', 'adult', 'Exclusive Content'),
-  ('pornhub.com', 'adult', 'Adult Entertainment'),
-  ('xvideos.com', 'adult', 'Adult Entertainment'),
-  ('xhamster.com', 'adult', 'Adult Entertainment'),
-  ('redtube.com', 'adult', 'Adult Entertainment'),
-  ('chaturbate.com', 'adult', 'Live Streaming'),
-  ('cam4.com', 'adult', 'Live Streaming'),
-  ('stripchat.com', 'adult', 'Live Streaming'),
-  ('myfreecams.com', 'adult', 'Live Streaming'),
-  
-  -- Gambling
-  ('draftkings.com', 'gambling', 'Sports Entertainment'),
-  ('fanduel.com', 'gambling', 'Sports Entertainment'),
-  ('betmgm.com', 'gambling', 'Gaming Platform'),
-  ('caesars.com', 'gambling', 'Entertainment'),
-  ('bet365.com', 'gambling', 'Sports Platform'),
-  ('pokerstars.com', 'gambling', 'Card Games'),
-  ('888casino.com', 'gambling', 'Gaming Platform'),
-  ('bovada.lv', 'gambling', 'Sports Platform'),
-  
-  -- Crypto/Trading (high volatility)
-  ('coinbase.com', 'crypto', 'Digital Assets'),
-  ('binance.com', 'crypto', 'Trading Platform'),
-  ('crypto.com', 'crypto', 'Digital Finance'),
-  ('robinhood.com', 'trading', 'Investment Platform'),
-  ('webull.com', 'trading', 'Investment Platform'),
-  
-  -- Dating (can be sensitive)
-  ('tinder.com', 'dating', 'Social Platform'),
-  ('bumble.com', 'dating', 'Social Network'),
-  ('seeking.com', 'dating', 'Premium Dating'),
-  ('adultfriendfinder.com', 'dating', 'Social Platform'),
-  
-  -- Payday/High-Interest Lending
-  ('cashadvance.com', 'lending', 'Financial Services'),
-  ('paydayloan.com', 'lending', 'Financial Services'),
-  ('quickcash.com', 'lending', 'Financial Services');
+-- Bot detection policies (system logging)
+CREATE POLICY "bot_detection_log_system_only" ON bot_detection_log
+  FOR ALL TO anon
+  USING (true)
+  WITH CHECK (true);
 
--- Create function to generate short IDs
+-- =====================================
+-- LINK WRAPPING FUNCTIONS
+-- =====================================
+
+-- Generate short ID function for wrapped links
 CREATE OR REPLACE FUNCTION generate_short_id()
-RETURNS VARCHAR(12) AS $$
+RETURNS text
+LANGUAGE plpgsql
+AS $$
 DECLARE
-  chars TEXT := 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  short_id VARCHAR(12) := '';
-  i INTEGER;
+  chars text := 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  result text := '';
+  i integer;
+  char_pos integer;
 BEGIN
-  FOR i IN 1..12 LOOP
-    short_id := short_id || substr(chars, floor(random() * length(chars) + 1)::int, 1);
+  -- Generate 8-character random string
+  FOR i IN 1..8 LOOP
+    char_pos := floor(random() * length(chars) + 1)::integer;
+    result := result || substring(chars FROM char_pos FOR 1);
   END LOOP;
   
   -- Ensure uniqueness
-  WHILE EXISTS (SELECT 1 FROM wrapped_links WHERE wrapped_links.short_id = generate_short_id.short_id) LOOP
-    short_id := '';
-    FOR i IN 1..12 LOOP
-      short_id := short_id || substr(chars, floor(random() * length(chars) + 1)::int, 1);
+  WHILE EXISTS(SELECT 1 FROM wrapped_links WHERE short_id = result) LOOP
+    result := '';
+    FOR i IN 1..8 LOOP
+      char_pos := floor(random() * length(chars) + 1)::integer;
+      result := result || substring(chars FROM char_pos FOR 1);
     END LOOP;
   END LOOP;
   
-  RETURN short_id;
+  RETURN result;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
--- Create function to encrypt URLs (simplified - use proper encryption in production)
-CREATE OR REPLACE FUNCTION encrypt_url(url TEXT)
-RETURNS TEXT AS $$
-BEGIN
-  -- Simple base64 encoding for demo - use pgcrypto in production
-  RETURN encode(url::bytea, 'base64');
-END;
-$$ LANGUAGE plpgsql;
+-- URL encryption function (simple base64 for now)
+CREATE OR REPLACE FUNCTION encrypt_url(url text)
+RETURNS text
+LANGUAGE sql
+IMMUTABLE STRICT
+AS $$
+  SELECT encode(url::bytea, 'base64');
+$$;
 
--- Create function to decrypt URLs
-CREATE OR REPLACE FUNCTION decrypt_url(encrypted_url TEXT)
-RETURNS TEXT AS $$
-BEGIN
-  -- Simple base64 decoding for demo - use pgcrypto in production
-  RETURN convert_from(decode(encrypted_url, 'base64'), 'UTF8');
-END;
-$$ LANGUAGE plpgsql;
+-- URL decryption function
+CREATE OR REPLACE FUNCTION decrypt_url(encrypted_url text)
+RETURNS text
+LANGUAGE sql
+IMMUTABLE STRICT
+AS $$
+  SELECT convert_from(decode(encrypted_url, 'base64'), 'UTF8');
+$$;
 
--- Create function to categorize domain
-CREATE OR REPLACE FUNCTION categorize_domain(url TEXT)
-RETURNS TABLE(category VARCHAR(50), alias VARCHAR(100), kind VARCHAR(20)) AS $$
+-- Domain categorization function
+CREATE OR REPLACE FUNCTION categorize_domain(url text)
+RETURNS text
+LANGUAGE plpgsql
+IMMUTABLE STRICT
+AS $$
 DECLARE
-  domain_name TEXT;
-  sensitive_record RECORD;
+  domain text;
+  category text := 'external';
 BEGIN
   -- Extract domain from URL
-  domain_name := lower(regexp_replace(url, '^https?://(www\.)?([^/]+).*', '\2'));
+  domain := lower(regexp_replace(url, '^https?://(?:www\.)?([^/]+).*$', '\1'));
   
-  -- Check if domain is in sensitive list
-  SELECT sd.category, sd.alias INTO sensitive_record
-  FROM sensitive_domains sd
-  WHERE sd.domain = domain_name;
-  
-  IF FOUND THEN
-    RETURN QUERY SELECT sensitive_record.category, sensitive_record.alias, 'sensitive'::VARCHAR(20);
-  ELSE
-    RETURN QUERY SELECT NULL::VARCHAR(50), NULL::VARCHAR(100), 'normal'::VARCHAR(20);
+  -- Social media platforms
+  IF domain ~ '(instagram|facebook|twitter|x\.com|tiktok|snapchat|linkedin|discord|twitch)' THEN
+    category := 'social';
+  -- Music platforms
+  ELSIF domain ~ '(spotify|apple|music|youtube|soundcloud|bandcamp|tidal|deezer)' THEN
+    category := 'music';
+  -- Payment platforms
+  ELSIF domain ~ '(paypal|venmo|cashapp|stripe|ko-fi|buymeacoffee|patreon)' THEN
+    category := 'payment';
+  -- Adult content (basic detection)
+  ELSIF domain ~ '(onlyfans|pornhub|xvideos|adult)' THEN
+    category := 'adult';
   END IF;
+  
+  RETURN category;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
--- Create updated_at trigger for wrapped_links
-CREATE TRIGGER update_wrapped_links_updated_at
-  BEFORE UPDATE ON wrapped_links
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Create cleanup function for expired links
+-- Cleanup function for expired links and access tokens
 CREATE OR REPLACE FUNCTION cleanup_expired_links()
-RETURNS INTEGER AS $$
+RETURNS integer
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
 DECLARE
-  deleted_count INTEGER;
+  deleted_count integer;
 BEGIN
   DELETE FROM signed_link_access WHERE expires_at < NOW();
   GET DIAGNOSTICS deleted_count = ROW_COUNT;
