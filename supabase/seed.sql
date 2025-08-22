@@ -1,25 +1,21 @@
 -- Fixed seed data for Jovie MVP
 -- Matches the schema from 00000000000000_baseline.sql
 
--- App users - matches the baseline schema app_users
+-- Clear existing data to avoid duplicates
+DELETE FROM app_users WHERE id LIKE 'seed_user_%';
+
+-- App users - only add those NOT already in baseline migration
 INSERT INTO app_users (id, email) VALUES 
   ('seed_user_1', 'artist1@example.com'),
   ('seed_user_2', 'artist2@example.com'),
   ('seed_user_3', 'artist3@example.com'),
   ('seed_user_4', 'podcaster1@example.com'),
   ('seed_user_5', 'influencer1@example.com'),
-  ('seed_user_6', 'tim@example.com'),
-  ('seed_user_7', 'taylorswift@example.com'),
-  ('seed_user_8', 'oliviarodrigo@example.com'),
-  ('seed_user_9', 'sza@example.com'),
-  ('seed_user_10', 'theweeknd@example.com'),
-  ('seed_user_11', 'badbunny@example.com'),
-  ('seed_user_12', 'karolg@example.com'),
-  ('seed_user_13', 'newjeans@example.com'),
+  ('seed_user_6', 'newjeans2@example.com'), -- Changed to avoid conflict with tim@example.com
   ('seed_user_14', 'maneskin@example.com'),
-  ('seed_user_15', 'pinkpantheress@example.com'),
-  ('seed_user_16', 'lukecombs@example.com')
-ON CONFLICT (id) DO NOTHING;
+  ('seed_user_16', 'lukecombs@example.com');
+
+-- Note: seed_user_7-15 (except 14) are already seeded in the baseline migration
 
 -- Creator profiles - only using columns that exist in baseline schema
 INSERT INTO creator_profiles (
@@ -35,6 +31,7 @@ INSERT INTO creator_profiles (
   spotify_id, 
   is_public, 
   is_verified,
+  is_featured,
   theme,
   settings
 ) VALUES
@@ -51,6 +48,7 @@ INSERT INTO creator_profiles (
     'example123spotify',
     true,
     false,
+    false,
     null,
     '{"hide_branding": false}'
   ),
@@ -65,6 +63,7 @@ INSERT INTO creator_profiles (
     null,
     null,
     null,
+    false,
     false,
     false,
     null,
@@ -83,6 +82,7 @@ INSERT INTO creator_profiles (
     'popstar456',
     true,
     true,
+    true,
     null,
     '{"hide_branding": false}'
   ),
@@ -98,6 +98,7 @@ INSERT INTO creator_profiles (
     'https://youtube.com/@techtalks',
     null,
     true,
+    false,
     false,
     null,
     '{"hide_branding": false}'
@@ -115,6 +116,7 @@ INSERT INTO creator_profiles (
     null,
     true,
     true,
+    false,
     null,
     '{"hide_branding": false}'
   ),
@@ -131,118 +133,7 @@ INSERT INTO creator_profiles (
     null,
     true,
     false,
-    null,
-    '{"hide_branding": false}'
-  ),
-  (
-    'seed_user_7', 
-    'artist', 
-    'taylorswift', 
-    'Taylor Swift', 
-    'Singer-songwriter with multiple Grammy Awards. Known for storytelling through music across country, pop, and folk genres.', 
-    'https://i.scdn.co/image/ab6761610000e5eb859e4fdcae060b15797769b3',
-    'https://open.spotify.com/artist/06HL4z0CvFAxyc27GXpf02',
-    'https://music.apple.com/us/artist/taylor-swift/159260351',
-    'https://youtube.com/@TaylorSwift',
-    '06HL4z0CvFAxyc27GXpf02',
-    true,
-    true,
-    null,
-    '{"hide_branding": false}'
-  ),
-  (
-    'seed_user_8', 
-    'artist', 
-    'oliviarodrigo', 
-    'Olivia Rodrigo', 
-    'Singer-songwriter and actress. Grammy winner known for "drivers license" and albums "SOUR" and "GUTS".', 
-    'https://i.scdn.co/image/ab6761610000e5ebe03a98785f3658f0b6461ec4',
-    'https://open.spotify.com/artist/1McMsnEElThX1knmY9oliG',
-    'https://music.apple.com/us/artist/olivia-rodrigo/1440623969',
-    'https://youtube.com/@OliviaRodrigo',
-    '1McMsnEElThX1knmY9oliG',
-    true,
-    true,
-    null,
-    '{"hide_branding": false}'
-  ),
-  (
-    'seed_user_9', 
-    'artist', 
-    'sza', 
-    'SZA', 
-    'R&B singer-songwriter known for introspective lyrics and smooth vocals. Grammy-nominated artist with albums "Ctrl" and "SOS".', 
-    'https://i.scdn.co/image/ab6761610000e5eb0895066d172e1f51f520bc65',
-    'https://open.spotify.com/artist/7tYKF4w9nC0nq9CsPZTHyP',
-    'https://music.apple.com/us/artist/sza/1050239550',
-    'https://youtube.com/@sza',
-    '7tYKF4w9nC0nq9CsPZTHyP',
-    true,
-    true,
-    null,
-    '{"hide_branding": false}'
-  ),
-  (
-    'seed_user_10', 
-    'artist', 
-    'theweeknd', 
-    'The Weeknd', 
-    'Multi-platinum recording artist known for hits like "Blinding Lights" and "Can''t Feel My Face". Three-time Grammy winner.', 
-    'https://i.scdn.co/image/ab6761610000e5eb214f3cf1cbe7139c1e26ffbb',
-    'https://open.spotify.com/artist/1Xyo4u8uXC1ZmMpatF05PJ',
-    'https://music.apple.com/us/artist/the-weeknd/479756766',
-    'https://youtube.com/@theweeknd',
-    '1Xyo4u8uXC1ZmMpatF05PJ',
-    true,
-    true,
-    null,
-    '{"hide_branding": false}'
-  ),
-  (
-    'seed_user_11', 
-    'artist', 
-    'badbunny', 
-    'Bad Bunny', 
-    'Puerto Rican reggaeton and Latin trap artist. Global superstar known for "Un Verano Sin Ti" and collaborations worldwide.', 
-    'https://i.scdn.co/image/ab6761610000e5eb4c1d23de5dd3c7ed3e10b7e1',
-    'https://open.spotify.com/artist/4q3ewBCX7sLwd24euuV69X',
-    'https://music.apple.com/us/artist/bad-bunny/1126808565',
-    'https://youtube.com/@badbunnypr',
-    '4q3ewBCX7sLwd24euuV69X',
-    true,
-    true,
-    null,
-    '{"hide_branding": false}'
-  ),
-  (
-    'seed_user_12', 
-    'artist', 
-    'karolg', 
-    'KAROL G', 
-    'Colombian reggaeton artist and Latin Grammy winner. Known for empowering anthems and hits like "Tusa" and "Provenza".', 
-    'https://i.scdn.co/image/ab6761610000e5ebec0a39e27f8a8b96e7d3d9d5',
-    'https://open.spotify.com/artist/790FomKkXshlbRYZFtlgla',
-    'https://music.apple.com/us/artist/karol-g/1133792108',
-    'https://youtube.com/@KarolG',
-    '790FomKkXshlbRYZFtlgla',
-    true,
-    true,
-    null,
-    '{"hide_branding": false}'
-  ),
-  (
-    'seed_user_13', 
-    'artist', 
-    'newjeans', 
-    'NewJeans', 
-    'K-pop girl group known for their Y2K-inspired sound and visuals. Members: Minji, Hanni, Danielle, Haerin, and Hyein.', 
-    'https://i.scdn.co/image/ab6761610000e5ebdbc0ffede80a6a0eebdb6b3d',
-    'https://open.spotify.com/artist/6HvZYsbFfjnjFrWF950C9d',
-    'https://music.apple.com/us/artist/newjeans/1640048757',
-    'https://youtube.com/@NewJeans_official',
-    '6HvZYsbFfjnjFrWF950C9d',
-    true,
-    true,
+    false,
     null,
     '{"hide_branding": false}'
   ),
@@ -259,22 +150,7 @@ INSERT INTO creator_profiles (
     '3qM84nBOXUEQ2vnTfUTTFC',
     true,
     true,
-    null,
-    '{"hide_branding": false}'
-  ),
-  (
-    'seed_user_15', 
-    'artist', 
-    'pinkpantheress', 
-    'PinkPantheress', 
-    'British singer-songwriter blending Y2K nostalgia with modern production. Known for viral hits and dreamy, nostalgic soundscapes.', 
-    'https://i.scdn.co/image/ab6761610000e5ebb71c0986c96e3f4eca3f16e4',
-    'https://open.spotify.com/artist/9nqJZe8XLi6mHyQhEWCRH0',
-    'https://music.apple.com/us/artist/pinkpantheress/1560624444',
-    'https://youtube.com/@PinkPantheress',
-    '9nqJZe8XLi6mHyQhEWCRH0',
-    true,
-    true,
+    false,
     null,
     '{"hide_branding": false}'
   ),
@@ -291,7 +167,8 @@ INSERT INTO creator_profiles (
     '718COspgdWOnwOFpJHRZHS',
     true,
     true,
+    false,
     null,
     '{"hide_branding": false}'
   )
-ON CONFLICT (username) DO NOTHING;
+ON CONFLICT (username_normalized) DO NOTHING;
