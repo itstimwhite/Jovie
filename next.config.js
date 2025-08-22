@@ -74,8 +74,30 @@ const nextConfig = {
       },
     ];
     return [
+      // Static assets with long-term caching
       {
-        // Ensure internal flags endpoint is never cached
+        source: '/(.*)\\.(js|css|woff|woff2|ttf|otf)',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable', // 1 year, immutable
+          },
+        ],
+      },
+      // Images with long-term caching
+      {
+        source: '/(.*)\\.(png|jpg|jpeg|gif|ico|svg|webp|avif)',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable', // 1 year, immutable
+          },
+        ],
+      },
+      // Ensure internal flags endpoint is never cached
+      {
         source: '/api/feature-flags',
         headers: [
           ...securityHeaders,
@@ -85,24 +107,49 @@ const nextConfig = {
           },
         ],
       },
+      // Health check endpoint with short cache
       {
-        source: '/api/(.*)',
+        source: '/api/health',
         headers: [
           ...securityHeaders,
           {
             key: 'Cache-Control',
-            value: 'public, max-age=300, s-maxage=300', // 5 minutes
+            value: 'public, max-age=60', // 1 minute
           },
         ],
       },
+      // Profile API endpoints with moderate caching
       {
-        // Exclude Vercel Flags discovery endpoint from global cache headers
+        source: '/api/profiles/:path*',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value:
+              'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400', // 5 min client, 1 hour CDN, 1 day stale
+          },
+        ],
+      },
+      // Other API endpoints with standard caching
+      {
+        source: '/api/((?!feature-flags|health|profiles).*)',
+        headers: [
+          ...securityHeaders,
+          {
+            key: 'Cache-Control',
+            value:
+              'public, max-age=300, s-maxage=300, stale-while-revalidate=3600', // 5 minutes, 1 hour stale
+          },
+        ],
+      },
+      // Exclude Vercel Flags discovery endpoint from global cache headers
+      {
         source: '/((?!\.well-known/vercel/flags).*)',
         headers: [
           ...securityHeaders,
           {
             key: 'Cache-Control',
-            value: 'public, max-age=0, must-revalidate',
+            value: 'public, max-age=0, s-maxage=60, stale-while-revalidate=300', // No client cache, 1 min CDN, 5 min stale
           },
         ],
       },

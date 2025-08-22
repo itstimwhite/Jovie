@@ -12,6 +12,9 @@ import {
 } from '@/types/db';
 import { PAGE_SUBTITLES } from '@/constants/app';
 import { env } from '@/lib/env';
+import { getPopularProfiles } from '@/lib/profiles/popular';
+import { cache as redisCache } from '@/lib/cache';
+import { CacheMonitoring } from '@/lib/monitoring/cache';
 
 // Create an anonymous Supabase client for public data
 function createAnonSupabase() {
@@ -32,8 +35,42 @@ function createAnonSupabase() {
 // Cache the database query to prevent duplicate calls during page + metadata generation
 const getCreatorProfile = cache(
   async (username: string): Promise<CreatorProfile | null> => {
+    // Try to get from Redis cache first
+    if (redisCache.isEnabled()) {
+      const cachedProfile = await redisCache.profile.get(username);
+      if (cachedProfile) {
+        // Track cache hit for monitoring
+        await CacheMonitoring.trackCacheHit('redis', `profile:${username}`);
+        return cachedProfile;
+      }
+      // Track cache miss for monitoring
+      await CacheMonitoring.trackCacheMiss('redis', `profile:${username}`);
+    }
+
+    // If not in cache or cache is disabled, fetch from database
     const supabase = createAnonSupabase();
 
+    // Try to use the materialized view for better performance
+    try {
+      const { data, error } = await supabase
+        .from('profile_summary')
+        .select('*')
+        .eq('username', username.toLowerCase())
+        .single();
+
+      if (!error && data) {
+        // Cache the result in Redis if enabled
+        if (redisCache.isEnabled()) {
+          await redisCache.profile.set(username, data);
+        }
+        return data as CreatorProfile;
+      }
+    } catch (e) {
+      // Fallback to regular table if materialized view query fails
+      console.error('Error querying profile_summary view:', e);
+    }
+
+    // Fallback to regular table query
     const { data, error } = await supabase
       .from('creator_profiles')
       .select(
@@ -49,19 +86,64 @@ const getCreatorProfile = cache(
 
     // Add default values for fields that might not exist in the database yet
     const d = data as Partial<CreatorProfile>;
-    return {
+    const profile = {
       ...data,
       is_featured: d.is_featured ?? false,
       marketing_opt_out: d.marketing_opt_out ?? false,
     } as CreatorProfile;
+
+    // Cache the result in Redis if enabled
+    if (redisCache.isEnabled()) {
+      await redisCache.profile.set(username, profile);
+    }
+
+    return profile;
   }
 );
 
 // Cache function for social links - could be from database in future
 const getSocialLinks = cache(
   async (profile: CreatorProfile): Promise<LegacySocialLink[]> => {
-    // For now, return hardcoded links but this could be a parallel DB query
-    // TODO: Replace with actual social_links table query when available
+    // Try to get from Redis cache first
+    if (redisCache.isEnabled()) {
+      const cachedLinks = await redisCache.socialLinks.get(profile.id);
+      if (cachedLinks) {
+        // Track cache hit for monitoring
+        await CacheMonitoring.trackCacheHit(
+          'redis',
+          `social_links:${profile.id}`
+        );
+        return cachedLinks;
+      }
+      // Track cache miss for monitoring
+      await CacheMonitoring.trackCacheMiss(
+        'redis',
+        `social_links:${profile.id}`
+      );
+    }
+
+    // If not in cache or cache is disabled, fetch from database
+    const supabase = createAnonSupabase();
+
+    try {
+      // Try to fetch from the database first
+      const { data, error } = await supabase
+        .from('social_links')
+        .select('*')
+        .eq('creator_profile_id', profile.id);
+
+      if (!error && data && data.length > 0) {
+        // Cache the result in Redis if enabled
+        if (redisCache.isEnabled()) {
+          await redisCache.socialLinks.set(profile.id, data);
+        }
+        return data;
+      }
+    } catch (e) {
+      console.error('Error fetching social links:', e);
+    }
+
+    // Fallback to hardcoded links if database query fails or returns no results
     const socialLinks: LegacySocialLink[] =
       profile.username === 'ladygaga'
         ? [
@@ -94,6 +176,11 @@ const getSocialLinks = cache(
               },
             ]
           : [];
+
+    // Cache the hardcoded links in Redis if enabled
+    if (redisCache.isEnabled()) {
+      await redisCache.socialLinks.set(profile.id, socialLinks);
+    }
 
     return socialLinks;
   }
@@ -206,11 +293,17 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-// Note: generateStaticParams removed to allow edge runtime
-// Edge runtime provides better performance for dynamic profile pages
+// Pre-generate popular profiles at build time
+export async function generateStaticParams() {
+  return await getPopularProfiles();
+}
 
-// Enable ISR with 30 minute revalidation for fresher content
+// Enable ISR with 30 minute revalidation for app-level caching
 export const revalidate = 1800;
 
-// Temporarily disable edge runtime for debugging
-// export const runtime = 'edge';
+// Enable edge runtime for better performance
+export const runtime = 'edge';
+
+// Set shorter edge cache TTL (5 minutes) for fresher content at the edge
+// This works with the Cache-Control headers in next.config.js
+export const fetchCache = 'force-cache';
