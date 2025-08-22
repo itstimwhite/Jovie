@@ -426,6 +426,7 @@ export function OnboardingForm() {
               autoCorrect="off"
               autoComplete="off"
               inputMode="text"
+              data-test="username-input"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
               {handleValidation.checking && showLoader && (
@@ -468,6 +469,7 @@ export function OnboardingForm() {
           variant="primary"
           className="w-full"
           aria-describedby="form-status"
+          data-test="claim-btn"
         >
           {state.step === 'validating' && !state.isSubmitting ? (
             'Create Profile'

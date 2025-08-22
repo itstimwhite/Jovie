@@ -6,6 +6,7 @@
 import 'server-only';
 import {
   createAuthenticatedClient,
+  createAnonymousClient,
   queryWithRetry,
 } from '@/lib/supabase/client';
 import { validateUsername, normalizeUsername } from '@/lib/validation/username';
@@ -39,16 +40,18 @@ export async function checkUsernameAvailability(
     // Normalize username for consistent checking
     const normalizedUsername = normalizeUsername(username);
 
-    // Create authenticated client
-    const supabase = await createAuthenticatedClient();
+    // Use anonymous client for username checking - this is public data
+    // and doesn't require authentication, works with RLS policies
+    const supabase = createAnonymousClient();
 
     // Query only for existence - don't return any profile data
+    // Use case-insensitive lookup to match the unique constraint
     const { data, error } = await queryWithRetry(
       async () =>
         await supabase
           .from('creator_profiles')
           .select('username') // Only select username to minimize data exposure
-          .eq('username', normalizedUsername)
+          .eq('username', normalizedUsername) // Use normalized (lowercase) username
           .limit(1)
           .maybeSingle()
     );
@@ -86,6 +89,7 @@ export async function checkUsernameAvailability(
  */
 export async function checkUserHasProfile(userId: string): Promise<boolean> {
   try {
+    // Try authenticated client first
     const supabase = await createAuthenticatedClient();
 
     const { data, error } = await queryWithRetry(
@@ -100,6 +104,16 @@ export async function checkUserHasProfile(userId: string): Promise<boolean> {
 
     if (error) {
       console.error('Error checking user profile:', error);
+      // If JWT signature error, fall back to assuming no profile exists
+      if (error && typeof error === 'object' && 'message' in error) {
+        const errorMessage = error.message as string;
+        if (errorMessage.includes('JWSInvalidSignature')) {
+          console.warn(
+            'JWT signature invalid - assuming no profile exists to allow creation'
+          );
+          return false;
+        }
+      }
       return false; // Assume no profile on error to allow creation attempt
     }
 

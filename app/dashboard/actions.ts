@@ -33,27 +33,12 @@ export async function getDashboardData(): Promise<DashboardData> {
   }
 
   try {
-    // Parallelize user and creator profile queries
-    const [userResult, creatorResult] = await Promise.all([
-      // Check if user exists in app_users table
-      supabase.from('app_users').select('id').eq('id', userId).maybeSingle(),
-      // Get creator profiles (will fail gracefully if user doesn't exist)
-      supabase
-        .from('creator_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: true }),
-    ]);
-
-    const { data: userData, error: userError } = userResult;
-    const { data: creatorData, error: creatorError } = creatorResult;
-
-    // Debug logging
-    console.log('Dashboard debug - userId:', userId);
-    console.log('Dashboard debug - userData:', userData);
-    console.log('Dashboard debug - userError:', userError);
-    console.log('Dashboard debug - creatorData:', creatorData);
-    console.log('Dashboard debug - creatorError:', creatorError);
+    // First check if user exists in app_users table
+    const { data: userData, error: userError } = await supabase
+      .from('app_users')
+      .select('id')
+      .eq('id', userId)
+      .maybeSingle();
 
     if (userError) {
       // If it's a permission error, the user likely needs to be created
@@ -78,8 +63,15 @@ export async function getDashboardData(): Promise<DashboardData> {
       };
     }
 
-    // Handle creator profile query errors
+    // Now that we know user exists, get creator profiles
+    const { data: creatorData, error: creatorError } = await supabase
+      .from('creator_profiles')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true });
+
     if (creatorError) {
+      console.error('Error fetching creator profiles:', creatorError);
       // If it's a permission error, treat as no profiles
       if (creatorError.code === 'PGRST301' || creatorError.code === '42501') {
         return {

@@ -109,8 +109,9 @@ interface Props {
 }
 
 export default async function ArtistPage({ params, searchParams }: Props) {
-  const { username } = params;
-  const { mode = 'profile' } = searchParams || {};
+  const { username } = await params;
+  const resolvedSearchParams = await searchParams;
+  const { mode = 'profile' } = resolvedSearchParams || {};
 
   // Parallel data fetching - profile first, then social links
   const profile = await getCreatorProfile(username);
@@ -163,7 +164,7 @@ export default async function ArtistPage({ params, searchParams }: Props) {
 
 // Generate metadata for the page
 export async function generateMetadata({ params }: Props) {
-  const { username } = params;
+  const { username } = await params;
   const profile = await getCreatorProfile(username);
 
   if (!profile) {
