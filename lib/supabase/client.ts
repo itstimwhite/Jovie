@@ -12,7 +12,13 @@ import { cache } from 'react';
  * Get Supabase configuration with runtime validation
  * This is called at runtime instead of module load time to avoid build issues
  */
+ */
+let cachedSupabaseConfig: { supabaseUrl: string; supabaseAnonKey: string } | null = null;
+
 function getSupabaseConfig() {
+  if (cachedSupabaseConfig) {
+    return cachedSupabaseConfig;
+  }
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey =
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
