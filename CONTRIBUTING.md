@@ -248,6 +248,13 @@ docs: update Clerk-Supabase integration guide
 4. **Run all tests** and ensure they pass
 5. **Update documentation** if needed
 
+### PR Labels
+
+- **`full-ci`**: Add this label to run the full CI suite (including tests and build)
+- **`ci:skip`**: Add this label to skip non-policy CI checks (useful for documentation-only changes or when CI is not needed)
+  - Note: Policy checks (`pr-policy` and `up-to-date-with-preview`) will still run even with this label
+  - This is useful for minor changes, documentation updates, or emergency fixes where CI is not necessary
+
 ### PR Description
 
 Include:

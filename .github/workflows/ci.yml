@@ -62,7 +62,8 @@ jobs:
 
   ci-fast:
     # Draft PRs skip; ready PRs + pushes run fast checks
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
+    # Skip if ci:skip label is present on PR
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.draft == false) && (github.event_name != 'pull_request' || !contains(github.event.pull_request.labels.*.name, 'ci:skip')) }}
     runs-on: ubuntu-latest
     steps:
       - uses: fkirc/skip-duplicate-actions@v5
@@ -85,7 +86,7 @@ jobs:
   ci-full:
     name: Full CI (label or push)
     needs: [ci-fast]
-    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'full-ci')) }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'full-ci') && !contains(github.event.pull_request.labels.*.name, 'ci:skip')) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
