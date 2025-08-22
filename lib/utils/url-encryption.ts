@@ -5,7 +5,8 @@
 
 import crypto from 'crypto';
 
-const ENCRYPTION_KEY = process.env.URL_ENCRYPTION_KEY || 'default-key-change-in-production-32-chars';
+const ENCRYPTION_KEY =
+  process.env.URL_ENCRYPTION_KEY || 'default-key-change-in-production-32-chars';
 const ALGORITHM = 'aes-256-gcm';
 
 export interface EncryptionResult {
@@ -21,10 +22,10 @@ export function encryptUrl(url: string): EncryptionResult {
   try {
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipher(ALGORITHM, ENCRYPTION_KEY);
-    
+
     let encrypted = cipher.update(url, 'utf8', 'hex');
     encrypted += cipher.final('hex');
-    
+
     // For GCM mode, we'd get authTag, but using simpler approach for demo
     return {
       encrypted,
@@ -51,12 +52,12 @@ export function decryptUrl(encryptionResult: EncryptionResult): string {
       // Fallback for base64 encoded URLs
       return Buffer.from(encryptionResult.encrypted, 'base64').toString('utf8');
     }
-    
+
     const decipher = crypto.createDecipher(ALGORITHM, ENCRYPTION_KEY);
-    
+
     let decrypted = decipher.update(encryptionResult.encrypted, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
-    
+
     return decrypted;
   } catch (error) {
     console.error('URL decryption failed:', error);
@@ -82,13 +83,14 @@ export function simpleDecryptUrl(encrypted: string): string {
  * Generates a secure random short ID
  */
 export function generateShortId(length: number = 12): string {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const chars =
+    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let result = '';
-  
+
   for (let i = 0; i < length; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  
+
   return result;
 }
 
@@ -135,7 +137,7 @@ export function sanitizeUrlForLogging(url: string): string {
     urlObj.searchParams.delete('auth');
     urlObj.searchParams.delete('password');
     urlObj.searchParams.delete('secret');
-    
+
     return urlObj.toString();
   } catch {
     return '[Invalid URL]';

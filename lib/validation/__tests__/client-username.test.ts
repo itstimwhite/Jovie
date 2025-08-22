@@ -1,7 +1,7 @@
-import { 
-  validateUsernameFormat, 
-  generateUsernameSuggestions, 
-  debounce 
+import {
+  validateUsernameFormat,
+  generateUsernameSuggestions,
+  debounce,
 } from '../client-username';
 
 describe('validateUsernameFormat', () => {
@@ -10,12 +10,12 @@ describe('validateUsernameFormat', () => {
       valid: true,
       error: null,
     });
-    
+
     expect(validateUsernameFormat('artist123')).toEqual({
       valid: true,
       error: null,
     });
-    
+
     expect(validateUsernameFormat('valid-username-123')).toEqual({
       valid: true,
       error: null,
@@ -42,12 +42,12 @@ describe('validateUsernameFormat', () => {
       valid: false,
       error: 'Handle can only contain letters, numbers, and hyphens',
     });
-    
+
     expect(validateUsernameFormat('user@name')).toEqual({
       valid: false,
       error: 'Handle can only contain letters, numbers, and hyphens',
     });
-    
+
     expect(validateUsernameFormat('user name')).toEqual({
       valid: false,
       error: 'Handle can only contain letters, numbers, and hyphens',
@@ -59,7 +59,7 @@ describe('validateUsernameFormat', () => {
       valid: false,
       error: 'Handle cannot start or end with a hyphen',
     });
-    
+
     expect(validateUsernameFormat('username-')).toEqual({
       valid: false,
       error: 'Handle cannot start or end with a hyphen',
@@ -79,7 +79,7 @@ describe('validateUsernameFormat', () => {
       error: 'This handle is reserved and cannot be used',
       suggestion: 'admin-artist',
     });
-    
+
     expect(validateUsernameFormat('api')).toEqual({
       valid: false,
       error: 'This handle is reserved and cannot be used',
@@ -119,7 +119,7 @@ describe('generateUsernameSuggestions', () => {
 
   it('should filter out invalid suggestions', () => {
     const suggestions = generateUsernameSuggestions('a'); // Too short base
-    suggestions.forEach(suggestion => {
+    suggestions.forEach((suggestion) => {
       expect(validateUsernameFormat(suggestion).valid).toBe(true);
     });
   });
@@ -156,9 +156,9 @@ describe('debounce', () => {
 
     debouncedFn('arg1');
     debouncedFn('arg2');
-    
+
     jest.advanceTimersByTime(100);
-    
+
     expect(mockFn).toHaveBeenCalledTimes(1);
     expect(mockFn).toHaveBeenCalledWith('arg2');
   });
