@@ -1,9 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+
+// Define metric shape
+interface PerformanceMetric {
+  name: string;
+  value: number;
+  rating: 'good' | 'needs-improvement' | 'poor';
+  timestamp: number;
+}
 
 // Define the response shape
 interface PerformanceResponse {
-  metrics?: Record<string, any>[];
+  metrics?: PerformanceMetric[];
   error?: string;
 }
 
@@ -11,9 +19,7 @@ interface PerformanceResponse {
  * GET handler for performance metrics API
  * This endpoint is protected and only accessible to authenticated users
  */
-export async function GET(
-  req: NextRequest
-): Promise<NextResponse<PerformanceResponse>> {
+export async function GET(): Promise<NextResponse<PerformanceResponse>> {
   try {
     // Check authentication
     const { userId } = await auth();

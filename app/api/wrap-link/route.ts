@@ -19,7 +19,7 @@ interface RequestBody {
 export async function POST(request: NextRequest) {
   try {
     // Basic bot detection (less aggressive for this endpoint)
-    const botResult = detectBot(request, '/api/wrap-link');
+    const _botResult = detectBot(request, '/api/wrap-link'); // eslint-disable-line @typescript-eslint/no-unused-vars
     const ip =
       request.ip || request.headers.get('x-forwarded-for') || 'unknown';
 
@@ -40,7 +40,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 
-    const { url, platform = 'external', customAlias, expiresInHours } = body;
+    const { url, customAlias, expiresInHours } = body;
+    const _platform = body.platform || 'external'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
     // Validate URL
     if (!url || !isValidUrl(url)) {
