@@ -170,6 +170,13 @@ export const AllAccents: Story = {
       />
     </div>
   ),
+  parameters: {
+    // Add Chromatic parameters for responsive grid testing
+    chromatic: {
+      // Capture at multiple viewports to test responsive grid layout
+      viewports: [320, 640, 768, 1024, 1280],
+    },
+  },
 };
 
 export const InBenefitsSection: Story = {
@@ -206,4 +213,11 @@ export const InBenefitsSection: Story = {
       </div>
     </div>
   ),
+  parameters: {
+    // Add Chromatic parameters for responsive grid testing
+    chromatic: {
+      // Capture at multiple viewports to test responsive grid layout
+      viewports: [320, 640, 768, 1024, 1280],
+    },
+  },
 };

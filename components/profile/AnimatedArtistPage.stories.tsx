@@ -242,4 +242,14 @@ export const InteractiveDemo: Story = {
       </div>
     );
   },
+  parameters: {
+    // Add delay for state transitions and animations
+    chromatic: {
+      delay: 1000,
+      // Capture at multiple viewports for responsive testing
+      viewports: [320, 768, 1024, 1440],
+      // Increase diff threshold for animations
+      diffThreshold: 0.3,
+    },
+  },
 };

@@ -6,6 +6,11 @@ const meta: Meta<typeof BackgroundPattern> = {
   component: BackgroundPattern,
   parameters: {
     layout: 'fullscreen',
+    // Add Chromatic parameters for all BackgroundPattern stories
+    chromatic: {
+      // Capture at multiple viewports for responsive testing
+      viewports: [320, 768, 1024, 1440],
+    },
   },
   tags: ['autodocs'],
   argTypes: {

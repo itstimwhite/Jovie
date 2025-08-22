@@ -12,6 +12,15 @@ const preview: Preview = {
     docs: {
       toc: true,
     },
+    // Default Chromatic parameters
+    chromatic: {
+      // Default delay for all stories (milliseconds)
+      delay: 300,
+      // Default viewports for all stories
+      viewports: [320, 768, 1200],
+      // Only capture screenshots when stories change
+      onlyChanged: true,
+    },
   },
   tags: ['autodocs'],
 };

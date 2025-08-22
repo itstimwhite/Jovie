@@ -111,6 +111,14 @@ export const LoadingDemo: Story = {
       />
     );
   },
+  parameters: {
+    // Add longer delay for this async component
+    chromatic: {
+      delay: 3500,
+      // Capture specific states for this component
+      diffThreshold: 0.2,
+    },
+  },
 };
 
 export const InteractiveDemo: Story = {
@@ -136,6 +144,14 @@ export const InteractiveDemo: Story = {
         onVenmoPayment={handleVenmoPayment}
       />
     );
+  },
+  parameters: {
+    // Add delay for this async component
+    chromatic: {
+      delay: 1500,
+      // Capture specific states for this component
+      diffThreshold: 0.2,
+    },
   },
 };
 
