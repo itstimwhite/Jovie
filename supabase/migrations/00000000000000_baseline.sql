@@ -1032,7 +1032,7 @@ BEGIN
   
   RETURN deleted_count;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- Grant permissions for link wrapping tables
 GRANT ALL ON wrapped_links TO authenticated;
