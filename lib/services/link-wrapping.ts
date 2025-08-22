@@ -3,7 +3,7 @@
  * Handles creation and management of wrapped links
  */
 
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createPublicSupabaseClient } from '@/lib/supabase/server';
 import {
   categorizeDomain,
   getCrawlerSafeLabel,
@@ -59,7 +59,7 @@ export async function createWrappedLink(
   const category = await categorizeDomain(url);
 
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
 
     // Generate unique short ID
     let shortId = customAlias || generateShortId();
@@ -137,7 +137,7 @@ export async function getWrappedLink(
   shortId: string
 ): Promise<WrappedLink | null> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
 
     const { data, error } = await supabase
       .from('wrapped_links')
@@ -180,7 +180,7 @@ export async function getWrappedLink(
  */
 export async function incrementClickCount(shortId: string): Promise<boolean> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
 
     const { error } = await supabase
       .from('wrapped_links')
@@ -203,7 +203,7 @@ export async function incrementClickCount(shortId: string): Promise<boolean> {
  */
 export async function getLinkStats(userId?: string): Promise<LinkStats> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
 
     let query = supabase.from('wrapped_links').select('*');
 
@@ -262,7 +262,7 @@ export async function getLinkStats(userId?: string): Promise<LinkStats> {
  */
 export async function cleanupExpiredLinks(): Promise<number> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
 
     const { data, error } = await supabase
       .from('wrapped_links')
@@ -313,7 +313,7 @@ export async function updateWrappedLink(
   updates: Partial<Pick<WrappedLink, 'titleAlias' | 'expiresAt'>>
 ): Promise<boolean> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient();
 
     const updateData: Record<string, unknown> = {};
     if (updates.titleAlias) updateData.title_alias = updates.titleAlias;
