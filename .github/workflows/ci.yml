@@ -232,7 +232,7 @@ jobs:
             echo "Changed files:"
             echo "$CHANGED_FILES"
           fi
-        uses: ./.github/actions/check-relevant-changes
+
       # Skip remaining steps if no relevant changes
       - name: Skip notification
         if: steps.check_changes.outputs.run_full_ci != 'true'
