@@ -240,6 +240,15 @@ docs: update Clerk-Supabase integration guide
 
 ## Pull Request Guidelines
 
+### CI/CD Control Labels
+
+You can control CI behavior using labels on your PR:
+
+- **`ci:skip`** - Skip most CI jobs (`ci-typecheck`, `ci-lint`, `ci-full`) while keeping policy checks (`pr-policy`, `up-to-date-with-preview`). Useful for documentation-only changes or when you want to iterate quickly.
+- **`full-ci`** - Force full CI including tests and build, even if only non-critical paths changed.
+
+**Note**: Policy checks always run regardless of labels to ensure branch protection rules.
+
 ### Before Submitting
 
 1. **Test thoroughly** with multiple users
