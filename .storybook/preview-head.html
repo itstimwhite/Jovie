@@ -1,0 +1,13 @@
+<script>
+  // Add a class to the body when darkMode parameter is true
+  window.addEventListener('STORYBOOK_STORY_RENDER', function(event) {
+    const { parameters } = event.detail;
+    
+    if (parameters && parameters.darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  });
+</script>
+

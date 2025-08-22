@@ -12,6 +12,19 @@ const preview: Preview = {
     docs: {
       toc: true,
     },
+    backgrounds: {
+      default: 'light',
+      values: [
+        {
+          name: 'light',
+          value: '#ffffff',
+        },
+        {
+          name: 'dark',
+          value: '#111827', // Tailwind gray-900
+        },
+      ],
+    },
   },
   tags: ['autodocs'],
 };
