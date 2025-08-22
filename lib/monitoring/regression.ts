@@ -137,7 +137,7 @@ export class RegressionDetector {
    * Create an alert for a regression
    * @param alertData Alert data
    */
-  async createAlert(alertData: Record<string, any>) {
+  async createAlert(alertData: Record<string, unknown>) {
     // Track the regression event
     track('performance_regression_detected', alertData);
 

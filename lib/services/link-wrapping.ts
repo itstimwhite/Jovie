@@ -315,7 +315,7 @@ export async function updateWrappedLink(
   try {
     const supabase = await createServerSupabaseClient();
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (updates.titleAlias) updateData.title_alias = updates.titleAlias;
     if (updates.expiresAt) updateData.expires_at = updates.expiresAt;
 

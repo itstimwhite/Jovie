@@ -51,9 +51,9 @@ export async function batchQuery<T>(
 
 // Query with automatic retry on transient failures
 export async function queryWithRetry<T>(
-  queryFn: () => Promise<{ data: T | null; error: any }>,
+  queryFn: () => Promise<{ data: T | null; error: SupabaseError | null }>,
   maxRetries = 2
-): Promise<{ data: T | null; error: any }> {
+): Promise<{ data: T | null; error: SupabaseError | null }> {
   let lastError;
 
   for (let i = 0; i <= maxRetries; i++) {

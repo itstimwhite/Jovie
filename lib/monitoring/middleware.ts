@@ -46,22 +46,17 @@ export function withPerformanceMonitoring(
       const route = req.nextUrl.pathname;
       const method = req.method;
 
-      // Prepare metric data
-      const metricData = {
-        route,
-        method,
-        duration,
-        // Include useful context but avoid sensitive data
-        userAgent: req.headers.get('user-agent'),
-        country: req.headers.get('x-vercel-ip-country'),
-        region: req.headers.get('x-vercel-ip-region'),
-        city: req.headers.get('x-vercel-ip-city'),
-      };
-
-      // In a real implementation, you would send this to your analytics service
+      // In a real implementation, you would send metric data to your analytics service
       // For now, we'll just log it in development
       if (process.env.NODE_ENV === 'development') {
         console.log(`[API Middleware] ${method} ${route} - ${duration}ms`);
+        // Log additional context in development
+        console.log('Context:', {
+          userAgent: req.headers.get('user-agent'),
+          country: req.headers.get('x-vercel-ip-country'),
+          region: req.headers.get('x-vercel-ip-region'),
+          city: req.headers.get('x-vercel-ip-city'),
+        });
       }
     }
 
