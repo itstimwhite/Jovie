@@ -51,9 +51,9 @@ export async function batchQuery<T>(
 
 // Query with automatic retry on transient failures
 export async function queryWithRetry<T>(
-  queryFn: () => Promise<{ data: T | null; error: SupabaseError | null }>,
+  queryFn: () => Promise<{ data: T | null; error: unknown | null }>,
   maxRetries = 2
-): Promise<{ data: T | null; error: SupabaseError | null }> {
+): Promise<{ data: T | null; error: unknown | null }> {
   let lastError;
 
   for (let i = 0; i <= maxRetries; i++) {
@@ -64,10 +64,11 @@ export async function queryWithRetry<T>(
     }
 
     // Only retry on transient errors
+    const error = result.error as { code?: string; message?: string } | null;
     if (
-      result.error?.code === 'PGRST301' || // JWT expired
-      result.error?.code === '503' || // Service unavailable
-      result.error?.message?.includes('fetch')
+      error?.code === 'PGRST301' || // JWT expired
+      error?.code === '503' || // Service unavailable
+      error?.message?.includes('fetch')
     ) {
       lastError = result.error;
       if (i < maxRetries) {

@@ -21,7 +21,9 @@ export async function POST(request: NextRequest) {
     // Basic bot detection (less aggressive for this endpoint)
     const _botResult = detectBot(request, '/api/wrap-link'); // eslint-disable-line @typescript-eslint/no-unused-vars
     const ip =
-      request.ip || request.headers.get('x-forwarded-for') || 'unknown';
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      'unknown';
 
     // Rate limiting
     const isRateLimited = await checkRateLimit(ip, '/api/wrap-link', 50, 60); // 50 requests per hour

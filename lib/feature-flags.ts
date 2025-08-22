@@ -132,6 +132,10 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
               ? rpcFlag
               : defaultFeatureFlags.featureClickAnalyticsRpc
           ),
+          progressiveOnboardingEnabled: Boolean(
+            data2.flags?.progressiveOnboardingEnabled?.default ??
+              defaultFeatureFlags.progressiveOnboardingEnabled
+          ),
         };
       }
     }

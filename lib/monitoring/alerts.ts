@@ -20,6 +20,18 @@ export interface Metric {
   timestamp: number;
 }
 
+// Define alert data interface
+export interface AlertData {
+  metric: string;
+  value: number;
+  threshold: number;
+  severity: AlertSeverity;
+  timestamp: number;
+  description?: string;
+  samples?: number;
+  [key: string]: unknown; // Allow additional properties
+}
+
 /**
  * Performance Alerts class for monitoring and alerting on performance metrics
  */

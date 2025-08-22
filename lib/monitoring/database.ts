@@ -85,14 +85,15 @@ export function isSlowQuery(
  * @param supabaseClient The original Supabase client
  * @returns A wrapped client with performance tracking
  */
-export function createTrackedSupabaseClient(supabaseClient: SupabaseClient) {
+export function createTrackedSupabaseClient(supabaseClient: unknown) {
   // This is a simplified example - in a real implementation,
   // you would wrap all methods of the Supabase client
 
-  const originalFrom = supabaseClient.from;
+  const client = supabaseClient as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  const originalFrom = client.from;
 
-  supabaseClient.from = (tableName: string) => {
-    const tableQuery = originalFrom.call(supabaseClient, tableName);
+  client.from = (tableName: string) => {
+    const tableQuery = originalFrom.call(client, tableName);
 
     // Wrap select method
     const originalSelect = tableQuery.select;
@@ -125,5 +126,5 @@ export function createTrackedSupabaseClient(supabaseClient: SupabaseClient) {
     return tableQuery;
   };
 
-  return supabaseClient;
+  return client;
 }

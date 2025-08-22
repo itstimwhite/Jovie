@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   validateUsernameFormat,
   generateUsernameSuggestions,
@@ -132,32 +133,32 @@ describe('generateUsernameSuggestions', () => {
 
 describe('debounce', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('should delay function execution', () => {
-    const mockFn = jest.fn();
+    const mockFn = vi.fn();
     const debouncedFn = debounce(mockFn, 100);
 
     debouncedFn('arg1');
     expect(mockFn).not.toHaveBeenCalled();
 
-    jest.advanceTimersByTime(100);
+    vi.advanceTimersByTime(100);
     expect(mockFn).toHaveBeenCalledWith('arg1');
   });
 
   it('should cancel previous calls', () => {
-    const mockFn = jest.fn();
+    const mockFn = vi.fn();
     const debouncedFn = debounce(mockFn, 100);
 
     debouncedFn('arg1');
     debouncedFn('arg2');
 
-    jest.advanceTimersByTime(100);
+    vi.advanceTimersByTime(100);
 
     expect(mockFn).toHaveBeenCalledTimes(1);
     expect(mockFn).toHaveBeenCalledWith('arg2');

@@ -204,42 +204,6 @@ export function ProgressiveOnboardingForm() {
     }
   }, [currentStepIndex]);
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Only handle navigation keys when not in an input
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
-      ) {
-        return;
-      }
-
-      switch (e.key) {
-        case 'ArrowRight':
-        case 'Enter':
-          if (
-            canProceedToNextStep &&
-            currentStepIndex < ONBOARDING_STEPS.length - 1
-          ) {
-            e.preventDefault();
-            goToNextStep();
-          }
-          break;
-        case 'ArrowLeft':
-        case 'Escape':
-          if (currentStepIndex > 0) {
-            e.preventDefault();
-            goToPreviousStep();
-          }
-          break;
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [canProceedToNextStep, currentStepIndex, goToNextStep, goToPreviousStep]);
-
   // Artist selection handlers
   const handleArtistSelect = useCallback(
     (artist: {
@@ -382,6 +346,42 @@ export function ProgressiveOnboardingForm() {
     handleValidation.available,
     handleValidation.clientValid,
   ]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle navigation keys when not in an input
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
+      switch (e.key) {
+        case 'ArrowRight':
+        case 'Enter':
+          if (
+            canProceedToNextStep &&
+            currentStepIndex < ONBOARDING_STEPS.length - 1
+          ) {
+            e.preventDefault();
+            goToNextStep();
+          }
+          break;
+        case 'ArrowLeft':
+        case 'Escape':
+          if (currentStepIndex > 0) {
+            e.preventDefault();
+            goToPreviousStep();
+          }
+          break;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [canProceedToNextStep, currentStepIndex, goToNextStep, goToPreviousStep]);
 
   // Memoized progress steps for optimistic UI
   const progressSteps = useMemo(

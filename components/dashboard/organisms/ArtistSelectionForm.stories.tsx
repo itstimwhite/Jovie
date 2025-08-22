@@ -7,6 +7,16 @@ import { vi } from 'vitest';
 import * as NextNavigation from 'next/navigation';
 import * as ArtistSearchHook from '@/lib/hooks/useArtistSearch';
 
+// Define a minimal router type for mocking
+interface MockRouter {
+  push: (url: string) => void;
+  back: () => void;
+  forward: () => void;
+  refresh: () => void;
+  replace: (url: string) => void;
+  prefetch: (url: string) => void;
+}
+
 // Sample artist data for mocking
 const sampleArtists = [
   {
@@ -128,10 +138,14 @@ export const Default: Story = {
       // Mock the router
       const pushMock = vi.fn();
       vi.spyOn(NextNavigation, 'useRouter').mockImplementation(
-        () =>
-          ({
-            push: pushMock,
-          }) as any
+        (): MockRouter => ({
+          push: pushMock,
+          back: vi.fn(),
+          forward: vi.fn(),
+          refresh: vi.fn(),
+          replace: vi.fn(),
+          prefetch: vi.fn(),
+        })
       );
 
       // Mock the artist search hook with default state
@@ -164,10 +178,14 @@ export const WithSearchResults: Story = {
       // Mock the router
       const pushMock = vi.fn();
       vi.spyOn(NextNavigation, 'useRouter').mockImplementation(
-        () =>
-          ({
-            push: pushMock,
-          }) as any
+        (): MockRouter => ({
+          push: pushMock,
+          back: vi.fn(),
+          forward: vi.fn(),
+          refresh: vi.fn(),
+          replace: vi.fn(),
+          prefetch: vi.fn(),
+        })
       );
 
       // Mock the artist search hook with search results
@@ -201,10 +219,14 @@ export const Loading: Story = {
       // Mock the router
       const pushMock = vi.fn();
       vi.spyOn(NextNavigation, 'useRouter').mockImplementation(
-        () =>
-          ({
-            push: pushMock,
-          }) as any
+        (): MockRouter => ({
+          push: pushMock,
+          back: vi.fn(),
+          forward: vi.fn(),
+          refresh: vi.fn(),
+          replace: vi.fn(),
+          prefetch: vi.fn(),
+        })
       );
 
       // Mock the artist search hook with loading state
@@ -237,10 +259,14 @@ export const WithError: Story = {
       // Mock the router
       const pushMock = vi.fn();
       vi.spyOn(NextNavigation, 'useRouter').mockImplementation(
-        () =>
-          ({
-            push: pushMock,
-          }) as any
+        (): MockRouter => ({
+          push: pushMock,
+          back: vi.fn(),
+          forward: vi.fn(),
+          refresh: vi.fn(),
+          replace: vi.fn(),
+          prefetch: vi.fn(),
+        })
       );
 
       // Mock the artist search hook with error state
@@ -284,10 +310,14 @@ export const WithPendingClaim: Story = {
       // Mock the router
       const pushMock = vi.fn();
       vi.spyOn(NextNavigation, 'useRouter').mockImplementation(
-        () =>
-          ({
-            push: pushMock,
-          }) as any
+        (): MockRouter => ({
+          push: pushMock,
+          back: vi.fn(),
+          forward: vi.fn(),
+          refresh: vi.fn(),
+          replace: vi.fn(),
+          prefetch: vi.fn(),
+        })
       );
 
       // Mock the artist search hook with matching artist
@@ -323,10 +353,14 @@ export const DarkTheme: Story = {
       // Mock the router
       const pushMock = vi.fn();
       vi.spyOn(NextNavigation, 'useRouter').mockImplementation(
-        () =>
-          ({
-            push: pushMock,
-          }) as any
+        (): MockRouter => ({
+          push: pushMock,
+          back: vi.fn(),
+          forward: vi.fn(),
+          refresh: vi.fn(),
+          replace: vi.fn(),
+          prefetch: vi.fn(),
+        })
       );
 
       // Mock the artist search hook
@@ -370,10 +404,14 @@ export const Mobile: Story = {
       // Mock the router
       const pushMock = vi.fn();
       vi.spyOn(NextNavigation, 'useRouter').mockImplementation(
-        () =>
-          ({
-            push: pushMock,
-          }) as any
+        (): MockRouter => ({
+          push: pushMock,
+          back: vi.fn(),
+          forward: vi.fn(),
+          refresh: vi.fn(),
+          replace: vi.fn(),
+          prefetch: vi.fn(),
+        })
       );
 
       // Mock the artist search hook

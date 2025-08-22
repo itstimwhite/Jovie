@@ -149,8 +149,9 @@ export class RegressionDetector {
 
     // For now, we'll just log to console in development
     if (process.env.NODE_ENV === 'development') {
+      const regression = alertData.regression as number;
       console.warn(
-        `[REGRESSION] ${alertData.metric}: ${alertData.regression.toFixed(1)}% regression detected`,
+        `[REGRESSION] ${alertData.metric}: ${regression.toFixed(1)}% regression detected`,
         alertData
       );
     }

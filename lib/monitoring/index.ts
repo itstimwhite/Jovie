@@ -2,11 +2,13 @@
 export * from './web-vitals';
 export * from './performance';
 export * from './database';
-export * from './api';
-export * from './middleware';
 export * from './user-journey';
 export * from './regression';
 export * from './alerts';
+
+// Export API and middleware monitoring with aliases to avoid conflicts
+export { withPerformanceMonitoring as withApiPerformanceMonitoring } from './api';
+export { withPerformanceMonitoring as withMiddlewarePerformanceMonitoring } from './middleware';
 
 // Re-export types
 export type { Metric } from 'web-vitals';

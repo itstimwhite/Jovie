@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  getCLS,
-  getFID,
-  getFCP,
-  getLCP,
-  getTTFB,
-  type Metric,
-} from 'web-vitals';
+import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from 'web-vitals';
 import { track } from '@/lib/analytics';
 
 // Define the metric handler type
@@ -30,11 +23,11 @@ export function initWebVitals(onMetric?: MetricHandler) {
   };
 
   // Initialize all Core Web Vitals metrics
-  getCLS(handleMetric); // Cumulative Layout Shift
-  getFID(handleMetric); // First Input Delay
-  getFCP(handleMetric); // First Contentful Paint
-  getLCP(handleMetric); // Largest Contentful Paint
-  getTTFB(handleMetric); // Time to First Byte
+  onCLS(handleMetric); // Cumulative Layout Shift
+  onINP(handleMetric); // Interaction to Next Paint (replaces FID)
+  onFCP(handleMetric); // First Contentful Paint
+  onLCP(handleMetric); // Largest Contentful Paint
+  onTTFB(handleMetric); // Time to First Byte
 }
 
 /**
@@ -122,7 +115,7 @@ export function trackPerformanceExperiment(
     sendToAnalytics({
       ...metric,
       // Add experiment context to the metric
-      name: `${metric.name}_${experiment}`,
+      name: `${metric.name}_${experiment}` as typeof metric.name,
       delta: metric.delta,
       value: metric.value,
       id: `${metric.id}_${variant}`,

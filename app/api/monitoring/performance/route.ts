@@ -31,35 +31,35 @@ export async function GET(): Promise<NextResponse<PerformanceResponse>> {
 
     // In a real implementation, you would fetch metrics from your database or analytics service
     // For now, we'll return mock data
-    const mockMetrics = [
+    const mockMetrics: PerformanceMetric[] = [
       {
         name: 'lcp',
         value: 1250,
-        rating: 'good',
+        rating: 'good' as const,
         timestamp: Date.now() - 60000,
       },
       {
         name: 'fid',
         value: 45,
-        rating: 'good',
+        rating: 'good' as const,
         timestamp: Date.now() - 60000,
       },
       {
         name: 'cls',
         value: 0.05,
-        rating: 'good',
+        rating: 'good' as const,
         timestamp: Date.now() - 60000,
       },
       {
         name: 'fcp',
         value: 950,
-        rating: 'good',
+        rating: 'good' as const,
         timestamp: Date.now() - 60000,
       },
       {
         name: 'ttfb',
         value: 320,
-        rating: 'good',
+        rating: 'good' as const,
         timestamp: Date.now() - 60000,
       },
     ];
