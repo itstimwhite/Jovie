@@ -4,6 +4,8 @@ import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { ANALYTICS } from '@/constants/app';
 import { env as publicEnv } from '@/lib/env';
+import { shouldSuppressAnalytics } from './analytics/route-suppression';
+import { filterSensitiveQueryParams } from './analytics/query-param-filter';
 
 // Type definitions for analytics
 
@@ -16,8 +18,27 @@ declare global {
       event: string,
       properties?: Record<string, unknown>
     ) => void;
+    doNotTrack?: string;
+  }
+  
+  interface Navigator {
+    doNotTrack?: string;
+    msDoNotTrack?: string;
   }
 }
+
+// Check if Do Not Track is enabled
+const isDntEnabled = (): boolean => {
+  if (typeof window === 'undefined') return false;
+
+  // Check for Do Not Track setting
+  return (
+    window.doNotTrack === '1' ||
+    navigator.doNotTrack === '1' ||
+    navigator.doNotTrack === 'yes' ||
+    navigator.msDoNotTrack === '1'
+  );
+};
 
 // Initialize PostHog on the client when key is present - deferred to not block paint
 if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
@@ -43,14 +64,58 @@ if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
       }
     };
 
+    // Check if analytics should be disabled based on DNT or route
+    const shouldDisableAnalytics = (): boolean => {
+      // Respect Do Not Track
+      if (isDntEnabled()) {
+        return true;
+      }
+
+      // Check for suppressed routes
+      if (shouldSuppressAnalytics(window.location.pathname)) {
+        return true;
+      }
+
+      return false;
+    };
+
     const options: Parameters<typeof posthog.init>[1] = {
-      autocapture: true,
       capture_pageview: false, // we'll send $pageview manually via page()
       persistence: 'localStorage+cookie',
+      // Respect Do Not Track browser setting
+      respect_dnt: true,
+      // Opt out by default if DNT is enabled or on suppressed routes
+      opt_out_capturing_by_default: shouldDisableAnalytics(),
+      // Privacy-focused configuration
+      mask_all_text: true, // Mask all text inputs by default
+      mask_all_element_attributes: ['data-private', 'data-sensitive'], // Mask elements with these attributes
+      // Configure autocapture for sensitive elements
+      autocapture: {
+        // Enable autocapture
+        enable: true,
+        // Only capture clicks (not form inputs)
+        dom_event_allowlist: ['click'],
+        // Ignore elements with these attributes
+        element_attribute_ignorelist: [
+          'data-ph-no-capture',
+          'data-private',
+          'data-sensitive',
+        ],
+      },
+      // Process events before sending to PostHog
+      before_send_fn: (payload: any) => {
+        // Don't send events if analytics should be disabled
+        if (shouldDisableAnalytics()) {
+          return null;
+        }
+        return payload;
+      },
     };
-    if (ANALYTICS.posthogHost) {
+
+    if (ANALYTICS.posthogHost && options) {
       options.api_host = ANALYTICS.posthogHost;
     }
+
     try {
       posthog.init(ANALYTICS.posthogKey, options);
       // Ensure every event has env attached
@@ -63,7 +128,11 @@ if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
   }, 0); // Execute on next tick to not block initial paint
 }
 
-export function track(event: string, properties?: Record<string, unknown>) {
+export function track(
+  event: string,
+  properties?: Record<string, unknown>,
+  statusCode?: number
+) {
   if (typeof window !== 'undefined') {
     const envTag = (() => {
       try {
@@ -85,10 +154,37 @@ export function track(event: string, properties?: Record<string, unknown>) {
       }
     })();
 
+    // Check if analytics should be suppressed for this page
+    if (
+      isDntEnabled() ||
+      shouldSuppressAnalytics(window.location.pathname, statusCode)
+    ) {
+      return; // Skip tracking for suppressed routes or when DNT is enabled
+    }
+
     // Track with PostHog
     try {
       if (ANALYTICS.posthogKey) {
-        posthog.capture(event, properties);
+        // Filter any URL properties that might be in the event properties
+        const safeProperties = properties ? { ...properties } : {};
+
+        // Filter URL properties if they exist
+        if (safeProperties.url && typeof safeProperties.url === 'string') {
+          safeProperties.url = filterSensitiveQueryParams(safeProperties.url);
+        }
+        if (safeProperties.path && typeof safeProperties.path === 'string') {
+          safeProperties.path = filterSensitiveQueryParams(safeProperties.path);
+        }
+        if (
+          safeProperties.pathname &&
+          typeof safeProperties.pathname === 'string'
+        ) {
+          safeProperties.pathname = filterSensitiveQueryParams(
+            safeProperties.pathname
+          );
+        }
+
+        posthog.capture(event, safeProperties);
       }
     } catch {}
 
@@ -107,7 +203,11 @@ export function track(event: string, properties?: Record<string, unknown>) {
   }
 }
 
-export function page(name?: string, properties?: Record<string, unknown>) {
+export function page(
+  name?: string,
+  properties?: Record<string, unknown>,
+  statusCode?: number
+) {
   if (typeof window !== 'undefined') {
     const envTag = (() => {
       try {
@@ -129,12 +229,25 @@ export function page(name?: string, properties?: Record<string, unknown>) {
       }
     })();
 
+    // Check if analytics should be suppressed for this page
+    if (
+      isDntEnabled() ||
+      shouldSuppressAnalytics(window.location.pathname, statusCode)
+    ) {
+      return; // Skip tracking for suppressed routes or when DNT is enabled
+    }
+
+    // Filter sensitive query parameters from URL
+    const safePathname = filterSensitiveQueryParams(
+      window.location.pathname + window.location.search
+    );
+
     // Track with PostHog as a pageview
     try {
       if (ANALYTICS.posthogKey) {
         posthog.capture('$pageview', {
           name,
-          url: window.location.pathname,
+          url: safePathname,
           ...properties,
         });
       }
