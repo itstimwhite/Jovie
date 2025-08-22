@@ -1,11 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
+import { CTAButton } from '@/components/atoms/CTAButton';
 import dynamic from 'next/dynamic';
 import { Artist, LegacySocialLink } from '@/types/db';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 // Lazily load heavy profile sub-components to keep initial bundle lean
 const AnimatedListenInterface = dynamic(
@@ -33,7 +34,10 @@ interface AnimatedArtistPageProps {
 function renderContent(
   mode: string,
   artist: Artist,
-  socialLinks: LegacySocialLink[]
+  socialLinks: LegacySocialLink[],
+  router: ReturnType<typeof useRouter>,
+  isNavigating: boolean,
+  setIsNavigating: (value: boolean) => void
 ) {
   switch (mode) {
     case 'listen':
@@ -101,13 +105,16 @@ function renderContent(
           transition={{ duration: 0.6 }}
         >
           <div className="space-y-4">
-            <Link
+            <CTAButton
               href={`/${artist.handle}?mode=listen`}
-              prefetch
-              className="inline-flex items-center justify-center w-full px-8 py-4 text-lg font-semibold text-white bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100 rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:ring-offset-2"
+              variant="primary"
+              size="lg"
+              className="w-full"
+              isLoading={isNavigating}
+              onClick={() => setIsNavigating(true)}
             >
-              🎵 Listen Now
-            </Link>
+              Listen Now
+            </CTAButton>
           </div>
         </motion.div>
       );
@@ -122,6 +129,8 @@ export function AnimatedArtistPage({
   showTipButton,
   showBackButton,
 }: AnimatedArtistPageProps) {
+  const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
   // Page-level animation variants with Apple-style easing
   const pageVariants = {
     initial: {
@@ -182,7 +191,7 @@ export function AnimatedArtistPage({
               },
             }}
           >
-            {renderContent(mode, artist, socialLinks)}
+            {renderContent(mode, artist, socialLinks, router, isNavigating, setIsNavigating)}
           </motion.div>
         </ArtistPageShell>
       </motion.div>

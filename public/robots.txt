@@ -1,6 +1,8 @@
 # *
 User-agent: *
 Allow: /
+Disallow: /out/
+Disallow: /api/
 
 # Host
 Host: https://your-domain.com

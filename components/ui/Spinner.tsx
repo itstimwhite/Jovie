@@ -90,15 +90,21 @@ export function Spinner({
       data-variant={variant}
       data-theme={effectiveTheme}
     >
-      {/* Use app icon / favicon from public/ */}
-      <Image
-        src={iconSrc}
-        alt=""
-        aria-hidden="true"
-        width={pixelBySize[size]}
-        height={pixelBySize[size]}
-        className="object-contain"
-        priority
+      {/* CSS-based spinner with proper light/dark variants */}
+      <div
+        className={clsx(
+          'rounded-full border-2 border-solid',
+          {
+            // Light variant (dark spinner on light background)
+            'border-gray-200 border-t-gray-900': effectiveTheme === 'light',
+            // Dark variant (light spinner on dark background) 
+            'border-gray-700 border-t-white': effectiveTheme === 'dark',
+          },
+          sizeClasses[size]
+        )}
+        style={{
+          borderTopColor: effectiveTheme === 'light' ? 'rgb(17 24 39)' : 'rgb(255 255 255)',
+        }}
       />
     </div>
   );
