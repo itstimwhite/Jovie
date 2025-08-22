@@ -21,14 +21,9 @@ The `consolidated-vercel-preview.yml` workflow handles both Vercel preview deplo
 - Push events to non-main, non-preview branches
 - Manual workflow dispatch with PR number input
 
-#### Legacy Workflows:
+#### Legacy Workflows
 
-The following workflows have been kept for reference but have their PR commenting functionality disabled:
-
-1. `vercel-preview.yml` - Original workflow for Vercel deployments
-2. `alias-preview.yml` - Original workflow for aliasing deployments
-
-These workflows are maintained for backward compatibility but their PR commenting steps have been commented out to avoid duplication.
+The previous split workflows `vercel-preview.yml` and `alias-preview.yml` have been removed during CI cleanup. `consolidated-vercel-preview.yml` is now the single source of truth for preview deploy, alias, and PR commenting.
 
 #### Environment Variables:
 
@@ -40,3 +35,7 @@ These workflows are maintained for backward compatibility but their PR commentin
 - `VERCEL_ORG_ID` - Vercel organization ID
 - `VERCEL_PROJECT_ID` - Vercel project ID
 - `GITHUB_TOKEN` - Automatically provided by GitHub Actions
+
+## CI and Merge Queue
+
+The main CI workflow `ci.yml` is the gatekeeper for PRs to `preview` and `main`. It includes fast checks (typecheck, lint) and full CI (build, unit, E2E). To support GitHub Merge Queue, `ci.yml` listens to the `merge_group` event so required status checks re-run in-queue before merging.
