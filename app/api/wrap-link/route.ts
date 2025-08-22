@@ -3,6 +3,8 @@
  * Creates wrapped links with anti-cloaking protection
  */
 
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createWrappedLink } from '@/lib/services/link-wrapping';
