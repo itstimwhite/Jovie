@@ -1,24 +1,48 @@
 // Feature flags interface
 export interface FeatureFlags {
+  // SSR-critical flags (must be consistent between server and client)
+  pricingUseClerk: boolean;
+  universalNotificationsEnabled: boolean;
+  featureClickAnalyticsRpc: boolean;
+
+  // Experimental flags (can be updated after hydration)
   artistSearchEnabled: boolean;
   debugBannerEnabled: boolean;
   tipPromoEnabled: boolean;
-  pricingUseClerk: boolean;
-  universalNotificationsEnabled: boolean;
-  // Gate new anonymous click logging via SECURITY DEFINER RPC
-  featureClickAnalyticsRpc: boolean;
 }
+
+/**
+ * SSR-critical flags that must be consistent between server and client
+ * These flags should be fetched server-side and passed to the client
+ */
+export type SsrCriticalFlags = Pick<
+  FeatureFlags,
+  | 'pricingUseClerk'
+  | 'universalNotificationsEnabled'
+  | 'featureClickAnalyticsRpc'
+>;
+
+/**
+ * Experimental flags that can be updated after hydration
+ * These flags can be managed by PostHog experiments
+ */
+export type ExperimentalFlags = Pick<
+  FeatureFlags,
+  'artistSearchEnabled' | 'debugBannerEnabled' | 'tipPromoEnabled'
+>;
 
 // Default feature flags (fallback)
 const defaultFeatureFlags: FeatureFlags = {
+  // SSR-critical flags
+  pricingUseClerk: false,
+  universalNotificationsEnabled: process.env.NODE_ENV === 'development',
+  featureClickAnalyticsRpc: false,
+
+  // Experimental flags
   artistSearchEnabled: true,
   // Debug banner is removed site-wide; keep flag for compatibility but default to false
   debugBannerEnabled: false,
   tipPromoEnabled: true,
-  pricingUseClerk: false,
-  // Universal notifications only enabled in development for now
-  universalNotificationsEnabled: process.env.NODE_ENV === 'development',
-  featureClickAnalyticsRpc: false,
 };
 
 // Get feature flags (v4-compatible: attempts fetch from discovery endpoint)

@@ -1,150 +1,184 @@
-# Feature Flags with Statsig
+# Feature Flags Architecture
 
-Jovie uses [Statsig](https://statsig.com/) for feature flag management and experimentation. This provides a robust, real-time feature flag system with advanced A/B testing capabilities.
+Jovie uses a hybrid feature flag system that combines server-side flags for SSR-critical UI components and client-side PostHog experiments for non-critical UI elements.
+
+## Architecture Overview
+
+### Server-Side Feature Flags
+
+Server-side feature flags are the source of truth for SSR-critical UI components. These flags are:
+
+- Environment-aware (configured via environment variables)
+- Consistent between server and client rendering
+- Cached appropriately to minimize performance impact
+- Used for critical UI components that must not flicker during hydration
+
+### Client-Side Experiments (PostHog)
+
+Client-side experiments are used for non-critical UI elements where dynamic updates are acceptable:
+
+- Powered by PostHog's experimentation platform
+- Can update after initial hydration
+- Used for A/B testing, gradual rollouts, and personalization
+- Suitable for copy changes, style variations, and non-critical components
 
 ## Setup
 
 ### 1. Environment Variables
 
-Add your Statsig client key to `.env.local`:
+Configure server-side feature flags in your environment:
 
 ```bash
-NEXT_PUBLIC_STATSIG_CLIENT_KEY=client-<your-statsig-client-key>
+# Server-side feature flags (SSR-critical)
+FEATURE_FLAG_PRICING_USE_CLERK=false
+FEATURE_FLAG_UNIVERSAL_NOTIFICATIONS_ENABLED=false
+FEATURE_FLAG_CLICK_ANALYTICS_RPC=false
+
+# PostHog for client-side experiments
+NEXT_PUBLIC_POSTHOG_KEY=phc_xxxxxxxxxxxx
+NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 ```
 
 ### 2. Provider Integration
 
-The Statsig provider is integrated in `app/my-statsig.tsx` and wraps the entire application in `app/layout.tsx`.
+The `FeatureFlagsProvider` component integrates both server-side and client-side flags:
+
+```tsx
+// In a server component (e.g., app/layout.tsx)
+import { FeatureFlagsProvider } from '@/components/providers/FeatureFlagsProvider';
+import { getServerFeatureFlags } from '@/lib/server/feature-flags';
+
+export default async function RootLayout({ children }) {
+  // Fetch server-side flags
+  const serverFlags = await getServerFeatureFlags();
+
+  return (
+    <FeatureFlagsProvider serverFlags={serverFlags}>
+      {children}
+    </FeatureFlagsProvider>
+  );
+}
+```
 
 ## Available Feature Flags
 
-### Current Flags
+### SSR-Critical Flags
 
-| Flag Name              | Type   | Description                      | Default             |
-| ---------------------- | ------ | -------------------------------- | ------------------- |
-| `waitlist_enabled`     | Gate   | Controls waitlist functionality  | `false`             |
-| `debug_banner_enabled` | Gate   | Controls debug banner visibility | `development`       |
-| `artist_search_config` | Config | Artist search configuration      | `{ enabled: true }` |
-| `tip_promo_config`     | Config | Tip promotion configuration      | `{ enabled: true }` |
+These flags must be consistent between server and client rendering:
 
-### Usage in Components
+| Flag Name                       | Description                     | Default             |
+| ------------------------------- | ------------------------------- | ------------------- |
+| `pricingUseClerk`               | Controls pricing table provider | `false`             |
+| `universalNotificationsEnabled` | Controls notification UI        | `development: true` |
+| `featureClickAnalyticsRpc`      | Controls analytics behavior     | `false`             |
 
-```typescript
-import { useFeatureFlags } from '@/lib/feature-flags';
+### Experimental Flags (PostHog)
 
-export function MyComponent() {
-  const { waitlistEnabled, debugBannerEnabled } = useFeatureFlags();
+These flags can be dynamically updated after initial hydration:
+
+| Flag Name             | Description                      | Default             |
+| --------------------- | -------------------------------- | ------------------- |
+| `artistSearchEnabled` | Controls artist search feature   | `true`              |
+| `debugBannerEnabled`  | Controls debug banner visibility | `development: true` |
+| `tipPromoEnabled`     | Controls tip promotion UI        | `true`              |
+
+## Usage in Components
+
+### In Server Components
+
+```tsx
+// In a server component
+import { getServerFeatureFlags } from '@/lib/server/feature-flags';
+
+export default async function MyServerComponent() {
+  const flags = await getServerFeatureFlags();
 
   return (
     <div>
-      {waitlistEnabled && <WaitlistComponent />}
-      {debugBannerEnabled && <DebugBanner />}
+      {flags.pricingUseClerk && <ClerkPricingTable />}
+      {/* Pass server flags to client components */}
+      <ClientComponent serverFlags={flags} />
     </div>
   );
 }
 ```
 
-## Statsig Dashboard Configuration
+### In Client Components
 
-### 1. Create Gates
+```tsx
+// In a client component
+import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
 
-In the Statsig dashboard, create the following gates:
-
-#### `waitlist_enabled`
-
-- **Type**: Boolean Gate
-- **Description**: Controls waitlist functionality
-- **Default**: `false`
-
-#### `debug_banner_enabled`
-
-- **Type**: Boolean Gate
-- **Description**: Controls debug banner visibility
-- **Default**: `true` (development), `false` (production)
-
-### 2. Create Configs
-
-#### `artist_search_config`
-
-- **Type**: JSON Config
-- **Description**: Artist search configuration
-- **Default**: `{ "enabled": true }`
-
-#### `tip_promo_config`
-
-- **Type**: JSON Config
-- **Description**: Tip promotion configuration
-- **Default**: `{ "enabled": true }`
-
-## Advanced Usage
-
-### User Segmentation
-
-Statsig automatically includes user information from Clerk:
-
-```typescript
-// User object passed to Statsig
-const statsigUser = {
-  userID: user?.id || 'anonymous-user',
-  email: user?.emailAddresses?.[0]?.emailAddress,
-  custom: {
-    plan: (user?.publicMetadata?.plan as string) || 'free',
-  },
-};
-```
-
-### A/B Testing
-
-You can create experiments in the Statsig dashboard:
-
-```typescript
-import { useExperiment } from '@statsig/react-bindings';
-
-export function MyComponent() {
-  const experiment = useExperiment('my_experiment');
+export function MyClientComponent() {
+  const { flags } = useFeatureFlags();
 
   return (
     <div>
-      {experiment.get('variant') === 'A' && <VariantA />}
-      {experiment.get('variant') === 'B' && <VariantB />}
+      {flags.pricingUseClerk && <ClerkPricingTable />}
+      {flags.artistSearchEnabled && <ArtistSearch />}
     </div>
   );
 }
 ```
 
-### Dynamic Configs
+## Flag Categories
+
+### When to Use Server-Side Flags
+
+Use server-side flags for:
+
+- Components that must be consistent between server and client rendering
+- UI elements that should not flicker during hydration
+- Critical user flows (onboarding, checkout, authentication)
+- SEO-critical content
+- Core functionality that affects the main user experience
+
+### When to Use PostHog Experiments
+
+Use PostHog experiments for:
+
+- Non-critical UI elements
+- A/B testing of copy, styles, or minor features
+- Gradual rollouts of new features
+- Personalization based on user segments
+- Features that can gracefully appear after initial page load
+
+## Implementation Details
+
+### Server-Side Flag Configuration
+
+Server-side flags are configured in `lib/server/feature-flags-config.ts`:
 
 ```typescript
-import { useConfig } from '@statsig/react-bindings';
-
-export function MyComponent() {
-  const config = useConfig('my_config');
-
-  const setting = config.get('setting', 'default');
-
-  return <div>{setting}</div>;
+export function getServerFeatureFlagsConfig(): FeatureFlags {
+  return {
+    // SSR-critical flags with environment variable fallbacks
+    pricingUseClerk: getBooleanEnv('FEATURE_FLAG_PRICING_USE_CLERK', false),
+    // ... other flags
+  };
 }
 ```
 
-## Migration from Edge Config
+### Server-Side Flag Fetching
 
-The feature flags system has been migrated from Vercel Edge Config to Statsig:
-
-### Before (Edge Config)
+Server components can fetch flags using `getServerFeatureFlags()`:
 
 ```typescript
-import { createClient } from '@vercel/edge-config';
+import { getServerFeatureFlags } from '@/lib/server/feature-flags';
 
-const edgeConfig = createClient(process.env.EDGE_CONFIG);
-const flags = await edgeConfig.get('featureFlags');
+// In a server component or server action
+const flags = await getServerFeatureFlags();
 ```
 
-### After (Statsig)
+### Client-Side Flag Access
+
+Client components access flags through the `useFeatureFlags()` hook:
 
 ```typescript
-import { useFeatureFlags } from '@/lib/feature-flags';
+import { useFeatureFlags } from '@/components/providers/FeatureFlagsProvider';
 
-const { waitlistEnabled, debugBannerEnabled } = useFeatureFlags();
+// In a client component
+const { flags, isLoading } = useFeatureFlags();
 ```
 
 ## Testing
@@ -155,23 +189,18 @@ When testing components that use feature flags:
 
 ```typescript
 import { render, screen } from '@testing-library/react';
-import { StatsigProvider } from '@statsig/react-bindings';
+import { FeatureFlagsProvider } from '@/components/providers/FeatureFlagsProvider';
 
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <StatsigProvider
-    sdkKey="test-key"
-    user={{ userID: 'test-user' }}
-    options={{ logLevel: 'none' }}
-  >
-    {children}
-  </StatsigProvider>
-);
+const mockServerFlags = {
+  pricingUseClerk: true,
+  // ... other flags
+};
 
 test('component shows when flag is enabled', () => {
   render(
-    <TestWrapper>
+    <FeatureFlagsProvider serverFlags={mockServerFlags}>
       <MyComponent />
-    </TestWrapper>
+    </FeatureFlagsProvider>
   );
 
   expect(screen.getByText('Feature enabled')).toBeInTheDocument();
@@ -180,47 +209,51 @@ test('component shows when flag is enabled', () => {
 
 ### E2E Tests
 
-For end-to-end tests, you can configure feature flags per test:
+For end-to-end tests, you can configure environment variables:
 
 ```typescript
-test('waitlist flow with flag enabled', async ({ page }) => {
-  // Configure Statsig for this test
-  await page.addInitScript(() => {
-    window.STATSIG_OVERRIDES = {
-      waitlist_enabled: true,
-    };
-  });
-
-  await page.goto('/');
-  await expect(page.locator('[data-testid="waitlist"]')).toBeVisible();
+// In playwright.config.ts
+export default defineConfig({
+  // ...
+  use: {
+    // ...
+    env: {
+      FEATURE_FLAG_PRICING_USE_CLERK: 'true',
+    },
+  },
 });
 ```
 
 ## Best Practices
 
-1. **Always provide defaults**: Use fallback values for all feature flags
-2. **Test both states**: Test components with flags enabled and disabled
-3. **Use descriptive names**: Make flag names self-documenting
-4. **Document changes**: Update this file when adding new flags
-5. **Monitor usage**: Use Statsig analytics to track flag usage
+1. **Categorize flags appropriately**: Distinguish between SSR-critical and experimental flags
+2. **Provide defaults**: Always use fallback values for all feature flags
+3. **Test both states**: Test components with flags enabled and disabled
+4. **Use descriptive names**: Make flag names self-documenting
+5. **Document changes**: Update this file when adding new flags
+6. **Clean up unused flags**: Remove flags that are no longer needed
+7. **Avoid nested flags**: Keep flag dependencies to a minimum
+8. **Use type safety**: Leverage TypeScript for flag type checking
 
 ## Troubleshooting
 
-### Flag not working?
+### Server/Client Mismatch
 
-1. Check that `NEXT_PUBLIC_STATSIG_CLIENT_KEY` is set correctly
-2. Verify the flag exists in the Statsig dashboard
-3. Check browser console for Statsig errors
-4. Ensure the component is wrapped in `StatsigProvider`
+If you see hydration errors or UI flicker:
 
-### Performance issues?
+1. Ensure SSR-critical flags are fetched server-side and passed to `FeatureFlagsProvider`
+2. Check that the component is using the correct flag category
+3. Verify that server and client environments have consistent flag values
 
-1. Statsig caches flags locally for performance
-2. Use `useFeatureFlags()` hook for real-time updates
-3. Consider using `useConfig()` for complex configurations
+### Performance Issues
+
+1. Server flags are cached for 60 seconds by default
+2. Consider increasing cache TTL for stable flags
+3. Use `getServerFeatureFlag(flagName)` for single flag access
+4. Minimize the number of flags fetched per page
 
 ## Resources
 
-- [Statsig Documentation](https://docs.statsig.com/)
-- [React Bindings Guide](https://docs.statsig.com/client-libraries/react)
-- [Feature Flag Best Practices](https://docs.statsig.com/guides/feature-flags)
+- [Next.js Server Components](https://nextjs.org/docs/app/building-your-application/rendering/server-components)
+- [PostHog Feature Flags](https://posthog.com/docs/feature-flags)
+- [Feature Flag Best Practices](https://posthog.com/blog/feature-flag-best-practices)

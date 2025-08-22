@@ -1,28 +1,29 @@
 import { NextResponse } from 'next/server';
+import { getServerFeatureFlagsConfig } from '@/lib/server/feature-flags-config';
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// Simple, cache-safe internal flags endpoint for app use
+// Environment-aware feature flags endpoint for app use
 export async function GET() {
-  const flags = {
-    artistSearchEnabled: true,
-    debugBannerEnabled: false,
-    tipPromoEnabled: true,
-    pricingUseClerk: false,
-    universalNotificationsEnabled: process.env.NODE_ENV === 'development',
-    // Gate for anonymous click logging via SECURITY DEFINER RPC
-    featureClickAnalyticsRpc: false,
-    // snake_case alias for internal consistency with feature flag naming policy
-    feature_click_analytics_rpc: false,
-  } as const;
+  // Get flags from environment-aware configuration
+  const flags = getServerFeatureFlagsConfig();
 
-  return new NextResponse(JSON.stringify(flags), {
+  // Add snake_case alias for backward compatibility
+  const responseFlags = {
+    ...flags,
+    // snake_case alias for internal consistency with feature flag naming policy
+    feature_click_analytics_rpc: flags.featureClickAnalyticsRpc,
+  };
+
+  return new NextResponse(JSON.stringify(responseFlags), {
     status: 200,
     headers: {
       'content-type': 'application/json',
-      'cache-control': 'no-store',
+      // Allow caching for a short period to improve performance
+      // while ensuring flags update relatively quickly
+      'cache-control': 'public, max-age=60, s-maxage=60',
     },
   });
 }
