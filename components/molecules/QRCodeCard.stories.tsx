@@ -12,6 +12,15 @@ const meta: Meta<typeof QRCodeCard> = {
     qrSize: {
       control: { type: 'number', min: 100, max: 300, step: 10 },
     },
+    title: {
+      control: 'text',
+    },
+    description: {
+      control: 'text',
+    },
+    data: {
+      control: 'text',
+    },
   },
 };
 
@@ -105,5 +114,69 @@ export const DesktopOverlay: Story = {
   ),
   parameters: {
     layout: 'fullscreen',
+  },
+};
+
+export const InDarkMode: Story = {
+  args: {
+    data: 'https://jovie.fm/kendricklamar',
+    title: 'Scan QR Code',
+    description: 'View artist profile on mobile',
+    qrSize: 150,
+  },
+  parameters: {
+    backgrounds: { default: 'dark' },
+    themes: { themeOverride: 'dark' },
+  },
+};
+
+export const VeryLongURL: Story = {
+  args: {
+    data: 'https://jovie.fm/artist/very-long-artist-name-with-many-parameters?utm_source=qrcode&utm_medium=storybook&utm_campaign=testing&mode=tip&amount=10&currency=usd&referrer=storybook',
+    title: 'Tip with Parameters',
+    description: 'QR code with a very long URL containing many parameters',
+    qrSize: 180,
+  },
+};
+
+export const WithVeryLongTitle: Story = {
+  args: {
+    data: 'https://jovie.fm/artist/example',
+    title:
+      'This is a very long title that might wrap to multiple lines on smaller screens',
+    description: 'Testing how the component handles long titles',
+    qrSize: 150,
+  },
+};
+
+export const WithVeryLongDescription: Story = {
+  args: {
+    data: 'https://jovie.fm/artist/example',
+    title: 'QR Code',
+    description:
+      'This is a very long description that tests how the component handles text wrapping for longer content. It should wrap nicely and maintain readability while fitting within the component boundaries.',
+    qrSize: 150,
+  },
+};
+
+export const Mobile: Story = {
+  args: {
+    data: 'https://jovie.fm/artist/mobile-example',
+    title: 'Mobile View',
+    description: 'Optimized for mobile screens',
+    qrSize: 120,
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const WithCustomClassName: Story = {
+  args: {
+    data: 'https://jovie.fm/artist/custom-class',
+    title: 'Custom Styling',
+    description: 'Using custom className for styling',
+    qrSize: 150,
+    className: 'bg-gray-100 p-4 rounded-lg shadow-md dark:bg-gray-800',
   },
 };

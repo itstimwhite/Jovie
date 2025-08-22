@@ -12,6 +12,9 @@ const meta: Meta<typeof TipSelector> = {
     isLoading: {
       control: { type: 'boolean' },
     },
+    amounts: {
+      control: 'object',
+    },
   },
 };
 
@@ -107,5 +110,40 @@ export const InDarkMode: Story = {
   },
   parameters: {
     backgrounds: { default: 'dark' },
+    themes: { themeOverride: 'dark' },
   },
 };
+
+export const Mobile: Story = {
+  args: {
+    amounts: [3, 5, 7],
+    onContinue: (amount) => console.log(`Selected amount: $${amount}`),
+  },
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+};
+
+export const Disabled: Story = {
+  args: {
+    amounts: [3, 5, 7],
+    onContinue: (amount) => console.log(`Selected amount: $${amount}`),
+    isLoading: true,
+  },
+};
+
+export const WithCustomClassName: Story = {
+  args: {
+    amounts: [3, 5, 7],
+    onContinue: (amount) => console.log(`Selected amount: $${amount}`),
+    className: 'bg-gray-100 p-4 rounded-lg dark:bg-gray-800',
+  },
+};
+
+export const WithVeryLargeAmounts: Story = {
+  args: {
+    amounts: [100, 250, 500],
+    onContinue: (amount) => console.log(`Selected amount: $${amount}`),
+  },
+};
+
