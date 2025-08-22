@@ -19,7 +19,7 @@ interface ArtistCardProps {
 // Note: id prop is kept for future extensibility
 
 export function ArtistCard({
-  id: _id, // Prefixed with underscore to indicate intentionally unused
+  id: _id, // eslint-disable-line @typescript-eslint/no-unused-vars
   name,
   imageUrl,
   popularity,

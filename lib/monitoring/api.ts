@@ -49,7 +49,7 @@ export function withPerformanceMonitoring(handler: NextApiHandler) {
  * Send API metric to analytics
  * This is a placeholder for server-side analytics
  */
-function sendApiMetric(data: Record<string, any>) {
+function sendApiMetric(data: Record<string, unknown>) {
   // In a real implementation, you would send this to your analytics service
   // For example, using a server-side analytics SDK or API
 

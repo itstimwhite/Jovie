@@ -85,7 +85,7 @@ export function isSlowQuery(
  * @param supabaseClient The original Supabase client
  * @returns A wrapped client with performance tracking
  */
-export function createTrackedSupabaseClient(supabaseClient: any) {
+export function createTrackedSupabaseClient(supabaseClient: SupabaseClient) {
   // This is a simplified example - in a real implementation,
   // you would wrap all methods of the Supabase client
 
@@ -96,28 +96,28 @@ export function createTrackedSupabaseClient(supabaseClient: any) {
 
     // Wrap select method
     const originalSelect = tableQuery.select;
-    tableQuery.select = function (...args: any[]) {
+    tableQuery.select = function (...args: unknown[]) {
       const wrappedQuery = trackSupabaseQuery(tableName, 'select');
       return wrappedQuery(() => originalSelect.apply(this, args));
     };
 
     // Wrap insert method
     const originalInsert = tableQuery.insert;
-    tableQuery.insert = function (...args: any[]) {
+    tableQuery.insert = function (...args: unknown[]) {
       const wrappedQuery = trackSupabaseQuery(tableName, 'insert');
       return wrappedQuery(() => originalInsert.apply(this, args));
     };
 
     // Wrap update method
     const originalUpdate = tableQuery.update;
-    tableQuery.update = function (...args: any[]) {
+    tableQuery.update = function (...args: unknown[]) {
       const wrappedQuery = trackSupabaseQuery(tableName, 'update');
       return wrappedQuery(() => originalUpdate.apply(this, args));
     };
 
     // Wrap delete method
     const originalDelete = tableQuery.delete;
-    tableQuery.delete = function (...args: any[]) {
+    tableQuery.delete = function (...args: unknown[]) {
       const wrappedQuery = trackSupabaseQuery(tableName, 'delete');
       return wrappedQuery(() => originalDelete.apply(this, args));
     };

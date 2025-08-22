@@ -189,6 +189,7 @@ export function SmartHandleInput({
     usernameSuggestions,
     debouncedApiValidation,
     onValidationChange,
+    handleValidation,
   ]);
 
   const getValidationIcon = () => {

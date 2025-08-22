@@ -219,7 +219,7 @@ export class PerformanceAlerts {
    * Send an alert
    * @param alertData Alert data
    */
-  sendAlert(alertData: Record<string, any>) {
+  sendAlert(alertData: AlertData) {
     // Track the alert event
     track('performance_alert', alertData);
 
