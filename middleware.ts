@@ -40,6 +40,9 @@ const CA_PROVINCES = ['QC'];
 
 export default clerkMiddleware(async (auth, req) => {
   try {
+    // Start performance timing
+    const startTime = Date.now();
+    
     // Conservative bot blocking - only on sensitive API endpoints
     const pathname = req.nextUrl.pathname;
     const isSensitiveAPI = pathname.startsWith('/api/link/');
@@ -97,6 +100,21 @@ export default clerkMiddleware(async (auth, req) => {
 
     if (showBanner) {
       res.headers.set('x-show-cookie-banner', '1');
+    }
+
+    // Add performance monitoring headers
+    const duration = Date.now() - startTime;
+    res.headers.set('Server-Timing', `middleware;dur=${duration}`);
+    
+    // Add performance monitoring for API routes
+    if (pathname.startsWith('/api/')) {
+      // Track API performance
+      res.headers.set('X-API-Response-Time', `${duration}`);
+      
+      // Log performance data in development
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[API] ${req.method} ${pathname} - ${duration}ms`);
+      }
     }
 
     return res;
