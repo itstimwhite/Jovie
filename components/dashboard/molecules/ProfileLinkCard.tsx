@@ -29,7 +29,7 @@ export function ProfileLinkCard({ artist }: ProfileLinkCardProps) {
   };
 
   return (
-    <Card>
+    <Card data-testid="profile-link-card">
       <CardContent>
         <div className="flex items-center justify-between">
           <div>

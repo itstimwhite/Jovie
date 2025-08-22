@@ -24,6 +24,7 @@ import {
 interface SocialIconProps {
   platform: string;
   className?: string;
+  size?: number;
 }
 
 // Map platform names to Simple Icons
@@ -56,14 +57,16 @@ export function getPlatformIcon(platform: string): SimpleIcon | undefined {
   return platformMap[platform.toLowerCase()];
 }
 
-export function SocialIcon({ platform, className }: SocialIconProps) {
+export function SocialIcon({ platform, className, size }: SocialIconProps) {
   const icon = platformMap[platform.toLowerCase()];
   const iconClass = className || 'h-4 w-4';
+  const sizeStyle = size ? { width: size, height: size } : undefined;
 
   if (icon) {
     return (
       <svg
         className={iconClass}
+        style={sizeStyle}
         fill="currentColor"
         viewBox="0 0 24 24"
         aria-hidden="true"
@@ -77,6 +80,7 @@ export function SocialIcon({ platform, className }: SocialIconProps) {
   return (
     <svg
       className={iconClass}
+      style={sizeStyle}
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
