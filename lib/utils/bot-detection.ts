@@ -16,10 +16,10 @@ export interface BotDetectionResult {
 }
 
 // Meta/Facebook ASNs that should be handled carefully
-const META_ASNS = [
-  32934, // Facebook, Inc.
-  63293, // Facebook, Inc.
-];
+// const META_ASNS = [
+//   32934, // Facebook, Inc.
+//   63293, // Facebook, Inc.
+// ];
 
 // Conservative bot detection - only block obvious crawlers on sensitive endpoints
 const META_USER_AGENTS = [
@@ -55,7 +55,7 @@ export function detectBot(
   endpoint?: string
 ): BotDetectionResult {
   const userAgent = request.headers.get('user-agent') || '';
-  const ip = request.headers.get('x-forwarded-for') || '';
+  // const ip = request.headers.get('x-forwarded-for') || '';
 
   // Check for Meta crawlers
   const isMeta = META_USER_AGENTS.some((agent) =>
@@ -97,9 +97,10 @@ export function detectBot(
 /**
  * Checks if IP belongs to Meta ASN
  */
-export async function checkMetaASN(ip: string): Promise<boolean> {
+export async function checkMetaASN(): Promise<boolean> {
   // In production, you'd query an IP-to-ASN service
   // For demo, we'll just return false to avoid blocking legitimate users
+  // Note: IP parameter removed as it's not currently used
   return false;
 }
 
@@ -213,7 +214,7 @@ export function createBotResponse(status: number = 204): Response {
  */
 export function isSuspiciousRequest(request: NextRequest): boolean {
   const userAgent = request.headers.get('user-agent') || '';
-  const referer = request.headers.get('referer') || '';
+  // const referer = request.headers.get('referer') || '';
 
   // Check for suspicious patterns
   const suspiciousPatterns = [
