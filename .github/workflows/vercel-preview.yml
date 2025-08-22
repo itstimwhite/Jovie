@@ -93,16 +93,18 @@ jobs:
           echo "ok=false" >> "$GITHUB_OUTPUT"
           echo "Wildcard alias did not become ready within time window" >&2
           exit 1
-      - name: Comment Preview URL on PR
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const url = `${{ steps.deploy.outputs.url }}`;
-            if (!url) return;
-            const pr = context.payload.pull_request.number;
-            const alias = `${{ steps.alias.outputs.alias_host }}`;
-            const ok = `${{ steps.verify.outputs.ok }}`;
-            const wildcard = alias ? `\nWildcard alias: https://${alias} ${ok === 'true' ? '✅' : '(probing...)'}` : '';
-            const body = `Vercel Preview ready: ${url}${wildcard}`;
-            await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: pr, body });
+# NOTE: PR commenting has been moved to the consolidated-vercel-preview.yml workflow
+# to avoid duplicate comments. This step is kept for reference but is disabled.
+#      - name: Comment Preview URL on PR
+#        if: ${{ github.event_name == 'pull_request' }}
+#        uses: actions/github-script@v7
+#        with:
+#          script: |
+#            const url = `${{ steps.deploy.outputs.url }}`;
+#            if (!url) return;
+#            const pr = context.payload.pull_request.number;
+#            const alias = `${{ steps.alias.outputs.alias_host }}`;
+#            const ok = `${{ steps.verify.outputs.ok }}`;
+#            const wildcard = alias ? `\nWildcard alias: https://${alias} ${ok === 'true' ? '✅' : '(probing...)'}` : '';
+#            const body = `Vercel Preview ready: ${url}${wildcard}`;
+#            await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: pr, body });
