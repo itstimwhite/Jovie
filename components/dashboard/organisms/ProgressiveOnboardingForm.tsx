@@ -241,37 +241,40 @@ export function ProgressiveOnboardingForm() {
   }, [canProceedToNextStep, currentStepIndex, goToNextStep, goToPreviousStep]);
 
   // Artist selection handlers
-  const handleArtistSelect = useCallback((artist: {
-    id: string;
-    name: string;
-    imageUrl?: string;
-    popularity?: number;
-    followers?: number;
-    spotifyUrl?: string;
-  }) => {
-    const selectedArtistData: SelectedArtist = {
-      spotifyId: artist.id,
-      artistName: artist.name,
-      imageUrl: artist.imageUrl,
-      popularity: artist.popularity,
-      followers: artist.followers,
-      spotifyUrl: artist.spotifyUrl,
-      timestamp: Date.now(),
-    };
+  const handleArtistSelect = useCallback(
+    (artist: {
+      id: string;
+      name: string;
+      imageUrl?: string;
+      popularity?: number;
+      followers?: number;
+      spotifyUrl?: string;
+    }) => {
+      const selectedArtistData: SelectedArtist = {
+        spotifyId: artist.id,
+        artistName: artist.name,
+        imageUrl: artist.imageUrl,
+        popularity: artist.popularity,
+        followers: artist.followers,
+        spotifyUrl: artist.spotifyUrl,
+        timestamp: Date.now(),
+      };
 
-    setSelectedArtist(selectedArtistData);
+      setSelectedArtist(selectedArtistData);
 
-    // Store in sessionStorage
-    sessionStorage.setItem(
-      'selectedArtist',
-      JSON.stringify(selectedArtistData)
-    );
+      // Store in sessionStorage
+      sessionStorage.setItem(
+        'selectedArtist',
+        JSON.stringify(selectedArtistData)
+      );
 
-    // Haptic feedback for mobile
-    if ('vibrate' in navigator) {
-      navigator.vibrate(50); // Light haptic feedback
-    }
-  }, []);
+      // Haptic feedback for mobile
+      if ('vibrate' in navigator) {
+        navigator.vibrate(50); // Light haptic feedback
+      }
+    },
+    []
+  );
 
   const handleSkipArtist = useCallback(() => {
     setSelectedArtist(null);
@@ -405,13 +408,14 @@ export function ProgressiveOnboardingForm() {
                 Welcome to Jovie! 🎵
               </h2>
               <p className="text-gray-600 dark:text-gray-400">
-                                 Let&apos;s create your artist profile in just a few simple steps.
+                Let&apos;s create your artist profile in just a few simple
+                steps.
               </p>
             </div>
 
             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 space-y-2">
               <h3 className="font-medium text-blue-900 dark:text-blue-100">
-                                 What you&apos;ll get:
+                What you&apos;ll get:
               </h3>
               <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
                 <li>• Your own jovie.link/yourname URL</li>

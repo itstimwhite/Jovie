@@ -253,25 +253,25 @@ jobs:
         run: |
           echo "Running canary health check on preview deployment..."
           deployment_url="${{ steps.deploy.outputs.deployment_url }}"
-          
+
           # Wait a moment for deployment to be ready
           sleep 10
-          
+
           # Basic health check - verify site loads and key elements exist
           response_code=$(curl -s -o /dev/null -w "%{http_code}" "$deployment_url" || echo "000")
-          
+
           if [ "$response_code" != "200" ]; then
             echo "❌ Canary failed: HTTP $response_code"
             exit 1
           fi
-          
+
           # Check for key content (adjust selector as needed)
           page_content=$(curl -s "$deployment_url" || echo "")
           if [[ ! "$page_content" =~ "Jovie" ]]; then
             echo "❌ Canary failed: Key content missing"
             exit 1
           fi
-          
+
           echo "✅ Canary passed: Preview deployment healthy"
         continue-on-error: true
 

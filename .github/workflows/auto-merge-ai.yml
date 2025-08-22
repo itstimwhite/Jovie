@@ -43,14 +43,14 @@ jobs:
             // re-check checks + statuses - require ci-full specifically for AI PRs
             const checks = await github.rest.checks.listForRef({ owner, repo, ref: pr.head.sha, per_page: 100 });
             const failing = checks.data.check_runs.some(c => c.status !== 'completed' || !['success','neutral','skipped'].includes(c.conclusion||''));
-            
+
             // Check for ci-full job completion specifically
             const ciFullCheck = checks.data.check_runs.find(c => c.name === 'Full CI (all PRs to preview, pushes, or label)');
             const ciFullPassed = ciFullCheck && ciFullCheck.status === 'completed' && ciFullCheck.conclusion === 'success';
-            
+
             const statuses = await github.rest.repos.getCombinedStatusForRef({ owner, repo, ref: pr.head.sha });
             const ok = !failing && statuses.data.state === 'success' && ciFullPassed;
-            
+
             if (!ok) {
               console.log('Not merging: checks failing or ci-full not passed', {
                 failing,
