@@ -1,4 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 import { Suspense } from 'react';
@@ -11,91 +10,29 @@ import {
   convertCreatorProfileToArtist,
 } from '@/types/db';
 import { PAGE_SUBTITLES } from '@/constants/app';
-import { env } from '@/lib/env';
+import { getOptimizedProfileWithSocialLinksAnonymous } from '@/lib/supabase-optimized';
 
-// Create an anonymous Supabase client for public data
-function createAnonSupabase() {
-  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey =
-    env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || // New standard key
-    env.NEXT_PUBLIC_SUPABASE_ANON_KEY; // Fallback to deprecated key
-
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing Supabase configuration');
-  }
-
-  return createClient(supabaseUrl, supabaseKey);
-}
-
-// Using CreatorProfile type and convertCreatorProfileToArtist utility from types/db.ts
-
-// Cache the database query to prevent duplicate calls during page + metadata generation
-const getCreatorProfile = cache(
-  async (username: string): Promise<CreatorProfile | null> => {
-    const supabase = createAnonSupabase();
-
-    const { data, error } = await supabase
-      .from('creator_profiles')
-      .select(
-        'id, user_id, creator_type, username, display_name, bio, avatar_url, spotify_url, apple_music_url, youtube_url, spotify_id, is_public, is_verified, is_claimed, claim_token, claimed_at, settings, theme, created_at, updated_at'
-      )
-      .eq('username', username.toLowerCase())
-      .eq('is_public', true) // Only fetch public profiles
-      .single();
-
-    if (error || !data) {
-      return null;
+// Optimized cached function to get profile with social links in a single query
+const getProfileWithSocialLinks = cache(
+  async (username: string): Promise<{
+    profile: CreatorProfile | null;
+    socialLinks: LegacySocialLink[];
+  }> => {
+    // Use the optimized query that fetches profile + social links in a single database call
+    const result = await getOptimizedProfileWithSocialLinksAnonymous(username);
+    
+    if (!result.profile) {
+      return { profile: null, socialLinks: [] };
     }
 
-    // Add default values for fields that might not exist in the database yet
-    const d = data as Partial<CreatorProfile>;
-    return {
-      ...data,
-      is_featured: d.is_featured ?? false,
-      marketing_opt_out: d.marketing_opt_out ?? false,
-    } as CreatorProfile;
-  }
-);
+    // Add fallback for missing fields that might not exist in the database yet
+    const profile: CreatorProfile = {
+      ...result.profile,
+      is_featured: result.profile.is_featured ?? false,
+      marketing_opt_out: result.profile.marketing_opt_out ?? false,
+    };
 
-// Cache function for social links - could be from database in future
-const getSocialLinks = cache(
-  async (profile: CreatorProfile): Promise<LegacySocialLink[]> => {
-    // For now, return hardcoded links but this could be a parallel DB query
-    // TODO: Replace with actual social_links table query when available
-    const socialLinks: LegacySocialLink[] =
-      profile.username === 'ladygaga'
-        ? [
-            {
-              id: 'venmo-link-1',
-              artist_id: profile.id,
-              platform: 'venmo',
-              url: 'https://venmo.com/u/ladygaga',
-              clicks: 0,
-              created_at: new Date().toISOString(),
-            },
-            {
-              id: 'spotify-link-1',
-              artist_id: profile.id,
-              platform: 'spotify',
-              url: 'https://open.spotify.com/artist/1HY2Jd0NmPuamShAr6KMms',
-              clicks: 0,
-              created_at: new Date().toISOString(),
-            },
-          ]
-        : profile.username === 'tim'
-          ? [
-              {
-                id: 'venmo-link-2',
-                artist_id: profile.id,
-                platform: 'venmo',
-                url: 'https://venmo.com/u/timwhite',
-                clicks: 0,
-                created_at: new Date().toISOString(),
-              },
-            ]
-          : [];
-
-    return socialLinks;
+    return { profile, socialLinks: result.socialLinks };
   }
 );
 
@@ -113,8 +50,8 @@ export default async function ArtistPage({ params, searchParams }: Props) {
   const resolvedSearchParams = await searchParams;
   const { mode = 'profile' } = resolvedSearchParams || {};
 
-  // Parallel data fetching - profile first, then social links
-  const profile = await getCreatorProfile(username);
+  // Single optimized query fetching profile + social links
+  const { profile, socialLinks } = await getProfileWithSocialLinks(username);
 
   if (!profile) {
     notFound();
@@ -122,9 +59,6 @@ export default async function ArtistPage({ params, searchParams }: Props) {
 
   // Convert our profile data to the Artist type expected by components
   const artist = convertCreatorProfileToArtist(profile);
-
-  // Fetch social links in parallel (when this becomes a DB query)
-  const socialLinks = await getSocialLinks(profile);
 
   // Determine subtitle based on mode
   const getSubtitle = (mode: string) => {
@@ -165,7 +99,7 @@ export default async function ArtistPage({ params, searchParams }: Props) {
 // Generate metadata for the page
 export async function generateMetadata({ params }: Props) {
   const { username } = await params;
-  const profile = await getCreatorProfile(username);
+  const { profile } = await getProfileWithSocialLinks(username);
 
   if (!profile) {
     return {
@@ -209,8 +143,8 @@ export async function generateMetadata({ params }: Props) {
 // Note: generateStaticParams removed to allow edge runtime
 // Edge runtime provides better performance for dynamic profile pages
 
-// Enable ISR with 30 minute revalidation for fresher content
-export const revalidate = 1800;
+// Enable ISR with 5 minute revalidation for fresher content (optimized)
+export const revalidate = 300;
 
 // Temporarily disable edge runtime for debugging
 // export const runtime = 'edge';
