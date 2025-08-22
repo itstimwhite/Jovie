@@ -292,6 +292,73 @@ export interface RateLimitResult {
 }
 
 // =====================================
+// SECURE FUNCTION INTERFACES
+// =====================================
+
+// Response interface for secure click recording
+export interface ClickRecordResult {
+  success: boolean;
+  message: string;
+  click_id?: string;
+}
+
+// Response interface for click rate limiting
+export interface ClickRateLimitResult {
+  allowed: boolean;
+  remaining_clicks: number;
+  reset_at: string;
+}
+
+// Response interface for profile claiming
+export interface ClaimProfileResult {
+  success: boolean;
+  message: string;
+  profile_id?: string;
+}
+
+// Response interface for unclaimed profile updates
+export interface UpdateUnclaimedProfileResult {
+  success: boolean;
+  message: string;
+  profile_id?: string;
+}
+
+// Response interface for creating unclaimed profiles
+export interface CreateUnclaimedProfileResult {
+  success: boolean;
+  message: string;
+  profile_id?: string;
+  claim_token?: string;
+}
+
+// Input interface for updating unclaimed profiles
+export interface UpdateUnclaimedProfileInput {
+  profile_id: string;
+  display_name?: string;
+  bio?: string;
+  avatar_url?: string;
+  spotify_url?: string;
+  apple_music_url?: string;
+  youtube_url?: string;
+}
+
+// Input interface for claiming profiles
+export interface ClaimProfileInput {
+  profile_id: string;
+  claim_token: string;
+  claiming_user_id: string;
+}
+
+// Input interface for recording clicks
+export interface RecordClickInput {
+  creator_username: string;
+  link_type: LinkType;
+  target: string;
+  ua?: string;
+  platform?: string;
+}
+
+// =====================================
 // UTILITY TYPES AND FUNCTIONS
 // =====================================
 
