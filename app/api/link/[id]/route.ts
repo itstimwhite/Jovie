@@ -26,9 +26,10 @@ interface RequestBody {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const shortId = params.id;
+  const { id } = await params;
+  const shortId = id;
   const ip =
     request.headers.get('x-forwarded-for') ||
     request.headers.get('x-real-ip') ||
