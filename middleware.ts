@@ -43,10 +43,10 @@ export default clerkMiddleware(async (auth, req) => {
     // Conservative bot blocking - only on sensitive API endpoints
     const pathname = req.nextUrl.pathname;
     const isSensitiveAPI = pathname.startsWith('/api/link/');
-    
+
     if (isSensitiveAPI) {
       const botResult = detectBot(req, pathname);
-      
+
       // Only block Meta crawlers on sensitive API endpoints to avoid anti-cloaking penalties
       if (botResult.shouldBlock) {
         return createBotResponse(204);
@@ -99,6 +99,22 @@ export default clerkMiddleware(async (auth, req) => {
       res.headers.set('x-show-cookie-banner', '1');
     }
 
+    // Add anti-indexing and no-cache headers for link and API routes (even on 404s)
+    if (
+      pathname.startsWith('/go/') ||
+      pathname.startsWith('/out/') ||
+      pathname.startsWith('/api/')
+    ) {
+      res.headers.set(
+        'X-Robots-Tag',
+        'noindex, nofollow, nosnippet, noarchive'
+      );
+      res.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.headers.set('Pragma', 'no-cache');
+      res.headers.set('Expires', '0');
+      res.headers.set('Referrer-Policy', 'no-referrer');
+    }
+
     return res;
   } catch {
     // Fallback to basic middleware behavior if Clerk auth fails
@@ -109,7 +125,7 @@ export default clerkMiddleware(async (auth, req) => {
 export const config = {
   matcher: [
     // Skip Next.js internals, all static files, and .well-known directory
-    '/((?!_next|\\.well-known|.*\\.(?:html?|css|js|json|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    '/((?!_next|\.well-known|.*\.(?:html?|css|js|json|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
     // Always run for API routes
     '/(api|trpc)(.*)',
   ],

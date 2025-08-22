@@ -16,8 +16,16 @@ async function globalSetup() {
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY || 'sk_test_dummy',
     NEXT_PUBLIC_SUPABASE_URL:
       process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
+    // Ensure Supabase client keys exist so server can boot locally
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY:
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || 'pub_dummy',
+    NEXT_PUBLIC_SUPABASE_ANON_KEY:
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'anon_dummy',
     SUPABASE_SERVICE_ROLE_KEY:
       process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy_key',
+    // Helpful default for links and sitemap-related logic
+    NEXT_PUBLIC_APP_URL:
+      process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   });
 
   // Start browser to warm up
