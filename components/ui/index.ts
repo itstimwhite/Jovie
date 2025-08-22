@@ -23,3 +23,8 @@ export { FormStatus } from './FormStatus';
 export { DataCard } from './DataCard';
 export { InfoBox } from './InfoBox';
 export { Section } from './Section';
+
+// Onboarding Components
+export { ProgressIndicator } from './ProgressIndicator';
+export { HandleInput } from './HandleInput';
+export { ArtistSelection } from './ArtistSelection';

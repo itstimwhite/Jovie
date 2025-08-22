@@ -35,7 +35,7 @@ interface OnboardingState {
   progress: number;
   error: string | null;
   retryCount: number;
-  isSubmitting: boolean; // Prevent double submissions
+  isSubmitting: boolean;
 }
 
 type OnboardingStep = 'welcome' | 'artist' | 'handle' | 'confirm';
@@ -64,7 +64,7 @@ interface SelectedArtist {
   followerCount?: number;
 }
 
-export function OnboardingForm() {
+export function OnboardingFormProgressive() {
   const { user } = useUser();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -237,7 +237,7 @@ export function OnboardingForm() {
         }));
         lastValidatedRef.current = { handle: handleValue, available: false };
       }
-    }, 1000), // Increased debounce to 1000ms (less frequent API calls)
+    }, 1000),
     [clientValidation.valid]
   );
 
@@ -283,6 +283,53 @@ export function OnboardingForm() {
     { key: 'creating-artist', label: 'Creating profile', duration: 500 },
   ], []);
 
+  // Navigation helpers
+  const canGoNext = useMemo(() => {
+    switch (currentStep.id) {
+      case 'welcome':
+        return true;
+      case 'artist':
+        return true; // Always can skip artist selection
+      case 'handle':
+        return validationState.canSubmit;
+      case 'confirm':
+        return handle && validationState.canSubmit;
+      default:
+        return false;
+    }
+  }, [currentStep.id, validationState.canSubmit, handle]);
+
+  const canGoBack = currentStepIndex > 0;
+
+  const handleNext = useCallback(() => {
+    if (currentStepIndex < steps.length - 1) {
+      setCurrentStepIndex(prev => prev + 1);
+    }
+  }, [currentStepIndex, steps.length]);
+
+  const handleBack = useCallback(() => {
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(prev => prev - 1);
+    }
+  }, [currentStepIndex]);
+
+  // Mock artist search function (replace with real implementation)
+  const searchArtists = useCallback(async (query: string): Promise<SelectedArtist[]> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Mock results
+    return [
+      {
+        spotifyId: '1',
+        artistName: `${query} Artist`,
+        imageUrl: 'https://via.placeholder.com/160x160',
+        timestamp: Date.now(),
+        followerCount: 10000,
+      },
+    ];
+  }, []);
+
   // Retry mechanism
   const retryOperation = useCallback(() => {
     setState((prev) => ({
@@ -292,10 +339,9 @@ export function OnboardingForm() {
     }));
   }, []);
 
-  // Optimized submission handler with memoized dependencies
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
+  // Final submission handler
+  const handleFinalSubmit = useCallback(
+    async () => {
       if (!user || state.isSubmitting || !validationState.canSubmit) return;
 
       setState((prev) => ({
@@ -337,68 +383,194 @@ export function OnboardingForm() {
             error instanceof Error
               ? error.message
               : 'An unexpected error occurred',
-          step: 'validating',
+          step: 'welcome',
           progress: 0,
           isSubmitting: false,
         }));
+        setCurrentStepIndex(0);
       }
     },
     [user, handle, selectedArtist, state.isSubmitting, validationState.canSubmit]
   );
 
-  // Progress indicator
-  const getProgressText = () => {
-    switch (state.step) {
-      case 'validating':
-        return 'Validating...';
-      case 'creating-user':
-        return 'Setting up your account...';
-      case 'checking-handle':
-        return 'Securing your handle...';
-      case 'creating-artist':
-        return 'Creating your profile...';
-      case 'complete':
-        return 'Profile created successfully!';
+  // Handle step-specific next action
+  const handleStepNext = useCallback(() => {
+    if (currentStep.id === 'confirm') {
+      handleFinalSubmit();
+    } else {
+      handleNext();
+    }
+  }, [currentStep.id, handleNext, handleFinalSubmit]);
+
+  // Render step content
+  const renderStepContent = () => {
+    switch (currentStep.id) {
+      case 'welcome':
+        return (
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto">
+              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                {currentStep.title}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                {currentStep.subtitle}
+              </p>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 space-y-2">
+              <h3 className="font-medium text-gray-900 dark:text-white text-sm">
+                What we'll set up:
+              </h3>
+              <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                <li>• Your unique artist handle</li>
+                <li>• Link to your Spotify profile (optional)</li>
+                <li>• Your public artist page</li>
+              </ul>
+            </div>
+          </div>
+        );
+
+      case 'artist':
+        return (
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                {currentStep.title}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                {currentStep.subtitle}
+              </p>
+            </div>
+            <ArtistSelection
+              selectedArtist={selectedArtist}
+              onArtistSelect={setSelectedArtist}
+              onSearch={searchArtists}
+              allowSkip={true}
+              disabled={state.isSubmitting}
+            />
+          </div>
+        );
+
+      case 'handle':
+        return (
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                {currentStep.title}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                {currentStep.subtitle}
+              </p>
+            </div>
+            <HandleInput
+              value={handle}
+              onChange={setHandle}
+              prefix={`${displayDomain}/`}
+              showAvailability={true}
+              showLivePreview={true}
+              formatHints={true}
+              suggestions={handleValidation.suggestions}
+              isChecking={handleValidation.checking}
+              isAvailable={handleValidation.available}
+              error={handleValidation.error}
+              disabled={state.isSubmitting}
+              placeholder="your-handle"
+            />
+          </div>
+        );
+
+      case 'confirm':
+        return (
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                {currentStep.title}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                {currentStep.subtitle}
+              </p>
+            </div>
+            
+            {/* Profile Preview */}
+            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 space-y-3">
+              <h3 className="font-medium text-gray-900 dark:text-white text-sm">
+                Profile Preview:
+              </h3>
+              
+              {selectedArtist && (
+                <div className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-700/50 rounded-lg">
+                  {selectedArtist.imageUrl && (
+                    <div className="w-12 h-12 rounded-full overflow-hidden">
+                      <Image
+                        src={selectedArtist.imageUrl}
+                        alt={selectedArtist.artistName}
+                        width={48}
+                        height={48}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      {selectedArtist.artistName}
+                    </p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Spotify Artist
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">Handle:</span>
+                  <span className="font-mono text-gray-900 dark:text-white">@{handle}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600 dark:text-gray-400">URL:</span>
+                  <span className="font-mono text-blue-600 dark:text-blue-400">
+                    {displayDomain}/{handle}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+              <p className="text-sm text-blue-800 dark:text-blue-200">
+                ✓ Your profile will be live immediately after creation
+              </p>
+            </div>
+          </div>
+        );
+
       default:
-        return 'Processing...';
+        return null;
     }
   };
 
   return (
-    <div className="space-y-4">
-      {/* Optimistic Progress indicator */}
-      <OptimisticProgress
-        isActive={state.isSubmitting}
-        steps={progressSteps}
-        onComplete={() => {
-          // Progress complete, waiting for server redirect
-        }}
+    <div className="space-y-6">
+      {/* Progress Indicator */}
+      <ProgressIndicator
+        currentStep={currentStepIndex + 1}
+        totalSteps={steps.length}
+        stepLabels={steps.map(s => s.title)}
+        showTimeEstimate={true}
       />
 
-      {/* Selected artist info */}
-      {selectedArtist && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-          <div className="flex items-center space-x-3">
-            {selectedArtist.imageUrl && (
-              <div className="w-10 h-10 rounded-full overflow-hidden">
-                <Image
-                  src={selectedArtist.imageUrl}
-                  alt={selectedArtist.artistName}
-                  width={40}
-                  height={40}
-                />
-              </div>
-            )}
-            <div>
-              <h3 className="font-medium text-blue-900 dark:text-blue-100 text-sm">
-                {selectedArtist.artistName}
-              </h3>
-              <p className="text-xs text-blue-700 dark:text-blue-300">
-                Spotify Artist Profile
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* Optimistic Progress for Final Submission */}
+      {state.isSubmitting && (
+        <OptimisticProgress
+          isActive={state.isSubmitting}
+          steps={progressSteps}
+          onComplete={() => {
+            // Progress complete, waiting for server redirect
+          }}
+        />
       )}
 
       {/* Error display */}
@@ -421,97 +593,52 @@ export function OnboardingForm() {
         </div>
       )}
 
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <FormField
-          label="Handle"
-          error={validationState.error || undefined}
-        >
-          <div className="relative">
-            <Input
-              type="text"
-              value={handle}
-              onChange={(e) => setHandle(e.target.value)}
-              placeholder="your-handle"
-              required
-              disabled={state.isSubmitting}
-              className="font-mono pr-8"
-              aria-describedby="handle-preview-onboarding"
-              aria-invalid={validationState.error ? 'true' : 'false'}
-              aria-label="Enter your desired handle"
-              autoCapitalize="none"
-              autoCorrect="off"
-              autoComplete="off"
-              inputMode="text"
-              data-test="username-input"
-            />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
-              {validationState.isChecking && (
-                <LoadingSpinner size="sm" />
-              )}
-              {validationState.isAvailable && !validationState.isChecking && (
-                <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                  <svg
-                    className="w-2.5 h-2.5 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-              )}
-            </div>
-          </div>
-          <p
-            className="text-xs text-gray-500 dark:text-gray-400 mt-1"
-            id="handle-preview-onboarding"
-          >
-            Your profile will be live at {displayDomain}/
-            {handle || 'your-handle'}
-          </p>
-          
-          {/* Username suggestions */}
-          {handleValidation.suggestions.length > 0 && (
-            <div className="mt-2 space-y-1">
-              <p className="text-xs text-gray-600 dark:text-gray-400">Suggestions:</p>
-              <div className="flex flex-wrap gap-1">
-                {handleValidation.suggestions.slice(0, 3).map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    type="button"
-                    onClick={() => setHandle(suggestion)}
-                    className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors duration-150"
-                    disabled={state.isSubmitting}
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </FormField>
+      {/* Step Content */}
+      <div className="min-h-[300px]">
+        {!state.isSubmitting && renderStepContent()}
+      </div>
 
-        <Button
-          type="submit"
-          disabled={!validationState.canSubmit || state.isSubmitting}
-          variant="primary"
-          className="w-full"
-          data-test="claim-btn"
-        >
-          {!state.isSubmitting ? (
-            'Create Profile'
-          ) : (
-            <div className="flex items-center justify-center space-x-2">
-              <LoadingSpinner size="sm" />
-              <span>Creating profile...</span>
-            </div>
-          )}
-        </Button>
-      </form>
+      {/* Navigation */}
+      {!state.isSubmitting && (
+        <div className="flex items-center justify-between pt-4">
+          <Button
+            onClick={handleBack}
+            variant="ghost"
+            disabled={!canGoBack}
+            className="min-w-[100px]"
+          >
+            {canGoBack ? 'Back' : ''}
+          </Button>
+          
+          <div className="flex items-center space-x-2">
+            {currentStep.canSkip && currentStepIndex < steps.length - 1 && (
+              <Button
+                onClick={handleNext}
+                variant="ghost"
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+              >
+                Skip
+              </Button>
+            )}
+            
+            <Button
+              onClick={handleStepNext}
+              disabled={!canGoNext}
+              variant="primary"
+              className="min-w-[120px] h-11"
+              data-test={currentStep.id === 'confirm' ? 'claim-btn' : 'next-btn'}
+            >
+              {currentStep.id === 'confirm' ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <span>Create Profile</span>
+                </div>
+              ) : (
+                'Continue'
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
