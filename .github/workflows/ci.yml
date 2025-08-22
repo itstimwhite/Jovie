@@ -70,13 +70,7 @@ jobs:
           cancel_others: 'true'
       - uses: actions/checkout@v4
         with: { fetch-depth: 2 }
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: '**/package-lock.json'
-      - name: Install
-        run: npm ci
+      - uses: ./.github/actions/setup-node
       - name: Typecheck
         run: npm run typecheck --if-present
       - name: Lint
@@ -90,12 +84,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 2 }
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: '**/package-lock.json'
-      - run: npm ci
+      - uses: ./.github/actions/setup-node
       - name: Install Playwright
         if: ${{ hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '' }}
         run: npx playwright install --with-deps
@@ -115,8 +104,9 @@ jobs:
       url: https://preview.jov.ie
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
+      - uses: ./.github/actions/setup-node
+        with:
+          install-dependencies: 'false'
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
       - name: DB migrate (preview)
@@ -178,9 +168,9 @@ jobs:
       url: https://jov.ie
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: ./.github/actions/setup-node
         with:
-          node-version: 20
+          install-dependencies: 'false'
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
       - name: DB migrate (main) — requires backup and ALLOW_PROD_MIGRATIONS=true

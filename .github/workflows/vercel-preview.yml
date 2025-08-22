@@ -26,9 +26,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
-      - uses: actions/setup-node@v4
+      - uses: ./.github/actions/setup-node
         with:
-          node-version: 20
+          install-dependencies: 'false'
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
       - name: Pull env (preview)
