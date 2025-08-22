@@ -1,5 +1,6 @@
 // Feature flags interface
 export interface FeatureFlags {
+  // Original flags
   artistSearchEnabled: boolean;
   debugBannerEnabled: boolean;
   tipPromoEnabled: boolean;
@@ -7,10 +8,20 @@ export interface FeatureFlags {
   universalNotificationsEnabled: boolean;
   // Gate new anonymous click logging via SECURITY DEFINER RPC
   featureClickAnalyticsRpc: boolean;
+
+  // New MVP flags (snake_case in API, camelCase in interface)
+  featureClaimHandle: boolean;
+  featureArtistSearch: boolean;
+  featureTipPromo: boolean;
+  featurePricingClerk: boolean;
+  featureUniversalNotifications: boolean;
+  // featureClickAnalyticsRpc already defined above
+  featureAntiCloakingInterstitial: boolean;
 }
 
 // Default feature flags (fallback)
 const defaultFeatureFlags: FeatureFlags = {
+  // Original flags with original defaults
   artistSearchEnabled: true,
   // Debug banner is removed site-wide; keep flag for compatibility but default to false
   debugBannerEnabled: false,
@@ -19,6 +30,15 @@ const defaultFeatureFlags: FeatureFlags = {
   // Universal notifications only enabled in development for now
   universalNotificationsEnabled: process.env.NODE_ENV === 'development',
   featureClickAnalyticsRpc: false,
+
+  // New MVP flags with specified defaults
+  featureClaimHandle: false, // default OFF
+  featureArtistSearch: true, // default ON
+  featureTipPromo: true, // default ON
+  featurePricingClerk: false, // default OFF
+  featureUniversalNotifications: process.env.NODE_ENV === 'development', // default DEV-only
+  // featureClickAnalyticsRpc already defined above
+  featureAntiCloakingInterstitial: true, // default ON
 };
 
 // Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
@@ -51,6 +71,7 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
         hasRpcFlag
       ) {
         return {
+          // Original flags
           artistSearchEnabled: Boolean(
             data.artistSearchEnabled ?? defaultFeatureFlags.artistSearchEnabled
           ),
@@ -77,6 +98,32 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
                   ])
               : defaultFeatureFlags.featureClickAnalyticsRpc
           ),
+          
+          // New MVP flags
+          featureClaimHandle: Boolean(
+            (data as Record<string, unknown>)['feature_claim_handle'] ?? 
+            defaultFeatureFlags.featureClaimHandle
+          ),
+          featureArtistSearch: Boolean(
+            (data as Record<string, unknown>)['feature_artist_search'] ?? 
+            defaultFeatureFlags.featureArtistSearch
+          ),
+          featureTipPromo: Boolean(
+            (data as Record<string, unknown>)['feature_tip_promo'] ?? 
+            defaultFeatureFlags.featureTipPromo
+          ),
+          featurePricingClerk: Boolean(
+            (data as Record<string, unknown>)['feature_pricing_clerk'] ?? 
+            defaultFeatureFlags.featurePricingClerk
+          ),
+          featureUniversalNotifications: Boolean(
+            (data as Record<string, unknown>)['feature_universal_notifications'] ?? 
+            defaultFeatureFlags.featureUniversalNotifications
+          ),
+          featureAntiCloakingInterstitial: Boolean(
+            (data as Record<string, unknown>)['feature_anti_cloaking_interstitial'] ?? 
+            defaultFeatureFlags.featureAntiCloakingInterstitial
+          ),
         };
       }
     }
@@ -98,6 +145,7 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
           data2.flags?.['featureClickAnalyticsRpc']?.default ??
           data2.flags?.['feature_click_analytics_rpc']?.default;
         return {
+          // Original flags
           artistSearchEnabled: Boolean(
             data2.flags?.artistSearchEnabled?.default ??
               defaultFeatureFlags.artistSearchEnabled
@@ -122,6 +170,32 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
             typeof rpcFlag !== 'undefined'
               ? rpcFlag
               : defaultFeatureFlags.featureClickAnalyticsRpc
+          ),
+          
+          // New MVP flags
+          featureClaimHandle: Boolean(
+            data2.flags?.feature_claim_handle?.default ??
+              defaultFeatureFlags.featureClaimHandle
+          ),
+          featureArtistSearch: Boolean(
+            data2.flags?.feature_artist_search?.default ??
+              defaultFeatureFlags.featureArtistSearch
+          ),
+          featureTipPromo: Boolean(
+            data2.flags?.feature_tip_promo?.default ??
+              defaultFeatureFlags.featureTipPromo
+          ),
+          featurePricingClerk: Boolean(
+            data2.flags?.feature_pricing_clerk?.default ??
+              defaultFeatureFlags.featurePricingClerk
+          ),
+          featureUniversalNotifications: Boolean(
+            data2.flags?.feature_universal_notifications?.default ??
+              defaultFeatureFlags.featureUniversalNotifications
+          ),
+          featureAntiCloakingInterstitial: Boolean(
+            data2.flags?.feature_anti_cloaking_interstitial?.default ??
+              defaultFeatureFlags.featureAntiCloakingInterstitial
           ),
         };
       }
@@ -168,6 +242,7 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
         hasRpcFlag
       ) {
         return {
+          // Original flags
           artistSearchEnabled: Boolean(
             data.artistSearchEnabled ?? defaultFeatureFlags.artistSearchEnabled
           ),
@@ -194,6 +269,32 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
                   ])
               : defaultFeatureFlags.featureClickAnalyticsRpc
           ),
+          
+          // New MVP flags
+          featureClaimHandle: Boolean(
+            (data as Record<string, unknown>)['feature_claim_handle'] ?? 
+            defaultFeatureFlags.featureClaimHandle
+          ),
+          featureArtistSearch: Boolean(
+            (data as Record<string, unknown>)['feature_artist_search'] ?? 
+            defaultFeatureFlags.featureArtistSearch
+          ),
+          featureTipPromo: Boolean(
+            (data as Record<string, unknown>)['feature_tip_promo'] ?? 
+            defaultFeatureFlags.featureTipPromo
+          ),
+          featurePricingClerk: Boolean(
+            (data as Record<string, unknown>)['feature_pricing_clerk'] ?? 
+            defaultFeatureFlags.featurePricingClerk
+          ),
+          featureUniversalNotifications: Boolean(
+            (data as Record<string, unknown>)['feature_universal_notifications'] ?? 
+            defaultFeatureFlags.featureUniversalNotifications
+          ),
+          featureAntiCloakingInterstitial: Boolean(
+            (data as Record<string, unknown>)['feature_anti_cloaking_interstitial'] ?? 
+            defaultFeatureFlags.featureAntiCloakingInterstitial
+          ),
         };
       }
     }
@@ -211,6 +312,7 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
           data.flags?.['featureClickAnalyticsRpc']?.default ??
           data.flags?.['feature_click_analytics_rpc']?.default;
         return {
+          // Original flags
           artistSearchEnabled: Boolean(
             data.flags?.artistSearchEnabled?.default ??
               defaultFeatureFlags.artistSearchEnabled
@@ -235,6 +337,32 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
             typeof rpcFlag !== 'undefined'
               ? rpcFlag
               : defaultFeatureFlags.featureClickAnalyticsRpc
+          ),
+          
+          // New MVP flags
+          featureClaimHandle: Boolean(
+            data.flags?.feature_claim_handle?.default ??
+              defaultFeatureFlags.featureClaimHandle
+          ),
+          featureArtistSearch: Boolean(
+            data.flags?.feature_artist_search?.default ??
+              defaultFeatureFlags.featureArtistSearch
+          ),
+          featureTipPromo: Boolean(
+            data.flags?.feature_tip_promo?.default ??
+              defaultFeatureFlags.featureTipPromo
+          ),
+          featurePricingClerk: Boolean(
+            data.flags?.feature_pricing_clerk?.default ??
+              defaultFeatureFlags.featurePricingClerk
+          ),
+          featureUniversalNotifications: Boolean(
+            data.flags?.feature_universal_notifications?.default ??
+              defaultFeatureFlags.featureUniversalNotifications
+          ),
+          featureAntiCloakingInterstitial: Boolean(
+            data.flags?.feature_anti_cloaking_interstitial?.default ??
+              defaultFeatureFlags.featureAntiCloakingInterstitial
           ),
         };
       }

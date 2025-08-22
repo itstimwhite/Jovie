@@ -1,226 +1,157 @@
-# Feature Flags with Statsig
+# Feature Flags Catalog
 
-Jovie uses [Statsig](https://statsig.com/) for feature flag management and experimentation. This provides a robust, real-time feature flag system with advanced A/B testing capabilities.
+Jovie uses a simple feature flag system to control feature availability across different environments.
 
-## Setup
+## Feature Flag Naming Convention
 
-### 1. Environment Variables
+All feature flags follow the snake_case naming convention:
 
-Add your Statsig client key to `.env.local`:
+- `feature_claim_handle`
+- `feature_tip_promo`
+- `feature_artist_search`
+- etc.
 
-```bash
-NEXT_PUBLIC_STATSIG_CLIENT_KEY=client-<your-statsig-client-key>
-```
+## MVP Feature Flag Catalog
 
-### 2. Provider Integration
+| Flag Name                            | Default  | Owner              | Environments       | Success Metric                             | Rollback Plan       |
+| ------------------------------------ | -------- | ------------------ | ------------------ | ------------------------------------------ | ------------------- |
+| `feature_claim_handle`               | OFF      | Product Team       | Dev, Preview, Prod | `profile_handle_claim` PostHog event       | Disable flag in API |
+| `feature_tip_promo`                  | ON       | Marketing Team     | Dev, Preview, Prod | `tip_promo_click` PostHog event            | Disable flag in API |
+| `feature_artist_search`              | ON       | Search Team        | Dev, Preview, Prod | `artist_search_result_click` PostHog event | Disable flag in API |
+| `feature_pricing_clerk`              | OFF      | Payments Team      | Dev, Preview, Prod | `pricing_plan_select` PostHog event        | Disable flag in API |
+| `feature_universal_notifications`    | DEV-only | Notifications Team | Dev                | `notification_view` PostHog event          | Disable flag in API |
+| `feature_click_analytics_rpc`        | OFF      | Analytics Team     | Dev, Preview, Prod | `click_event_logged` PostHog event         | Disable flag in API |
+| `feature_anti_cloaking_interstitial` | ON       | Security Team      | Dev, Preview, Prod | `interstitial_view` PostHog event          | Disable flag in API |
 
-The Statsig provider is integrated in `app/my-statsig.tsx` and wraps the entire application in `app/layout.tsx`.
+## Implementation
 
-## Available Feature Flags
+Feature flags are implemented in two key locations:
 
-### Current Flags
+1. **API Endpoint**: `/api/feature-flags/route.ts` - Serves the current flag values
+2. **Client Library**: `/lib/feature-flags.ts` - Provides functions to access flags
 
-| Flag Name              | Type   | Description                      | Default             |
-| ---------------------- | ------ | -------------------------------- | ------------------- |
-| `waitlist_enabled`     | Gate   | Controls waitlist functionality  | `false`             |
-| `debug_banner_enabled` | Gate   | Controls debug banner visibility | `development`       |
-| `artist_search_config` | Config | Artist search configuration      | `{ enabled: true }` |
-| `tip_promo_config`     | Config | Tip promotion configuration      | `{ enabled: true }` |
-
-### Usage in Components
+### Using Feature Flags in Components
 
 ```typescript
-import { useFeatureFlags } from '@/lib/feature-flags';
+import { useEffect, useState } from 'react';
+import { getFeatureFlags } from '@/lib/feature-flags';
 
 export function MyComponent() {
-  const { waitlistEnabled, debugBannerEnabled } = useFeatureFlags();
+  const [flags, setFlags] = useState({
+    featureClaimHandle: false,
+    featureTipPromo: true,
+  });
+
+  useEffect(() => {
+    async function loadFlags() {
+      const featureFlags = await getFeatureFlags();
+      setFlags(featureFlags);
+    }
+    loadFlags();
+  }, []);
 
   return (
     <div>
-      {waitlistEnabled && <WaitlistComponent />}
-      {debugBannerEnabled && <DebugBanner />}
+      {flags.featureClaimHandle && <ClaimHandleComponent />}
+      {flags.featureTipPromo && <TipPromoComponent />}
     </div>
   );
 }
 ```
 
-## Statsig Dashboard Configuration
-
-### 1. Create Gates
-
-In the Statsig dashboard, create the following gates:
-
-#### `waitlist_enabled`
-
-- **Type**: Boolean Gate
-- **Description**: Controls waitlist functionality
-- **Default**: `false`
-
-#### `debug_banner_enabled`
-
-- **Type**: Boolean Gate
-- **Description**: Controls debug banner visibility
-- **Default**: `true` (development), `false` (production)
-
-### 2. Create Configs
-
-#### `artist_search_config`
-
-- **Type**: JSON Config
-- **Description**: Artist search configuration
-- **Default**: `{ "enabled": true }`
-
-#### `tip_promo_config`
-
-- **Type**: JSON Config
-- **Description**: Tip promotion configuration
-- **Default**: `{ "enabled": true }`
-
-## Advanced Usage
-
-### User Segmentation
-
-Statsig automatically includes user information from Clerk:
+### Server-Side Usage
 
 ```typescript
-// User object passed to Statsig
-const statsigUser = {
-  userID: user?.id || 'anonymous-user',
-  email: user?.emailAddresses?.[0]?.emailAddress,
-  custom: {
-    plan: (user?.publicMetadata?.plan as string) || 'free',
-  },
-};
-```
+import { getServerFeatureFlags } from '@/lib/feature-flags';
 
-### A/B Testing
-
-You can create experiments in the Statsig dashboard:
-
-```typescript
-import { useExperiment } from '@statsig/react-bindings';
-
-export function MyComponent() {
-  const experiment = useExperiment('my_experiment');
+export async function ServerComponent() {
+  const flags = await getServerFeatureFlags();
 
   return (
     <div>
-      {experiment.get('variant') === 'A' && <VariantA />}
-      {experiment.get('variant') === 'B' && <VariantB />}
+      {flags.featureArtistSearch && <ArtistSearchResults />}
     </div>
   );
 }
 ```
 
-### Dynamic Configs
+## Feature Flag Management
+
+### Adding a New Flag
+
+1. Add the flag to the interface in `lib/feature-flags.ts`
+2. Add the flag to the defaults in `lib/feature-flags.ts`
+3. Add the flag to the API endpoint in `app/api/feature-flags/route.ts`
+4. Update this documentation with the flag details
+
+### Changing Flag Values
+
+Flag values should be changed in the API endpoint:
 
 ```typescript
-import { useConfig } from '@statsig/react-bindings';
+// app/api/feature-flags/route.ts
+export async function GET() {
+  const flags = {
+    // ...
+    feature_claim_handle: true, // Changed from false to true
+    // ...
+  } as const;
 
-export function MyComponent() {
-  const config = useConfig('my_config');
-
-  const setting = config.get('setting', 'default');
-
-  return <div>{setting}</div>;
+  // ...
 }
 ```
 
-## Migration from Edge Config
+### Removing a Flag
 
-The feature flags system has been migrated from Vercel Edge Config to Statsig:
+1. Remove the flag from the API endpoint
+2. Remove the flag from the interface and defaults
+3. Update this documentation
 
-### Before (Edge Config)
-
-```typescript
-import { createClient } from '@vercel/edge-config';
-
-const edgeConfig = createClient(process.env.EDGE_CONFIG);
-const flags = await edgeConfig.get('featureFlags');
-```
-
-### After (Statsig)
-
-```typescript
-import { useFeatureFlags } from '@/lib/feature-flags';
-
-const { waitlistEnabled, debugBannerEnabled } = useFeatureFlags();
-```
-
-## Testing
+## Testing with Feature Flags
 
 ### Unit Tests
 
-When testing components that use feature flags:
-
 ```typescript
-import { render, screen } from '@testing-library/react';
-import { StatsigProvider } from '@statsig/react-bindings';
+// Mock the feature flags for testing
+jest.mock('@/lib/feature-flags', () => ({
+  getFeatureFlags: jest.fn().mockResolvedValue({
+    featureClaimHandle: true,
+    // other flags...
+  }),
+}));
 
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <StatsigProvider
-    sdkKey="test-key"
-    user={{ userID: 'test-user' }}
-    options={{ logLevel: 'none' }}
-  >
-    {children}
-  </StatsigProvider>
-);
-
-test('component shows when flag is enabled', () => {
-  render(
-    <TestWrapper>
-      <MyComponent />
-    </TestWrapper>
-  );
-
-  expect(screen.getByText('Feature enabled')).toBeInTheDocument();
+test('component renders with feature flag enabled', async () => {
+  render(<MyComponent />);
+  // Test component with flag enabled
 });
 ```
 
 ### E2E Tests
 
-For end-to-end tests, you can configure feature flags per test:
-
 ```typescript
-test('waitlist flow with flag enabled', async ({ page }) => {
-  // Configure Statsig for this test
-  await page.addInitScript(() => {
-    window.STATSIG_OVERRIDES = {
-      waitlist_enabled: true,
-    };
+// In your Playwright test
+test('feature works when flag is enabled', async ({ page }) => {
+  // Mock the API response for feature flags
+  await page.route('/api/feature-flags', async (route) => {
+    await route.fulfill({
+      status: 200,
+      body: JSON.stringify({
+        feature_claim_handle: true,
+        // other flags...
+      }),
+    });
   });
 
   await page.goto('/');
-  await expect(page.locator('[data-testid="waitlist"]')).toBeVisible();
+  // Test with flag enabled
 });
 ```
 
 ## Best Practices
 
-1. **Always provide defaults**: Use fallback values for all feature flags
-2. **Test both states**: Test components with flags enabled and disabled
-3. **Use descriptive names**: Make flag names self-documenting
-4. **Document changes**: Update this file when adding new flags
-5. **Monitor usage**: Use Statsig analytics to track flag usage
-
-## Troubleshooting
-
-### Flag not working?
-
-1. Check that `NEXT_PUBLIC_STATSIG_CLIENT_KEY` is set correctly
-2. Verify the flag exists in the Statsig dashboard
-3. Check browser console for Statsig errors
-4. Ensure the component is wrapped in `StatsigProvider`
-
-### Performance issues?
-
-1. Statsig caches flags locally for performance
-2. Use `useFeatureFlags()` hook for real-time updates
-3. Consider using `useConfig()` for complex configurations
-
-## Resources
-
-- [Statsig Documentation](https://docs.statsig.com/)
-- [React Bindings Guide](https://docs.statsig.com/client-libraries/react)
-- [Feature Flag Best Practices](https://docs.statsig.com/guides/feature-flags)
+1. **Default to OFF for new features**: Start with flags turned off and gradually roll out
+2. **Document all flags**: Keep this document updated with all flags
+3. **Clean up unused flags**: Remove flags for fully launched features
+4. **Use consistent naming**: Follow the `feature_name_action` pattern
+5. **Track metrics**: Always associate a PostHog event with each flag
+6. **Have a rollback plan**: Document how to quickly disable a feature if issues arise
