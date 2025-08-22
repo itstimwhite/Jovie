@@ -37,6 +37,12 @@ export function CookieBannerSection() {
     const consent = { essential: true, analytics: true, marketing: true };
     await saveConsent(consent);
     window.JVConsent?._emit(consent);
+    // Update client-side cache
+    try {
+      localStorage.setItem('jv_cc_client', JSON.stringify(consent));
+    } catch {
+      // Ignore storage errors
+    }
     setVisible(false);
   };
 
@@ -44,6 +50,12 @@ export function CookieBannerSection() {
     const consent = { essential: true, analytics: false, marketing: false };
     await saveConsent(consent);
     window.JVConsent?._emit(consent);
+    // Update client-side cache
+    try {
+      localStorage.setItem('jv_cc_client', JSON.stringify(consent));
+    } catch {
+      // Ignore storage errors
+    }
     setVisible(false);
   };
 

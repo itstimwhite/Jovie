@@ -28,6 +28,12 @@ export default function CookieModal({
 
   const save = async () => {
     await saveConsent(settings);
+    // Update client-side cache
+    try {
+      localStorage.setItem('jv_cc_client', JSON.stringify(settings));
+    } catch {
+      // Ignore storage errors
+    }
     onSave?.(settings);
     onClose();
   };

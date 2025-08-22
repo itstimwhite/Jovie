@@ -19,76 +19,81 @@ declare global {
   }
 }
 
-// Initialize PostHog on the client when key is present - deferred to not block paint
-if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
-  // Defer analytics initialization to not block initial paint
-  setTimeout(() => {
-    const getEnvTag = (): 'dev' | 'preview' | 'prod' => {
-      try {
-        const prodHost = new URL(publicEnv.NEXT_PUBLIC_APP_URL).hostname;
-        const host = window.location.hostname;
-        if (
-          host === 'localhost' ||
-          host === '127.0.0.1' ||
-          host.endsWith('.local')
-        ) {
-          return 'dev';
-        }
-        if (host === prodHost || host === `www.${prodHost}`) {
-          return 'prod';
-        }
-        return 'preview';
-      } catch {
-        return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
-      }
-    };
+// PostHog initialization is deferred until consent is given
+// This is handled by the initPostHog function below
 
-    const options: Parameters<typeof posthog.init>[1] = {
-      autocapture: true,
-      capture_pageview: false, // we'll send $pageview manually via page()
-      persistence: 'localStorage+cookie',
-    };
-    if (ANALYTICS.posthogHost) {
-      options.api_host = ANALYTICS.posthogHost;
+// Flag to track if PostHog has been initialized
+let posthogInitialized = false;
+
+// Function to get environment tag for analytics
+const getEnvTag = (): 'dev' | 'preview' | 'prod' => {
+  if (typeof window === 'undefined') {
+    return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
+  }
+
+  try {
+    const prodHost = new URL(publicEnv.NEXT_PUBLIC_APP_URL).hostname;
+    const host = window.location.hostname;
+    if (
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host.endsWith('.local')
+    ) {
+      return 'dev';
     }
-    try {
-      posthog.init(ANALYTICS.posthogKey, options);
-      // Ensure every event has env attached
-      posthog.register({ env: getEnvTag() });
-    } catch (e) {
-      // noop – avoid breaking the app if analytics fails to init
-      // eslint-disable-next-line no-console
-      console.warn('PostHog init failed:', e);
+    if (host === prodHost || host === `www.${prodHost}`) {
+      return 'prod';
     }
-  }, 0); // Execute on next tick to not block initial paint
+    return 'preview';
+  } catch {
+    return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
+  }
+};
+
+// Initialize PostHog with consent
+export function initPostHog(): boolean {
+  // Skip if already initialized or not in browser
+  if (
+    posthogInitialized ||
+    typeof window === 'undefined' ||
+    !ANALYTICS.posthogKey
+  ) {
+    return posthogInitialized;
+  }
+
+  const options: Parameters<typeof posthog.init>[1] = {
+    autocapture: true,
+    capture_pageview: false, // we'll send $pageview manually via page()
+    persistence: 'localStorage+cookie',
+  };
+
+  if (ANALYTICS.posthogHost) {
+    options.api_host = ANALYTICS.posthogHost;
+  }
+
+  try {
+    posthog.init(ANALYTICS.posthogKey, options);
+    // Ensure every event has env attached
+    posthog.register({ env: getEnvTag() });
+    posthogInitialized = true;
+    return true;
+  } catch (e) {
+    // noop – avoid breaking the app if analytics fails to init
+    // eslint-disable-next-line no-console
+    console.warn('PostHog init failed:', e);
+    return false;
+  }
 }
 
 export function track(event: string, properties?: Record<string, unknown>) {
   if (typeof window !== 'undefined') {
-    const envTag = (() => {
-      try {
-        const prodHost = new URL(publicEnv.NEXT_PUBLIC_APP_URL).hostname;
-        const host = window.location.hostname;
-        if (
-          host === 'localhost' ||
-          host === '127.0.0.1' ||
-          host.endsWith('.local')
-        ) {
-          return 'dev';
-        }
-        if (host === prodHost || host === `www.${prodHost}`) {
-          return 'prod';
-        }
-        return 'preview';
-      } catch {
-        return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
-      }
-    })();
+    const envTag = getEnvTag();
+    const props = { ...(properties || {}), env: envTag };
 
-    // Track with PostHog
+    // Track with PostHog (only if initialized)
     try {
-      if (ANALYTICS.posthogKey) {
-        posthog.capture(event, properties);
+      if (posthogInitialized && ANALYTICS.posthogKey) {
+        posthog.capture(event, props);
       }
     } catch {}
 
@@ -96,46 +101,29 @@ export function track(event: string, properties?: Record<string, unknown>) {
     if (window.va) {
       window.va('event', {
         name: event,
-        properties: { ...(properties || {}), env: envTag },
+        properties: props,
       });
     }
 
     // Track with Google Analytics (if available)
     if (window.gtag) {
-      window.gtag('event', event, { ...(properties || {}), env: envTag });
+      window.gtag('event', event, props);
     }
   }
 }
 
 export function page(name?: string, properties?: Record<string, unknown>) {
   if (typeof window !== 'undefined') {
-    const envTag = (() => {
-      try {
-        const prodHost = new URL(publicEnv.NEXT_PUBLIC_APP_URL).hostname;
-        const host = window.location.hostname;
-        if (
-          host === 'localhost' ||
-          host === '127.0.0.1' ||
-          host.endsWith('.local')
-        ) {
-          return 'dev';
-        }
-        if (host === prodHost || host === `www.${prodHost}`) {
-          return 'prod';
-        }
-        return 'preview';
-      } catch {
-        return process.env.NODE_ENV === 'development' ? 'dev' : 'prod';
-      }
-    })();
+    const envTag = getEnvTag();
+    const props = { ...(properties || {}), env: envTag };
 
-    // Track with PostHog as a pageview
+    // Track with PostHog as a pageview (only if initialized)
     try {
-      if (ANALYTICS.posthogKey) {
+      if (posthogInitialized && ANALYTICS.posthogKey) {
         posthog.capture('$pageview', {
           name,
           url: window.location.pathname,
-          ...properties,
+          ...props,
         });
       }
     } catch {}
@@ -144,7 +132,7 @@ export function page(name?: string, properties?: Record<string, unknown>) {
     if (window.va) {
       window.va('page_view', {
         name,
-        properties: { ...(properties || {}), env: envTag },
+        properties: props,
       });
     }
   }
@@ -152,9 +140,9 @@ export function page(name?: string, properties?: Record<string, unknown>) {
 
 export function identify(userId: string, traits?: Record<string, unknown>) {
   if (typeof window !== 'undefined') {
-    // Identify in PostHog
+    // Identify in PostHog (only if initialized)
     try {
-      if (ANALYTICS.posthogKey) {
+      if (posthogInitialized && ANALYTICS.posthogKey) {
         posthog.identify(userId, traits);
       }
     } catch {}
@@ -181,7 +169,7 @@ export type FeatureFlagName =
 // Use defaultValue for safe rendering before flags load
 export function isFeatureEnabled(flag: FeatureFlagName | string): boolean {
   if (typeof window === 'undefined') return false;
-  if (!ANALYTICS.posthogKey) return false;
+  if (!posthogInitialized || !ANALYTICS.posthogKey) return false;
   try {
     return Boolean(posthog.isFeatureEnabled(flag));
   } catch {
@@ -196,7 +184,7 @@ export function useFeatureFlag(
   const [enabled, setEnabled] = useState<boolean>(defaultValue);
 
   useEffect(() => {
-    if (!ANALYTICS.posthogKey) {
+    if (!posthogInitialized || !ANALYTICS.posthogKey) {
       setEnabled(defaultValue);
       return;
     }
@@ -243,7 +231,7 @@ export function useFeatureFlagWithLoading(
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (!ANALYTICS.posthogKey) {
+    if (!posthogInitialized || !ANALYTICS.posthogKey) {
       setEnabled(defaultValue);
       setLoading(false);
       return;
