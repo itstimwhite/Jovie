@@ -3,7 +3,7 @@
  * Handles creation and management of wrapped links
  */
 
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createAnonymousClient } from '@/lib/supabase/client';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   categorizeDomain,
@@ -51,7 +51,13 @@ export interface LinkStats {
 export async function createWrappedLink(
   options: CreateWrappedLinkOptions
 ): Promise<WrappedLink | null> {
-  const { url, userId, expiresInHours, customAlias, supabase: clientSupabase } = options;
+  const {
+    url,
+    userId,
+    expiresInHours,
+    customAlias,
+    supabase: clientSupabase,
+  } = options;
 
   if (!isValidUrl(url)) {
     throw new Error('Invalid URL provided');
@@ -61,7 +67,7 @@ export async function createWrappedLink(
   const category = await categorizeDomain(url);
 
   try {
-    const supabase = clientSupabase || await createServerSupabaseClient();
+    const supabase = clientSupabase || createAnonymousClient();
 
     // Generate unique short ID
     let shortId = customAlias || generateShortId();
@@ -140,7 +146,7 @@ export async function getWrappedLink(
   supabase?: SupabaseClient
 ): Promise<WrappedLink | null> {
   try {
-    const client = supabase || await createServerSupabaseClient();
+    const client = supabase || createAnonymousClient();
 
     const { data, error } = await client
       .from('wrapped_links')
@@ -186,7 +192,7 @@ export async function incrementClickCount(
   supabase?: SupabaseClient
 ): Promise<boolean> {
   try {
-    const client = supabase || await createServerSupabaseClient();
+    const client = supabase || createAnonymousClient();
 
     const { error } = await client
       .from('wrapped_links')
@@ -212,7 +218,7 @@ export async function getLinkStats(
   supabase?: SupabaseClient
 ): Promise<LinkStats> {
   try {
-    const client = supabase || await createServerSupabaseClient();
+    const client = supabase || createAnonymousClient();
 
     let query = client.from('wrapped_links').select('*');
 
@@ -273,7 +279,7 @@ export async function cleanupExpiredLinks(
   supabase?: SupabaseClient
 ): Promise<number> {
   try {
-    const client = supabase || await createServerSupabaseClient();
+    const client = supabase || createAnonymousClient();
 
     const { data, error } = await client
       .from('wrapped_links')
@@ -325,7 +331,7 @@ export async function updateWrappedLink(
   supabase?: SupabaseClient
 ): Promise<boolean> {
   try {
-    const client = supabase || await createServerSupabaseClient();
+    const client = supabase || createAnonymousClient();
 
     const updateData: Record<string, unknown> = {};
     if (updates.titleAlias) updateData.title_alias = updates.titleAlias;
