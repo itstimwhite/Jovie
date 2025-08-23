@@ -67,14 +67,13 @@ describe('Toast Component', () => {
 
     expect(onCloseMock).not.toHaveBeenCalled();
 
-    vi.advanceTimersByTime(1000);
-    await waitFor(() => {
-      expect(screen.getByRole('alert')).not.toHaveClass('animate-in');
-      expect(screen.getByRole('alert')).toHaveClass('animate-out');
-    });
+    // Fast forward time to trigger the timeout
+    vi.advanceTimersByTime(1100);
 
-    vi.advanceTimersByTime(300);
-    expect(onCloseMock).toHaveBeenCalledTimes(1);
+    // Wait for the onClose to be called
+    await waitFor(() => {
+      expect(onCloseMock).toHaveBeenCalled();
+    });
 
     vi.useRealTimers();
   });

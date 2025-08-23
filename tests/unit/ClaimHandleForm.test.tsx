@@ -71,10 +71,11 @@ describe('ClaimHandleForm', () => {
     });
 
     // Mock clipboard API
-    Object.assign(navigator, {
-      clipboard: {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: {
         writeText: vi.fn(),
       },
+      writable: true,
     });
 
     render(<ClaimHandleForm />);
