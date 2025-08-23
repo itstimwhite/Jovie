@@ -8,15 +8,29 @@ import { createClient } from '@supabase/supabase-js';
 import { auth } from '@clerk/nextjs/server';
 import { cache } from 'react';
 
-// Environment variables with fallback support
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+/**
+ * Get Supabase configuration at runtime
+ * This avoids issues with environment variables during build time
+ */
+function getSupabaseConfig() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Validate environment variables at module load
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing required Supabase environment variables');
+  if (!supabaseUrl) {
+    throw new Error(
+      'Missing NEXT_PUBLIC_SUPABASE_URL environment variable. Please configure it in your .env.local file or deployment environment.'
+    );
+  }
+
+  if (!supabaseAnonKey) {
+    throw new Error(
+      'Missing Supabase anonymous key. Please set either NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY in your .env.local file or deployment environment.'
+    );
+  }
+
+  return { supabaseUrl, supabaseAnonKey };
 }
 
 /**
@@ -59,6 +73,7 @@ const baseConfig = {
  * @returns Supabase client with Clerk authentication
  */
 export async function createAuthenticatedClient() {
+  const { supabaseUrl, supabaseAnonKey } = getSupabaseConfig();
   return createClient(supabaseUrl, supabaseAnonKey, {
     ...baseConfig,
     async accessToken() {
@@ -74,6 +89,7 @@ export async function createAuthenticatedClient() {
  * @returns Supabase client without authentication
  */
 export function createAnonymousClient() {
+  const { supabaseUrl, supabaseAnonKey } = getSupabaseConfig();
   return createClient(supabaseUrl, supabaseAnonKey, baseConfig);
 }
 

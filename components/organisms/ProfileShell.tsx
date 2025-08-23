@@ -1,7 +1,8 @@
-import React from 'react';
-import Link from 'next/link';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Container } from '@/components/site/Container';
 import { FrostedButton } from '@/components/atoms/FrostedButton';
+import { CTAButton } from '@/components/atoms/CTAButton';
 import { BackgroundPattern } from '@/components/atoms/BackgroundPattern';
 import { ArtistInfo } from '@/components/molecules/ArtistInfo';
 import { SocialLink as SocialLinkComponent } from '@/components/molecules/SocialLink';
@@ -37,6 +38,10 @@ export function ProfileShell({
   backgroundPattern = 'grid',
   showGradientBlurs = true,
 }: ProfileShellProps) {
+  const router = useRouter();
+  const [isTipNavigating, setIsTipNavigating] = useState(false);
+  const [isBackNavigating, setIsBackNavigating] = useState(false);
+
   return (
     <div
       className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 relative overflow-hidden"
@@ -63,21 +68,29 @@ export function ProfileShell({
               variant="default"
               shape="circle"
               aria-label="Back to profile"
-              onClick={() => window.history.back()}
+              onClick={() => {
+                setIsBackNavigating(true);
+                router.back();
+              }}
+              disabled={isBackNavigating}
             >
-              <svg
-                className="w-5 h-5 text-gray-700 dark:text-gray-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
+              {isBackNavigating ? (
+                <div className="w-5 h-5 rounded-full border-2 border-gray-300 border-t-gray-700 animate-spin" />
+              ) : (
+                <svg
+                  className="w-5 h-5 text-gray-700 dark:text-gray-300"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
+                </svg>
+              )}
             </FrostedButton>
           </div>
         )}
@@ -150,14 +163,16 @@ export function ProfileShell({
                   {/* Tip Button - Right side */}
                   {showTipButton && (
                     <div className="flex-shrink-0">
-                      <Link
+                      <CTAButton
                         href={`/${artist.handle}?mode=tip`}
-                        prefetch
-                        className="inline-flex items-center px-3 py-1.5 bg-white/10 hover:bg-white/20 dark:bg-white/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 font-medium text-xs rounded-full transition-all duration-200 border border-gray-200/30 dark:border-white/10 backdrop-blur-sm cursor-pointer"
+                        variant="white"
+                        size="sm"
+                        className="px-3 py-1.5 text-xs rounded-full bg-white/10 hover:bg-white/20 dark:bg-white/5 dark:hover:bg-white/10 border border-gray-200/30 dark:border-white/10 backdrop-blur-sm"
+                        isLoading={isTipNavigating}
+                        onClick={() => setIsTipNavigating(true)}
                       >
-                        <span className="mr-1.5 text-xs">💸</span>
                         Tip
-                      </Link>
+                      </CTAButton>
                     </div>
                   )}
                 </div>
