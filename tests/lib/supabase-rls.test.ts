@@ -184,7 +184,7 @@ describe('Supabase RLS Policies', () => {
       const query = mockClient
         .from('social_links')
         .select('*')
-        .eq('artist_id', 'published-artist-id');
+        .eq('creator_profile_id', 'published-artist-id');
 
       await query.then((result: SupabaseResult<typeof socialLinks>) => {
         expect(result.data).toHaveLength(2);
@@ -211,7 +211,7 @@ describe('Supabase RLS Policies', () => {
       const query = mockClient
         .from('social_links')
         .select('*')
-        .eq('artist_id', 'unpublished-artist-id');
+        .eq('creator_profile_id', 'unpublished-artist-id');
 
       await query.then((result: SupabaseResult<unknown[]>) => {
         expect(result.data).toEqual([]);
