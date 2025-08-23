@@ -76,10 +76,7 @@ test.describe('Dashboard Access Control', () => {
     // Sign up User A
     await page.evaluate(
       async ({ email, password }) => {
-        const clerk = (window as Record<string, unknown>).Clerk as Record<
-          string,
-          unknown
-        >;
+        const clerk = (window as unknown as { Clerk: any }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         try {
@@ -162,10 +159,7 @@ test.describe('Dashboard Access Control', () => {
     // Sign up User B
     await page.evaluate(
       async ({ email, password }) => {
-        const clerk = (window as Record<string, unknown>).Clerk as Record<
-          string,
-          unknown
-        >;
+        const clerk = (window as unknown as { Clerk: any }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         try {
@@ -232,10 +226,7 @@ test.describe('Dashboard Access Control', () => {
     // Sign in as User A
     await page.evaluate(
       async ({ email, password }) => {
-        const clerk = (window as Record<string, unknown>).Clerk as Record<
-          string,
-          unknown
-        >;
+        const clerk = (window as unknown as { Clerk: any }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         const signIn = await clerk.signIn?.create({

@@ -70,10 +70,7 @@ test.describe('Onboarding Happy Path', () => {
 
     await page.evaluate(
       async ({ email, password }) => {
-        const clerk = (window as Record<string, unknown>).Clerk as Record<
-          string,
-          unknown
-        >;
+        const clerk = (window as unknown as { Clerk: any }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         try {
@@ -249,10 +246,7 @@ test.describe('Onboarding Happy Path', () => {
 
     await page.evaluate(
       async ({ email, password }) => {
-        const clerk = (window as Record<string, unknown>).Clerk as Record<
-          string,
-          unknown
-        >;
+        const clerk = (window as unknown as { Clerk: any }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         const signIn = await clerk.signIn?.create({

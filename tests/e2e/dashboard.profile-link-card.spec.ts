@@ -59,9 +59,9 @@ test.describe('ProfileLinkCard E2E Tests', () => {
     // Spy on clipboard writeText method
     await page.evaluate(() => {
       // Store original method and create a spy
-      (window as Record<string, unknown>)._clipboardData = '';
+      (window as unknown as { _clipboardData: string })._clipboardData = '';
       navigator.clipboard.writeText = async (text: string) => {
-        (window as Record<string, unknown>)._clipboardData = text;
+        (window as unknown as { _clipboardData: string })._clipboardData = text;
         return Promise.resolve();
       };
     });
@@ -76,7 +76,7 @@ test.describe('ProfileLinkCard E2E Tests', () => {
 
     // Verify clipboard was called with correct URL
     const clipboardData = await page.evaluate(
-      () => (window as Record<string, unknown>)._clipboardData
+      () => (window as unknown as { _clipboardData: string })._clipboardData
     );
     expect(clipboardData).toBeTruthy();
     expect(clipboardData).toMatch(/^https?:\/\/.+\/[a-zA-Z0-9._-]+$/); // Should be full URL with handle
