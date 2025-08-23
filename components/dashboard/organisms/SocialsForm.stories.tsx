@@ -42,7 +42,13 @@ const mockSocialLinks = [
 ];
 
 // Mock empty social links for default state
-const mockEmptySocialLinks: any[] = [];
+interface SocialLink {
+  id: string;
+  platform: string;
+  url: string;
+}
+
+const mockEmptySocialLinks: SocialLink[] = [];
 
 // Mock invalid social links for validation error state
 const mockInvalidSocialLinks = [
@@ -89,7 +95,7 @@ type Story = StoryObj<typeof meta>;
 // Helper to setup mocks for each story
 const withSupabaseMock = (
   Story: React.ComponentType,
-  socialLinks: any[] = [],
+  socialLinks: SocialLink[] = [],
   shouldError: boolean = false
 ) => {
   // Save the original implementation
@@ -244,7 +250,7 @@ export const SuccessMessage: Story = {
       // Mock useState to show success message
       let callCount = 0;
       // @ts-ignore - we're intentionally mocking this
-      React.useState = (initialState: any) => {
+      React.useState = (initialState: unknown) => {
         callCount++;
         if (callCount === 1) return [false, () => {}]; // loading
         if (callCount === 2) return [undefined, () => {}]; // error
