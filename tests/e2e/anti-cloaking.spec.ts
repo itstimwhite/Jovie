@@ -28,24 +28,26 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
           platform: 'spotify',
         },
       });
-      
+
       expect(response.ok()).toBeTruthy();
       const data = await response.json();
       expect(data.kind).toBe('normal');
-      
+
       // Test redirect speed
       const startTime = Date.now();
       const redirectResponse = await page.request.get(`/go/${data.shortId}`, {
         maxRedirects: 0,
       });
       const endTime = Date.now();
-      
+
       expect(redirectResponse.status()).toBe(302);
       expect(endTime - startTime).toBeLessThan(150); // Under 150ms
-      
+
       // Check security headers
       expect(redirectResponse.headers()['referrer-policy']).toBe('no-referrer');
-      expect(redirectResponse.headers()['x-robots-tag']).toBe('noindex, nofollow, nosnippet, noarchive');
+      expect(redirectResponse.headers()['x-robots-tag']).toBe(
+        'noindex, nofollow, nosnippet, noarchive'
+      );
     });
 
     test('should handle invalid short IDs gracefully', async ({ page }) => {
@@ -63,22 +65,24 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
           platform: 'external',
         },
       });
-      
+
       expect(response.ok()).toBeTruthy();
       const data = await response.json();
       expect(data.kind).toBe('sensitive');
-      
+
       // Navigate to interstitial page
       await page.goto(`/out/${data.shortId}`);
-      
+
       // Check page content
-      await expect(page.locator('h1')).toContainText('Link Confirmation Required');
+      await expect(page.locator('h1')).toContainText(
+        'Link Confirmation Required'
+      );
       await expect(page.locator('button')).toContainText('Continue to Link');
-      
+
       // Check meta tags for crawler safety
       const title = await page.title();
       expect(title).toBe('Link Confirmation Required');
-      
+
       // Check that sensitive keywords are not exposed
       const content = await page.content();
       expect(content).not.toMatch(/(onlyfans|adult|porn|xxx|nsfw)/i);
@@ -92,20 +96,22 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
           platform: 'external',
         },
       });
-      
+
       const data = await response.json();
-      
+
       // Navigate to interstitial page
       await page.goto(`/out/${data.shortId}`);
-      
+
       // Click continue button
       await page.click('button:has-text("Continue to Link")');
-      
+
       // Should show verification state
       await expect(page.locator('text=Verifying')).toBeVisible();
-      
+
       // Should eventually redirect or show verified state
-      await expect(page.locator('text=Verified! Redirecting...')).toBeVisible({ timeout: 10000 });
+      await expect(page.locator('text=Verified! Redirecting...')).toBeVisible({
+        timeout: 10000,
+      });
     });
 
     test('should handle rate limiting on API endpoints', async ({ page }) => {
@@ -116,9 +122,9 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
           platform: 'external',
         },
       });
-      
+
       const data = await response.json();
-      
+
       // Make multiple rapid requests to trigger rate limiting
       const promises = Array.from({ length: 15 }, () =>
         page.request.post(`/api/link/${data.shortId}`, {
@@ -128,11 +134,11 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
           },
         })
       );
-      
+
       const responses = await Promise.all(promises);
-      
+
       // At least one should be rate limited
-      const rateLimitedResponse = responses.find(r => r.status() === 429);
+      const rateLimitedResponse = responses.find((r) => r.status() === 429);
       expect(rateLimitedResponse).toBeTruthy();
     });
   });
@@ -146,21 +152,24 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
           platform: 'external',
         },
       });
-      
+
       const data = await response.json();
-      
+
       // Test each Meta user agent
       for (const userAgent of META_USER_AGENTS) {
-        const botResponse = await page.request.post(`/api/link/${data.shortId}`, {
-          data: {
-            verified: true,
-            timestamp: Date.now(),
-          },
-          headers: {
-            'User-Agent': userAgent,
-          },
-        });
-        
+        const botResponse = await page.request.post(
+          `/api/link/${data.shortId}`,
+          {
+            data: {
+              verified: true,
+              timestamp: Date.now(),
+            },
+            headers: {
+              'User-Agent': userAgent,
+            },
+          }
+        );
+
         expect(botResponse.status()).toBe(204); // Should be blocked
       }
     });
@@ -173,18 +182,18 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
           platform: 'external',
         },
       });
-      
+
       const data = await response.json();
-      
+
       // Test Meta crawler on public interstitial page
       const botResponse = await page.request.get(`/out/${data.shortId}`, {
         headers: {
           'User-Agent': META_USER_AGENTS[0],
         },
       });
-      
+
       expect(botResponse.status()).toBe(200); // Should be allowed
-      
+
       // Content should still be generic
       const content = await botResponse.text();
       expect(content).toContain('Link Confirmation Required');
@@ -199,36 +208,42 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
           platform: 'external',
         },
       });
-      
+
       const data = await response.json();
-      
+
       // Test with regular browser user agent
-      const browserResponse = await page.request.post(`/api/link/${data.shortId}`, {
-        data: {
-          verified: true,
-          timestamp: Date.now(),
-        },
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        },
-      });
-      
+      const browserResponse = await page.request.post(
+        `/api/link/${data.shortId}`,
+        {
+          data: {
+            verified: true,
+            timestamp: Date.now(),
+          },
+          headers: {
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
+        }
+      );
+
       expect(browserResponse.status()).not.toBe(204);
     });
   });
 
   test.describe('Security Headers and Compliance', () => {
-    test('should include proper security headers on all responses', async ({ page }) => {
+    test('should include proper security headers on all responses', async ({
+      page,
+    }) => {
       // Test normal redirect
       const normalResponse = await page.request.get('/go/nonexistent', {
         maxRedirects: 0,
       });
-      
+
       // Test interstitial page
       const interstitialResponse = await page.request.get('/out/nonexistent');
-      
+
       // Both should have security headers
-      [normalResponse, interstitialResponse].forEach(response => {
+      [normalResponse, interstitialResponse].forEach((response) => {
         const headers = response.headers();
         expect(headers['x-robots-tag']).toBeTruthy();
         expect(headers['cache-control']).toContain('no-cache');
@@ -238,12 +253,14 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
     test('should exclude sensitive links from robots.txt', async ({ page }) => {
       const response = await page.request.get('/robots.txt');
       const content = await response.text();
-      
+
       expect(content).toContain('Disallow: /out/');
       expect(content).toContain('Disallow: /api/');
     });
 
-    test('should have consistent response structure for different user agents', async ({ page }) => {
+    test('should have consistent response structure for different user agents', async ({
+      page,
+    }) => {
       // Create a wrapped link
       const linkResponse = await page.request.post('/api/wrap-link', {
         data: {
@@ -251,26 +268,26 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
           platform: 'spotify',
         },
       });
-      
+
       const data = await linkResponse.json();
-      
+
       // Test with different user agents
       const userAgents = [
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', // Regular browser
         'Googlebot/2.1 (+http://www.google.com/bot.html)', // Google crawler
       ];
-      
+
       const responses = await Promise.all(
-        userAgents.map(ua =>
+        userAgents.map((ua) =>
           page.request.get(`/go/${data.shortId}`, {
             headers: { 'User-Agent': ua },
             maxRedirects: 0,
           })
         )
       );
-      
+
       // All should return 302 redirect (consistent response)
-      responses.forEach(response => {
+      responses.forEach((response) => {
         expect(response.status()).toBe(302);
       });
     });
@@ -285,20 +302,21 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
           platform: 'spotify',
         },
       });
-      
+
       const normalData = await normalResponse.json();
-      
+
       // Follow redirect chain for normal link
       let hopCount = 0;
       let currentUrl = `/go/${normalData.shortId}`;
-      
-      while (hopCount < 5) { // Safety limit
+
+      while (hopCount < 5) {
+        // Safety limit
         const response = await page.request.get(currentUrl, {
           maxRedirects: 0,
         });
-        
+
         hopCount++;
-        
+
         if (response.status() === 302) {
           const location = response.headers()['location'];
           if (location && !location.startsWith('/')) {
@@ -310,7 +328,7 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
           break;
         }
       }
-      
+
       expect(hopCount).toBeLessThanOrEqual(2); // Max 2 hops for any link
     });
 
@@ -321,16 +339,16 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
           platform: 'spotify',
         },
       });
-      
+
       const data = await response.json();
-      
+
       // Measure redirect time
       const startTime = Date.now();
       await page.request.get(`/go/${data.shortId}`, {
         maxRedirects: 0,
       });
       const endTime = Date.now();
-      
+
       expect(endTime - startTime).toBeLessThan(150);
     });
   });
@@ -343,7 +361,7 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
           platform: 'external',
         },
       });
-      
+
       expect(response.status()).toBe(400);
       const data = await response.json();
       expect(data.error).toContain('Invalid URL');
@@ -360,14 +378,17 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
       // Test interstitial page without JavaScript
       await page.context().addInitScript(() => {
         // Disable fetch to simulate network error
-        (window as any).fetch = () => Promise.reject(new Error('Network error'));
+        (window as any).fetch = () =>
+          Promise.reject(new Error('Network error'));
       });
-      
+
       // Navigate to any interstitial page
       await page.goto('/out/test123');
-      
+
       // Should still show the page, not crash
-      await expect(page.locator('h1')).toContainText('Link Confirmation Required');
+      await expect(page.locator('h1')).toContainText(
+        'Link Confirmation Required'
+      );
     });
   });
 });
