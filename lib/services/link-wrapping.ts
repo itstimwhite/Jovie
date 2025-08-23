@@ -127,11 +127,11 @@ export async function createWrappedLink(
           originalUrl: url,
           kind: category.kind,
           domain,
-          category: category.category,
+          category: category.category || undefined,
           titleAlias: category.alias || getCrawlerSafeLabel(domain),
           clickCount: 0,
           createdAt: new Date().toISOString(),
-          expiresAt: expiresAt,
+          expiresAt: expiresAt || undefined,
         };
       }
 
