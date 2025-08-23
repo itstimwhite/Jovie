@@ -62,7 +62,10 @@ test.describe('Onboarding smoke', () => {
 
       // Use Clerk's client-side API to sign in programmatically
       await page.evaluate(async (email) => {
-        const clerk: any = (window as any).Clerk;
+        const clerk = (window as Record<string, unknown>).Clerk as Record<
+          string,
+          unknown
+        >;
         if (!clerk) throw new Error('Clerk not initialized');
 
         try {
@@ -76,13 +79,13 @@ test.describe('Onboarding smoke', () => {
           await clerk.setActive({
             session: clerk.client?.lastActiveSessionId || null,
           });
-        } catch (error) {
+        } catch {
           // If user already exists, try to sign in
           await clerk.signIn?.create({
             identifier: email,
             password: 'TestPassword123!',
           });
-          
+
           await clerk.setActive({
             session: clerk.client?.lastActiveSessionId || null,
           });
@@ -100,11 +103,11 @@ test.describe('Onboarding smoke', () => {
 
       // 3) Navigate to dashboard — app should redirect to onboarding if needed
       await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-      
+
       // Use waitForURL for deterministic waiting
-      await page.waitForURL('**/onboarding', { 
+      await page.waitForURL('**/onboarding', {
         timeout: 10_000,
-        waitUntil: 'domcontentloaded' 
+        waitUntil: 'domcontentloaded',
       });
 
       // 4) Fill the onboarding form (handle)
@@ -116,9 +119,9 @@ test.describe('Onboarding smoke', () => {
 
       // Wait for the availability check indicator (green checkmark)
       // Based on the OnboardingForm component, it shows a green circle with checkmark
-      await expect(
-        page.locator('.bg-green-500.rounded-full')
-      ).toBeVisible({ timeout: 10_000 });
+      await expect(page.locator('.bg-green-500.rounded-full')).toBeVisible({
+        timeout: 10_000,
+      });
 
       // Wait for submit button to be enabled
       const submit = page.getByRole('button', { name: 'Create Profile' });
@@ -140,28 +143,31 @@ test.describe('Onboarding smoke', () => {
 
       // 5) Submit and expect redirect to dashboard
       await submit.click();
-      
+
       // Wait for URL change to dashboard
-      await page.waitForURL('**/dashboard', { 
+      await page.waitForURL('**/dashboard', {
         timeout: 15_000,
-        waitUntil: 'domcontentloaded' 
+        waitUntil: 'domcontentloaded',
       });
 
       // 6) Verify dashboard UI loaded
       // Check for dashboard-specific elements
       await expect(
-        page.locator('h1, h2').filter({ hasText: /dashboard|overview|welcome/i }).first()
+        page
+          .locator('h1, h2')
+          .filter({ hasText: /dashboard|overview|welcome/i })
+          .first()
       ).toBeVisible({ timeout: 5_000 });
-      
+
       // Check for navigation elements that indicate successful dashboard load
       await expect(
         page.getByRole('link', { name: /profile|settings|links/i }).first()
       ).toBeVisible({ timeout: 5_000 });
 
       // Verify the user's handle is displayed somewhere (profile link, header, etc.)
-      await expect(
-        page.locator(`text=/${uniqueHandle}/i`).first()
-      ).toBeVisible({ timeout: 5_000 });
+      await expect(page.locator(`text=/${uniqueHandle}/i`).first()).toBeVisible(
+        { timeout: 5_000 }
+      );
     }
   );
 });

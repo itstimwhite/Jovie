@@ -1,129 +1,147 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { OnboardingForm } from './OnboardingForm';
 
-// Setup the meta for the component
+// Mock modules at the module level
+const mockPrefetch = () => {};
+
+// Mock Next.js navigation
+const originalWindow = global.window;
+if (typeof global.window !== 'undefined') {
+  Object.defineProperty(global, 'window', {
+    value: {
+      ...originalWindow,
+      sessionStorage: {
+        getItem: () => null,
+        setItem: () => {},
+        removeItem: () => {},
+      },
+    },
+    writable: true,
+  });
+}
+
 const meta: Meta<typeof OnboardingForm> = {
   title: 'Dashboard/Organisms/OnboardingForm',
   component: OnboardingForm,
   parameters: {
     layout: 'centered',
-    backgrounds: {
-      default: 'light',
+    docs: {
+      description: {
+        component:
+          'Progressive onboarding form for new users to set up their profile.',
+      },
     },
-    // Mock fetch for handle validation
-    mockData: [
-      {
-        url: '/api/handle/check?handle=available-handle',
-        method: 'GET',
-        status: 200,
-        response: { available: true },
-      },
-      {
-        url: '/api/handle/check?handle=taken-handle',
-        method: 'GET',
-        status: 200,
-        response: { available: false },
-      },
-      {
-        url: '/api/handle/check?handle=error-handle',
-        method: 'GET',
-        status: 500,
-        response: { error: 'Server error' },
-      },
-    ],
   },
   tags: ['autodocs'],
+  decorators: [
+    (Story) => (
+      <div className="max-w-md w-full p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Default story - empty form
-export const Default: Story = {};
-
-// Story with a valid handle
-export const ValidHandle: Story = {
-  name: 'With Valid Handle',
+export const Default: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Shows the form with a valid handle that passes validation.',
+        story: 'Default state of the onboarding form.',
+      },
+    },
+    nextjs: {
+      navigation: {
+        prefetch: mockPrefetch,
+        searchParams: new Map([['handle', null]]),
       },
     },
   },
 };
 
-// Story with an invalid handle
+export const WithArtistData: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Shows the form with a pre-selected artist from Spotify.',
+      },
+    },
+    mockData: {
+      selectedArtist: {
+        spotifyId: '06HL4z0CvFAxyc27GXpf02',
+        artistName: 'Taylor Swift',
+        imageUrl:
+          'https://i.scdn.co/image/ab6761610000e5eb5a00969a4698c3bc19a25c66',
+        timestamp: Date.now(),
+      },
+    },
+  },
+};
+
 export const InvalidHandle: Story = {
-  name: 'With Invalid Handle',
   parameters: {
     docs: {
       description: {
-        story: 'Shows the form with an invalid handle that fails validation.',
+        story: 'Shows validation errors for invalid handles.',
       },
+    },
+    mockData: {
+      handle: 'invalid@handle',
     },
   },
 };
 
-// Story with a taken handle
 export const TakenHandle: Story = {
-  name: 'With Taken Handle',
   parameters: {
     docs: {
       description: {
-        story: 'Shows the form with a handle that is already taken.',
+        story: 'Shows validation when a handle is already taken.',
+      },
+    },
+    mockData: {
+      handle: 'taken',
+    },
+  },
+};
+
+export const SubmittingState: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Shows the form in submitting state with progress indicator.',
+      },
+    },
+  },
+  render: () => {
+    return (
+      <div className="max-w-md w-full">
+        <OnboardingForm />
+        <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+            Note: This story simulates the submitting state. In the actual
+            component, this state is triggered by form submission.
+          </p>
+        </div>
+      </div>
+    );
+  },
+};
+
+export const ErrorState: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Shows the form with an error state and retry button.',
       },
     },
   },
 };
 
-// Story with a server error during validation
-export const ServerError: Story = {
-  name: 'With Server Error',
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Shows the form when a server error occurs during handle validation.',
-      },
-    },
-  },
-};
-
-// Story with a selected artist
-export const WithSelectedArtist: Story = {
-  name: 'With Selected Artist',
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Shows the form with a pre-selected artist from session storage.',
-      },
-    },
-  },
-};
-
-// Story with form submission in progress
-export const SubmittingForm: Story = {
-  name: 'Submitting Form',
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Shows the form in the submitting state with loading indicators.',
-      },
-    },
-  },
-};
-
-// Story with dark mode
 export const DarkMode: Story = {
-  name: 'Dark Mode',
   parameters: {
-    backgrounds: {
-      default: 'dark',
-    },
-    darkMode: true,
+    backgrounds: { default: 'dark' },
     docs: {
       description: {
         story: 'Shows the form in dark mode.',
@@ -132,14 +150,20 @@ export const DarkMode: Story = {
   },
 };
 
-// Story with username suggestions
-export const WithUsernameSuggestions: Story = {
-  name: 'With Username Suggestions',
+export const A11yTest: Story = {
   parameters: {
+    a11y: {
+      config: {
+        rules: [
+          { id: 'color-contrast', enabled: true },
+          { id: 'label', enabled: true },
+          { id: 'button-name', enabled: true },
+        ],
+      },
+    },
     docs: {
       description: {
-        story:
-          'Shows the form with username suggestions for an invalid handle.',
+        story: 'Tests accessibility compliance.',
       },
     },
   },

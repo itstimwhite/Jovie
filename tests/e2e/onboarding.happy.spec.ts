@@ -3,14 +3,14 @@ import { setupClerkTestingToken } from '@clerk/testing/playwright';
 
 /**
  * E2E Test: Onboarding Happy Path
- * 
+ *
  * This test verifies the complete onboarding flow:
  * 1. Programmatic sign-in via Clerk
  * 2. Navigate to /dashboard
  * 3. Get redirected to /onboarding
  * 4. Claim an available handle
  * 5. Submit and end up on /dashboard
- * 
+ *
  * Requirements:
  * - E2E_ONBOARDING_FULL=1 environment variable
  * - Real Clerk and Supabase environment variables
@@ -20,15 +20,16 @@ import { setupClerkTestingToken } from '@clerk/testing/playwright';
 test.describe('Onboarding Happy Path', () => {
   // Only run when E2E_ONBOARDING_FULL=1 and environment is properly configured
   const runFull = process.env.E2E_ONBOARDING_FULL === '1';
-  
-  test.beforeEach(async ({ page }) => {
+
+  test.beforeEach(async () => {
     if (!runFull) {
       test.skip();
     }
 
     // Validate required environment variables
     const requiredEnvVars = {
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
+        process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
       CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
       NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
       SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -63,47 +64,60 @@ test.describe('Onboarding Happy Path', () => {
     );
 
     // Step 2: Programmatically sign in using Clerk's test mode
-    const testEmail = process.env.E2E_TEST_EMAIL || `playwright+${Date.now()}@example.com`;
+    const testEmail =
+      process.env.E2E_TEST_EMAIL || `playwright+${Date.now()}@example.com`;
     const testPassword = process.env.E2E_TEST_PASSWORD || 'TestPassword123!';
 
-    await page.evaluate(async ({ email, password }) => {
-      const clerk: any = (window as any).Clerk;
-      if (!clerk) throw new Error('Clerk not initialized');
+    await page.evaluate(
+      async ({ email, password }) => {
+        const clerk = (window as Record<string, unknown>).Clerk as Record<
+          string,
+          unknown
+        >;
+        if (!clerk) throw new Error('Clerk not initialized');
 
-      try {
-        // Try to sign in first (in case user already exists)
-        const signIn = await clerk.signIn?.create({
-          identifier: email,
-          password: password,
-        });
-
-        // If sign-in requires further steps, complete them
-        if (signIn?.status === 'needs_first_factor') {
-          await clerk.signIn?.attemptFirstFactor({
-            strategy: 'password',
+        try {
+          // Try to sign in first (in case user already exists)
+          const signIn = await clerk.signIn?.create({
+            identifier: email,
             password: password,
           });
+
+          // If sign-in requires further steps, complete them
+          if (signIn?.status === 'needs_first_factor') {
+            await clerk.signIn?.attemptFirstFactor({
+              strategy: 'password',
+              password: password,
+            });
+          }
+
+          // Set the session as active
+          await clerk.setActive({
+            session:
+              signIn?.createdSessionId ||
+              clerk.client?.lastActiveSessionId ||
+              null,
+          });
+        } catch (signInError) {
+          // If sign-in fails, try to create a new user
+          console.log('Sign-in failed, attempting sign-up:', signInError);
+
+          const signUp = await clerk.signUp?.create({
+            emailAddress: email,
+            password: password,
+          });
+
+          // Complete sign-up and set session as active
+          await clerk.setActive({
+            session:
+              signUp?.createdSessionId ||
+              clerk.client?.lastActiveSessionId ||
+              null,
+          });
         }
-
-        // Set the session as active
-        await clerk.setActive({
-          session: signIn?.createdSessionId || clerk.client?.lastActiveSessionId || null,
-        });
-      } catch (signInError) {
-        // If sign-in fails, try to create a new user
-        console.log('Sign-in failed, attempting sign-up:', signInError);
-        
-        const signUp = await clerk.signUp?.create({
-          emailAddress: email,
-          password: password,
-        });
-
-        // Complete sign-up and set session as active
-        await clerk.setActive({
-          session: signUp?.createdSessionId || clerk.client?.lastActiveSessionId || null,
-        });
-      }
-    }, { email: testEmail, password: testPassword });
+      },
+      { email: testEmail, password: testPassword }
+    );
 
     // Verify authentication completed
     await page.waitForFunction(
@@ -116,11 +130,11 @@ test.describe('Onboarding Happy Path', () => {
 
     // Step 3: Navigate to dashboard - should redirect to onboarding for new users
     await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-    
+
     // Wait for redirect to onboarding page
-    await page.waitForURL('**/onboarding', { 
+    await page.waitForURL('**/onboarding', {
       timeout: 10_000,
-      waitUntil: 'domcontentloaded' 
+      waitUntil: 'domcontentloaded',
     });
 
     // Step 4: Fill the onboarding form with a unique handle
@@ -134,8 +148,8 @@ test.describe('Onboarding Happy Path', () => {
     // Wait for handle availability check to complete (green checkmark indicator)
     await expect(
       page.locator('.bg-green-500.rounded-full').first()
-    ).toBeVisible({ 
-      timeout: 10_000
+    ).toBeVisible({
+      timeout: 10_000,
     });
 
     // Ensure submit button is enabled after validation
@@ -158,48 +172,52 @@ test.describe('Onboarding Happy Path', () => {
 
     // Step 5: Submit form and wait for redirect to dashboard
     await Promise.all([
-      page.waitForURL('**/dashboard', { 
+      page.waitForURL('**/dashboard', {
         timeout: 15_000,
-        waitUntil: 'domcontentloaded' 
+        waitUntil: 'domcontentloaded',
       }),
       submitButton.click(),
     ]);
 
     // Step 6: Verify successful dashboard load
     // Check for dashboard-specific elements
-    const dashboardHeading = page.locator('h1, h2').filter({ 
-      hasText: /dashboard|overview|welcome|your profile/i 
+    const dashboardHeading = page.locator('h1, h2').filter({
+      hasText: /dashboard|overview|welcome|your profile/i,
     });
-    await expect(dashboardHeading.first()).toBeVisible({ 
-      timeout: 5_000
+    await expect(dashboardHeading.first()).toBeVisible({
+      timeout: 5_000,
     });
-    
+
     // Verify navigation links are present
-    const navLinks = page.getByRole('link', { 
-      name: /profile|settings|links|analytics/i 
+    const navLinks = page.getByRole('link', {
+      name: /profile|settings|links|analytics/i,
     });
-    await expect(navLinks.first()).toBeVisible({ 
-      timeout: 5_000
+    await expect(navLinks.first()).toBeVisible({
+      timeout: 5_000,
     });
 
     // Verify the user's handle appears somewhere on the page
     const handleText = page.locator(`text=/${uniqueHandle}/i`);
-    await expect(handleText.first()).toBeVisible({ 
-      timeout: 5_000
+    await expect(handleText.first()).toBeVisible({
+      timeout: 5_000,
     });
 
     // Optional: Verify we can access the profile page with the new handle
     await page.goto(`/${uniqueHandle}`, { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(new RegExp(`/${uniqueHandle}$`));
-    
+
     // Verify profile page loaded successfully
-    const profileName = page.locator('h1, h2').filter({ hasText: uniqueHandle });
-    await expect(profileName.first()).toBeVisible({ 
-      timeout: 5_000
+    const profileName = page
+      .locator('h1, h2')
+      .filter({ hasText: uniqueHandle });
+    await expect(profileName.first()).toBeVisible({
+      timeout: 5_000,
     });
   });
 
-  test('authenticated user with existing profile goes directly to dashboard', async ({ page }) => {
+  test('authenticated user with existing profile goes directly to dashboard', async ({
+    page,
+  }) => {
     // This test verifies that users who already completed onboarding
     // are not redirected to onboarding again
     test.setTimeout(30_000);
@@ -229,26 +247,35 @@ test.describe('Onboarding Happy Path', () => {
       return;
     }
 
-    await page.evaluate(async ({ email, password }) => {
-      const clerk: any = (window as any).Clerk;
-      if (!clerk) throw new Error('Clerk not initialized');
+    await page.evaluate(
+      async ({ email, password }) => {
+        const clerk = (window as Record<string, unknown>).Clerk as Record<
+          string,
+          unknown
+        >;
+        if (!clerk) throw new Error('Clerk not initialized');
 
-      const signIn = await clerk.signIn?.create({
-        identifier: email,
-        password: password,
-      });
-
-      if (signIn?.status === 'needs_first_factor') {
-        await clerk.signIn?.attemptFirstFactor({
-          strategy: 'password',
+        const signIn = await clerk.signIn?.create({
+          identifier: email,
           password: password,
         });
-      }
 
-      await clerk.setActive({
-        session: signIn?.createdSessionId || clerk.client?.lastActiveSessionId || null,
-      });
-    }, { email: existingEmail, password: existingPassword });
+        if (signIn?.status === 'needs_first_factor') {
+          await clerk.signIn?.attemptFirstFactor({
+            strategy: 'password',
+            password: password,
+          });
+        }
+
+        await clerk.setActive({
+          session:
+            signIn?.createdSessionId ||
+            clerk.client?.lastActiveSessionId ||
+            null,
+        });
+      },
+      { email: existingEmail, password: existingPassword }
+    );
 
     // Verify authentication
     await page.waitForFunction(
@@ -261,13 +288,13 @@ test.describe('Onboarding Happy Path', () => {
 
     // Navigate to dashboard - should NOT redirect to onboarding
     await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-    
+
     // Verify we stay on dashboard (no redirect to onboarding)
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 5_000 });
-    
+
     // Verify dashboard loaded
-    const dashboardElement = page.locator('h1, h2').filter({ 
-      hasText: /dashboard|overview|your profile/i 
+    const dashboardElement = page.locator('h1, h2').filter({
+      hasText: /dashboard|overview|your profile/i,
     });
     await expect(dashboardElement.first()).toBeVisible({ timeout: 5_000 });
   });

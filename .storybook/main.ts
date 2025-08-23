@@ -20,8 +20,29 @@ const config: StorybookConfig = {
     reactDocgen: 'react-docgen-typescript',
     reactDocgenTypescriptOptions: {
       shouldExtractLiteralValuesFromEnum: true,
-      propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
+      propFilter: (prop) =>
+        prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
     },
+  },
+  viteFinal: async (config) => {
+    // Handle Node.js modules for browser compatibility
+    config.define = {
+      ...config.define,
+      global: 'globalThis',
+    };
+
+    config.resolve = {
+      ...config.resolve,
+      alias: {
+        ...config.resolve?.alias,
+        // Mock Node.js modules that can't run in browser
+        'node:async_hooks': require.resolve('./empty-module.js'),
+        // Mock Next.js navigation for Storybook
+        'next/navigation': require.resolve('./next-navigation-mock.js'),
+      },
+    };
+
+    return config;
   },
 };
 

@@ -39,18 +39,16 @@ jobs:
                 { id: pr.node_id }
               );
             }
-
-            // re-check checks + statuses
-            const checks = await github.rest.checks.listForRef({ owner, repo, ref: pr.head.sha, per_page: 100 });
-            const failing = checks.data.check_runs.some(c => c.status !== 'completed' || !['success','neutral','skipped'].includes(c.conclusion||''));
-            const statuses = await github.rest.repos.getCombinedStatusForRef({ owner, repo, ref: pr.head.sha });
-            const ok = !failing && statuses.data.state === 'success';
-            if (!ok) return;
-
-            // merge + cleanup branch when safe (same repo only)
-            await github.rest.pulls.merge({ owner, repo, pull_number: pr.number, merge_method: 'squash' });
+            // Enable auto-merge (squash) so GitHub Merge Queue handles sequencing
             try {
-              if (pr.head.repo.full_name === `${owner}/${repo}`) {
-                await github.rest.git.deleteRef({ owner, repo, ref: `heads/${pr.head.ref}` });
-              }
-            } catch (e) {}
+              await github.graphql(
+                `mutation($pullRequestId: ID!, $mergeMethod: PullRequestMergeMethod!) {
+                  enablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId, mergeMethod: $mergeMethod }) {
+                    pullRequest { number, autoMergeRequest { enabledAt } }
+                  }
+                }`,
+                { pullRequestId: pr.node_id, mergeMethod: 'SQUASH' }
+              );
+            } catch (e) {
+              core.warning(`Failed to enable auto-merge: ${e.message}`);
+            }

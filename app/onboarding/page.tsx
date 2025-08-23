@@ -1,9 +1,11 @@
-import { OnboardingForm } from '@/components/dashboard';
+// import { OnboardingForm } from '@/components/dashboard'; // Kept for fallback
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { APP_NAME } from '@/constants/app';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
+import { getFeatureFlags } from '@/lib/feature-flags';
+import { OnboardingFormWrapper } from '@/components/dashboard/organisms/OnboardingFormWrapper';
 
 export default async function OnboardingPage() {
   const { userId } = await auth();
@@ -11,6 +13,10 @@ export default async function OnboardingPage() {
     // Require auth for onboarding; preserve destination
     redirect('/sign-in?redirect_url=/onboarding');
   }
+
+  // Get feature flags to determine which onboarding flow to use
+  const featureFlags = await getFeatureFlags();
+
   // Read prefilled handle from query or cookie/session fallback later in the form
   // We cannot access searchParams directly here without defining them in the component signature,
   // so the client form will read from URL and sessionStorage.
@@ -42,7 +48,9 @@ export default async function OnboardingPage() {
 
           {/* Form Card */}
           <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-xl p-6 shadow-xl transition-colors">
-            <OnboardingForm />
+            <OnboardingFormWrapper
+              useProgressiveForm={featureFlags.progressiveOnboardingEnabled}
+            />
           </div>
         </div>
       </Container>

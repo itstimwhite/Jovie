@@ -3,17 +3,17 @@ import { setupClerkTestingToken } from '@clerk/testing/playwright';
 
 /**
  * E2E Test: Dashboard Access Control for Foreign Profiles
- * 
- * This test verifies that authenticated users cannot access or edit 
+ *
+ * This test verifies that authenticated users cannot access or edit
  * another user's profile data via the dashboard UI and direct URLs.
- * 
+ *
  * Test scenarios:
  * 1. Create two users (A and B) with complete profiles
  * 2. Log in as user A
  * 3. Attempt to access user B's profile data via dashboard
  * 4. Attempt direct URL manipulation to access user B's data
  * 5. Verify UI prevents access and no data from user B is visible
- * 
+ *
  * Requirements:
  * - E2E_ONBOARDING_FULL=1 environment variable
  * - Real Clerk and Supabase environment variables for RLS testing
@@ -22,15 +22,16 @@ import { setupClerkTestingToken } from '@clerk/testing/playwright';
 test.describe('Dashboard Access Control', () => {
   // Only run when E2E_ONBOARDING_FULL=1 and environment is properly configured
   const runFull = process.env.E2E_ONBOARDING_FULL === '1';
-  
-  test.beforeEach(async ({ page }) => {
+
+  test.beforeEach(async () => {
     if (!runFull) {
       test.skip();
     }
 
     // Validate required environment variables
     const requiredEnvVars = {
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
+        process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
       CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
       NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
       SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -45,7 +46,9 @@ test.describe('Dashboard Access Control', () => {
     }
   });
 
-  test('user A cannot access user B profile data via dashboard', async ({ page }) => {
+  test('user A cannot access user B profile data via dashboard', async ({
+    page,
+  }) => {
     // Set timeout for complex user creation and testing flow
     test.setTimeout(120_000);
 
@@ -71,24 +74,33 @@ test.describe('Dashboard Access Control', () => {
     const userAHandle = `e2e-user-a-${timestamp.toString(36)}`;
 
     // Sign up User A
-    await page.evaluate(async ({ email, password }) => {
-      const clerk: any = (window as any).Clerk;
-      if (!clerk) throw new Error('Clerk not initialized');
+    await page.evaluate(
+      async ({ email, password }) => {
+        const clerk = (window as Record<string, unknown>).Clerk as Record<
+          string,
+          unknown
+        >;
+        if (!clerk) throw new Error('Clerk not initialized');
 
-      try {
-        const signUp = await clerk.signUp?.create({
-          emailAddress: email,
-          password: password,
-        });
+        try {
+          const signUp = await clerk.signUp?.create({
+            emailAddress: email,
+            password: password,
+          });
 
-        await clerk.setActive({
-          session: signUp?.createdSessionId || clerk.client?.lastActiveSessionId || null,
-        });
-      } catch (error) {
-        console.log('User A sign-up error:', error);
-        throw error;
-      }
-    }, { email: userAEmail, password: userAPassword });
+          await clerk.setActive({
+            session:
+              signUp?.createdSessionId ||
+              clerk.client?.lastActiveSessionId ||
+              null,
+          });
+        } catch (error) {
+          console.log('User A sign-up error:', error);
+          throw error;
+        }
+      },
+      { email: userAEmail, password: userAPassword }
+    );
 
     // Verify User A is authenticated
     await page.waitForFunction(
@@ -124,8 +136,10 @@ test.describe('Dashboard Access Control', () => {
     ]);
 
     // Verify User A's dashboard loads with their data
-    await expect(page.locator(`text=/${userAHandle}/i`).first()).toBeVisible({ timeout: 5_000 });
-    
+    await expect(page.locator(`text=/${userAHandle}/i`).first()).toBeVisible({
+      timeout: 5_000,
+    });
+
     // Store User A's Clerk ID for later verification
     const userAClerkId = await page.evaluate(() => {
       // @ts-ignore
@@ -146,24 +160,33 @@ test.describe('Dashboard Access Control', () => {
     const userBHandle = `e2e-user-b-${timestamp.toString(36)}`;
 
     // Sign up User B
-    await page.evaluate(async ({ email, password }) => {
-      const clerk: any = (window as any).Clerk;
-      if (!clerk) throw new Error('Clerk not initialized');
+    await page.evaluate(
+      async ({ email, password }) => {
+        const clerk = (window as Record<string, unknown>).Clerk as Record<
+          string,
+          unknown
+        >;
+        if (!clerk) throw new Error('Clerk not initialized');
 
-      try {
-        const signUp = await clerk.signUp?.create({
-          emailAddress: email,
-          password: password,
-        });
+        try {
+          const signUp = await clerk.signUp?.create({
+            emailAddress: email,
+            password: password,
+          });
 
-        await clerk.setActive({
-          session: signUp?.createdSessionId || clerk.client?.lastActiveSessionId || null,
-        });
-      } catch (error) {
-        console.log('User B sign-up error:', error);
-        throw error;
-      }
-    }, { email: userBEmail, password: userBPassword });
+          await clerk.setActive({
+            session:
+              signUp?.createdSessionId ||
+              clerk.client?.lastActiveSessionId ||
+              null,
+          });
+        } catch (error) {
+          console.log('User B sign-up error:', error);
+          throw error;
+        }
+      },
+      { email: userBEmail, password: userBPassword }
+    );
 
     // Complete onboarding for User B
     await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
@@ -187,7 +210,9 @@ test.describe('Dashboard Access Control', () => {
     ]);
 
     // Verify User B's dashboard loads with their data
-    await expect(page.locator(`text=/${userBHandle}/i`).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator(`text=/${userBHandle}/i`).first()).toBeVisible({
+      timeout: 5_000,
+    });
 
     // Store User B's Clerk ID for later verification
     const userBClerkId = await page.evaluate(() => {
@@ -205,26 +230,35 @@ test.describe('Dashboard Access Control', () => {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     // Sign in as User A
-    await page.evaluate(async ({ email, password }) => {
-      const clerk: any = (window as any).Clerk;
-      if (!clerk) throw new Error('Clerk not initialized');
+    await page.evaluate(
+      async ({ email, password }) => {
+        const clerk = (window as Record<string, unknown>).Clerk as Record<
+          string,
+          unknown
+        >;
+        if (!clerk) throw new Error('Clerk not initialized');
 
-      const signIn = await clerk.signIn?.create({
-        identifier: email,
-        password: password,
-      });
-
-      if (signIn?.status === 'needs_first_factor') {
-        await clerk.signIn?.attemptFirstFactor({
-          strategy: 'password',
+        const signIn = await clerk.signIn?.create({
+          identifier: email,
           password: password,
         });
-      }
 
-      await clerk.setActive({
-        session: signIn?.createdSessionId || clerk.client?.lastActiveSessionId || null,
-      });
-    }, { email: userAEmail, password: userAPassword });
+        if (signIn?.status === 'needs_first_factor') {
+          await clerk.signIn?.attemptFirstFactor({
+            strategy: 'password',
+            password: password,
+          });
+        }
+
+        await clerk.setActive({
+          session:
+            signIn?.createdSessionId ||
+            clerk.client?.lastActiveSessionId ||
+            null,
+        });
+      },
+      { email: userAEmail, password: userAPassword }
+    );
 
     // Verify User A is authenticated
     const currentUserIdAfterSignIn = await page.evaluate(() => {
@@ -235,12 +269,14 @@ test.describe('Dashboard Access Control', () => {
 
     // === Step 4: Verify User A can only see their own data in dashboard ===
     await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-    
+
     // Should stay on dashboard (not redirect to onboarding)
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 5_000 });
 
     // Verify User A sees their own data
-    await expect(page.locator(`text=/${userAHandle}/i`).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator(`text=/${userAHandle}/i`).first()).toBeVisible({
+      timeout: 5_000,
+    });
 
     // Verify User A does NOT see User B's data anywhere on the dashboard
     const userBHandleElements = page.locator(`text=${userBHandle}`);
@@ -249,17 +285,23 @@ test.describe('Dashboard Access Control', () => {
     // === Step 5: Test access to User B's public profile (should work) ===
     // User A should be able to view User B's public profile page
     await page.goto(`/${userBHandle}`, { waitUntil: 'domcontentloaded' });
-    
+
     // Should load User B's public profile successfully
     await expect(page).toHaveURL(new RegExp(`/${userBHandle}$`));
-    await expect(page.locator(`text=/${userBHandle}/i`).first()).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator(`text=/${userBHandle}/i`).first()).toBeVisible({
+      timeout: 5_000,
+    });
 
     // But there should be NO edit controls visible (since it's not User A's profile)
     // Dashboard edit links should not be present on public profiles
-    const editButtons = page.getByRole('button', { name: /edit|update|save|delete/i });
+    const editButtons = page.getByRole('button', {
+      name: /edit|update|save|delete/i,
+    });
     await expect(editButtons).toHaveCount(0);
 
-    const dashboardLinks = page.getByRole('link', { name: /dashboard|settings|edit/i });
+    const dashboardLinks = page.getByRole('link', {
+      name: /dashboard|settings|edit/i,
+    });
     await expect(dashboardLinks).toHaveCount(0);
 
     // === Step 6: Attempt direct URL manipulation (should fail gracefully) ===
@@ -269,8 +311,10 @@ test.describe('Dashboard Access Control', () => {
 
     // Go back to dashboard and verify still seeing only User A's data
     await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-    await expect(page.locator(`text=/${userAHandle}/i`).first()).toBeVisible({ timeout: 5_000 });
-    
+    await expect(page.locator(`text=/${userAHandle}/i`).first()).toBeVisible({
+      timeout: 5_000,
+    });
+
     // Try various potential attack vectors via URL manipulation
     const attackUrls = [
       `/dashboard?user=${userBClerkId}`,
@@ -281,16 +325,20 @@ test.describe('Dashboard Access Control', () => {
 
     for (const attackUrl of attackUrls) {
       await page.goto(attackUrl, { waitUntil: 'domcontentloaded' });
-      
+
       // Should either redirect to normal dashboard or show User A's data only
       // Never should show User B's data
-      const userBDataVisible = await page.locator(`text=${userBHandle}`).count();
+      const userBDataVisible = await page
+        .locator(`text=${userBHandle}`)
+        .count();
       expect(userBDataVisible).toBe(0);
-      
+
       // Should still show User A's data or be on a safe page
       const isOnDashboard = page.url().includes('/dashboard');
       if (isOnDashboard) {
-        await expect(page.locator(`text=/${userAHandle}/i`).first()).toBeVisible({ timeout: 5_000 });
+        await expect(
+          page.locator(`text=/${userAHandle}/i`).first()
+        ).toBeVisible({ timeout: 5_000 });
       }
     }
 
@@ -318,16 +366,18 @@ test.describe('Dashboard Access Control', () => {
     // If the debug endpoint exists and returns data, it should only contain User A's data
     if (response.status === 200 && response.data) {
       const responseString = JSON.stringify(response.data).toLowerCase();
-      
+
       // Should contain User A's handle
       expect(responseString).toContain(userAHandle.toLowerCase());
-      
+
       // Should NOT contain User B's handle
       expect(responseString).not.toContain(userBHandle.toLowerCase());
     }
 
     console.log('✅ Access control test completed successfully');
-    console.log(`User A (${userAHandle}) cannot access User B (${userBHandle}) data`);
+    console.log(
+      `User A (${userAHandle}) cannot access User B (${userBHandle}) data`
+    );
   });
 
   test('unauthenticated user cannot access dashboard', async ({ page }) => {
@@ -335,12 +385,14 @@ test.describe('Dashboard Access Control', () => {
 
     // Try to access dashboard without authentication
     await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
-    
+
     // Should redirect to sign-in page
     await page.waitForURL('**/sign-in**', { timeout: 10_000 });
-    
+
     // Verify sign-in form is present
-    const signInForm = page.locator('form, input[type="email"], input[type="password"]');
+    const signInForm = page.locator(
+      'form, input[type="email"], input[type="password"]'
+    );
     await expect(signInForm.first()).toBeVisible({ timeout: 5_000 });
   });
 
@@ -350,12 +402,14 @@ test.describe('Dashboard Access Control', () => {
     // Try to access a profile that doesn't exist
     const nonExistentHandle = `nonexistent-${Date.now()}`;
     await page.goto(`/${nonExistentHandle}`, { waitUntil: 'domcontentloaded' });
-    
+
     // Should show 404 page
     await expect(page).toHaveURL(new RegExp(`/${nonExistentHandle}$`));
-    
+
     // Should show not found message
-    const notFoundIndicator = page.locator('text=/not found|404|does not exist/i');
+    const notFoundIndicator = page.locator(
+      'text=/not found|404|does not exist/i'
+    );
     await expect(notFoundIndicator.first()).toBeVisible({ timeout: 5_000 });
   });
 });
