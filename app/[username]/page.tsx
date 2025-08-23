@@ -78,6 +78,11 @@ const getCreatorProfile = cache(
           theme: null,
           is_featured: false,
           marketing_opt_out: false,
+          profile_views: 0,
+          username_normalized: 'dualipa',
+          search_text: 'dua lipa levitating future nostalgia',
+          display_title: 'Dua Lipa',
+          profile_completion_pct: 80,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         };
