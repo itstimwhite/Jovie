@@ -12,11 +12,24 @@ interface DBCreatorProfile {
   creator_type: string;
 }
 
-// Create an anonymous Supabase client for public data
+/**
+ * Creates an anonymous Supabase client for fetching public featured creators.
+ *
+ * Environment Variables:
+ * - NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: The preferred Supabase anon key (new standard)
+ * - NEXT_PUBLIC_SUPABASE_ANON_KEY: Legacy anon key for backwards compatibility (deprecated)
+ *
+ * Migration Plan:
+ * 1. Add NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY to all environments
+ * 2. Update deployment docs to use the new key name
+ * 3. After all environments are updated, remove fallback to NEXT_PUBLIC_SUPABASE_ANON_KEY
+ *
+ * @returns Supabase client configured with anonymous access
+ */
 function createAnonSupabase() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || // New standard key
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || // New standard key (preferred)
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!; // Fallback to deprecated key
 
   return createClient(supabaseUrl, supabaseKey);
