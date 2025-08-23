@@ -67,10 +67,16 @@ describe('Toast Component', () => {
 
     expect(onCloseMock).not.toHaveBeenCalled();
 
-    // Fast forward time to trigger the timeout
-    vi.advanceTimersByTime(200);
+    // Fast forward past the duration timer
+    vi.advanceTimersByTime(100);
 
-    // Since we're using fake timers, the callback should be called synchronously
+    // Should not be called yet (waiting for exit animation)
+    expect(onCloseMock).not.toHaveBeenCalled();
+
+    // Fast forward past the exit animation timer (300ms)
+    vi.advanceTimersByTime(300);
+
+    // Now onClose should be called
     expect(onCloseMock).toHaveBeenCalled();
 
     vi.useRealTimers();
