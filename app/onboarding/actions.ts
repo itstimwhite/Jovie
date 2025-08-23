@@ -94,7 +94,7 @@ export async function completeOnboarding({
 
     // Step 4-6: Parallel operations for performance optimization
     const normalizedUsername = normalizeUsername(username);
-    
+
     // Run checks in parallel to reduce total operation time
     const [hasExistingProfile, availabilityResult, user] = await Promise.all([
       checkUserHasProfile(userId),

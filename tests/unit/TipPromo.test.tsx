@@ -66,13 +66,9 @@ describe('TipPromo', () => {
     const section = screen.getByText('Tip,').closest('section');
     expect(section).toHaveClass('bg-zinc-900', 'text-white');
 
-    // Check CTA button styling
+    // Check CTA button styling - now uses CTAButton component classes
     const ctaButton = screen.getByRole('link', { name: 'See it live' });
-    expect(ctaButton).toHaveClass(
-      'inline-block',
-      'rounded-lg',
-      'bg-indigo-600'
-    );
+    expect(ctaButton).toHaveClass('bg-indigo-600');
   });
 
   it('contains "Tip, instantly." heading when feature flag is enabled', () => {
@@ -90,9 +86,9 @@ describe('TipPromo', () => {
 
     render(<TipPromo />);
 
-    // Check responsive text sizing
+    // Check responsive text sizing - SectionHeading with size="xl" has these classes
     const heading = screen.getByRole('heading', { level: 2 });
-    expect(heading).toHaveClass('text-4xl', 'sm:text-5xl');
+    expect(heading).toHaveClass('text-3xl', 'md:text-4xl', 'sm:text-5xl');
 
     // Check responsive paragraph sizing
     const paragraph = screen.getByText(/Fans tap once, you get paid/);

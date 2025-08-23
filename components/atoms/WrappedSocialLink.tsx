@@ -8,7 +8,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { SocialIcon } from './SocialIcon';
-import { getCrawlerSafeLabel, isSensitiveDomain } from '@/lib/utils/domain-categorizer';
+import {
+  getCrawlerSafeLabel,
+  isSensitiveDomain,
+} from '@/lib/utils/domain-categorizer';
 import { extractDomain } from '@/lib/utils/url-encryption';
 
 interface WrappedSocialLinkProps {
@@ -38,16 +41,20 @@ export function WrappedSocialLink({
 }: WrappedSocialLinkProps) {
   const [wrappedData, setWrappedData] = useState<WrappedLinkData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [_error, setError] = useState<string | null>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // Generate crawler-safe label
   const domain = extractDomain(href);
-  const isSensitive = isSensitiveDomain(href);
+  const _isSensitive = isSensitiveDomain(href); // eslint-disable-line @typescript-eslint/no-unused-vars
   const crawlerSafeLabel = getCrawlerSafeLabel(domain, platform);
 
   useEffect(() => {
     // Only wrap external links that aren't already wrapped
-    if (!href || href.startsWith('/') || href.includes(window.location.hostname)) {
+    if (
+      !href ||
+      href.startsWith('/') ||
+      href.includes(window.location.hostname)
+    ) {
       return;
     }
 
@@ -73,7 +80,10 @@ export function WrappedSocialLink({
 
         const data = await response.json();
         setWrappedData({
-          wrappedUrl: data.kind === 'sensitive' ? `/out/${data.shortId}` : `/go/${data.shortId}`,
+          wrappedUrl:
+            data.kind === 'sensitive'
+              ? `/out/${data.shortId}`
+              : `/go/${data.shortId}`,
           kind: data.kind,
           alias: data.titleAlias || crawlerSafeLabel,
         });
@@ -96,7 +106,7 @@ export function WrappedSocialLink({
 
   // Default security attributes
   const securityRel = rel || 'noreferrer noopener ugc nofollow';
-  
+
   // Show loading state or fallback
   if (isLoading || !wrappedData) {
     return (
