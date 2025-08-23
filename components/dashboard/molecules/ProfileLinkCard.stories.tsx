@@ -1,22 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ProfileLinkCard } from './ProfileLinkCard';
 import { Artist } from '@/types/db';
-import * as platformDetection from '@/lib/utils/platform-detection';
-
-// Create a mock version of the component that uses a fixed base URL
-function MockProfileLinkCard({ artist }: { artist: Artist }) {
-  // Override the getBaseUrl function for Storybook
-  const originalGetBaseUrl = platformDetection.getBaseUrl;
-  platformDetection.getBaseUrl = () => 'https://jov.ie';
-
-  // Render the component
-  const result = <ProfileLinkCard artist={artist} />;
-
-  // Restore the original function to avoid side effects
-  platformDetection.getBaseUrl = originalGetBaseUrl;
-
-  return result;
-}
 
 // Mock artist data for stories
 const mockArtist: Artist = {
@@ -41,9 +25,9 @@ const mockArtistLong: Artist = {
   name: 'Very Long Artist Name That Might Wrap On Smaller Screens And Cause Layout Issues',
 };
 
-const meta: Meta<typeof MockProfileLinkCard> = {
+const meta: Meta<typeof ProfileLinkCard> = {
   title: 'Dashboard/Molecules/ProfileLinkCard',
-  component: MockProfileLinkCard,
+  component: ProfileLinkCard,
   parameters: {
     layout: 'centered',
     backgrounds: {
@@ -52,6 +36,13 @@ const meta: Meta<typeof MockProfileLinkCard> = {
         { name: 'light', value: '#ffffff' },
         { name: 'dark', value: '#1a1a1a' },
       ],
+    },
+    // Add a note about the getBaseUrl function in Storybook
+    docs: {
+      description: {
+        component:
+          "A card that displays the artist's profile link with copy and view buttons. Note: In Storybook, the profile URL may not match what would be shown in the actual application environment.",
+      },
     },
   },
   tags: ['autodocs'],
@@ -70,7 +61,7 @@ const meta: Meta<typeof MockProfileLinkCard> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof MockProfileLinkCard>;
+type Story = StoryObj<typeof ProfileLinkCard>;
 
 // Default story with standard artist data
 export const Default: Story = {
