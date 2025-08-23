@@ -6,7 +6,12 @@ import { SocialLinkManager } from '../molecules/SocialLinkManager';
 import { DSPLinkManager } from '../molecules/DSPLinkManager';
 import { StaticArtistPage } from '@/components/profile/StaticArtistPage';
 import type { DetectedLink } from '@/lib/utils/platform-detection';
-import type { Artist, CreatorProfile, LegacySocialLink, SocialLink } from '@/types/db';
+import type {
+  Artist,
+  CreatorProfile,
+  LegacySocialLink,
+  SocialLink,
+} from '@/types/db';
 import { createClerkSupabaseClient } from '@/lib/supabase';
 import { debounce } from '@/lib/utils';
 
@@ -33,7 +38,7 @@ interface SaveStatus {
 
 export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   artist,
-  creatorProfile: _creatorProfile, // Will be used for additional profile data in the future
+  creatorProfile, // Will be used for additional profile data in the future
   onArtistUpdate,
   disabled = false,
 }) => {
@@ -55,10 +60,17 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   ): LinkItem[] => {
     return dbLinks.map((link, index) => {
       // Determine platform category based on platform name
-      const platformCategory = 
-        ['spotify', 'apple_music', 'youtube_music', 'soundcloud', 'bandcamp', 'tidal', 'deezer'].includes(link.platform) 
-          ? 'dsp' 
-          : 'social';
+      const platformCategory = [
+        'spotify',
+        'apple_music',
+        'youtube_music',
+        'soundcloud',
+        'bandcamp',
+        'tidal',
+        'deezer',
+      ].includes(link.platform)
+        ? 'dsp'
+        : 'social';
       
       return {
         id: link.id,
@@ -91,7 +103,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
       .map((link, index) => ({
         artist_id: artistId,
         platform: link.platform.id,
-        platform_type: link.platform.id,
+        platform_type: link.platform.id as any,
         url: link.normalizedUrl,
         sort_order: index,
         is_active: true,
@@ -106,38 +118,39 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
       try {
         const supabase = createClerkSupabaseClient(session);
         if (!supabase) return;
-        
-        const { data: socialLinksData, error: socialLinksError } = await supabase
-          .from('social_links')
-          .select('*')
-          .eq('artist_id', artist.id);
+
+        const { data: socialLinksData, error: socialLinksError } =
+          await supabase
+            .from('social_links')
+            .select('*')
+            .eq('artist_id', artist.id);
           
         if (socialLinksError) {
           console.error('Error fetching social links:', socialLinksError);
           return;
         }
-        
+
         // Split links into social and DSP categories
         const socialLinksItems: LinkItem[] = [];
         const dspLinksItems: LinkItem[] = [];
-        
+
         const allLinks = convertDbLinksToLinkItems(socialLinksData || []);
-        
-        allLinks.forEach(link => {
+
+        allLinks.forEach((link) => {
           if (link.platform.category === 'dsp') {
             dspLinksItems.push(link);
           } else {
             socialLinksItems.push(link);
           }
         });
-        
+
         setSocialLinks(socialLinksItems);
         setDSPLinks(dspLinksItems);
       } catch (error) {
         console.error('Error initializing links:', error);
       }
     };
-    
+
     fetchLinks();
   }, [session, artist.id]);
 
@@ -181,10 +194,10 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   const showUpdateIndicator = (success: boolean) => {
     if (updateIndicatorRef.current) {
       updateIndicatorRef.current.dataset.show = 'true';
-      updateIndicatorRef.current.innerHTML = success 
+      updateIndicatorRef.current.innerHTML = success
         ? '<div class="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">Updated</div>'
         : '<div class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium">Error</div>';
-      
+
       setTimeout(() => {
         if (updateIndicatorRef.current) {
           updateIndicatorRef.current.dataset.show = 'false';
@@ -200,56 +213,63 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   ) => {
     if (!session || !artist.id) return;
     
-    setSaveStatus((prev) => ({ ...prev, saving: true, success: null, error: null }));
+    setSaveStatus((prev) => ({
+      ...prev,
+      saving: true,
+      success: null,
+      error: null,
+    }));
     
     try {
       const supabase = createClerkSupabaseClient(session);
       if (!supabase) {
         throw new Error('Failed to create Supabase client');
       }
-      
+
       // Convert links to database format
       const allLinks = [
         ...convertLinkItemsToDbFormat(socialLinksToSave, artist.id),
         ...convertLinkItemsToDbFormat(dspLinksToSave, artist.id),
       ];
-      
+
       // Delete existing links
       const { error: deleteError } = await supabase
         .from('social_links')
         .delete()
         .eq('artist_id', artist.id);
-        
+
       if (deleteError) {
-        throw new Error(`Failed to delete existing links: ${deleteError.message}`);
+        throw new Error(
+          `Failed to delete existing links: ${deleteError.message}`
+        );
       }
-      
+
       // Insert new links
       if (allLinks.length > 0) {
         const { error: insertError } = await supabase
           .from('social_links')
           .insert(allLinks);
-          
+
         if (insertError) {
           throw new Error(`Failed to insert links: ${insertError.message}`);
         }
       }
-      
+
       // Update artist record with timestamp
       const updatedArtist = {
         ...artist,
         updated_at: new Date().toISOString(),
       };
-      
+
       onArtistUpdate(updatedArtist);
-      
+
       setSaveStatus({
         saving: false,
         success: true,
         error: null,
         lastSaved: new Date(),
       });
-      
+
       showUpdateIndicator(true);
     } catch (error) {
       console.error('Error saving links:', error);
@@ -259,9 +279,9 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
         error: error instanceof Error ? error.message : 'Unknown error',
         lastSaved: null,
       });
-      
+
       showUpdateIndicator(false);
-      
+
       // Retry after a delay if it's a network error
       if (error instanceof Error && error.message.includes('network')) {
         setTimeout(() => {
@@ -274,7 +294,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   // Debounced save function
   const debouncedSave = useMemo(
     () => debounce(saveLinks, 800),
-    [artist.id, session, saveLinks]
+    [artist.id, session]
   );
 
   // Handle social link changes
@@ -406,7 +426,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
             </div>
 
             {/* Update Indicator */}
-            <div 
+            <div
               ref={updateIndicatorRef}
               className="absolute top-4 right-4 opacity-0 transition-opacity duration-300 data-[show=true]:opacity-100"
             >
