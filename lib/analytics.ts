@@ -172,6 +172,7 @@ export function identify(userId: string, traits?: Record<string, unknown>) {
 // Feature flag constants for type safety
 export const FEATURE_FLAGS = {
   CLAIM_HANDLE: 'feature_claim_handle',
+  EXPIRED_AUTH_FLOW: 'feature_expired_auth_flow',
 } as const;
 
 export type FeatureFlagName =
@@ -300,3 +301,33 @@ export function useFeatureFlagWithLoading(
 
   return { enabled, loading };
 }
+
+// Auth-related analytics events
+export const AUTH_EVENTS = {
+  // Session refresh events
+  SESSION_REFRESH_SUCCESS: 'auth.silent_refresh.success',
+  SESSION_REFRESH_FAIL: 'auth.silent_refresh.fail',
+  
+  // Session expiry events
+  SESSION_EXPIRED_REDIRECT: 'auth.session.expired.redirect',
+  SESSION_EXPIRED_SIGNIN: 'auth.session.expired.signin',
+  
+  // Draft-related events
+  DRAFT_SAVE: 'draft.save',
+  DRAFT_RESTORE: 'draft.restore',
+  DRAFT_CLEAR: 'draft.clear',
+  DRAFT_PENDING_RESTORE: 'draft.pending_restore',
+  DRAFT_CLEANUP: 'draft.cleanup',
+} as const;
+
+// Performance metrics for auth flow
+export function trackAuthPerformance(
+  metric: 'time_to_refresh' | 'time_to_reauth',
+  durationMs: number
+) {
+  track('auth.performance', {
+    metric,
+    duration_ms: durationMs,
+  });
+}
+

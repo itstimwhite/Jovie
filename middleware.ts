@@ -88,10 +88,16 @@ export default clerkMiddleware(async (auth, req) => {
       }
     } else {
       // Handle unauthenticated users
-      if (req.nextUrl.pathname.startsWith('/dashboard')) {
-        // Redirect unauthenticated users to sign-in
+      if (req.nextUrl.pathname.startsWith('/dashboard') || 
+          req.nextUrl.pathname.startsWith('/(protected)')) {
+        // Redirect unauthenticated users to sign-in with returnTo
         const signInUrl = new URL('/sign-in', req.url);
-        signInUrl.searchParams.set('redirect_url', req.nextUrl.pathname);
+        
+        // Use returnTo instead of redirect_url for consistency
+        // Include full URL with query parameters
+        const returnToUrl = req.nextUrl.pathname + req.nextUrl.search;
+        signInUrl.searchParams.set('returnTo', returnToUrl);
+        
         res = NextResponse.redirect(signInUrl);
       } else {
         res = NextResponse.next();
@@ -133,6 +139,9 @@ export default clerkMiddleware(async (auth, req) => {
       res.headers.set('Referrer-Policy', 'no-referrer');
     }
 
+    // Add current URL to headers for server components
+    res.headers.set('x-url', req.nextUrl.href);
+
     return res;
   } catch {
     // Fallback to basic middleware behavior if Clerk auth fails
@@ -148,3 +157,4 @@ export const config = {
     '/(api|trpc)(.*)',
   ],
 };
+

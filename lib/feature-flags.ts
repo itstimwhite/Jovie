@@ -9,6 +9,8 @@ export interface FeatureFlags {
   featureClickAnalyticsRpc: boolean;
   // Progressive onboarding with multi-step UX improvements
   progressiveOnboardingEnabled: boolean;
+  // Expired auth flow with silent refresh and draft restoration
+  feature_expired_auth_flow: boolean;
 }
 
 // Default feature flags (fallback)
@@ -23,6 +25,8 @@ const defaultFeatureFlags: FeatureFlags = {
   featureClickAnalyticsRpc: false,
   // Progressive onboarding enabled by default for better UX
   progressiveOnboardingEnabled: true,
+  // Expired auth flow disabled by default until fully tested
+  feature_expired_auth_flow: false,
 };
 
 // Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
@@ -47,13 +51,19 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
           data,
           'feature_click_analytics_rpc'
         );
+      const hasExpiredAuthFlag =
+        Object.prototype.hasOwnProperty.call(
+          data,
+          'feature_expired_auth_flow'
+        );
       if (
         typeof data?.artistSearchEnabled !== 'undefined' ||
         typeof data?.debugBannerEnabled !== 'undefined' ||
         typeof data?.tipPromoEnabled !== 'undefined' ||
         typeof data?.universalNotificationsEnabled !== 'undefined' ||
         typeof data?.progressiveOnboardingEnabled !== 'undefined' ||
-        hasRpcFlag
+        hasRpcFlag ||
+        hasExpiredAuthFlag
       ) {
         return {
           artistSearchEnabled: Boolean(
@@ -85,6 +95,11 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
                     'feature_click_analytics_rpc'
                   ])
               : defaultFeatureFlags.featureClickAnalyticsRpc
+          ),
+          feature_expired_auth_flow: Boolean(
+            hasExpiredAuthFlag
+              ? (data as Record<string, unknown>)['feature_expired_auth_flow']
+              : defaultFeatureFlags.feature_expired_auth_flow
           ),
         };
       }
@@ -136,6 +151,10 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
             data2.flags?.progressiveOnboardingEnabled?.default ??
               defaultFeatureFlags.progressiveOnboardingEnabled
           ),
+          feature_expired_auth_flow: Boolean(
+            data2.flags?.feature_expired_auth_flow?.default ??
+              defaultFeatureFlags.feature_expired_auth_flow
+          ),
         };
       }
     }
@@ -174,12 +193,18 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
           data,
           'feature_click_analytics_rpc'
         );
+      const hasExpiredAuthFlag =
+        Object.prototype.hasOwnProperty.call(
+          data,
+          'feature_expired_auth_flow'
+        );
       if (
         typeof data?.artistSearchEnabled !== 'undefined' ||
         typeof data?.debugBannerEnabled !== 'undefined' ||
         typeof data?.tipPromoEnabled !== 'undefined' ||
         typeof data?.progressiveOnboardingEnabled !== 'undefined' ||
-        hasRpcFlag
+        hasRpcFlag ||
+        hasExpiredAuthFlag
       ) {
         return {
           artistSearchEnabled: Boolean(
@@ -211,6 +236,11 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
                     'feature_click_analytics_rpc'
                   ])
               : defaultFeatureFlags.featureClickAnalyticsRpc
+          ),
+          feature_expired_auth_flow: Boolean(
+            hasExpiredAuthFlag
+              ? (data as Record<string, unknown>)['feature_expired_auth_flow']
+              : defaultFeatureFlags.feature_expired_auth_flow
           ),
         };
       }
@@ -258,6 +288,10 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
               ? rpcFlag
               : defaultFeatureFlags.featureClickAnalyticsRpc
           ),
+          feature_expired_auth_flow: Boolean(
+            data.flags?.feature_expired_auth_flow?.default ??
+              defaultFeatureFlags.feature_expired_auth_flow
+          ),
         };
       }
     }
@@ -266,3 +300,4 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
   }
   return defaultFeatureFlags;
 }
+
