@@ -86,7 +86,21 @@ export function SmartHandleInput({
     return generateUsernameSuggestions(value, artistName);
   }, [value, artistName, clientValidation.valid]);
 
+  // Create stable validation update function to prevent recreation
+  const updateValidationState = useCallback(
+    (updates: Partial<HandleValidationState>) => {
+      setHandleValidation((prev) => ({ ...prev, ...updates }));
+    },
+    []
+  );
+
+  // Notify parent of validation changes (separate effect to prevent loops)
+  useEffect(() => {
+    onValidationChange?.(handleValidation);
+  }, [handleValidation, onValidationChange]);
+
   // Debounced API validation with reduced delay for better UX
+  // Removed handleValidation from dependencies to prevent infinite re-renders
   const debouncedApiValidation = useMemo(
     () =>
       debounce(async (handleValue: string) => {
@@ -95,14 +109,11 @@ export function SmartHandleInput({
         // Check cache first
         if (lastValidatedRef.current?.handle === handleValue) {
           const { available } = lastValidatedRef.current;
-          const newValidation = {
-            ...handleValidation,
+          updateValidationState({
             available,
             checking: false,
             error: available ? null : 'Handle already taken',
-          };
-          setHandleValidation(newValidation);
-          onValidationChange?.(newValidation);
+          });
           return;
         }
 
@@ -116,13 +127,10 @@ export function SmartHandleInput({
 
         // Add small delay to prevent flickering for very fast responses
         const checkingTimeout = setTimeout(() => {
-          const newValidation = {
-            ...handleValidation,
+          updateValidationState({
             checking: true,
             error: null,
-          };
-          setHandleValidation(newValidation);
-          onValidationChange?.(newValidation);
+          });
         }, 200); // 200ms delay
 
         try {
@@ -154,29 +162,22 @@ export function SmartHandleInput({
           const result = await response.json();
           const available = !!result.available;
 
-          const finalValidation = {
-            ...handleValidation,
+          updateValidationState({
             available,
             checking: false,
             error: available ? null : result.error || 'Handle already taken',
-          };
-
-          setHandleValidation(finalValidation);
-          onValidationChange?.(finalValidation);
+          });
           lastValidatedRef.current = { handle: handleValue, available };
         } catch (error) {
           clearTimeout(checkingTimeout);
 
           if (error instanceof Error && error.name === 'AbortError') {
             // Handle timeout specifically
-            const timeoutValidation = {
-              ...handleValidation,
+            updateValidationState({
               available: false,
               checking: false,
               error: 'Check timed out - please try again',
-            };
-            setHandleValidation(timeoutValidation);
-            onValidationChange?.(timeoutValidation);
+            });
             return;
           }
 
@@ -192,33 +193,28 @@ export function SmartHandleInput({
               : 'Network error';
           }
 
-          const errorValidation = {
-            ...handleValidation,
+          updateValidationState({
             available: false,
             checking: false,
             error: errorMessage,
-          };
-          setHandleValidation(errorValidation);
-          onValidationChange?.(errorValidation);
+          });
           lastValidatedRef.current = { handle: handleValue, available: false };
         }
       }, 500), // Reduced debounce from 1000ms to 500ms for better UX
-    [clientValidation.valid, handleValidation, onValidationChange]
+    [clientValidation.valid, updateValidationState]
   );
 
   // Update validation state when handle or client validation changes
+  // Removed handleValidation from dependencies to prevent infinite re-renders
   useEffect(() => {
-    // Update client validation state immediately
-    const newValidation = {
-      ...handleValidation,
+    // Update client validation state immediately using functional update
+    updateValidationState({
       clientValid: clientValidation.valid,
       error: clientValidation.error,
       suggestions: usernameSuggestions,
-      available: clientValidation.valid ? handleValidation.available : false,
-    };
-
-    setHandleValidation(newValidation);
-    onValidationChange?.(newValidation);
+      // Only keep available state if client validation passes
+      available: clientValidation.valid ? undefined : false,
+    });
 
     // Only trigger API validation for format-valid handles
     if (clientValidation.valid && value.length >= 3) {
@@ -229,8 +225,7 @@ export function SmartHandleInput({
     clientValidation,
     usernameSuggestions,
     debouncedApiValidation,
-    onValidationChange,
-    handleValidation,
+    updateValidationState,
   ]);
 
   const getValidationIcon = () => {
