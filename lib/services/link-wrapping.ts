@@ -201,11 +201,11 @@ export async function getWrappedLink(
       createdAt: data.created_at,
       expiresAt: data.expires_at,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Return mock response for testing when database is unavailable
     if (
-      error?.message?.includes('timeout') ||
-      error?.message?.includes('Database timeout')
+      (error instanceof Error && error.message?.includes('timeout')) ||
+      (error instanceof Error && error.message?.includes('Database timeout'))
     ) {
       console.log('Database timeout, returning mock wrapped link for testing');
       return {
