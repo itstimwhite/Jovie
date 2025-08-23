@@ -11,6 +11,7 @@ import type {
   CreatorProfile,
   LegacySocialLink,
   SocialLink,
+  SocialPlatform,
 } from '@/types/db';
 import { createClerkSupabaseClient } from '@/lib/supabase';
 import { debounce } from '@/lib/utils';
@@ -96,14 +97,14 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   // Convert LinkItems to database format
   const convertLinkItemsToDbFormat = (
     linkItems: LinkItem[],
-    artistId: string
+    creatorProfileId: string
   ): Partial<SocialLink>[] => {
     return linkItems
       .filter((link) => link.isVisible)
       .map((link, index) => ({
-        artist_id: artistId,
+        creator_profile_id: creatorProfileId,
         platform: link.platform.id,
-        platform_type: link.platform.id as any,
+        platform_type: link.platform.id as SocialPlatform,
         url: link.normalizedUrl,
         sort_order: index,
         is_active: true,
@@ -123,7 +124,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
           await supabase
             .from('social_links')
             .select('*')
-            .eq('artist_id', artist.id);
+            .eq('creator_profile_id', artist.id);
           
         if (socialLinksError) {
           console.error('Error fetching social links:', socialLinksError);
@@ -168,7 +169,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
       .filter((link) => link.isVisible && link.platform.category === 'social')
       .map((link) => ({
         id: link.id,
-        artist_id: artist.id,
+        artist_id: artist.id, // LegacySocialLink still uses artist_id for backwards compatibility
         platform: link.platform.icon,
         url: link.normalizedUrl,
         clicks: 0,
@@ -236,7 +237,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
       const { error: deleteError } = await supabase
         .from('social_links')
         .delete()
-        .eq('artist_id', artist.id);
+        .eq('creator_profile_id', artist.id);
 
       if (deleteError) {
         throw new Error(
