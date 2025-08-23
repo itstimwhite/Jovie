@@ -116,6 +116,8 @@ const nextConfig = {
     // Turbopack: remove unsupported option
     // forceSwcTransforms: true,
     swcTraceProfiling: false,
+    // Web vitals attribution with valid metric names only
+    webVitalsAttribution: ['CLS', 'FCP', 'INP', 'LCP', 'TTFB'],
   },
   compiler: {
     // Keep console logs in Vercel Preview builds for debugging

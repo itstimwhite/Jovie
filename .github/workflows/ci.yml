@@ -12,12 +12,15 @@ on:
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
+  merge_group:
+    branches: [preview, main]
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.vscode/**'
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
-  actions: write
+permissions: read-all
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -27,6 +30,7 @@ jobs:
   pr-policy:
     if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/github-script@v7
         with:
@@ -45,6 +49,7 @@ jobs:
     name: up-to-date-with-preview
     if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'preview' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
@@ -60,10 +65,11 @@ jobs:
             exit 1
           fi
 
-  ci-fast:
-    # Draft PRs skip; ready PRs + pushes run fast checks
+  ci-typecheck:
+    # Draft PRs skip; ready PRs + pushes + merge queue run fast checks in parallel
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: fkirc/skip-duplicate-actions@v5
         with:
@@ -79,15 +85,15 @@ jobs:
         run: npm ci
       - name: Typecheck
         run: npm run typecheck --if-present
-      - name: Lint
-        run: npm run lint --if-present
 
-  ci-full:
-    name: Full CI (label or push)
-    needs: [ci-fast]
-    if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'full-ci')) }}
+  ci-lint:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
+      - uses: fkirc/skip-duplicate-actions@v5
+        with:
+          cancel_others: 'true'
       - uses: actions/checkout@v4
         with: { fetch-depth: 2 }
       - uses: actions/setup-node@v4
@@ -95,21 +101,289 @@ jobs:
           node-version: 20
           cache: npm
           cache-dependency-path: '**/package-lock.json'
-      - run: npm ci
+      - name: Install
+        run: npm ci
+      - name: Lint (enforce zero warnings)
+        run: npm run lint --if-present -- --max-warnings=0
+
+  ci-build:
+    name: Build
+    needs: [ci-typecheck, ci-lint]
+    if: ${{ github.event_name == 'push' || github.event_name == 'merge_group' || (github.event_name == 'pull_request' && (github.event.pull_request.base.ref == 'preview' || contains(github.event.pull_request.labels.*.name, 'full-ci'))) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # Path guard: Check if changes affect critical files (only for pushes and non-preview PRs)
+      - name: Check for relevant changes
+        id: check_changes
+        run: |
+          # Force run if full-ci label is present
+          if [[ "${{ contains(github.event.pull_request.labels.*.name, 'full-ci') }}" == "true" ]]; then
+            echo "Forcing full CI run due to 'full-ci' label"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # For PRs to preview, always run full CI (skip path guards)
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.base.ref }}" == "preview" ]]; then
+            echo "Running full CI for PR to preview branch"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # For merge queue events, always run full CI
+          if [[ "${{ github.event_name }}" == "merge_group" ]]; then
+            echo "Running full CI for merge queue"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          # For push events to main/preview, always run full CI
+          if [[ "${{ github.event_name }}" == "push" && ("${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/preview") ]]; then
+            echo "Running full CI for push to main/preview branch"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Get changed files
+          git fetch origin ${{ github.base_ref || 'HEAD~1' }}
+          CHANGED_FILES=$(git diff --name-only FETCH_HEAD HEAD)
+
+          # Check if critical paths were modified
+          echo "Checking for changes in critical paths..."
+          if echo "$CHANGED_FILES" | grep -q -E '^(app/|components/|lib/|tests/|package.*\.json|next\.config\.js)'; then
+            echo "Critical paths changed, running full CI"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+          else
+            echo "No critical paths changed, skipping full CI"
+            echo "run_full_ci=false" >> $GITHUB_OUTPUT
+            echo "Changed files:"
+            echo "$CHANGED_FILES"
+          fi
+
+      # Skip remaining steps if no relevant changes
+      - name: Skip notification
+        if: steps.check_changes.outputs.run_full_ci != 'true'
+        run: |
+          echo "Skipping full CI as no critical paths were changed."
+          echo "To force a full CI run, add the 'full-ci' label to the PR."
+          exit 0
+
+      # Continue with CI steps only if relevant changes detected or full-ci label present
+      - uses: actions/setup-node@v4
+        if: steps.check_changes.outputs.run_full_ci == 'true'
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install dependencies
+        if: steps.check_changes.outputs.run_full_ci == 'true'
+        run: npm ci
+
+      - name: Build
+        if: steps.check_changes.outputs.run_full_ci == 'true'
+        run: npm run build --if-present
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL_PREVIEW }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.SUPABASE_ANON_KEY_PREVIEW }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY_PREVIEW }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
+
+  ci-unit-tests:
+    name: Unit Tests
+    needs: [ci-typecheck, ci-lint]
+    if: ${{ github.event_name == 'push' || github.event_name == 'merge_group' || (github.event_name == 'pull_request' && (github.event.pull_request.base.ref == 'preview' || contains(github.event.pull_request.labels.*.name, 'full-ci'))) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # Path guard: Check if changes affect critical files (only for pushes and non-preview PRs)
+      - name: Check for relevant changes
+        id: check_changes
+        run: |
+          # Force run if full-ci label is present
+          if [[ "${{ contains(github.event.pull_request.labels.*.name, 'full-ci') }}" == "true" ]]; then
+            echo "Forcing full CI run due to 'full-ci' label"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # For PRs to preview, always run full CI (skip path guards)
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.base.ref }}" == "preview" ]]; then
+            echo "Running full CI for PR to preview branch"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # For merge queue events, always run full CI
+          if [[ "${{ github.event_name }}" == "merge_group" ]]; then
+            echo "Running full CI for merge queue"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          # For push events to main/preview, always run full CI
+          if [[ "${{ github.event_name }}" == "push" && ("${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/preview") ]]; then
+            echo "Running full CI for push to main/preview branch"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Get changed files
+          git fetch origin ${{ github.base_ref || 'HEAD~1' }}
+          CHANGED_FILES=$(git diff --name-only FETCH_HEAD HEAD)
+
+          # Check if critical paths were modified
+          echo "Checking for changes in critical paths..."
+          if echo "$CHANGED_FILES" | grep -q -E '^(app/|components/|lib/|tests/|package.*\.json|next\.config\.js)'; then
+            echo "Critical paths changed, running full CI"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+          else
+            echo "No critical paths changed, skipping full CI"
+            echo "run_full_ci=false" >> $GITHUB_OUTPUT
+            echo "Changed files:"
+            echo "$CHANGED_FILES"
+          fi
+
+      # Skip remaining steps if no relevant changes
+      - name: Skip notification
+        if: steps.check_changes.outputs.run_full_ci != 'true'
+        run: |
+          echo "Skipping unit tests as no critical paths were changed."
+          echo "To force a full CI run, add the 'full-ci' label to the PR."
+          exit 0
+
+      # Continue with CI steps only if relevant changes detected or full-ci label present
+      - uses: actions/setup-node@v4
+        if: steps.check_changes.outputs.run_full_ci == 'true'
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install dependencies
+        if: steps.check_changes.outputs.run_full_ci == 'true'
+        run: npm ci
+
+      - name: Run unit tests
+        if: steps.check_changes.outputs.run_full_ci == 'true'
+        run: npm test --if-present
+
+  ci-e2e-tests:
+    name: E2E Tests
+    needs: [ci-build, ci-unit-tests]
+    if: ${{ github.event_name == 'push' || github.event_name == 'merge_group' || (github.event_name == 'pull_request' && (github.event.pull_request.base.ref == 'preview' || contains(github.event.pull_request.labels.*.name, 'full-ci'))) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # Path guard: Check if changes affect critical files (only for pushes and non-preview PRs)
+      - name: Check for relevant changes
+        id: check_changes
+        run: |
+          # Force run if full-ci label is present
+          if [[ "${{ contains(github.event.pull_request.labels.*.name, 'full-ci') }}" == "true" ]]; then
+            echo "Forcing full CI run due to 'full-ci' label"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # For PRs to preview, always run full CI (skip path guards)
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.base.ref }}" == "preview" ]]; then
+            echo "Running full CI for PR to preview branch"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # For merge queue events, always run full CI
+          if [[ "${{ github.event_name }}" == "merge_group" ]]; then
+            echo "Running full CI for merge queue"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          # For push events to main/preview, always run full CI
+          if [[ "${{ github.event_name }}" == "push" && ("${{ github.ref }}" == "refs/heads/main" || "${{ github.ref }}" == "refs/heads/preview") ]]; then
+            echo "Running full CI for push to main/preview branch"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Get changed files
+          git fetch origin ${{ github.base_ref || 'HEAD~1' }}
+          CHANGED_FILES=$(git diff --name-only FETCH_HEAD HEAD)
+
+          # Check if critical paths were modified
+          echo "Checking for changes in critical paths..."
+          if echo "$CHANGED_FILES" | grep -q -E '^(app/|components/|lib/|tests/|package.*\.json|next\.config\.js)'; then
+            echo "Critical paths changed, running full CI"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+          else
+            echo "No critical paths changed, skipping full CI"
+            echo "run_full_ci=false" >> $GITHUB_OUTPUT
+            echo "Changed files:"
+            echo "$CHANGED_FILES"
+          fi
+
+      # Skip remaining steps if no relevant changes
+      - name: Skip notification
+        if: steps.check_changes.outputs.run_full_ci != 'true'
+        run: |
+          echo "Skipping E2E tests as no critical paths were changed."
+          echo "To force a full CI run, add the 'full-ci' label to the PR."
+          exit 0
+
+      # Continue with CI steps only if relevant changes detected or full-ci label present
+      - uses: actions/setup-node@v4
+        if: steps.check_changes.outputs.run_full_ci == 'true'
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install dependencies
+        if: steps.check_changes.outputs.run_full_ci == 'true'
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        if: ${{ steps.check_changes.outputs.run_full_ci == 'true' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+
       - name: Install Playwright
-        if: ${{ hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '' }}
+        if: ${{ steps.check_changes.outputs.run_full_ci == 'true' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
         run: npx playwright install --with-deps
-      - name: E2E smoke
-        if: ${{ github.ref != 'refs/heads/main' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
-        run: npm run e2e:smoke --if-present
-        continue-on-error: true
-      - run: npm test --if-present
-      - run: npm run build --if-present
+
+      - name: E2E smoke tests
+        if: ${{ steps.check_changes.outputs.run_full_ci == 'true' && github.ref != 'refs/heads/main' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
+        run: npm run e2e:smoke --if-present -- --trace=retain-on-failure
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
+
+      - name: Upload Playwright artifacts on failure
+        if: ${{ failure() && steps.check_changes.outputs.run_full_ci == 'true' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
 
   deploy:
-    needs: [ci-fast] # change to [ci-full] if you want build/tests first
+    needs: [ci-build, ci-unit-tests, ci-e2e-tests] # Requires all CI jobs to pass before preview deploy
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/preview' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment:
       name: Preview
       url: https://preview.jov.ie
@@ -128,7 +402,7 @@ jobs:
         run: npm run db:seed
         env:
           GIT_BRANCH: preview
-        continue-on-error: true
+        continue-on-error: false
       - name: Pull env (preview)
         run: vercel pull --yes --environment=preview --token ${{ secrets.VERCEL_TOKEN }}
         env:
@@ -139,16 +413,50 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL_PREVIEW }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.SUPABASE_ANON_KEY_PREVIEW }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY_PREVIEW }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
       - name: Deploy (prebuilt)
-        run: vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }}
+        id: deploy
+        run: |
+          deployment_url=$(vercel deploy --prebuilt --token ${{ secrets.VERCEL_TOKEN }})
+          echo "deployment_url=$deployment_url" >> $GITHUB_OUTPUT
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Canary health check
+        run: |
+          echo "Running canary health check on preview deployment..."
+          deployment_url="${{ steps.deploy.outputs.deployment_url }}"
+
+          # Wait a moment for deployment to be ready
+          sleep 10
+
+          # Basic health check - verify site loads and key elements exist
+          response_code=$(curl -s -o /dev/null -w "%{http_code}" "$deployment_url" || echo "000")
+
+          if [ "$response_code" != "200" ]; then
+            echo "❌ Canary failed: HTTP $response_code"
+            exit 1
+          fi
+
+          # Check for key content (adjust selector as needed)
+          page_content=$(curl -s "$deployment_url" || echo "")
+          if [[ ! "$page_content" =~ "Jovie" ]]; then
+            echo "❌ Canary failed: Key content missing"
+            exit 1
+          fi
+
+          echo "✅ Canary passed: Preview deployment healthy"
+        continue-on-error: true
 
   promote:
     needs: [deploy]
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/preview' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
       pull-requests: write
@@ -159,20 +467,52 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Create PR body with QA checklist
+          pr_body="## Release Promotion: preview → main
+
+          **⚠️ Manual Review Required**
+
+          This PR promotes changes from \`preview\` to \`main\` for production release.
+
+          ### Pre-merge Checklist
+          - [ ] **Full CI passed** (ci-full job completed successfully)
+          - [ ] **CodeQL security scan passed** (if applicable)
+          - [ ] **Preview environment tested** and verified working
+          - [ ] **Database migrations reviewed** (if any)
+          - [ ] **Feature flags configured** appropriately for production
+          - [ ] **Monitoring/alerts reviewed** for new features
+          - [ ] **Performance impact assessed** (no regressions)
+          - [ ] **Rollback plan documented** (feature flags, DB, etc.)
+
+          ### Release QA
+          - [ ] **Smoke tests passed** in preview environment
+          - [ ] **Key user journeys verified** manually
+          - [ ] **Mobile/responsive tested** (if UI changes)
+          - [ ] **Cross-browser compatibility** verified (if applicable)
+          - [ ] **Error handling tested** (edge cases, failures)
+
+          ### Documentation
+          - [ ] **CHANGELOG updated** with user-facing changes
+          - [ ] **Feature documentation** updated (if applicable)
+          - [ ] **API docs updated** (if API changes)
+
+          **🚨 Do not merge until all checks pass and manual QA is complete.**"
+
           # Check if PR already exists
           existing_pr=$(gh pr list --head preview --base main --json number --jq '.[0].number // empty')
           if [ -z "$existing_pr" ]; then
             echo "Creating new PR: preview → main"
-            gh pr create --base main --head preview --title "Promote: preview → main" --body "Automated promotion PR (manual review required)"
+            gh pr create --base main --head preview --title "🚀 Release: Promote preview → main" --body "$pr_body"
           else
-            echo "PR already exists: #$existing_pr (no auto-merge; manual review required)"
-            gh pr edit "$existing_pr" --title "Promote: preview → main" --body "Automated promotion PR (manual review required)"
+            echo "PR already exists: #$existing_pr (updating with latest checklist)"
+            gh pr edit "$existing_pr" --title "🚀 Release: Promote preview → main" --body "$pr_body"
           fi
 
   deploy-prod:
-    needs: [ci-fast]
+    needs: [ci-typecheck, ci-lint, ci-build, ci-unit-tests, ci-e2e-tests]
     if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment:
       name: Production
       url: https://jov.ie
@@ -198,6 +538,10 @@ jobs:
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL_PROD }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.SUPABASE_ANON_KEY_PROD }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY_PROD }}
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
       - name: Deploy (production, prebuilt)
         run: vercel deploy --prebuilt --prod --token ${{ secrets.VERCEL_TOKEN }}
         env:

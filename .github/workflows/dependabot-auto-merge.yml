@@ -14,7 +14,7 @@ jobs:
   auto-merge:
     if: >
       github.actor == 'dependabot[bot]' &&
-      github.event.pull_request.base.ref == 'develop'
+      github.event.pull_request.base.ref == 'preview'
     runs-on: ubuntu-latest
     steps:
       - name: Fetch metadata
@@ -38,9 +38,9 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
-          # Only the fast-lane checks
+          # Wait for the essential CI checks
           check-regexp: >
-            (?i)(pr-policy|ci-fast)
+            (?i)(pr-policy|ci-typecheck|ci-lint)
           allowed-conclusions: success
           timeout-minutes: 45
 

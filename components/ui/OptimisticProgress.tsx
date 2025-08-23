@@ -18,15 +18,15 @@ interface ProgressState {
   isComplete: boolean;
 }
 
-export function OptimisticProgress({ 
-  isActive, 
-  steps, 
-  onComplete 
+export function OptimisticProgress({
+  isActive,
+  steps,
+  onComplete,
 }: OptimisticProgressProps) {
   const [state, setState] = useState<ProgressState>({
     currentStep: 0,
     progress: 0,
-    isComplete: false
+    isComplete: false,
   });
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export function OptimisticProgress({
         setState({
           currentStep: steps.length - 1,
           progress: 100,
-          isComplete: true
+          isComplete: true,
         });
         onComplete?.();
         return;
@@ -58,7 +58,7 @@ export function OptimisticProgress({
       setState({
         currentStep: currentStepIndex,
         progress: stepProgress,
-        isComplete: false
+        isComplete: false,
       });
 
       // Move to next step when current step duration is reached
@@ -119,8 +119,8 @@ export function OptimisticProgress({
               index < state.currentStep
                 ? 'text-green-600 dark:text-green-400'
                 : index === state.currentStep
-                ? 'text-blue-600 dark:text-blue-400'
-                : 'text-gray-400 dark:text-gray-600'
+                  ? 'text-blue-600 dark:text-blue-400'
+                  : 'text-gray-400 dark:text-gray-600'
             }`}
           >
             <div
@@ -128,8 +128,8 @@ export function OptimisticProgress({
                 index < state.currentStep
                   ? 'bg-green-500'
                   : index === state.currentStep
-                  ? 'bg-blue-500'
-                  : 'bg-gray-300 dark:bg-gray-600'
+                    ? 'bg-blue-500'
+                    : 'bg-gray-300 dark:bg-gray-600'
               }`}
             />
             <span className="hidden sm:inline">{step.label}</span>

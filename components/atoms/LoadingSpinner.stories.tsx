@@ -74,6 +74,48 @@ export const JovieLogoSpinner: Story = {
   ),
 };
 
+export const DarkAndLightVariants: Story = {
+  render: () => (
+    <div className="flex flex-col gap-8">
+      <div className="flex items-center gap-8">
+        <div className="text-center">
+          <div className="p-4 bg-white rounded-lg shadow">
+            <LoadingSpinner size="md" variant="dark" />
+          </div>
+          <p className="text-xs mt-2">Dark Variant (Indigo)</p>
+          <p className="text-xs text-gray-500">For light backgrounds</p>
+        </div>
+
+        <div className="text-center">
+          <div className="p-4 bg-gray-900 rounded-lg shadow">
+            <LoadingSpinner size="md" variant="light" />
+          </div>
+          <p className="text-xs mt-2">Light Variant (White)</p>
+          <p className="text-xs text-gray-500">For dark backgrounds</p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-8">
+        <div className="text-center">
+          <button className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-800 rounded-lg shadow-sm">
+            <LoadingSpinner size="sm" variant="dark" />
+            <span>Loading...</span>
+          </button>
+          <p className="text-xs mt-2">In Light Button</p>
+        </div>
+
+        <div className="text-center">
+          <button className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg shadow-sm">
+            <LoadingSpinner size="sm" variant="light" />
+            <span>Loading...</span>
+          </button>
+          <p className="text-xs mt-2">In Dark Button</p>
+        </div>
+      </div>
+    </div>
+  ),
+};
+
 export const AllSizes: Story = {
   render: () => (
     <div className="flex items-center gap-4">
