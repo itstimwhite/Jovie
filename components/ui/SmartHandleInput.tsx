@@ -114,13 +114,16 @@ export function SmartHandleInput({
         const abortController = new AbortController();
         abortControllerRef.current = abortController;
 
-        const newValidation = {
-          ...handleValidation,
-          checking: true,
-          error: null,
-        };
-        setHandleValidation(newValidation);
-        onValidationChange?.(newValidation);
+        // Add small delay to prevent flickering for very fast responses
+        const checkingTimeout = setTimeout(() => {
+          const newValidation = {
+            ...handleValidation,
+            checking: true,
+            error: null,
+          };
+          setHandleValidation(newValidation);
+          onValidationChange?.(newValidation);
+        }, 200); // 200ms delay
 
         try {
           // Add timeout to prevent infinite loading
@@ -140,6 +143,7 @@ export function SmartHandleInput({
           );
 
           clearTimeout(timeoutId);
+          clearTimeout(checkingTimeout);
 
           if (abortController.signal.aborted) return;
 
@@ -161,6 +165,8 @@ export function SmartHandleInput({
           onValidationChange?.(finalValidation);
           lastValidatedRef.current = { handle: handleValue, available };
         } catch (error) {
+          clearTimeout(checkingTimeout);
+
           if (error instanceof Error && error.name === 'AbortError') {
             // Handle timeout specifically
             const timeoutValidation = {
@@ -339,21 +345,22 @@ export function SmartHandleInput({
         </span>
       </div>
 
-      {/* Status message */}
-      {statusMessage && (
-        <div
-          className={`text-xs ${
-            handleValidation.available && clientValidation.valid
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-red-600 dark:text-red-400'
-          } transition-colors duration-200`}
-          id="handle-status"
-          role="status"
-          aria-live="polite"
-        >
-          {statusMessage}
-        </div>
-      )}
+      {/* Status message - always reserve space to prevent layout shift */}
+      <div
+        className={`text-xs min-h-[1.25rem] transition-all duration-300 ${
+          statusMessage
+            ? handleValidation.available && clientValidation.valid
+              ? 'text-green-600 dark:text-green-400 opacity-100'
+              : 'text-red-600 dark:text-red-400 opacity-100'
+            : 'opacity-0'
+        }`}
+        id="handle-status"
+        role="status"
+        aria-live="polite"
+      >
+        {statusMessage || '\u00A0'}{' '}
+        {/* Non-breaking space to maintain height */}
+      </div>
 
       {/* Username suggestions */}
       {formatHints && handleValidation.suggestions.length > 0 && (

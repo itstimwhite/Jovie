@@ -3,7 +3,7 @@
 import { SectionHeading } from '@/components/atoms/SectionHeading';
 import { ArtistCard } from '@/components/molecules/ArtistCard';
 
-export type FeaturedArtist = {
+export type FeaturedCreator = {
   id: string;
   handle: string;
   name: string;
@@ -11,21 +11,22 @@ export type FeaturedArtist = {
   alt?: string;
 };
 
-export interface FeaturedArtistsSectionProps {
-  artists: FeaturedArtist[];
+export interface FeaturedCreatorsSectionProps {
+  creators: FeaturedCreator[];
   title?: string;
   className?: string;
 }
 
-export function FeaturedArtistsSection({
-  artists,
+export function FeaturedCreatorsSection({
+  creators,
   title = 'Featured Creators',
   className = '',
-}: FeaturedArtistsSectionProps) {
+}: FeaturedCreatorsSectionProps) {
   return (
     <section
-      aria-label="Featured artists"
+      aria-label="Featured creators"
       className={`relative py-8 ${className}`}
+      data-testid="featured-creators"
     >
       <div className="container mx-auto px-4">
         <SectionHeading level={2} className="mb-8">
@@ -35,13 +36,13 @@ export function FeaturedArtistsSection({
         {/* Desktop: horizontal scroll */}
         <div className="hidden md:block">
           <ul className="flex items-center gap-10 overflow-x-auto scroll-smooth pb-4">
-            {artists.map((artist) => (
-              <li key={artist.id} className="shrink-0">
+            {creators.map((creator) => (
+              <li key={creator.id} className="shrink-0">
                 <ArtistCard
-                  handle={artist.handle}
-                  name={artist.name}
-                  src={artist.src}
-                  alt={artist.alt}
+                  handle={creator.handle}
+                  name={creator.name}
+                  src={creator.src}
+                  alt={creator.alt}
                   size="md"
                 />
               </li>
@@ -52,13 +53,13 @@ export function FeaturedArtistsSection({
         {/* Mobile: swipe */}
         <div className="md:hidden">
           <ul className="flex items-center gap-6 overflow-x-auto scroll-smooth px-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {artists.map((artist) => (
-              <li key={artist.id} className="shrink-0 first:ml-2 last:mr-2">
+            {creators.map((creator) => (
+              <li key={creator.id} className="shrink-0 first:ml-2 last:mr-2">
                 <ArtistCard
-                  handle={artist.handle}
-                  name={artist.name}
-                  src={artist.src}
-                  alt={artist.alt}
+                  handle={creator.handle}
+                  name={creator.name}
+                  src={creator.src}
+                  alt={creator.alt}
                   size="sm"
                 />
               </li>
@@ -69,3 +70,6 @@ export function FeaturedArtistsSection({
     </section>
   );
 }
+
+// Export both names for compatibility during transition
+export const FeaturedArtistsSection = FeaturedCreatorsSection;
