@@ -1,5 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
+import { vi } from 'vitest';
 import { LinkManager } from './LinkManager';
 import { ToastProvider } from '@/components/providers/ToastProvider';
 import type { DetectedLink } from '@/lib/utils/platform-detection';
@@ -19,7 +20,6 @@ vi.mock('@/components/ui/ToastContainer', async () => {
 
 // Mock the platform detection
 const mockDetectedLink: DetectedLink = {
-  url: 'https://spotify.com/artist/123',
   platform: {
     id: 'spotify',
     name: 'Spotify',
@@ -28,14 +28,13 @@ const mockDetectedLink: DetectedLink = {
     color: '1DB954',
     placeholder: 'https://open.spotify.com/artist/...',
   },
-  normalizedUrl: 'https://spotify.com/artist/123',
+  normalizedUrl: 'https://open.spotify.com/artist/123',
   originalUrl: 'https://spotify.com/artist/123',
-  suggestedTitle: 'Spotify',
+  suggestedTitle: 'Spotify Artist',
   isValid: true,
 };
 
 const mockSocialLink: DetectedLink = {
-  url: 'https://instagram.com/artist',
   platform: {
     id: 'instagram',
     name: 'Instagram',
@@ -59,14 +58,14 @@ describe('LinkManager Component', () => {
     const onLinksChangeMock = vi.fn();
     const { useToast } = await import('@/components/ui/ToastContainer');
     const showToastMock = vi.fn();
-    
+
     // Override the mock implementation for this test
     (useToast as vi.MockedFunction<typeof useToast>).mockReturnValue({
       showToast: showToastMock,
       hideToast: vi.fn(),
       clearToasts: vi.fn(),
     });
-    
+
     const initialLinks = Array(5)
       .fill(null)
       .map((_, i) => ({
@@ -76,7 +75,7 @@ describe('LinkManager Component', () => {
         isVisible: true,
         order: i,
       }));
-    
+
     renderWithToastProvider(
       <LinkManager
         initialLinks={initialLinks}
@@ -102,7 +101,7 @@ describe('LinkManager Component', () => {
     const onLinksChangeMock = vi.fn();
     const { useToast } = await import('@/components/ui/ToastContainer');
     const showToastMock = vi.fn();
-    
+
     // Override the mock implementation for this test
     (useToast as vi.MockedFunction<typeof useToast>).mockReturnValue({
       showToast: showToastMock,
@@ -135,14 +134,14 @@ describe('LinkManager Component', () => {
     const onLinksChangeMock = vi.fn();
     const { useToast } = await import('@/components/ui/ToastContainer');
     const showToastMock = vi.fn();
-    
+
     // Override the mock implementation for this test
     (useToast as vi.MockedFunction<typeof useToast>).mockReturnValue({
       showToast: showToastMock,
       hideToast: vi.fn(),
       clearToasts: vi.fn(),
     });
-    
+
     const initialLinks = [
       {
         ...mockDetectedLink,
@@ -152,7 +151,7 @@ describe('LinkManager Component', () => {
         order: 0,
       },
     ];
-    
+
     renderWithToastProvider(
       <LinkManager
         initialLinks={initialLinks}
@@ -180,14 +179,14 @@ describe('LinkManager Component', () => {
     const onLinksChangeMock = vi.fn();
     const { useToast } = await import('@/components/ui/ToastContainer');
     const showToastMock = vi.fn();
-    
+
     // Override the mock implementation for this test
     (useToast as vi.MockedFunction<typeof useToast>).mockReturnValue({
       showToast: showToastMock,
       hideToast: vi.fn(),
       clearToasts: vi.fn(),
     });
-    
+
     const initialLinks = [
       {
         ...mockDetectedLink,
@@ -197,7 +196,7 @@ describe('LinkManager Component', () => {
         order: 0,
       },
     ];
-    
+
     renderWithToastProvider(
       <LinkManager
         initialLinks={initialLinks}
