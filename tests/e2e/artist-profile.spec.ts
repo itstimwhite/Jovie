@@ -4,7 +4,8 @@ test.describe('Artist Profile Pages', () => {
   test.describe('Valid Artist Profile', () => {
     test.beforeEach(async ({ page }) => {
       // Use a known artist handle from our seeded data
-      await page.goto('/dualipa');
+      // Increased timeout for heavy page compilation
+      await page.goto('/dualipa', { timeout: 30000 });
     });
 
     test('displays artist profile correctly', async ({ page }) => {

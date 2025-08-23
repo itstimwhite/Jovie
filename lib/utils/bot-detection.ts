@@ -211,7 +211,7 @@ export function createBotResponse(status: number = 204): Response {
     });
   }
 
-  return new Response('', {
+  return new Response(null, {
     status: 204,
     headers: {
       'Cache-Control': 'no-cache, no-store, must-revalidate',
