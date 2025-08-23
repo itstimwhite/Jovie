@@ -18,7 +18,7 @@ test.describe('Lady Gaga Profile Route', () => {
     await expect(page.locator('text=Page not found')).not.toBeVisible();
 
     // Should see the artist name in the page
-    await expect(page.locator('text=Lady Gaga')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Lady Gaga' })).toBeVisible();
 
     // Should have the expected page structure
     await expect(

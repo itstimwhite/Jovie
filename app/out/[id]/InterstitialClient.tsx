@@ -108,7 +108,10 @@ export function InterstitialClient({
         <p className="text-sm text-gray-700">
           <strong>Destination:</strong> {titleAlias}
         </p>
-        <p className="text-xs text-gray-500 mt-1">Domain: {domain}</p>
+        {/* Only show domain when it's not obfuscated */}
+        {domain !== 'External Site' && (
+          <p className="text-xs text-gray-500 mt-1">Domain: {domain}</p>
+        )}
       </div>
 
       {error && (

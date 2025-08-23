@@ -148,9 +148,15 @@ jobs:
             exit 0
           fi
 
-          # Get changed files
-          git fetch origin ${{ github.base_ref || 'HEAD~1' }}
-          CHANGED_FILES=$(git diff --name-only FETCH_HEAD HEAD)
+          # Determine changed files depending on event type
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            # For PRs, compare against the base ref from origin
+            git fetch origin "${{ github.base_ref }}"
+            CHANGED_FILES=$(git diff --name-only "origin/${{ github.base_ref }}" HEAD)
+          else
+            # For push/merge_group, compare with previous commit
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          fi
 
           # Check if critical paths were modified
           echo "Checking for changes in critical paths..."
@@ -235,9 +241,13 @@ jobs:
             exit 0
           fi
 
-          # Get changed files
-          git fetch origin ${{ github.base_ref || 'HEAD~1' }}
-          CHANGED_FILES=$(git diff --name-only FETCH_HEAD HEAD)
+          # Determine changed files depending on event type
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git fetch origin "${{ github.base_ref }}"
+            CHANGED_FILES=$(git diff --name-only "origin/${{ github.base_ref }}" HEAD)
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          fi
 
           # Check if critical paths were modified
           echo "Checking for changes in critical paths..."
@@ -317,9 +327,13 @@ jobs:
             exit 0
           fi
 
-          # Get changed files
-          git fetch origin ${{ github.base_ref || 'HEAD~1' }}
-          CHANGED_FILES=$(git diff --name-only FETCH_HEAD HEAD)
+          # Determine changed files depending on event type
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git fetch origin "${{ github.base_ref }}"
+            CHANGED_FILES=$(git diff --name-only "origin/${{ github.base_ref }}" HEAD)
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          fi
 
           # Check if critical paths were modified
           echo "Checking for changes in critical paths..."
