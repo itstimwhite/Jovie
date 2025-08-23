@@ -10,7 +10,7 @@ import { getCategoryDescription } from '@/lib/utils/domain-categorizer';
 import { InterstitialClient } from './InterstitialClient';
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function generateMetadata({
@@ -32,7 +32,7 @@ export async function generateMetadata({
 }
 
 export default async function InterstitialPage({ params }: PageProps) {
-  const { id: shortId } = params;
+  const { id: shortId } = await params;
 
   if (!shortId || shortId.length > 20) {
     notFound();
