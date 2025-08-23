@@ -16,9 +16,9 @@ const meta: Meta<typeof OnboardingFormWrapper> = {
   },
   tags: ['autodocs'],
   argTypes: {
-    isLoading: {
+    useProgressiveForm: {
       control: { type: 'boolean' },
-      description: 'Whether the form is in a loading state',
+      description: 'Whether to use the progressive onboarding form',
     },
   },
   decorators: [
@@ -33,28 +33,27 @@ const meta: Meta<typeof OnboardingFormWrapper> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Ready: Story = {
+export const StandardForm: Story = {
   args: {
-    isLoading: false,
+    useProgressiveForm: false,
   },
   parameters: {
     docs: {
       description: {
-        story:
-          'The form in its ready state, displaying the full onboarding form.',
+        story: 'The standard onboarding form without progressive features.',
       },
     },
   },
 };
 
-export const Loading: Story = {
+export const ProgressiveForm: Story = {
   args: {
-    isLoading: true,
+    useProgressiveForm: true,
   },
   parameters: {
     docs: {
       description: {
-        story: 'The form in its loading state, displaying a loading spinner.',
+        story: 'The progressive onboarding form with advanced features.',
       },
     },
     a11y: {
@@ -71,15 +70,15 @@ export const Loading: Story = {
 };
 
 // Dark mode variants
-export const ReadyDarkMode: Story = {
+export const StandardFormDarkMode: Story = {
   args: {
-    isLoading: false,
+    useProgressiveForm: false,
   },
   parameters: {
     backgrounds: { default: 'dark' },
     docs: {
       description: {
-        story: 'The form in its ready state with dark mode enabled.',
+        story: 'The standard onboarding form with dark mode enabled.',
       },
     },
   },
@@ -92,15 +91,15 @@ export const ReadyDarkMode: Story = {
   ],
 };
 
-export const LoadingDarkMode: Story = {
+export const ProgressiveFormDarkMode: Story = {
   args: {
-    isLoading: true,
+    useProgressiveForm: true,
   },
   parameters: {
     backgrounds: { default: 'dark' },
     docs: {
       description: {
-        story: 'The form in its loading state with dark mode enabled.',
+        story: 'The progressive onboarding form with dark mode enabled.',
       },
     },
     a11y: {
