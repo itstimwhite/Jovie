@@ -21,7 +21,7 @@ function signParams(
     .join('&');
 
   const signature = crypto
-    .createHash('sha1')
+    .createHash('sha256')
     .update(`${toSign}${env.CLOUDINARY_API_SECRET ?? ''}`)
     .digest('hex');
 
