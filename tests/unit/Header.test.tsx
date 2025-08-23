@@ -13,7 +13,7 @@ describe('Atomic Design Structure', () => {
     it('LogoLink component works correctly', () => {
       render(<LogoLink />);
 
-      const link = screen.getByRole('link', { name: '' });
+      const link = screen.getByRole('link', { name: 'Jovie' });
       expect(link).toHaveAttribute('href', '/');
       expect(link).toHaveClass('flex', 'items-center', 'space-x-2');
     });
@@ -54,7 +54,7 @@ describe('Atomic Design Structure', () => {
       );
 
       // Should have logo and sign in button (sign up removed)
-      expect(screen.getByRole('link', { name: '' })).toHaveAttribute(
+      expect(screen.getByRole('link', { name: 'Jovie' })).toHaveAttribute(
         'href',
         '/'
       ); // Logo link
