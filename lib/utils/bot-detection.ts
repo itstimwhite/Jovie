@@ -143,14 +143,22 @@ export async function checkRateLimit(
     const windowStart = new Date();
     windowStart.setMinutes(windowStart.getMinutes() - windowMinutes);
 
-    // Check current request count in window
-    const { data, error } = await supabase
-      .from('link_rate_limits')
-      .select('request_count')
-      .eq('ip_address', ip)
-      .eq('endpoint', endpoint)
-      .gte('window_start', windowStart.toISOString())
-      .single();
+    // Add timeout to prevent hanging on database issues
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('Database timeout')), 5000); // 5 second timeout
+    });
+
+    // Check current request count in window with timeout
+    const { data, error } = await Promise.race([
+      supabase
+        .from('link_rate_limits')
+        .select('request_count')
+        .eq('ip_address', ip)
+        .eq('endpoint', endpoint)
+        .gte('window_start', windowStart.toISOString())
+        .single(),
+      timeoutPromise,
+    ]);
 
     if (error && error.code !== 'PGRST116') {
       // Silently allow on database schema errors to avoid breaking E2E tests
