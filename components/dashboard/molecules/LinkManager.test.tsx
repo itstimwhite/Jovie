@@ -1,20 +1,20 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { vi } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
 import { LinkManager } from './LinkManager';
 import { ToastProvider } from '@/components/providers/ToastProvider';
 import type { DetectedLink } from '@/lib/utils/platform-detection';
 
 // Mock the useToast hook
-vi.mock('@/components/ui/ToastContainer', async () => {
-  const actual = await vi.importActual('@/components/ui/ToastContainer');
+vi.mock('@/components/ui/ToastContainer', async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
-    useToast: () => ({
+    useToast: vi.fn(() => ({
       showToast: vi.fn(),
       hideToast: vi.fn(),
       clearToasts: vi.fn(),
-    }),
+    })),
   };
 });
 
@@ -56,11 +56,11 @@ describe('LinkManager Component', () => {
 
   it('shows max links toast when trying to add more than maxLinks', async () => {
     const onLinksChangeMock = vi.fn();
-    const { useToast } = await import('@/components/ui/ToastContainer');
     const showToastMock = vi.fn();
+    const { useToast } = await import('@/components/ui/ToastContainer');
 
-    // Override the mock implementation for this test
-    (useToast as vi.MockedFunction<typeof useToast>).mockReturnValue({
+    // Set up mock implementation for this test
+    (useToast as ReturnType<typeof vi.fn>).mockReturnValue({
       showToast: showToastMock,
       hideToast: vi.fn(),
       clearToasts: vi.fn(),
@@ -99,11 +99,11 @@ describe('LinkManager Component', () => {
 
   it('shows invalid platform toast when platform category is not allowed', async () => {
     const onLinksChangeMock = vi.fn();
-    const { useToast } = await import('@/components/ui/ToastContainer');
     const showToastMock = vi.fn();
+    const { useToast } = await import('@/components/ui/ToastContainer');
 
-    // Override the mock implementation for this test
-    (useToast as vi.MockedFunction<typeof useToast>).mockReturnValue({
+    // Set up mock implementation for this test
+    (useToast as ReturnType<typeof vi.fn>).mockReturnValue({
       showToast: showToastMock,
       hideToast: vi.fn(),
       clearToasts: vi.fn(),
@@ -132,11 +132,11 @@ describe('LinkManager Component', () => {
 
   it('shows undo toast when deleting a link', async () => {
     const onLinksChangeMock = vi.fn();
-    const { useToast } = await import('@/components/ui/ToastContainer');
     const showToastMock = vi.fn();
+    const { useToast } = await import('@/components/ui/ToastContainer');
 
-    // Override the mock implementation for this test
-    (useToast as vi.MockedFunction<typeof useToast>).mockReturnValue({
+    // Set up mock implementation for this test
+    (useToast as ReturnType<typeof vi.fn>).mockReturnValue({
       showToast: showToastMock,
       hideToast: vi.fn(),
       clearToasts: vi.fn(),
@@ -177,11 +177,11 @@ describe('LinkManager Component', () => {
 
   it('restores deleted link when undo is clicked', async () => {
     const onLinksChangeMock = vi.fn();
-    const { useToast } = await import('@/components/ui/ToastContainer');
     const showToastMock = vi.fn();
+    const { useToast } = await import('@/components/ui/ToastContainer');
 
-    // Override the mock implementation for this test
-    (useToast as vi.MockedFunction<typeof useToast>).mockReturnValue({
+    // Set up mock implementation for this test
+    (useToast as ReturnType<typeof vi.fn>).mockReturnValue({
       showToast: showToastMock,
       hideToast: vi.fn(),
       clearToasts: vi.fn(),
