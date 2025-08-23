@@ -1,6 +1,71 @@
 import { createAnonymousServerClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
 
+// In-memory cache for mock responses to reduce server load during testing
+// Cache expires after 10 seconds to balance performance with realistic behavior
+const mockResponseCache = new Map<
+  string,
+  { result: { available: boolean }; expiry: number }
+>();
+const MOCK_CACHE_TTL = 10 * 1000; // 10 seconds
+
+// Helper function to get cached mock response
+function getCachedMockResponse(handle: string) {
+  const cached = mockResponseCache.get(handle);
+  if (cached && cached.expiry > Date.now()) {
+    return cached.result;
+  }
+  return null;
+}
+
+// Helper function to cache mock response
+function cacheMockResponse(handle: string, result: { available: boolean }) {
+  mockResponseCache.set(handle, {
+    result,
+    expiry: Date.now() + MOCK_CACHE_TTL,
+  });
+}
+
+// Helper function to create mock response with appropriate cache headers
+function createMockResponse(handle: string) {
+  // Check cache first
+  const cachedResponse = getCachedMockResponse(handle);
+  if (cachedResponse) {
+    return NextResponse.json(cachedResponse, {
+      headers: {
+        'Cache-Control': `public, max-age=10`, // 10 second cache for mock responses
+        'X-Mock-Response': 'true',
+        'X-Cache-Status': 'hit',
+      },
+    });
+  }
+
+  // Mock some common handles as taken for realistic testing
+  const commonHandles = [
+    'admin',
+    'root',
+    'test',
+    'user',
+    'api',
+    'www',
+    'mail',
+    'ftp',
+    'support',
+  ];
+  const isCommonHandle = commonHandles.includes(handle.toLowerCase());
+  const result = { available: !isCommonHandle };
+
+  // Cache the result
+  cacheMockResponse(handle, result);
+
+  return NextResponse.json(result, {
+    headers: {
+      'Cache-Control': `public, max-age=10`, // 10 second cache for mock responses
+      'X-Mock-Response': 'true',
+      'X-Cache-Status': 'miss',
+    },
+  });
+}
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const handle = searchParams.get('handle');
@@ -73,34 +138,10 @@ export async function GET(request: Request) {
         error.code === '42703'
       ) {
         console.log(
-          'Database schema incomplete, providing mock handle availability for testing'
+          'Database schema incomplete, providing cached mock handle availability for testing'
         );
 
-        // Mock some common handles as taken for realistic testing
-        const commonHandles = [
-          'admin',
-          'root',
-          'test',
-          'user',
-          'api',
-          'www',
-          'mail',
-          'ftp',
-          'support',
-        ];
-        const isCommonHandle = commonHandles.includes(handleLower);
-
-        return NextResponse.json(
-          { available: !isCommonHandle },
-          {
-            headers: {
-              'Cache-Control':
-                'no-store, no-cache, must-revalidate, proxy-revalidate',
-              Pragma: 'no-cache',
-              Expires: '0',
-            },
-          }
-        );
+        return createMockResponse(handleLower);
       }
 
       return NextResponse.json(
@@ -129,34 +170,10 @@ export async function GET(request: Request) {
       (error as Error)?.message?.includes('Database timeout')
     ) {
       console.log(
-        'Database timeout, providing mock handle availability for testing'
+        'Database timeout, providing cached mock handle availability for testing'
       );
 
-      // Mock some common handles as taken for realistic testing
-      const commonHandles = [
-        'admin',
-        'root',
-        'test',
-        'user',
-        'api',
-        'www',
-        'mail',
-        'ftp',
-        'support',
-      ];
-      const isCommonHandle = commonHandles.includes(handle.toLowerCase());
-
-      return NextResponse.json(
-        { available: !isCommonHandle },
-        {
-          headers: {
-            'Cache-Control':
-              'no-store, no-cache, must-revalidate, proxy-revalidate',
-            Pragma: 'no-cache',
-            Expires: '0',
-          },
-        }
-      );
+      return createMockResponse(handle.toLowerCase());
     }
 
     return NextResponse.json(
