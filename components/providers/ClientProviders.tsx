@@ -5,6 +5,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from 'next-themes';
 import { Analytics } from '@/components/Analytics';
 import { FeatureFlagsProvider } from './FeatureFlagsProvider';
+import { ToastProvider } from './ToastProvider';
 import { FeatureFlags } from '@/lib/feature-flags';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { env } from '@/lib/env';
@@ -76,8 +77,24 @@ export function ClientProviders({
         logger.debug('Initial feature flags', initialFeatureFlags);
       }
       logger.groupEnd();
-    } catch {
-      // ignore
+
+      // Initialize Web Vitals tracking - temporarily disabled due to import issues
+      // import('@/lib/monitoring/web-vitals').then(({ initWebVitals }) => {
+      //   initWebVitals((metric) => {
+      //     // Create a custom event for the performance dashboard
+      //     if (typeof window !== 'undefined') {
+      //       const event = new CustomEvent('web-vitals', { detail: metric });
+      //       window.dispatchEvent(event);
+      //     }
+      //   });
+      // });
+
+      // Initialize other performance monitoring - temporarily disabled
+      // import('@/lib/monitoring').then(({ initAllMonitoring }) => {
+      //   initAllMonitoring();
+      // });
+    } catch (error) {
+      console.error('Error initializing monitoring:', error);
     }
 
     return () => clearTimeout(timer);
@@ -105,9 +122,11 @@ export function ClientProviders({
           disableTransitionOnChange
           storageKey="jovie-theme"
         >
-          {children}
-          <Analytics />
-          {/* <Toolbar /> */}
+          <ToastProvider>
+            {children}
+            <Analytics />
+            {/* <Toolbar /> */}
+          </ToastProvider>
         </ThemeProvider>
       </FeatureFlagsProvider>
     </ClerkWrapper>
