@@ -13,6 +13,9 @@ export { OptimizedImage } from './OptimizedImage';
 export { PlaceholderImage } from './PlaceholderImage';
 export { Logo } from './Logo';
 export { VerifiedBadge } from './VerifiedBadge';
+export { ProgressIndicator } from './ProgressIndicator';
+export { SmartHandleInput } from './SmartHandleInput';
+export { ArtistCard } from './ArtistCard';
 
 // Form Components
 export { Form } from './Form';
