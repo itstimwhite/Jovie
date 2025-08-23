@@ -106,7 +106,6 @@ export default async function InterstitialPage({ params }: PageProps) {
                 ? 'External Site'
                 : wrappedLink.domain
             }
-            category={wrappedLink.category}
           />
 
           <div className="mt-6 text-sm text-gray-500">

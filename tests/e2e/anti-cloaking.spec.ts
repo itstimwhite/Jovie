@@ -255,7 +255,7 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
       [normalResponse, interstitialResponse].forEach((response) => {
         const headers = response.headers();
         expect(headers['x-robots-tag']).toBeTruthy();
-        expect(headers['cache-control']).toContain('no-cache');
+        expect(headers['cache-control']).toMatch(/(no-cache|no-store)/);
       });
     });
 

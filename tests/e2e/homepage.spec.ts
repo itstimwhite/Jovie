@@ -94,9 +94,9 @@ test.describe('Homepage', () => {
     // Check page title
     await expect(page).toHaveTitle(/Jovie/);
 
-    // Check meta description
+    // Check meta description exists
     const metaDescription = page.locator('meta[name="description"]');
-    await expect(metaDescription).toBeVisible();
+    await expect(metaDescription).toHaveAttribute('content');
   });
 
   test('is responsive on mobile', async ({ page }) => {
