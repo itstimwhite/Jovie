@@ -37,6 +37,12 @@ jobs:
           - preview
 
     steps:
+      - name: Skip non-selected environment on manual run
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment != matrix.environment }}
+        run: |
+          echo "Skipping matrix.environment='${{ matrix.environment }}' for manual run targeting '${{ github.event.inputs.environment }}'"
+          exit 0
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -86,9 +92,9 @@ jobs:
         run: |
           RESULTS_DIR="test-results-${{ matrix.environment }}"
           if [ -f "$RESULTS_DIR/results.json" ]; then
-            FAILED_TESTS=$(cat "$RESULTS_DIR/results.json" | jq -r '.suites[].specs[] | select(.outcome == "unexpected") | .title')
-            TOTAL_TESTS=$(cat "$RESULTS_DIR/results.json" | jq -r '.suites[].specs | length')
-            PASSED_TESTS=$(cat "$RESULTS_DIR/results.json" | jq -r '.suites[].specs[] | select(.outcome == "expected") | .title | length')
+            FAILED_TESTS=$(jq -r '[.suites[].specs[] | select(.outcome == "unexpected") | .title] | join("\n")' "$RESULTS_DIR/results.json")
+            TOTAL_TESTS=$(jq -r '[.suites[].specs[]] | length' "$RESULTS_DIR/results.json")
+            PASSED_TESTS=$(jq -r '[.suites[].specs[] | select(.outcome == "expected")] | length' "$RESULTS_DIR/results.json")
             
             echo "total_tests=$TOTAL_TESTS" >> $GITHUB_OUTPUT
             echo "passed_tests=$PASSED_TESTS" >> $GITHUB_OUTPUT
@@ -115,6 +121,12 @@ jobs:
             test-results-${{ matrix.environment }}/
             playwright-report/
           retention-days: 30
+
+      - name: Fail job if tests failed
+        if: steps.test-results.outputs.test_status == 'failed'
+        run: |
+          echo "Marking job as failed due to test failures"
+          exit 1
 
       - name: Send Slack Alert on Failure
         if: steps.test-results.outputs.test_status != 'passed'
@@ -157,8 +169,8 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-      - name: Send Slack Success Notification (Daily Summary)
-        if: steps.test-results.outputs.test_status == 'passed' && github.event.schedule == '0 21 * * *'
+      - name: Send Slack Success Notification (Scheduled Summary)
+        if: steps.test-results.outputs.test_status == 'passed' && github.event_name == 'schedule'
         uses: 8398a7/action-slack@v3
         with:
           status: custom
@@ -207,8 +219,7 @@ jobs:
     steps:
       - name: Check overall status
         run: |
-          # Check if any matrix job failed
-          if echo '${{ toJSON(needs.synthetic-test.outputs) }}' | grep -q '"test_status":"failed"'; then
+          if [ "${{ needs.synthetic-test.result }}" = "failure" ]; then
             echo "OVERALL_STATUS=failed" >> $GITHUB_ENV
           else
             echo "OVERALL_STATUS=passed" >> $GITHUB_ENV
