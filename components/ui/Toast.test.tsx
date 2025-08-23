@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect } from 'vitest';
 import { Toast } from './Toast';
@@ -60,7 +60,7 @@ describe('Toast Component', () => {
       <Toast
         id="test-toast"
         message="Auto close message"
-        duration={1000}
+        duration={100}
         onClose={onCloseMock}
       />
     );
@@ -68,12 +68,10 @@ describe('Toast Component', () => {
     expect(onCloseMock).not.toHaveBeenCalled();
 
     // Fast forward time to trigger the timeout
-    vi.advanceTimersByTime(1100);
+    vi.advanceTimersByTime(200);
 
-    // Wait for the onClose to be called
-    await waitFor(() => {
-      expect(onCloseMock).toHaveBeenCalled();
-    });
+    // Since we're using fake timers, the callback should be called synchronously
+    expect(onCloseMock).toHaveBeenCalled();
 
     vi.useRealTimers();
   });

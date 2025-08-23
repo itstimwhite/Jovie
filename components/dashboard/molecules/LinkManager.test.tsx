@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { vi, describe, it, expect } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { LinkManager } from './LinkManager';
 import { ToastProvider } from '@/components/providers/ToastProvider';
 import type { DetectedLink } from '@/lib/utils/platform-detection';
