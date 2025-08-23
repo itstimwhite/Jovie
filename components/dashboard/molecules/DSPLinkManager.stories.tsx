@@ -1,6 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { DSPLinkManager } from './DSPLinkManager';
 import { getPlatform } from '@/lib/utils/platform-detection';
+import type { DetectedLink } from '@/lib/utils/platform-detection';
+
+// Define LinkItem interface (matching DSPLinkManager component)
+interface LinkItem extends DetectedLink {
+  id: string;
+  title: string;
+  isVisible: boolean;
+  order: number;
+}
 
 // Mock data for DSP links
 const mockDSPLinks = [
@@ -83,7 +92,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Mock the onLinksChange function
-const mockOnLinksChange = (links: any) => {
+const mockOnLinksChange = (links: LinkItem[]) => {
   console.log('Links changed:', links);
 };
 
