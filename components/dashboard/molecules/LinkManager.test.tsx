@@ -24,10 +24,14 @@ const mockDetectedLink: DetectedLink = {
     id: 'spotify',
     name: 'Spotify',
     category: 'dsp',
-    icon: 'spotify-icon',
-    domain: 'spotify.com',
+    icon: 'spotify',
+    color: '1DB954',
+    placeholder: 'https://open.spotify.com/artist/...',
   },
+  normalizedUrl: 'https://spotify.com/artist/123',
+  originalUrl: 'https://spotify.com/artist/123',
   suggestedTitle: 'Spotify',
+  isValid: true,
 };
 
 const mockSocialLink: DetectedLink = {
@@ -36,10 +40,14 @@ const mockSocialLink: DetectedLink = {
     id: 'instagram',
     name: 'Instagram',
     category: 'social',
-    icon: 'instagram-icon',
-    domain: 'instagram.com',
+    icon: 'instagram',
+    color: 'E4405F',
+    placeholder: 'https://instagram.com/username',
   },
+  normalizedUrl: 'https://instagram.com/artist',
+  originalUrl: 'https://instagram.com/artist',
   suggestedTitle: 'Instagram',
+  isValid: true,
 };
 
 describe('LinkManager Component', () => {
@@ -53,19 +61,21 @@ describe('LinkManager Component', () => {
     const showToastMock = vi.fn();
     
     // Override the mock implementation for this test
-    (useToast as any).mockReturnValue({
+    (useToast as vi.MockedFunction<typeof useToast>).mockReturnValue({
       showToast: showToastMock,
       hideToast: vi.fn(),
       clearToasts: vi.fn(),
     });
     
-    const initialLinks = Array(5).fill(null).map((_, i) => ({
-      ...mockDetectedLink,
-      id: `link_${i}`,
-      title: `Link ${i}`,
-      isVisible: true,
-      order: i,
-    }));
+    const initialLinks = Array(5)
+      .fill(null)
+      .map((_, i) => ({
+        ...mockDetectedLink,
+        id: `link_${i}`,
+        title: `Link ${i}`,
+        isVisible: true,
+        order: i,
+      }));
     
     renderWithToastProvider(
       <LinkManager
@@ -74,11 +84,11 @@ describe('LinkManager Component', () => {
         maxLinks={5}
       />
     );
-    
+
     // Simulate adding a new link when already at max
     const addLinkFn = vi.spyOn(React, 'useCallback').mock.results[1].value;
     addLinkFn(mockDetectedLink);
-    
+
     expect(showToastMock).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'Maximum of 5 links allowed',
@@ -94,12 +104,12 @@ describe('LinkManager Component', () => {
     const showToastMock = vi.fn();
     
     // Override the mock implementation for this test
-    (useToast as any).mockReturnValue({
+    (useToast as vi.MockedFunction<typeof useToast>).mockReturnValue({
       showToast: showToastMock,
       hideToast: vi.fn(),
       clearToasts: vi.fn(),
     });
-    
+
     renderWithToastProvider(
       <LinkManager
         initialLinks={[]}
@@ -107,11 +117,11 @@ describe('LinkManager Component', () => {
         allowedCategory="dsp"
       />
     );
-    
+
     // Simulate adding a social link when only DSP is allowed
     const addLinkFn = vi.spyOn(React, 'useCallback').mock.results[1].value;
     addLinkFn(mockSocialLink);
-    
+
     expect(showToastMock).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'Instagram links are not allowed in this section',
@@ -127,7 +137,7 @@ describe('LinkManager Component', () => {
     const showToastMock = vi.fn();
     
     // Override the mock implementation for this test
-    (useToast as any).mockReturnValue({
+    (useToast as vi.MockedFunction<typeof useToast>).mockReturnValue({
       showToast: showToastMock,
       hideToast: vi.fn(),
       clearToasts: vi.fn(),
@@ -149,11 +159,11 @@ describe('LinkManager Component', () => {
         onLinksChange={onLinksChangeMock}
       />
     );
-    
+
     // Simulate deleting a link
     const deleteLinkFn = vi.spyOn(React, 'useCallback').mock.results[2].value;
     deleteLinkFn('link_1');
-    
+
     expect(showToastMock).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'Deleted "Test Link"',
@@ -172,7 +182,7 @@ describe('LinkManager Component', () => {
     const showToastMock = vi.fn();
     
     // Override the mock implementation for this test
-    (useToast as any).mockReturnValue({
+    (useToast as vi.MockedFunction<typeof useToast>).mockReturnValue({
       showToast: showToastMock,
       hideToast: vi.fn(),
       clearToasts: vi.fn(),
@@ -194,18 +204,18 @@ describe('LinkManager Component', () => {
         onLinksChange={onLinksChangeMock}
       />
     );
-    
+
     // Simulate deleting a link
     const deleteLinkFn = vi.spyOn(React, 'useCallback').mock.results[2].value;
     deleteLinkFn('link_1');
-    
+
     // Reset the mock to check for the next call
     onLinksChangeMock.mockClear();
-    
+
     // Simulate clicking undo
     const undoDeleteFn = vi.spyOn(React, 'useCallback').mock.results[3].value;
     undoDeleteFn('link_1');
-    
+
     expect(showToastMock).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'Restored "Test Link"',
@@ -215,4 +225,3 @@ describe('LinkManager Component', () => {
     expect(onLinksChangeMock).toHaveBeenCalledWith(initialLinks);
   });
 });
-
