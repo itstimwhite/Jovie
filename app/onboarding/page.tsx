@@ -1,4 +1,4 @@
-import { OnboardingForm } from '@/components/dashboard';
+import { OnboardingFormWrapper } from '@/components/dashboard';
 import { Container } from '@/components/site/Container';
 import { ThemeToggle } from '@/components/site/ThemeToggle';
 import { APP_NAME } from '@/constants/app';
@@ -41,9 +41,7 @@ export default async function OnboardingPage() {
           </div>
 
           {/* Form Card */}
-          <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-xl p-6 shadow-xl transition-colors">
-            <OnboardingForm />
-          </div>
+          <OnboardingFormWrapper />
         </div>
       </Container>
     </div>
