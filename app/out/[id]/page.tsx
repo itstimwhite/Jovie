@@ -9,6 +9,10 @@ import { getWrappedLink } from '@/lib/services/link-wrapping';
 import { getCategoryDescription } from '@/lib/utils/domain-categorizer';
 import { InterstitialClient } from './InterstitialClient';
 
+// Force dynamic rendering to ensure headers are applied correctly
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
@@ -96,7 +100,12 @@ export default async function InterstitialPage({ params }: PageProps) {
           <InterstitialClient
             shortId={shortId}
             titleAlias={wrappedLink.titleAlias || 'External Link'}
-            domain={wrappedLink.domain}
+            domain={
+              wrappedLink.category === 'adult' ||
+              wrappedLink.category === 'dating'
+                ? 'External Site'
+                : wrappedLink.domain
+            }
             category={wrappedLink.category}
           />
 

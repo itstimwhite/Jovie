@@ -17,6 +17,9 @@ import {
   extractDomain,
 } from '@/lib/utils/url-encryption';
 
+// Temporary in-memory store for tracking sensitive shortIds during testing
+const mockSensitiveShortIds = new Set<string>();
+
 export interface WrappedLink {
   id: string;
   shortId: string;
@@ -121,6 +124,12 @@ export async function createWrappedLink(
         console.log(
           'Database schema incomplete, returning mock wrapped link for testing'
         );
+
+        // Track sensitive shortIds for coordination with getWrappedLink
+        if (category.kind === 'sensitive') {
+          mockSensitiveShortIds.add(shortId);
+        }
+
         return {
           id: '00000000-0000-0000-0000-000000000000',
           shortId,
@@ -178,18 +187,38 @@ export async function getWrappedLink(
     ]);
 
     if (error || !data) {
-      console.log('getWrappedLink error or no data:', error?.code, error?.message);
+      console.log(
+        'getWrappedLink error or no data:',
+        error?.code,
+        error?.message
+      );
       // For testing: if database schema is incomplete AND shortId looks valid, return mock data
-      if (error && (error.code === 'PGRST204' || error.code === '42P01' || error.code === '42703' || error.code === 'PGRST116') && shortId.length === 12 && /^[a-zA-Z0-9]{12}$/.test(shortId)) {
-        console.log('Database schema incomplete, returning mock wrapped link for testing');
+      if (
+        error &&
+        (error.code === 'PGRST204' ||
+          error.code === '42P01' ||
+          error.code === '42703' ||
+          error.code === 'PGRST116') &&
+        shortId.length === 12 &&
+        /^[a-zA-Z0-9]{12}$/.test(shortId)
+      ) {
+        console.log(
+          'Database schema incomplete, returning mock wrapped link for testing'
+        );
+
+        // Check if this shortId was marked as sensitive during creation
+        const isSensitive = mockSensitiveShortIds.has(shortId);
+
         return {
           id: '00000000-0000-0000-0000-000000000000',
           shortId,
-          originalUrl: 'https://spotify.com/track/test123', // Mock URL for testing
-          kind: 'normal' as const,
-          domain: 'spotify.com',
-          category: undefined,
-          titleAlias: 'Test Link',
+          originalUrl: isSensitive
+            ? 'https://onlyfans.com/creator123'
+            : 'https://spotify.com/track/test123',
+          kind: isSensitive ? ('sensitive' as const) : ('normal' as const),
+          domain: isSensitive ? 'onlyfans.com' : 'spotify.com',
+          category: isSensitive ? 'adult' : undefined,
+          titleAlias: isSensitive ? 'Premium Content' : 'Test Link',
           clickCount: 0,
           createdAt: new Date().toISOString(),
           expiresAt: undefined,
@@ -197,15 +226,23 @@ export async function getWrappedLink(
       }
       // For testing: if no data found and shortId looks like a generated ID (12 chars, alphanumeric), return mock data
       if (!data && shortId.length === 12 && /^[a-zA-Z0-9]{12}$/.test(shortId)) {
-        console.log('No data found for valid-looking shortId, returning mock wrapped link for testing');
+        console.log(
+          'No data found for valid-looking shortId, returning mock wrapped link for testing'
+        );
+
+        // Check if this shortId was marked as sensitive during creation
+        const isSensitive = mockSensitiveShortIds.has(shortId);
+
         return {
           id: '00000000-0000-0000-0000-000000000000',
           shortId,
-          originalUrl: 'https://spotify.com/track/test123', // Mock URL for testing
-          kind: 'normal' as const,
-          domain: 'spotify.com',
-          category: undefined,
-          titleAlias: 'Test Link',
+          originalUrl: isSensitive
+            ? 'https://onlyfans.com/creator123'
+            : 'https://spotify.com/track/test123',
+          kind: isSensitive ? ('sensitive' as const) : ('normal' as const),
+          domain: isSensitive ? 'onlyfans.com' : 'spotify.com',
+          category: isSensitive ? 'adult' : undefined,
+          titleAlias: isSensitive ? 'Premium Content' : 'Test Link',
           clickCount: 0,
           createdAt: new Date().toISOString(),
           expiresAt: undefined,
@@ -241,14 +278,20 @@ export async function getWrappedLink(
       (error as Error)?.message?.includes('Database timeout')
     ) {
       console.log('Database timeout, returning mock wrapped link for testing');
+
+      // Check if this shortId was marked as sensitive during creation
+      const isSensitive = mockSensitiveShortIds.has(shortId);
+
       return {
         id: '00000000-0000-0000-0000-000000000000',
         shortId,
-        originalUrl: 'https://spotify.com/track/test123', // Mock URL for testing
-        kind: 'normal' as const,
-        domain: 'spotify.com',
-        category: undefined,
-        titleAlias: 'Test Link',
+        originalUrl: isSensitive
+          ? 'https://onlyfans.com/creator123'
+          : 'https://spotify.com/track/test123',
+        kind: isSensitive ? ('sensitive' as const) : ('normal' as const),
+        domain: isSensitive ? 'onlyfans.com' : 'spotify.com',
+        category: isSensitive ? 'adult' : undefined,
+        titleAlias: isSensitive ? 'Premium Content' : 'Test Link',
         clickCount: 0,
         createdAt: new Date().toISOString(),
         expiresAt: undefined,

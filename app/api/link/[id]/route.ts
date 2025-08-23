@@ -117,13 +117,19 @@ export async function POST(
     if (insertError) {
       console.error('Failed to create signed access:', insertError);
       // For testing: if database schema is incomplete, continue without storing signed access
-      if (insertError.code !== 'PGRST204' && insertError.code !== '42P01' && insertError.code !== '42703') {
+      if (
+        insertError.code !== 'PGRST204' &&
+        insertError.code !== '42P01' &&
+        insertError.code !== '42703'
+      ) {
         return NextResponse.json(
           { error: 'Internal server error' },
           { status: 500 }
         );
       }
-      console.log('Database schema incomplete, continuing without signed access storage');
+      console.log(
+        'Database schema incomplete, continuing without signed access storage'
+      );
     }
 
     // Increment click count asynchronously
