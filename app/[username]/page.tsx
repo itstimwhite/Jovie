@@ -59,7 +59,7 @@ const getCreatorProfile = cache(
         return {
           id: '00000000-0000-0000-0000-000000000000',
           user_id: '00000000-0000-0000-0000-000000000000',
-          creator_type: 'musician' as const,
+          creator_type: 'artist' as const,
           username: 'dualipa',
           display_name: 'Dua Lipa',
           bio: 'Levitating - Future Nostalgia',
