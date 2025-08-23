@@ -204,8 +204,8 @@ export async function getWrappedLink(
   } catch (error: unknown) {
     // Return mock response for testing when database is unavailable
     if (
-      (error instanceof Error && error.message?.includes('timeout')) ||
-      (error instanceof Error && error.message?.includes('Database timeout'))
+      (error as Error)?.message?.includes('timeout') ||
+      (error as Error)?.message?.includes('Database timeout')
     ) {
       console.log('Database timeout, returning mock wrapped link for testing');
       return {
