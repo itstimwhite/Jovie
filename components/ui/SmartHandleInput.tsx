@@ -123,39 +123,74 @@ export function SmartHandleInput({
         onValidationChange?.(newValidation);
 
         try {
+          // Add timeout to prevent infinite loading
+          const timeoutId = setTimeout(() => {
+            abortController.abort();
+          }, 5000); // 5 second timeout
+
           const response = await fetch(
             `/api/handle/check?handle=${encodeURIComponent(handleValue.toLowerCase())}`,
-            { signal: abortController.signal }
+            {
+              signal: abortController.signal,
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+            }
           );
+
+          clearTimeout(timeoutId);
 
           if (abortController.signal.aborted) return;
 
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
           const result = await response.json();
-          const available = !!result.available && response.ok;
+          const available = !!result.available;
 
           const finalValidation = {
             ...handleValidation,
             available,
             checking: false,
-            error: response.ok
-              ? available
-                ? null
-                : 'Handle already taken'
-              : result.error || 'Error checking availability',
+            error: available ? null : result.error || 'Handle already taken',
           };
 
           setHandleValidation(finalValidation);
           onValidationChange?.(finalValidation);
           lastValidatedRef.current = { handle: handleValue, available };
         } catch (error) {
-          if (error instanceof Error && error.name === 'AbortError') return;
+          if (error instanceof Error && error.name === 'AbortError') {
+            // Handle timeout specifically
+            const timeoutValidation = {
+              ...handleValidation,
+              available: false,
+              checking: false,
+              error: 'Check timed out - please try again',
+            };
+            setHandleValidation(timeoutValidation);
+            onValidationChange?.(timeoutValidation);
+            return;
+          }
 
           console.error('Handle validation error:', error);
+
+          // Provide more specific error messages
+          let errorMessage = 'Network error';
+          if (error instanceof TypeError && error.message.includes('fetch')) {
+            errorMessage = 'Connection failed - check your internet';
+          } else if (error instanceof Error) {
+            errorMessage = error.message.includes('HTTP')
+              ? 'Server error - please try again'
+              : 'Network error';
+          }
+
           const errorValidation = {
             ...handleValidation,
             available: false,
             checking: false,
-            error: 'Network error',
+            error: errorMessage,
           };
           setHandleValidation(errorValidation);
           onValidationChange?.(errorValidation);
