@@ -1,5 +1,12 @@
 import { test, expect } from '@playwright/test';
 
+// Extend Window interface for our test
+declare global {
+  interface Window {
+    refreshSuccessful?: boolean;
+  }
+}
+
 // Test the auth expiry flow
 test.describe('Auth Expiry Flow', () => {
   // Enable the feature flag for testing

@@ -3,10 +3,7 @@
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
-import {
-  createAuthenticatedClient,
-  queryWithRetry,
-} from '@/lib/supabase/client';
+import { createServerClient } from '@/lib/supabase-server';
 import { validateUsername, normalizeUsername } from '@/lib/validation/username';
 import {
   checkUsernameAvailability,
@@ -17,6 +14,38 @@ import {
   createOnboardingError,
   mapDatabaseError,
 } from '@/lib/errors/onboarding';
+
+// Helper function for retrying database queries
+async function queryWithRetry<T>(queryFn: () => Promise<T>): Promise<T> {
+  const maxRetries = 3;
+  let lastError: unknown;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await queryFn();
+    } catch (error) {
+      lastError = error;
+      
+      // Only retry on specific errors that might be transient
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error.code === '40001' || error.code === '57014')
+      ) {
+        // Wait with exponential backoff before retrying
+        await new Promise(resolve => setTimeout(resolve, 100 * Math.pow(2, attempt - 1)));
+        continue;
+      }
+      
+      // For other errors, don't retry
+      throw error;
+    }
+  }
+  
+  // If we've exhausted all retries
+  throw lastError;
+}
 
 export async function completeOnboarding({
   username,
@@ -59,7 +88,15 @@ export async function completeOnboarding({
     const forwarded = headersList.get('x-forwarded-for');
     const clientIP = forwarded ? forwarded.split(',')[0] : null;
 
-    const supabase = await createAuthenticatedClient();
+    const supabase = createServerClient();
+    
+    if (!supabase) {
+      const error = createOnboardingError(
+        OnboardingErrorCode.DATABASE_ERROR,
+        'Failed to connect to database'
+      );
+      throw new Error(error.message);
+    }
 
     // Check rate limits - handle JWT errors gracefully
     const { data: rateLimitResult, error: rateLimitError } = await supabase.rpc(
@@ -170,3 +207,4 @@ export async function completeOnboarding({
     throw error;
   }
 }
+

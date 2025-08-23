@@ -52,6 +52,30 @@ export function useAuthenticatedClient() {
   return { createClient };
 }
 
+// Legacy function for backward compatibility
+export const createAuthenticatedClient = async () => {
+  console.warn('createAuthenticatedClient is deprecated, use useAuthenticatedClient hook instead');
+  return null;
+};
+
+// Legacy function for backward compatibility
+export const queryWithRetry = async <T>(queryFn: () => Promise<T>): Promise<T> => {
+  console.warn('queryWithRetry is deprecated, implement retry logic directly');
+  return queryFn();
+};
+
+// Legacy function for backward compatibility
+export const createAnonymousClient = () => {
+  console.warn('createAnonymousClient is deprecated');
+  return null;
+};
+
+// Legacy function for backward compatibility
+export const batchQueries = async () => {
+  console.warn('batchQueries is deprecated');
+  return null;
+};
+
 // React hook for using authenticated Supabase client
 export function useSupabase() {
   const { getToken } = useAuth();

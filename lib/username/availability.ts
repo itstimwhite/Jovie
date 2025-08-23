@@ -4,11 +4,7 @@
  */
 
 import 'server-only';
-import {
-  createAuthenticatedClient,
-  createAnonymousClient,
-  queryWithRetry,
-} from '@/lib/supabase/client';
+import { createServerClient } from '@/lib/supabase-server';
 import { validateUsername, normalizeUsername } from '@/lib/validation/username';
 
 export interface UsernameAvailabilityResult {
@@ -40,21 +36,24 @@ export async function checkUsernameAvailability(
     // Normalize username for consistent checking
     const normalizedUsername = normalizeUsername(username);
 
-    // Use anonymous client for username checking - this is public data
-    // and doesn't require authentication, works with RLS policies
-    const supabase = createAnonymousClient();
+    // Use server client for username checking
+    const supabase = createServerClient();
+    
+    if (!supabase) {
+      return {
+        available: false,
+        error: 'Unable to connect to database. Please try again.',
+      };
+    }
 
     // Query only for existence - don't return any profile data
     // Use case-insensitive lookup to match the unique constraint
-    const { data, error } = await queryWithRetry(
-      async () =>
-        await supabase
-          .from('creator_profiles')
-          .select('username') // Only select username to minimize data exposure
-          .eq('username', normalizedUsername) // Use normalized (lowercase) username
-          .limit(1)
-          .maybeSingle()
-    );
+    const { data, error } = await supabase
+      .from('creator_profiles')
+      .select('username') // Only select username to minimize data exposure
+      .eq('username', normalizedUsername) // Use normalized (lowercase) username
+      .limit(1)
+      .maybeSingle();
 
     if (error) {
       console.error('Database error checking username:', error);
@@ -89,18 +88,19 @@ export async function checkUsernameAvailability(
  */
 export async function checkUserHasProfile(userId: string): Promise<boolean> {
   try {
-    // Try authenticated client first
-    const supabase = await createAuthenticatedClient();
+    // Use server client
+    const supabase = createServerClient();
+    
+    if (!supabase) {
+      return false; // Assume no profile on connection error
+    }
 
-    const { data, error } = await queryWithRetry(
-      async () =>
-        await supabase
-          .from('creator_profiles')
-          .select('id') // Only select id to check existence
-          .eq('user_id', userId)
-          .limit(1)
-          .maybeSingle()
-    );
+    const { data, error } = await supabase
+      .from('creator_profiles')
+      .select('id') // Only select id to check existence
+      .eq('user_id', userId)
+      .limit(1)
+      .maybeSingle();
 
     if (error) {
       console.error('Error checking user profile:', error);
@@ -123,3 +123,4 @@ export async function checkUserHasProfile(userId: string): Promise<boolean> {
     return false;
   }
 }
+
