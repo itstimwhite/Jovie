@@ -4,7 +4,7 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'plain';
   size?: 'sm' | 'md' | 'lg';
-  color?: 'indigo' | 'red' | 'green';
+  color?: 'indigo' | 'red' | 'green' | 'neutral';
   children: React.ReactNode;
   href?: string;
   className?: string;
@@ -56,6 +56,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       red: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600',
       green:
         'bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-500 dark:bg-green-500 dark:hover:bg-green-600',
+      neutral:
+        'bg-gray-800 text-white hover:bg-gray-900 focus-visible:ring-gray-500 dark:bg-gray-700 dark:hover:bg-gray-800',
     };
 
     // Determine which classes to use based on props

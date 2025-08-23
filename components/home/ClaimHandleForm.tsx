@@ -131,21 +131,20 @@ export function ClaimHandleForm() {
     [available, checkingAvail, handle, handleError, isSignedIn, router]
   );
 
-  // Button state logic with "Create Profile" copy
+  // Button state logic with simplified copy
   const showChecking = checkingAvail;
   const unavailable = available === false || !!handleError || !!availError;
   const canSubmit = available === true && !checkingAvail && !navigating;
-  const btnLabel = available === true ? 'Create Profile' : 'Create Profile';
-  const btnColor: 'green' | 'indigo' = available === true ? 'green' : 'indigo';
+  const btnLabel = 'Continue';
   const btnDisabled = !canSubmit;
 
-  // Status icon to show inside the input
+  // Status icon to show inside the input - more subtle
   const StatusIcon = () => {
     if (showChecking) {
       return (
         <LoadingSpinner
           size="sm"
-          className="text-zinc-500 dark:text-zinc-400"
+          className="text-gray-400 dark:text-gray-500"
         />
       );
     }
@@ -153,7 +152,7 @@ export function ClaimHandleForm() {
     if (available === true && !handleError) {
       return (
         <svg
-          className="h-4 w-4 text-green-600"
+          className="h-4 w-4 text-gray-600 dark:text-gray-400"
           viewBox="0 0 20 20"
           fill="currentColor"
           aria-hidden="true"
@@ -169,7 +168,7 @@ export function ClaimHandleForm() {
     if (unavailable) {
       return (
         <svg
-          className="h-4 w-4 text-red-600"
+          className="h-4 w-4 text-gray-600 dark:text-gray-400"
           viewBox="0 0 20 20"
           fill="currentColor"
           aria-hidden="true"
@@ -185,13 +184,14 @@ export function ClaimHandleForm() {
     return null;
   };
 
+  // More subtle preview tone
   const previewTone = showChecking
-    ? 'text-gray-500 dark:text-gray-400'
+    ? 'text-gray-400 dark:text-gray-500'
     : available === true
-      ? 'text-green-600 dark:text-green-500'
+      ? 'text-gray-600 dark:text-gray-400'
       : unavailable
-        ? 'text-red-600 dark:text-red-400'
-        : 'text-gray-500 dark:text-gray-400';
+        ? 'text-gray-500 dark:text-gray-500'
+        : 'text-gray-400 dark:text-gray-500';
 
   const helperText = (() => {
     if (handleError) return handleError;
@@ -209,192 +209,222 @@ export function ClaimHandleForm() {
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <Input
-        type="text"
-        value={handle}
-        onChange={(e) => setHandle(e.target.value.toLowerCase())}
-        placeholder="your-handle"
-        aria-label="Claim your handle"
-        aria-describedby={
-          helperText ? 'handle-helper-text' : 'handle-preview-text'
-        }
-        aria-invalid={unavailable ? 'true' : 'false'}
-        autoCapitalize="none"
-        autoCorrect="off"
-        className={`${isShaking ? 'jv-shake' : ''} ${available === true ? 'jv-available' : ''} transition-all duration-150 hover:shadow-lg focus-within:shadow-lg`}
-        inputClassName="text-[16px] leading-6 tracking-tight font-medium placeholder:text-zinc-400 dark:placeholder:text-zinc-500 pr-36 sm:pr-40 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
-        trailing={
-          <div className="flex items-center gap-2">
-            {/* Live status icon */}
-            <div aria-hidden className="flex items-center justify-center">
-              <StatusIcon />
-            </div>
-            {/* Fixed-size CTA button with cross-fade animation */}
-            <Button
-              type="submit"
-              variant="primary"
-              color={btnColor}
-              size="sm"
-              className="min-w-[136px] w-[136px] h-[36px] justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
-              disabled={btnDisabled || !handle}
-              aria-describedby="claim-button-status"
-            >
-              <span className="inline-flex items-center justify-center gap-2 transition-opacity duration-250">
-                {showChecking ? (
-                  <>
-                    <LoadingSpinner size="sm" className="text-white" />
-                    <span>Checking…</span>
-                  </>
-                ) : navigating ? (
-                  'Setting things up…'
-                ) : (
-                  btnLabel
-                )}
-              </span>
-            </Button>
-          </div>
-        }
-      />
+    <div className="space-y-6 max-w-md mx-auto">
+      {/* Apple-style heading */}
+      <div className="text-center space-y-2">
+        <h2 className="text-xl font-medium text-gray-900 dark:text-gray-100">
+          Pick your link
+        </h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Your personal link on Jovie.
+        </p>
+      </div>
 
-      {/* Compact URL preview under input */}
-      <div className="min-h-[1.25rem]" id="handle-preview-text">
-        {handle ? (
-          <div className="flex items-center justify-between text-xs">
-            <p
-              onClick={available ? onCopyPreview : undefined}
-              className={`${previewTone} select-none transition-colors duration-200 ${
-                available
-                  ? 'cursor-pointer hover:text-green-700 dark:hover:text-green-400 active:scale-[0.98] touch-manipulation'
-                  : ''
-              } truncate`}
-              title={
-                available ? (copied ? 'Copied!' : 'Click to copy') : undefined
-              }
-              role={available ? 'button' : undefined}
-              tabIndex={available ? 0 : undefined}
-              onKeyDown={
-                available
-                  ? (e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        onCopyPreview();
-                      }
-                    }
-                  : undefined
-              }
-              aria-label={
-                available
-                  ? `Copy profile URL ${displayDomain}/${handle}`
-                  : undefined
-              }
-            >
-              <span className="text-gray-400 dark:text-gray-500">
-                {displayDomain}/
-              </span>
-              <span className="font-semibold text-current">{handle}</span>
-            </p>
-            {available && (
-              <span
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium transition-all duration-200 ${
-                  available
-                    ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
-                    : ''
-                }`}
-              >
-                {copied ? (
-                  <>
-                    <svg
-                      className="w-3 h-3"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="w-3 h-3"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Available
-                  </>
-                )}
-              </span>
-            )}
-          </div>
-        ) : (
-          <p className="text-xs text-gray-400 dark:text-gray-500">
-            <span className="text-gray-400 dark:text-gray-500">
+      <form onSubmit={onSubmit} className="space-y-5">
+        {/* Domain prefix outside the input */}
+        <div className="relative">
+          <div className="flex items-center mb-2">
+            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
               {displayDomain}/
             </span>
-            <span className="text-gray-400 dark:text-gray-500">
-              your-handle
-            </span>
-          </p>
-        )}
-      </div>
+          </div>
 
-      {/* Single inline helper that swaps to error/success */}
-      <div
-        className="min-h-[1.125rem]"
-        aria-live="polite"
-        aria-atomic="true"
-        id="handle-helper-text"
-      >
-        {helperText ? (
-          <p
-            className={`flex items-center gap-1.5 text-[12px] transition-all duration-200 ${
-              unavailable
-                ? 'text-red-600 dark:text-red-400'
-                : 'text-gray-500 dark:text-gray-400'
-            }`}
-            role="alert"
-          >
-            {unavailable ? (
-              <svg
-                className="h-3.5 w-3.5 flex-shrink-0"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 6h2v6H9V6zm0 7h2v2H9v-2z"
-                  clipRule="evenodd"
-                />
-              </svg>
+          <Input
+            type="text"
+            value={handle}
+            onChange={(e) => setHandle(e.target.value.toLowerCase())}
+            placeholder="yourname"
+            aria-label="Enter your handle"
+            aria-describedby={
+              helperText ? 'handle-helper-text' : 'handle-preview-text'
+            }
+            aria-invalid={unavailable ? 'true' : 'false'}
+            autoCapitalize="none"
+            autoCorrect="off"
+            className={`${isShaking ? 'jv-shake' : ''} ${
+              available === true ? 'jv-subtle-glow' : ''
+            } transition-all duration-150 shadow-sm hover:shadow-md focus-within:shadow-md`}
+            inputClassName="text-[16px] leading-6 tracking-tight font-medium placeholder:text-gray-400 dark:placeholder:text-gray-500 min-h-[44px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-400 focus-visible:ring-offset-1"
+            trailing={
+              <div className="flex items-center gap-2">
+                {/* Live status icon */}
+                <div aria-hidden className="flex items-center justify-center">
+                  <StatusIcon />
+                </div>
+              </div>
+            }
+          />
+
+          {/* Inline preview under input */}
+          <div className="mt-2 min-h-[1.25rem]" id="handle-preview-text">
+            {handle ? (
+              <div className="flex items-center justify-between text-xs">
+                <p
+                  onClick={available ? onCopyPreview : undefined}
+                  className={`${previewTone} select-none transition-colors duration-200 ${
+                    available
+                      ? 'cursor-pointer hover:text-gray-700 dark:hover:text-gray-300 active:scale-[0.98] touch-manipulation'
+                      : ''
+                  } truncate`}
+                  title={
+                    available
+                      ? copied
+                        ? 'Copied!'
+                        : 'Click to copy'
+                      : undefined
+                  }
+                  role={available ? 'button' : undefined}
+                  tabIndex={available ? 0 : undefined}
+                  onKeyDown={
+                    available
+                      ? (e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            onCopyPreview();
+                          }
+                        }
+                      : undefined
+                  }
+                  aria-label={
+                    available
+                      ? `Copy profile URL ${displayDomain}/${handle}`
+                      : undefined
+                  }
+                >
+                  <span className="text-gray-400 dark:text-gray-500">
+                    {displayDomain}/
+                  </span>
+                  <span className="font-medium text-current">{handle}</span>
+                </p>
+                {available && (
+                  <span
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium transition-all duration-200 ${
+                      available
+                        ? 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                        : ''
+                    }`}
+                  >
+                    {copied ? (
+                      <>
+                        <svg
+                          className="w-3 h-3"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Copied
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          className="w-3 h-3"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        Available
+                      </>
+                    )}
+                  </span>
+                )}
+              </div>
             ) : (
-              <svg
-                className="h-3.5 w-3.5 flex-shrink-0"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 10-1.214-.882l-3.2 4.4-1.63-1.63a.75.75 0 10-1.06 1.06l2.25 2.25a.75.75 0 001.145-.089l3.71-5.109z"
-                  clipRule="evenodd"
-                />
-              </svg>
+              <p className="text-xs text-gray-400 dark:text-gray-500">
+                Enter a handle to create your personal link
+              </p>
             )}
-            <span>{helperText}</span>
-          </p>
-        ) : null}
-      </div>
+          </div>
+        </div>
+
+        {/* Single inline helper that swaps to error/success */}
+        <div
+          className="min-h-[1.125rem]"
+          aria-live="polite"
+          aria-atomic="true"
+          id="handle-helper-text"
+        >
+          {helperText ? (
+            <p
+              className={`flex items-center gap-1.5 text-[12px] transition-all duration-200 ${
+                unavailable
+                  ? 'text-gray-600 dark:text-gray-400'
+                  : 'text-gray-500 dark:text-gray-400'
+              }`}
+              role="alert"
+            >
+              {unavailable ? (
+                <svg
+                  className="h-3.5 w-3.5 flex-shrink-0 text-gray-500"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 6h2v6H9V6zm0 7h2v2H9v-2z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="h-3.5 w-3.5 flex-shrink-0 text-gray-500"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 10-1.214-.882l-3.2 4.4-1.63-1.63a.75.75 0 10-1.06 1.06l2.25 2.25a.75.75 0 001.145-.089l3.71-5.109z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              )}
+              <span>{helperText}</span>
+            </p>
+          ) : checkingAvail ? (
+            <p className="flex items-center gap-1.5 text-[12px] text-gray-500 dark:text-gray-400">
+              <LoadingSpinner size="xs" className="text-gray-400" />
+              <span>Checking availability...</span>
+            </p>
+          ) : null}
+        </div>
+
+        {/* Apple-style neutral button */}
+        <div className="pt-2">
+          <Button
+            type="submit"
+            variant="primary"
+            color="neutral"
+            size="md"
+            className="w-full justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98]"
+            disabled={btnDisabled || !handle}
+            aria-describedby="claim-button-status"
+          >
+            <span className="inline-flex items-center justify-center gap-2 transition-opacity duration-250">
+              {showChecking ? (
+                <>
+                  <LoadingSpinner size="sm" className="text-white" />
+                  <span>Checking...</span>
+                </>
+              ) : navigating ? (
+                'Setting up...'
+              ) : (
+                btnLabel
+              )}
+            </span>
+          </Button>
+        </div>
+      </form>
 
       <style jsx>{`
         .jv-shake {
@@ -415,22 +445,22 @@ export function ClaimHandleForm() {
             transform: translateX(-2px);
           }
         }
-        .jv-available {
-          box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.35);
-          animation: jv-available-pulse 900ms ease-out 1;
+        .jv-subtle-glow {
+          box-shadow: 0 0 0 0 rgba(209, 213, 219, 0.35);
+          animation: jv-subtle-glow 900ms ease-out 1;
         }
-        @keyframes jv-available-pulse {
+        @keyframes jv-subtle-glow {
           0% {
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 0 0 rgba(209, 213, 219, 0.4);
           }
           70% {
-            box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+            box-shadow: 0 0 0 8px rgba(209, 213, 219, 0);
           }
           100% {
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            box-shadow: 0 0 0 0 rgba(209, 213, 219, 0);
           }
         }
       `}</style>
-    </form>
+    </div>
   );
 }
