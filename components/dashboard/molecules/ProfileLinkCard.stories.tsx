@@ -5,18 +5,18 @@ import { Artist } from '@/types/db';
 // Mock artist data for stories
 const mockArtist: Artist = {
   id: '1',
-  user_id: 'user_123',
+  owner_user_id: 'user_123',
   handle: 'artistname',
-  display_name: 'Artist Name',
-  bio: 'This is a sample artist bio',
-  avatar_url: 'https://via.placeholder.com/150',
-  header_url: null,
-  creator_type: 'musician',
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
+  name: 'Artist Name',
+  tagline: 'This is a sample artist bio',
+  image_url: 'https://via.placeholder.com/150',
   spotify_id: 'spotify_123',
   spotify_url: 'https://open.spotify.com/artist/123',
-  links: [],
+  published: true,
+  is_verified: false,
+  is_featured: false,
+  marketing_opt_out: false,
+  created_at: new Date().toISOString(),
 };
 
 const meta: Meta<typeof ProfileLinkCard> = {
@@ -63,7 +63,7 @@ export const LongHandle: Story = {
     artist: {
       ...mockArtist,
       handle: 'very-long-artist-handle-that-might-overflow',
-      display_name: 'Artist With Long Handle',
+      name: 'Artist With Long Handle',
     },
   },
 };
@@ -74,8 +74,7 @@ export const LongDisplayName: Story = {
     artist: {
       ...mockArtist,
       handle: 'artist',
-      display_name:
-        'This Is A Very Long Artist Name That Might Cause Layout Issues',
+      name: 'This Is A Very Long Artist Name That Might Cause Layout Issues',
     },
   },
 };
@@ -85,7 +84,7 @@ export const WithoutAvatar: Story = {
   args: {
     artist: {
       ...mockArtist,
-      avatar_url: null,
+      image_url: undefined,
     },
   },
 };

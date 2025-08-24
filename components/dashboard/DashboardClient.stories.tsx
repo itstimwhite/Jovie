@@ -11,11 +11,27 @@ const mockCreatorProfile: CreatorProfile = {
   bio: 'This is a sample artist bio',
   avatar_url: 'https://via.placeholder.com/150',
   header_url: null,
-  creator_type: 'musician',
+  creator_type: 'artist',
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
   spotify_id: 'spotify_123',
   spotify_url: 'https://open.spotify.com/artist/123',
+  apple_music_url: null,
+  youtube_url: null,
+  is_public: true,
+  is_verified: false,
+  is_featured: false,
+  marketing_opt_out: false,
+  is_claimed: true,
+  claim_token: null,
+  claimed_at: new Date().toISOString(),
+  profile_views: 0,
+  username_normalized: 'artistname',
+  search_text: 'artistname artist name',
+  display_title: 'Artist Name',
+  profile_completion_pct: 80,
+  settings: null,
+  theme: null,
 };
 
 // Create multiple profiles for the multi-profile scenario
@@ -28,7 +44,10 @@ const createMultipleProfiles = (): CreatorProfile[] => {
       username: 'secondartist',
       display_name: 'Second Artist',
       avatar_url: 'https://via.placeholder.com/150?text=2',
-      creator_type: 'band',
+      creator_type: 'artist',
+      username_normalized: 'secondartist',
+      search_text: 'secondartist second artist',
+      display_title: 'Second Artist',
     },
     {
       ...mockCreatorProfile,
@@ -36,13 +55,16 @@ const createMultipleProfiles = (): CreatorProfile[] => {
       username: 'thirdartist',
       display_name: 'Third Artist',
       avatar_url: null,
-      creator_type: 'dj',
+      creator_type: 'artist',
+      username_normalized: 'thirdartist',
+      search_text: 'thirdartist third artist',
+      display_title: 'Third Artist',
     },
   ];
 };
 
 // Create a wrapper component to mock the router and other dependencies
-const DashboardClientWrapper = (props) => {
+const DashboardClientWrapper = (props: any) => {
   return <DashboardClient {...props} />;
 };
 
