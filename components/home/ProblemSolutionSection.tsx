@@ -10,7 +10,7 @@ export function ProblemSolutionSection() {
 
   return (
     <section
-      id="problem-solution"
+      id="problem"
       aria-labelledby="problem-solution-heading"
       className="relative border-t border-gray-200 dark:border-white/10"
     >
@@ -34,6 +34,10 @@ export function ProblemSolutionSection() {
             We built the off-ramp.
           </span>
         </h2>
+
+        <h3 className="mt-6 text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+          Stop designing. Start converting.
+        </h3>
 
         {/* Unified narrative flow */}
         <div className="mt-8 space-y-6 max-w-4xl mx-auto">

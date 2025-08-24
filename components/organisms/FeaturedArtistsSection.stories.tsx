@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { FeaturedArtistsSection } from './FeaturedArtistsSection';
+import { FeaturedCreatorsSection } from './FeaturedArtistsSection';
 
-const meta: Meta<typeof FeaturedArtistsSection> = {
-  title: 'Organisms/FeaturedArtistsSection',
-  component: FeaturedArtistsSection,
+const meta: Meta<typeof FeaturedCreatorsSection> = {
+  title: 'Organisms/FeaturedCreatorsSection',
+  component: FeaturedCreatorsSection,
   parameters: {
     layout: 'fullscreen',
   },
@@ -13,7 +13,7 @@ const meta: Meta<typeof FeaturedArtistsSection> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const mockArtists = [
+const mockCreators = [
   {
     id: '1',
     handle: 'arianagrande',
@@ -42,33 +42,33 @@ const mockArtists = [
 
 export const Default: Story = {
   args: {
-    artists: mockArtists,
+    creators: mockCreators,
     title: 'Featured Creators',
   },
 };
 
 export const CustomTitle: Story = {
   args: {
-    artists: mockArtists,
-    title: 'Popular Artists',
+    creators: mockCreators,
+    title: 'Popular Creators',
   },
 };
 
-export const SingleArtist: Story = {
+export const SingleCreator: Story = {
   args: {
-    artists: [mockArtists[0]],
+    creators: [mockCreators[0]],
     title: 'Featured Creator',
   },
 };
 
-export const ManyArtists: Story = {
+export const ManyCreators: Story = {
   args: {
-    artists: [
-      ...mockArtists,
-      ...mockArtists.map((artist, index) => ({
-        ...artist,
-        id: `${artist.id}-${index}`,
-        handle: `${artist.handle}${index}`,
+    creators: [
+      ...mockCreators,
+      ...mockCreators.map((creator, index) => ({
+        ...creator,
+        id: `${creator.id}-${index}`,
+        handle: `${creator.handle}${index}`,
       })),
     ],
     title: 'All Creators',

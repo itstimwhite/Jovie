@@ -114,48 +114,89 @@ export function SmartHandleInput({
         const abortController = new AbortController();
         abortControllerRef.current = abortController;
 
-        const newValidation = {
-          ...handleValidation,
-          checking: true,
-          error: null,
-        };
-        setHandleValidation(newValidation);
-        onValidationChange?.(newValidation);
+        // Add small delay to prevent flickering for very fast responses
+        const checkingTimeout = setTimeout(() => {
+          const newValidation = {
+            ...handleValidation,
+            checking: true,
+            error: null,
+          };
+          setHandleValidation(newValidation);
+          onValidationChange?.(newValidation);
+        }, 200); // 200ms delay
 
         try {
+          // Add timeout to prevent infinite loading
+          const timeoutId = setTimeout(() => {
+            abortController.abort();
+          }, 5000); // 5 second timeout
+
           const response = await fetch(
             `/api/handle/check?handle=${encodeURIComponent(handleValue.toLowerCase())}`,
-            { signal: abortController.signal }
+            {
+              signal: abortController.signal,
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
+            }
           );
+
+          clearTimeout(timeoutId);
+          clearTimeout(checkingTimeout);
 
           if (abortController.signal.aborted) return;
 
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
           const result = await response.json();
-          const available = !!result.available && response.ok;
+          const available = !!result.available;
 
           const finalValidation = {
             ...handleValidation,
             available,
             checking: false,
-            error: response.ok
-              ? available
-                ? null
-                : 'Handle already taken'
-              : result.error || 'Error checking availability',
+            error: available ? null : result.error || 'Handle already taken',
           };
 
           setHandleValidation(finalValidation);
           onValidationChange?.(finalValidation);
           lastValidatedRef.current = { handle: handleValue, available };
         } catch (error) {
-          if (error instanceof Error && error.name === 'AbortError') return;
+          clearTimeout(checkingTimeout);
+
+          if (error instanceof Error && error.name === 'AbortError') {
+            // Handle timeout specifically
+            const timeoutValidation = {
+              ...handleValidation,
+              available: false,
+              checking: false,
+              error: 'Check timed out - please try again',
+            };
+            setHandleValidation(timeoutValidation);
+            onValidationChange?.(timeoutValidation);
+            return;
+          }
 
           console.error('Handle validation error:', error);
+
+          // Provide more specific error messages
+          let errorMessage = 'Network error';
+          if (error instanceof TypeError && error.message.includes('fetch')) {
+            errorMessage = 'Connection failed - check your internet';
+          } else if (error instanceof Error) {
+            errorMessage = error.message.includes('HTTP')
+              ? 'Server error - please try again'
+              : 'Network error';
+          }
+
           const errorValidation = {
             ...handleValidation,
             available: false,
             checking: false,
-            error: 'Network error',
+            error: errorMessage,
           };
           setHandleValidation(errorValidation);
           onValidationChange?.(errorValidation);
@@ -304,21 +345,22 @@ export function SmartHandleInput({
         </span>
       </div>
 
-      {/* Status message */}
-      {statusMessage && (
-        <div
-          className={`text-xs ${
-            handleValidation.available && clientValidation.valid
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-red-600 dark:text-red-400'
-          } transition-colors duration-200`}
-          id="handle-status"
-          role="status"
-          aria-live="polite"
-        >
-          {statusMessage}
-        </div>
-      )}
+      {/* Status message - always reserve space to prevent layout shift */}
+      <div
+        className={`text-xs min-h-[1.25rem] transition-all duration-300 ${
+          statusMessage
+            ? handleValidation.available && clientValidation.valid
+              ? 'text-green-600 dark:text-green-400 opacity-100'
+              : 'text-red-600 dark:text-red-400 opacity-100'
+            : 'opacity-0'
+        }`}
+        id="handle-status"
+        role="status"
+        aria-live="polite"
+      >
+        {statusMessage || '\u00A0'}{' '}
+        {/* Non-breaking space to maintain height */}
+      </div>
 
       {/* Username suggestions */}
       {formatHints && handleValidation.suggestions.length > 0 && (

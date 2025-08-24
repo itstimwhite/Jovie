@@ -12,9 +12,10 @@ import { detectBot, getBotSafeHeaders } from '@/lib/utils/bot-detection';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const shortId = params.id;
+  const { id } = await params;
+  const shortId = id;
 
   if (!shortId || shortId.length > 20) {
     return new NextResponse('Not Found', { status: 404 });

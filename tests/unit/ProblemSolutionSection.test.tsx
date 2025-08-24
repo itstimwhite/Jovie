@@ -71,7 +71,7 @@ describe('ProblemSolutionSection', () => {
     render(<ProblemSolutionSection />);
 
     const section = screen.getByRole('region');
-    expect(section).toHaveAttribute('id', 'problem-solution');
+    expect(section).toHaveAttribute('id', 'problem');
     expect(section).toHaveAttribute(
       'aria-labelledby',
       'problem-solution-heading'

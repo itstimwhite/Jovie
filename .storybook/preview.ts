@@ -12,6 +12,13 @@ const preview: Preview = {
     docs: {
       toc: true,
     },
+    nextjs: {
+      appDirectory: true,
+      navigation: {
+        pathname: '/test',
+        query: {},
+      },
+    },
   },
   tags: ['autodocs'],
 };
