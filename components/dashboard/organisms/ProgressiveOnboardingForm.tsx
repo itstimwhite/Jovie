@@ -13,6 +13,7 @@ import {
 import { ArtistCard } from '@/components/ui/ArtistCard';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { OptimisticProgress } from '@/components/ui/OptimisticProgress';
+import { ErrorSummary } from '@/components/ui/ErrorSummary';
 import { APP_URL } from '@/constants/app';
 import { completeOnboarding } from '@/app/onboarding/actions';
 import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
@@ -774,6 +775,35 @@ export function ProgressiveOnboardingForm() {
     }
   };
 
+  // Collect all form errors for the error summary
+  const formErrors = useMemo(() => {
+    const errors: Record<string, string> = {};
+
+    // Handle validation errors
+    if (currentStepIndex === 2 && handleValidation.error) {
+      errors.handle = handleValidation.error;
+    } else if (
+      currentStepIndex === 2 &&
+      !handleValidation.available &&
+      handle
+    ) {
+      errors.handle = 'Handle already taken';
+    }
+
+    // Include API error if present
+    if (state.error) {
+      errors.form = state.error;
+    }
+
+    return errors;
+  }, [
+    currentStepIndex,
+    handleValidation.error,
+    handleValidation.available,
+    handle,
+    state.error,
+  ]);
+
   return (
     <div className="space-y-6" role="main" aria-label="Onboarding form">
       {/* Skip link for accessibility */}
@@ -833,6 +863,34 @@ export function ProgressiveOnboardingForm() {
             </Button>
           </div>
         </div>
+      )}
+
+      {/* Screen reader announcements */}
+      <div
+        className="sr-only"
+        aria-live="assertive"
+        aria-atomic="true"
+        id="step-announcement"
+      >
+        {isTransitioning
+          ? `Moving to ${ONBOARDING_STEPS[currentStepIndex]?.title} step`
+          : ''}
+        {state.error ? `Error: ${state.error}` : ''}
+        {state.isSubmitting ? 'Creating your profile. Please wait...' : ''}
+      </div>
+
+      {/* Error summary for screen readers */}
+      {Object.keys(formErrors || {}).length > 0 && (
+        <ErrorSummary
+          errors={formErrors}
+          title="Please fix the following errors before continuing"
+          onFocusField={(fieldName) => {
+            const element = document.getElementById(fieldName);
+            if (element) {
+              element.focus();
+            }
+          }}
+        />
       )}
 
       {/* Step content with smooth transitions */}

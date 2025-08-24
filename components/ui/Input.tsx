@@ -1,6 +1,6 @@
 import * as Headless from '@headlessui/react';
 import clsx from 'clsx';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useId } from 'react';
 import { LoadingSpinner } from './LoadingSpinner';
 
 export function InputGroup({
@@ -49,6 +49,9 @@ type InputProps = {
   loading?: boolean;
   inputClassName?: string;
   trailing?: React.ReactNode;
+  statusIcon?: React.ReactNode;
+  helpText?: string;
+  validationState?: 'valid' | 'invalid' | 'pending' | null;
 } & Omit<Headless.InputProps, 'as' | 'className'>;
 
 export const Input = forwardRef(function Input(
@@ -59,10 +62,36 @@ export const Input = forwardRef(function Input(
     loading,
     inputClassName,
     trailing,
+    statusIcon,
+    helpText,
+    validationState,
+    'aria-describedby': ariaDescribedBy,
+    'aria-invalid': ariaInvalid,
     ...props
   }: InputProps & Partial<LegacyInputProps>,
   ref: React.ForwardedRef<HTMLInputElement>
 ) {
+  // Generate unique IDs for accessibility connections
+  const uniqueId = useId();
+  const id = props.id || `input-${uniqueId}`;
+  const errorId = `${id}-error`;
+  const helpTextId = `${id}-help`;
+
+  // Determine validation state
+  const isInvalid =
+    validationState === 'invalid' || error || ariaInvalid === 'true';
+  const isValid = validationState === 'valid';
+  const isPending = validationState === 'pending' || loading;
+
+  // Determine which description elements to connect via aria-describedby
+  const getDescribedByIds = () => {
+    const ids = [];
+    if (ariaDescribedBy) ids.push(ariaDescribedBy);
+    if (helpText) ids.push(helpTextId);
+    if (error) ids.push(errorId);
+    return ids.length > 0 ? ids.join(' ') : undefined;
+  };
+
   const inputElement = (
     <span
       data-slot="control"
@@ -81,11 +110,16 @@ export const Input = forwardRef(function Input(
         // Invalid state
         'has-data-invalid:before:shadow-red-500/10',
         // Error state for legacy support
-        error && 'has-data-invalid:before:shadow-red-500/10',
+        isInvalid && 'has-data-invalid:before:shadow-red-500/10',
+        // Valid state
+        isValid && 'has-data-valid:before:shadow-green-500/10',
       ])}
     >
       <Headless.Input
         ref={ref}
+        id={id}
+        aria-invalid={isInvalid ? 'true' : undefined}
+        aria-describedby={getDescribedByIds()}
         {...props}
         className={clsx([
           // Date classes
@@ -116,23 +150,35 @@ export const Input = forwardRef(function Input(
           'focus:outline-hidden',
           // Invalid state
           'data-invalid:border-red-500 data-invalid:data-hover:border-red-500 dark:data-invalid:border-red-500 dark:data-invalid:data-hover:border-red-500',
+          // Valid state
+          isValid &&
+            'border-green-500 data-hover:border-green-500 dark:border-green-500 dark:data-hover:border-green-500',
           // Disabled state
           'data-disabled:border-zinc-950/20 dark:data-disabled:border-white/15 dark:data-disabled:bg-white/2.5 dark:data-hover:data-disabled:border-white/15',
           // System icons
           'dark:scheme-dark',
           // Error state for legacy support
-          error &&
+          isInvalid &&
             'border-red-500 data-hover:border-red-500 dark:border-red-500 dark:data-hover:border-red-500',
           // Loading state - add right padding for spinner
-          loading && 'pr-10 sm:pr-8',
+          isPending && 'pr-10 sm:pr-8',
+          // Status icon - add right padding for icon
+          statusIcon && 'pr-10 sm:pr-8',
           // Trailing slot - add more right padding for action button
           trailing && 'pr-28 sm:pr-32',
           inputClassName,
         ])}
       />
 
+      {/* Status Icon (validation state) */}
+      {statusIcon && !isPending && (
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 sm:right-2.5">
+          {statusIcon}
+        </div>
+      )}
+
       {/* Loading Spinner */}
-      {loading && (
+      {isPending && (
         <div className="absolute right-3 top-1/2 -translate-y-1/2 sm:right-2.5">
           <LoadingSpinner
             size="sm"
@@ -150,18 +196,45 @@ export const Input = forwardRef(function Input(
     </span>
   );
 
-  // If we have label or error, wrap in a container
-  if (label || error) {
+  // If we have label, error, or helpText, wrap in a container
+  if (label || error || helpText) {
     return (
       <div className="space-y-2">
         {label && (
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label
+            htmlFor={id}
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
             {label}
+            {props.required && (
+              <span className="text-red-500 ml-1" aria-hidden="true">
+                *
+              </span>
+            )}
+            {props.required && <span className="sr-only">(required)</span>}
           </label>
         )}
+
+        {helpText && (
+          <p
+            id={helpTextId}
+            className="text-xs text-gray-500 dark:text-gray-400"
+          >
+            {helpText}
+          </p>
+        )}
+
         {inputElement}
+
         {error && (
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p
+            id={errorId}
+            className="text-sm text-red-600 dark:text-red-400"
+            role="alert"
+            aria-live="polite"
+          >
+            {error}
+          </p>
         )}
       </div>
     );
