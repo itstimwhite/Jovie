@@ -11,13 +11,17 @@ vi.mock('@/components/ui/ToastContainer', () => {
       hideToast: vi.fn(),
       clearToasts: vi.fn(),
     }),
-    ToastProvider: ({ children }) => <>{children}</>,
+    ToastProvider: ({ children }: { children: React.ReactNode }) => (
+      <>{children}</>
+    ),
   };
 });
 
 // Mock the ToastProvider from providers
 vi.mock('@/components/providers/ToastProvider', () => ({
-  ToastProvider: ({ children }) => <>{children}</>,
+  ToastProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
 }));
 
 vi.mock('@stripe/stripe-js', () => ({
