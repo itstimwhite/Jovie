@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useSession } from '@clerk/nextjs';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { ProgressIndicator } from '@/components/ui/ProgressIndicator';
@@ -82,6 +82,7 @@ interface OnboardingState {
 
 export function ProgressiveOnboardingForm() {
   const { user } = useUser();
+  const { session } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -123,6 +124,21 @@ export function ProgressiveOnboardingForm() {
     searchArtists,
     clearResults,
   } = useArtistSearch();
+
+  // Session monitoring - redirect to sign-in if session expires
+  useEffect(() => {
+    if (!user || !session) {
+      // If user was authenticated but session is now null, redirect
+      const wasAuthenticated = sessionStorage.getItem('was_authenticated');
+      if (wasAuthenticated) {
+        router.push('/sign-in');
+        return;
+      }
+    } else {
+      // Mark that user was authenticated
+      sessionStorage.setItem('was_authenticated', 'true');
+    }
+  }, [user, session, router]);
 
   // Prefill handle and selected artist data
   useEffect(() => {
@@ -322,7 +338,11 @@ export function ProgressiveOnboardingForm() {
             userMessage = getUserFriendlyMessage(
               OnboardingErrorCode.INVALID_SESSION
             );
-            shouldRetry = true;
+            shouldRetry = false; // Don't retry, redirect instead
+            // Redirect to sign-in
+            setTimeout(() => {
+              router.push('/sign-in');
+            }, 2000);
           } else if (
             error.message.includes('Username is already taken') ||
             error.message.includes('already taken')
@@ -839,27 +859,20 @@ export function ProgressiveOnboardingForm() {
         />
       )}
 
-      {/* Error display */}
-      {state.error && (
+      {/* Error display - only show session expiry errors here, others in ErrorSummary */}
+      {state.error && state.error.includes('session') && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 transition-all duration-200">
           <div className="flex items-center justify-between">
             <p className="text-red-800 dark:text-red-200 text-sm" role="alert">
               {state.error}
             </p>
             <Button
-              onClick={() =>
-                setState((prev) => ({
-                  ...prev,
-                  error: null,
-                  retryCount: prev.retryCount + 1,
-                }))
-              }
-              variant="secondary"
+              onClick={() => router.push('/sign-in')}
+              variant="primary"
               size="sm"
-              disabled={state.retryCount >= 3}
-              aria-label="Retry onboarding process"
+              aria-label="Go to sign in"
             >
-              {state.retryCount >= 3 ? 'Max retries' : 'Retry'}
+              Sign In
             </Button>
           </div>
         </div>
@@ -879,10 +892,16 @@ export function ProgressiveOnboardingForm() {
         {state.isSubmitting ? 'Creating your profile. Please wait...' : ''}
       </div>
 
-      {/* Error summary for screen readers */}
-      {Object.keys(formErrors || {}).length > 0 && (
+      {/* Error summary for screen readers - exclude session errors shown above */}
+      {Object.keys(formErrors || {}).filter(
+        (errorKey) => !(formErrors[errorKey] || '').includes('session')
+      ).length > 0 && (
         <ErrorSummary
-          errors={formErrors}
+          errors={Object.fromEntries(
+            Object.entries(formErrors || {}).filter(
+              ([, value]) => !(value || '').includes('session')
+            )
+          )}
           title="Please fix the following errors before continuing"
           onFocusField={(fieldName) => {
             const element = document.getElementById(fieldName);
