@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { HeaderNav } from '@/components/organisms/HeaderNav';
 
-let matchMediaMock: any;
+let matchMediaMock: ReturnType<typeof vi.spyOn>;
 
 describe('HeaderNav flyout interactions', () => {
   beforeEach(() => {

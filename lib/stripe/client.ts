@@ -45,7 +45,10 @@ export async function getOrCreateCustomer(
     });
 
     if (existingCustomers.data.length > 0) {
-      return existingCustomers.data[0];
+      const customer = existingCustomers.data[0];
+      if (customer) {
+        return customer;
+      }
     }
 
     // If no customer found, create a new one
@@ -167,7 +170,8 @@ export async function getCustomerSubscription(
       limit: 1,
     });
 
-    return subscriptions.data[0] || null;
+    const subscription = subscriptions.data[0];
+    return subscription || null;
   } catch (error) {
     console.error('Error retrieving customer subscription:', error);
     return null;
