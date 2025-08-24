@@ -24,7 +24,8 @@ export function useAuthenticatedClient() {
       const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
       
       // Get Clerk token for Supabase
-      const token = await getToken({ template: 'supabase' });
+      // Important: Do NOT use the deprecated template parameter
+      const token = await getToken();
       
       if (!token) {
         console.error('Failed to get Clerk token for Supabase');
@@ -98,9 +99,10 @@ export function useSupabase() {
           // Only inject token for Supabase API requests
           if (url.toString().includes(supabaseUrl)) {
             // Get fresh token on each request when enhanced auth flow is enabled
+            // Important: Do NOT use the deprecated template parameter
             const token = isExpiredAuthFlowEnabled
-              ? await getToken({ template: 'supabase', skipCache: true })
-              : await getToken({ template: 'supabase' });
+              ? await getToken({ skipCache: true })
+              : await getToken();
             
             // Add token to request headers
             if (token) {

@@ -1,5 +1,7 @@
 'use client';
 
+import { useCallback } from 'react';
+import { useAuth } from '@clerk/nextjs';
 import { useFeatureFlag } from '@/lib/analytics';
 
 // Custom error class for session expiry
@@ -10,100 +12,83 @@ export class SessionExpiredError extends Error {
   }
 }
 
-// Interface for API error responses
-interface ApiErrorResponse {
-  error?: string;
-  message?: string;
-}
-
-// Options for guardedFetch
+// Options for guarded fetch
 interface GuardedFetchOptions extends RequestInit {
   retries?: number;
   retryDelay?: number;
 }
 
 /**
- * Guarded fetch that handles authentication errors
- * 
- * @param url The URL to fetch
- * @param options Fetch options with additional retry configuration
- * @returns The fetch response
- * @throws SessionExpiredError if the session has expired
- */
-export async function guardedFetch(
-  url: string,
-  options?: GuardedFetchOptions
-): Promise<Response> {
-  const { retries = 1, retryDelay = 500, ...fetchOptions } = options || {};
-  
-  // Helper function for exponential backoff retry
-  const fetchWithRetry = async (retriesLeft: number): Promise<Response> => {
-    try {
-      const response = await fetch(url, fetchOptions);
-      
-      // Check for 401 status
-      if (response.status === 401) {
-        // Try to parse the response to check for SESSION_EXPIRED error
-        try {
-          const clone = response.clone();
-          const data = await clone.json() as ApiErrorResponse;
-          
-          if (data.error === 'SESSION_EXPIRED') {
-            // Dispatch custom event for SessionWatch to handle
-            if (typeof window !== 'undefined') {
-              window.dispatchEvent(new CustomEvent('auth:session-expired'));
-            }
-            
-            throw new SessionExpiredError();
-          }
-        } catch (parseError) {
-          // If we can't parse the response, assume it's a generic auth error
-          if (parseError instanceof SessionExpiredError) {
-            throw parseError;
-          }
-        }
-      }
-      
-      // For other error status codes, check if we should retry
-      if (!response.ok && retriesLeft > 0) {
-        // Wait with exponential backoff
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
-        return fetchWithRetry(retriesLeft - 1);
-      }
-      
-      return response;
-    } catch (error) {
-      // Network errors or other fetch failures
-      if (error instanceof SessionExpiredError) {
-        throw error;
-      }
-      
-      if (retriesLeft > 0) {
-        // Wait with exponential backoff
-        await new Promise(resolve => setTimeout(resolve, retryDelay));
-        return fetchWithRetry(retriesLeft - 1);
-      }
-      
-      throw error;
-    }
-  };
-  
-  return fetchWithRetry(retries);
-}
-
-/**
- * React hook for using guardedFetch with feature flag awareness
+ * Hook that returns a fetch function with authentication handling
+ * This will automatically handle session expiry and trigger the SessionWatch component
  */
 export function useGuardedFetch() {
+  const { getToken } = useAuth();
   const isExpiredAuthFlowEnabled = useFeatureFlag('feature_expired_auth_flow', false);
   
-  return async (url: string, options?: GuardedFetchOptions): Promise<Response> => {
-    if (isExpiredAuthFlowEnabled) {
-      return guardedFetch(url, options);
-    } else {
-      // Fall back to regular fetch if feature is disabled
-      return fetch(url, options);
-    }
-  };
+  const guardedFetch = useCallback(
+    async (url: string, options: GuardedFetchOptions = {}) => {
+      const { retries = 2, retryDelay = 500, ...fetchOptions } = options;
+      
+      // Helper function for exponential backoff retry
+      const fetchWithRetry = async (retriesLeft: number): Promise<Response> => {
+        try {
+          // Get a fresh token for each request when enhanced auth flow is enabled
+          // Important: Do NOT use the deprecated template parameter
+          const token = isExpiredAuthFlowEnabled
+            ? await getToken({ skipCache: true })
+            : await getToken();
+          
+          // Add authorization header if token is available
+          const headers = new Headers(fetchOptions.headers);
+          if (token) {
+            headers.set('Authorization', `Bearer ${token}`);
+          }
+          
+          // Make the request
+          const response = await fetch(url, {
+            ...fetchOptions,
+            headers,
+          });
+          
+          // Check for session expiry
+          if (response.status === 401) {
+            const data = await response.json().catch(() => ({}));
+            
+            if (data?.error === 'SESSION_EXPIRED') {
+              // Dispatch custom event for SessionWatch to handle
+              if (isExpiredAuthFlowEnabled && typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('auth:session-expired'));
+              }
+              
+              throw new SessionExpiredError();
+            }
+          }
+          
+          return response;
+        } catch (error) {
+          // Don't retry on session expiry
+          if (error instanceof SessionExpiredError) {
+            throw error;
+          }
+          
+          // Retry on network errors if retries left
+          if (retriesLeft > 0) {
+            await new Promise(resolve => 
+              setTimeout(resolve, retryDelay * (2 ** (options.retries! - retriesLeft)))
+            );
+            return fetchWithRetry(retriesLeft - 1);
+          }
+          
+          throw error;
+        }
+      };
+      
+      return fetchWithRetry(retries);
+    },
+    [getToken, isExpiredAuthFlowEnabled]
+  );
+  
+  return guardedFetch;
 }
 

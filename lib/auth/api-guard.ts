@@ -2,81 +2,50 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 
 // Type for API route handler
-type ApiRouteHandler = (
+type RouteHandler = (
   req: NextRequest,
-  params: any
+  context: { userId: string }
 ) => Promise<NextResponse>;
 
 /**
- * Guard an API route with authentication
+ * Higher-order function to protect API routes with authentication
  * Returns 401 with SESSION_EXPIRED error if not authenticated
  * 
  * @param handler The API route handler function
- * @returns Guarded API route handler
+ * @returns Protected handler function
  */
-export function withAuthGuard(handler: ApiRouteHandler): ApiRouteHandler {
-  return async (req: NextRequest, params: any) => {
+export function withAuthGuard(handler: RouteHandler) {
+  return async (req: NextRequest) => {
     try {
-      // Check authentication
+      // Get authentication context from Clerk
       const { userId } = await auth();
       
+      // If not authenticated, return 401 with SESSION_EXPIRED error
       if (!userId) {
-        // Return standardized 401 response for expired sessions
         return NextResponse.json(
           { error: 'SESSION_EXPIRED', message: 'Your session has expired' },
           { status: 401 }
         );
       }
       
-      // Authentication successful, proceed with handler
-      return handler(req, params);
+      // Call the handler with the authenticated user ID
+      return handler(req, { userId });
     } catch (error) {
-      console.error('API auth error:', error);
+      console.error('Error in API auth guard:', error);
       
-      // Return standardized 401 response for auth errors
+      // Return 401 for auth errors, 500 for other errors
+      if (error instanceof Error && error.message.includes('auth')) {
+        return NextResponse.json(
+          { error: 'SESSION_EXPIRED', message: 'Your session has expired' },
+          { status: 401 }
+        );
+      }
+      
       return NextResponse.json(
-        { error: 'SESSION_EXPIRED', message: 'Authentication error' },
-        { status: 401 }
+        { error: 'INTERNAL_SERVER_ERROR', message: 'Internal server error' },
+        { status: 500 }
       );
     }
   };
-}
-
-/**
- * Check if a request is authenticated
- * For use within API route handlers
- * 
- * @returns Object with userId and isAuthenticated flag
- */
-export async function checkApiAuth() {
-  try {
-    const { userId } = await auth();
-    return { 
-      userId, 
-      isAuthenticated: Boolean(userId) 
-    };
-  } catch (error) {
-    console.error('API auth check error:', error);
-    return { 
-      userId: null, 
-      isAuthenticated: false 
-    };
-  }
-}
-
-/**
- * Create a standardized auth error response
- * 
- * @param message Optional custom error message
- * @returns NextResponse with 401 status and SESSION_EXPIRED error
- */
-export function createAuthErrorResponse(message?: string): NextResponse {
-  return NextResponse.json(
-    { 
-      error: 'SESSION_EXPIRED', 
-      message: message || 'Your session has expired' 
-    },
-    { status: 401 }
-  );
 }
 

@@ -24,15 +24,35 @@ export async function createServerClient() {
     }
     
     // Get Clerk auth context
-    const { userId } = await auth();
+    const { userId, getToken } = await auth();
     
     if (!userId) {
       // If not authenticated, return anonymous client
       return createClient(supabaseUrl, supabaseAnonKey);
     }
     
+    // Get token from Clerk
+    // Important: Do NOT use the deprecated template parameter
+    const token = await getToken();
+    
+    if (!token) {
+      console.error('Failed to get Clerk token for Supabase');
+      return null;
+    }
+    
     // Create server component client with cookies
     const supabase = createServerComponentClient({ cookies });
+    
+    // Set the auth token in the Supabase client
+    const { error } = await supabase.auth.setSession({
+      access_token: token,
+      refresh_token: '',
+    });
+    
+    if (error) {
+      console.error('Error setting Supabase session:', error);
+      return null;
+    }
     
     return supabase;
   } catch (error) {
