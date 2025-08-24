@@ -74,8 +74,18 @@
   }
 }
 
+/* Standard focus ring utility for all interactive elements */
+@utility focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-gray-500/50 dark:focus-visible:ring-white/40 dark:focus-visible:ring-offset-gray-900;
+}
+
+/* Standard focus ring utility with transparent offset (for elements with white backgrounds) */
+@utility focus-ring-transparent-offset {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-transparent focus-visible:ring-gray-500/50 dark:focus-visible:ring-white/40;
+}
+
 @utility btn {
-  @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+  @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-ring disabled:opacity-50 disabled:pointer-events-none;
 }
 
 @utility btn-primary {

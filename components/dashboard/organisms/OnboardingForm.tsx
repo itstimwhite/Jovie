@@ -400,33 +400,40 @@ export function OnboardingForm() {
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <FormField label="Handle" error={validationState.error || undefined}>
-          <div className="relative">
-            <Input
-              type="text"
-              value={handle}
-              onChange={(e) => setHandle(e.target.value)}
-              placeholder="your-handle"
-              required
-              disabled={state.isSubmitting}
-              className="font-mono pr-8"
-              aria-describedby="handle-preview-onboarding"
-              aria-invalid={validationState.error ? 'true' : 'false'}
-              aria-label="Enter your desired handle"
-              autoCapitalize="none"
-              autoCorrect="off"
-              autoComplete="off"
-              inputMode="text"
-              data-test="username-input"
-            />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
-              {validationState.isChecking && <LoadingSpinner size="sm" />}
-              {validationState.isAvailable && !validationState.isChecking && (
+        <FormField
+          label="Handle"
+          error={validationState.error || undefined}
+          helpText="Your unique identifier for your profile URL"
+          id="handle-input"
+          required
+        >
+          <Input
+            type="text"
+            value={handle}
+            onChange={(e) => setHandle(e.target.value)}
+            placeholder="your-handle"
+            required
+            disabled={state.isSubmitting}
+            className="font-mono"
+            validationState={
+              !handle
+                ? null
+                : validationState.error
+                  ? 'invalid'
+                  : validationState.isAvailable
+                    ? 'valid'
+                    : validationState.isChecking
+                      ? 'pending'
+                      : null
+            }
+            statusIcon={
+              validationState.isAvailable && !validationState.isChecking ? (
                 <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
                   <svg
                     className="w-2.5 h-2.5 text-white"
                     fill="currentColor"
                     viewBox="0 0 20 20"
+                    aria-hidden="true"
                   >
                     <path
                       fillRule="evenodd"
@@ -435,15 +442,18 @@ export function OnboardingForm() {
                     />
                   </svg>
                 </div>
-              )}
-            </div>
-          </div>
-          <p
-            className="text-xs text-gray-500 dark:text-gray-400 mt-1"
-            id="handle-preview-onboarding"
-          >
+              ) : null
+            }
+            autoCapitalize="none"
+            autoCorrect="off"
+            autoComplete="off"
+            inputMode="text"
+            data-test="username-input"
+          />
+
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Your profile will be live at {displayDomain}/
-            {handle || 'your-handle'}
+            <span className="font-medium">{handle || 'your-handle'}</span>
           </p>
 
           {/* Username suggestions */}
@@ -452,7 +462,11 @@ export function OnboardingForm() {
               <p className="text-xs text-gray-600 dark:text-gray-400">
                 Suggestions:
               </p>
-              <div className="flex flex-wrap gap-1">
+              <div
+                className="flex flex-wrap gap-1"
+                role="group"
+                aria-label="Username suggestions"
+              >
                 {handleValidation.suggestions.slice(0, 3).map((suggestion) => (
                   <button
                     key={suggestion}
@@ -460,6 +474,7 @@ export function OnboardingForm() {
                     onClick={() => setHandle(suggestion)}
                     className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors duration-150"
                     disabled={state.isSubmitting}
+                    aria-label={`Use suggested handle: ${suggestion}`}
                   >
                     {suggestion}
                   </button>
@@ -475,6 +490,8 @@ export function OnboardingForm() {
           variant="primary"
           className="w-full"
           data-test="claim-btn"
+          aria-live="polite"
+          aria-busy={state.isSubmitting}
         >
           {!state.isSubmitting ? (
             'Create Profile'
@@ -485,6 +502,12 @@ export function OnboardingForm() {
             </div>
           )}
         </Button>
+
+        {/* Screen reader announcements */}
+        <div className="sr-only" aria-live="assertive" aria-atomic="true">
+          {state.isSubmitting ? 'Creating your profile. Please wait...' : ''}
+          {state.error ? `Error: ${state.error}` : ''}
+        </div>
       </form>
     </div>
   );

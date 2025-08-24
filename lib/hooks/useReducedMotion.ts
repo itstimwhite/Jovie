@@ -1,43 +1,63 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
- * Hook to detect if the user prefers reduced motion
- * This is used to disable animations for users who have requested reduced motion
- * in their operating system settings.
+ * Hook to detect if the user prefers reduced motion.
+ * This respects the user's system preference for reduced motion.
  *
- * @returns {boolean} True if the user prefers reduced motion
+ * @returns {boolean} True if the user prefers reduced motion, false otherwise.
+ *
+ * @example
+ * ```tsx
+ * const prefersReducedMotion = useReducedMotion();
+ *
+ * // In a framer-motion component:
+ * <motion.div
+ *   animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
+ *   // ...
+ * />
+ * ```
  */
 export function useReducedMotion(): boolean {
-  // Default to false (animations enabled) for SSR
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  // Default to true for SSR (better to have no motion than unwanted motion)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
 
   useEffect(() => {
-    // Check if the browser supports matchMedia
-    if (typeof window === 'undefined' || !window.matchMedia) {
-      return;
-    }
+    // Check if window is defined (client-side)
+    if (typeof window === 'undefined') return;
 
-    // Create a media query that matches if the user prefers reduced motion
+    // Create media query list
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    // Set the initial value
+    // Set initial value
     setPrefersReducedMotion(mediaQuery.matches);
 
-    // Create a handler for changes to the media query
-    const handleChange = (event: MediaQueryListEvent) => {
+    // Define callback for changes
+    const onChange = (event: MediaQueryListEvent) => {
       setPrefersReducedMotion(event.matches);
     };
 
-    // Add the event listener
-    mediaQuery.addEventListener('change', handleChange);
+    // Add listener with both modern and legacy APIs (feature detection)
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', onChange);
+    } else {
+      // @ts-ignore - For older browsers
+      mediaQuery.addListener(onChange);
+    }
 
-    // Clean up the event listener
+    // Cleanup
     return () => {
-      mediaQuery.removeEventListener('change', handleChange);
+      if (typeof mediaQuery.removeEventListener === 'function') {
+        mediaQuery.removeEventListener('change', onChange);
+      } else {
+        // @ts-ignore - For older browsers
+        mediaQuery.removeListener(onChange);
+      }
     };
   }, []);
 
   return prefersReducedMotion;
 }
+
+export default useReducedMotion;

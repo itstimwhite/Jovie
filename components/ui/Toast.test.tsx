@@ -11,22 +11,22 @@ describe('Toast Component', () => {
     );
 
     expect(screen.getByText('Test message')).toBeInTheDocument();
-    expect(screen.getByRole('alert')).toHaveClass('bg-gray-900');
+    expect(screen.getByRole('status')).toHaveClass('bg-gray-900');
   });
 
   it('renders with different types', () => {
     const { rerender } = render(
       <Toast id="test-toast" message="Success message" type="success" />
     );
-    expect(screen.getByRole('alert')).toHaveClass('bg-green-600');
+    expect(screen.getByRole('status')).toHaveClass('bg-green-600');
 
     rerender(
       <Toast id="test-toast" message="Warning message" type="warning" />
     );
-    expect(screen.getByRole('alert')).toHaveClass('bg-amber-500');
+    expect(screen.getByRole('status')).toHaveClass('bg-amber-500');
 
     rerender(<Toast id="test-toast" message="Error message" type="error" />);
-    expect(screen.getByRole('alert')).toHaveClass('bg-red-600');
+    expect(screen.getByRole('status')).toHaveClass('bg-red-600');
   });
 
   it('renders with action button', () => {

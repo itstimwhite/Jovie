@@ -13,9 +13,14 @@ import {
 import { ArtistCard } from '@/components/ui/ArtistCard';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { OptimisticProgress } from '@/components/ui/OptimisticProgress';
+import { ErrorSummary } from '@/components/ui/ErrorSummary';
 import { APP_URL } from '@/constants/app';
 import { completeOnboarding } from '@/app/onboarding/actions';
 import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
+import {
+  getUserFriendlyMessage,
+  OnboardingErrorCode,
+} from '@/lib/errors/onboarding';
 
 // Progressive form steps
 interface OnboardingStep {
@@ -303,14 +308,51 @@ export function ProgressiveOnboardingForm() {
           return;
         }
 
+        // Map error to user-friendly message
+        let userMessage = 'An unexpected error occurred';
+        let shouldRetry = true;
+
+        if (error instanceof Error) {
+          // Check if it's a database/auth error that can be mapped
+          if (
+            error.message.includes('Authentication session expired') ||
+            error.message.includes('JWT') ||
+            error.message.includes('PGRST301')
+          ) {
+            userMessage = getUserFriendlyMessage(
+              OnboardingErrorCode.INVALID_SESSION
+            );
+            shouldRetry = true;
+          } else if (
+            error.message.includes('Username is already taken') ||
+            error.message.includes('already taken')
+          ) {
+            userMessage = getUserFriendlyMessage(
+              OnboardingErrorCode.USERNAME_TAKEN
+            );
+            shouldRetry = false; // User needs to choose a different username
+          } else if (
+            error.message.includes('Too many attempts') ||
+            error.message.includes('rate limit')
+          ) {
+            userMessage = getUserFriendlyMessage(
+              OnboardingErrorCode.RATE_LIMITED
+            );
+            shouldRetry = true;
+          } else {
+            // Use the original error message if it's user-friendly enough
+            userMessage =
+              error.message.length > 100
+                ? 'An unexpected error occurred. Please try again.'
+                : error.message;
+          }
+        }
+
         setState((prev) => ({
           ...prev,
-          error:
-            error instanceof Error
-              ? error.message
-              : 'An unexpected error occurred',
-          step: 'validating',
-          progress: 0,
+          error: userMessage,
+          step: shouldRetry ? 'validating' : 'checking-handle', // Go back to handle step for username issues
+          progress: shouldRetry ? 0 : 50,
           isSubmitting: false,
         }));
       }
@@ -733,6 +775,35 @@ export function ProgressiveOnboardingForm() {
     }
   };
 
+  // Collect all form errors for the error summary
+  const formErrors = useMemo(() => {
+    const errors: Record<string, string> = {};
+
+    // Handle validation errors
+    if (currentStepIndex === 2 && handleValidation.error) {
+      errors.handle = handleValidation.error;
+    } else if (
+      currentStepIndex === 2 &&
+      !handleValidation.available &&
+      handle
+    ) {
+      errors.handle = 'Handle already taken';
+    }
+
+    // Include API error if present
+    if (state.error) {
+      errors.form = state.error;
+    }
+
+    return errors;
+  }, [
+    currentStepIndex,
+    handleValidation.error,
+    handleValidation.available,
+    handle,
+    state.error,
+  ]);
+
   return (
     <div className="space-y-6" role="main" aria-label="Onboarding form">
       {/* Skip link for accessibility */}
@@ -792,6 +863,34 @@ export function ProgressiveOnboardingForm() {
             </Button>
           </div>
         </div>
+      )}
+
+      {/* Screen reader announcements */}
+      <div
+        className="sr-only"
+        aria-live="assertive"
+        aria-atomic="true"
+        id="step-announcement"
+      >
+        {isTransitioning
+          ? `Moving to ${ONBOARDING_STEPS[currentStepIndex]?.title} step`
+          : ''}
+        {state.error ? `Error: ${state.error}` : ''}
+        {state.isSubmitting ? 'Creating your profile. Please wait...' : ''}
+      </div>
+
+      {/* Error summary for screen readers */}
+      {Object.keys(formErrors || {}).length > 0 && (
+        <ErrorSummary
+          errors={formErrors}
+          title="Please fix the following errors before continuing"
+          onFocusField={(fieldName) => {
+            const element = document.getElementById(fieldName);
+            if (element) {
+              element.focus();
+            }
+          }}
+        />
       )}
 
       {/* Step content with smooth transitions */}
