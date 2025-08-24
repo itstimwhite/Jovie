@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { DashboardSplitView } from '@/components/dashboard/organisms/DashboardSplitView';
 import { render, screen } from '@testing-library/react';
 import { mockArtist, mockCreatorProfile } from '@/lib/test-utils/mock-data';
+import { ToastProvider } from '@/components/providers/ToastProvider';
 
 // Mock the useSession hook
 vi.mock('@clerk/nextjs', () => ({
@@ -63,11 +64,13 @@ vi.mock('@/lib/supabase', () => ({
 describe('DashboardSplitView', () => {
   it('renders the component', () => {
     render(
-      <DashboardSplitView
-        artist={mockArtist}
-        creatorProfile={mockCreatorProfile}
-        onArtistUpdate={() => {}}
-      />
+      <ToastProvider>
+        <DashboardSplitView
+          artist={mockArtist}
+          creatorProfile={mockCreatorProfile}
+          onArtistUpdate={() => {}}
+        />
+      </ToastProvider>
     );
 
     expect(screen.getByText('Manage Your Links')).toBeInTheDocument();
@@ -81,11 +84,13 @@ describe('DashboardSplitView', () => {
 
     // The component should load with the mocked data from the useEffect
     render(
-      <DashboardSplitView
-        artist={mockArtist}
-        creatorProfile={mockCreatorProfile}
-        onArtistUpdate={() => {}}
-      />
+      <ToastProvider>
+        <DashboardSplitView
+          artist={mockArtist}
+          creatorProfile={mockCreatorProfile}
+          onArtistUpdate={() => {}}
+        />
+      </ToastProvider>
     );
 
     // The component should render with the converted links
@@ -127,11 +132,13 @@ describe('DashboardSplitView', () => {
     );
 
     render(
-      <DashboardSplitView
-        artist={mockArtist}
-        creatorProfile={mockCreatorProfile}
-        onArtistUpdate={() => {}}
-      />
+      <ToastProvider>
+        <DashboardSplitView
+          artist={mockArtist}
+          creatorProfile={mockCreatorProfile}
+          onArtistUpdate={() => {}}
+        />
+      </ToastProvider>
     );
 
     // Wait for useEffect to run
@@ -150,11 +157,13 @@ describe('DashboardSplitView', () => {
     // uses creator_profile_id instead of artist_id
 
     render(
-      <DashboardSplitView
-        artist={mockArtist}
-        creatorProfile={mockCreatorProfile}
-        onArtistUpdate={() => {}}
-      />
+      <ToastProvider>
+        <DashboardSplitView
+          artist={mockArtist}
+          creatorProfile={mockCreatorProfile}
+          onArtistUpdate={() => {}}
+        />
+      </ToastProvider>
     );
 
     // Component should render without errors, indicating proper schema handling
@@ -163,11 +172,13 @@ describe('DashboardSplitView', () => {
 
   it('categorizes platforms correctly for DSP vs social links', async () => {
     render(
-      <DashboardSplitView
-        artist={mockArtist}
-        creatorProfile={mockCreatorProfile}
-        onArtistUpdate={() => {}}
-      />
+      <ToastProvider>
+        <DashboardSplitView
+          artist={mockArtist}
+          creatorProfile={mockCreatorProfile}
+          onArtistUpdate={() => {}}
+        />
+      </ToastProvider>
     );
 
     // Wait for component to initialize
