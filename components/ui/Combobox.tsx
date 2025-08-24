@@ -100,6 +100,16 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
       }
     }, [activeIndex, isOpen]);
 
+    // Forward declaration of handleSelect for TypeScript
+    const handleSelect: (option: ComboboxOption) => void = useCallback(
+      (option: ComboboxOption) => {
+        onChange(option);
+        setQuery('');
+        setIsOpen(false);
+      },
+      [onChange]
+    );
+
     // Handle keyboard navigation
     const handleKeyDown = useCallback(
       (e: KeyboardEvent<HTMLInputElement>) => {
@@ -163,15 +173,7 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
       [onInputChange]
     );
 
-    // Memoize the select handler
-    const handleSelect = useCallback(
-      (option: ComboboxOption) => {
-        onChange(option);
-        setQuery('');
-        setIsOpen(false);
-      },
-      [onChange]
-    );
+    // handleSelect is already defined above
 
     // Memoize the display value function
     const displayValue = useCallback((item: ComboboxOption | null) => {
@@ -217,8 +219,6 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
           onChange={handleSelect}
           disabled={disabled}
           nullable
-          as="div"
-          onOpenChange={handleOpenChange}
         >
           {({ open }) => {
             // Sync our internal open state with Headless UI's open state
@@ -250,11 +250,9 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                     <Headless.Combobox.Input
                       ref={inputRef}
                       id={inputId}
-                      role="combobox"
                       aria-controls={listboxId}
                       aria-expanded={open}
                       aria-describedby={error ? errorId : undefined}
-                      aria-autocomplete="list"
                       aria-activedescendant={
                         open &&
                         activeIndex >= 0 &&
