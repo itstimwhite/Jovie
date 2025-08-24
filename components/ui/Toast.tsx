@@ -63,8 +63,8 @@ export const Toast: React.FC<ToastProps> = ({
 
   return (
     <div
-      role="alert"
-      aria-live="assertive"
+      role="status"
+      aria-live={type === 'error' ? 'assertive' : 'polite'}
       className={cn(
         'px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50',
         typeStyles[type],
