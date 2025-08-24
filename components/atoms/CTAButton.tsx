@@ -8,6 +8,16 @@ import { CheckIcon } from '@heroicons/react/24/solid';
 import { Spinner } from '@/components/ui/Spinner';
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
 
+/**
+ * CTAButton Component
+ *
+ * A versatile button component that can be rendered as either a button or a link.
+ * Follows standardized button styling guidelines:
+ * - Uses the global focus-ring utility for consistent focus states
+ * - Maintains consistent hover/active states across variants
+ * - Ensures proper hit target sizes for accessibility
+ * - Supports light/dark mode with appropriate contrast
+ */
 export interface CTAButtonProps {
   /** The URL the button should navigate to */
   href?: string;
@@ -92,37 +102,31 @@ export const CTAButton = forwardRef<
     const baseClasses = `
       relative isolate inline-flex items-center justify-center
       font-medium transition-all duration-200
-      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+      focus-ring
       ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
     `;
 
     // Variant-specific classes
     const variantClasses = {
       primary: `
-        bg-neutral-900 text-white hover:opacity-90
+        bg-neutral-900 text-white hover:opacity-90 active:scale-[0.98]
         dark:bg-white dark:text-black dark:hover:opacity-90
-        focus-visible:ring-neutral-500 dark:focus-visible:ring-neutral-400
-        dark:focus-visible:ring-offset-gray-900
         shadow-sm hover:shadow-md
       `,
       secondary: `
-        bg-indigo-600 text-white hover:bg-indigo-700
+        bg-indigo-600 text-white hover:bg-indigo-700 active:scale-[0.98]
         dark:bg-indigo-500 dark:hover:bg-indigo-600
-        focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400
-        dark:focus-visible:ring-offset-gray-900
         shadow-md hover:shadow-lg
       `,
       outline: `
         border border-current text-current
-        hover:bg-neutral-100 dark:hover:bg-neutral-800
-        focus-visible:ring-neutral-500 dark:focus-visible:ring-neutral-400
-        dark:focus-visible:ring-offset-gray-900
+        hover:bg-neutral-100 dark:hover:bg-neutral-800 active:scale-[0.98]
       `,
       white: `
-        bg-white text-black hover:bg-gray-50 border border-gray-200
+        bg-white text-black hover:bg-gray-50 active:scale-[0.98]
+        border border-gray-200
         dark:bg-white dark:text-black dark:hover:bg-gray-100 dark:border-gray-300
-        focus-visible:ring-neutral-500 dark:focus-visible:ring-neutral-400
-        focus-visible:ring-offset-transparent
+        focus-ring-transparent-offset
         shadow-sm hover:shadow-md
       `,
     };

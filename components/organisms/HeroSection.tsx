@@ -63,23 +63,24 @@ export function HeroSection({
 
   return (
     <section
-      className={`relative flex min-h-screen flex-col items-center justify-center px-6 py-24 ${className}`}
+      className={`relative flex min-h-screen flex-col items-center justify-center px-6 py-20 md:py-24 ${className}`}
       role="banner"
       aria-labelledby="hero-headline"
     >
       <Container className="relative flex max-w-4xl flex-col items-center text-center">
         {/* Icon/Emoji */}
         {icon && (
-          <div className="mb-6 text-6xl" role="img">
+          <div className="mb-8 text-6xl" role="img">
             {icon}
           </div>
         )}
 
         {/* Main headline */}
-        <div className="mb-6 space-y-4">
+        <div className="mb-8 space-y-4">
           <h1
             id="hero-headline"
-            className="text-5xl font-semibold tracking-[-0.03em] text-gray-900 dark:text-white sm:text-6xl lg:text-7xl leading-[1.1]"
+            className="text-4xl font-semibold tracking-[-0.03em] text-gray-900 dark:text-white sm:text-5xl lg:text-6xl leading-[1.1]"
+            style={{ letterSpacing: '-0.03em' }}
           >
             {processedHeadline}
           </h1>
@@ -87,7 +88,7 @@ export function HeroSection({
           {/* Subtitle */}
           {subtitle && (
             <p
-              className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-white/70 font-normal leading-relaxed sm:text-xl lg:text-2xl"
+              className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-white/70 font-normal leading-7 sm:text-xl sm:leading-8 lg:text-2xl lg:leading-9"
               role="doc-subtitle"
             >
               {subtitle}
@@ -112,7 +113,7 @@ export function HeroSection({
 
             {/* Supporting text under content */}
             {supportingText && (
-              <div className="mt-6 text-sm text-gray-500 dark:text-white/50 text-center">
+              <div className="mt-8 text-sm text-gray-500 dark:text-white/50 text-center leading-6">
                 {supportingText}
               </div>
             )}
@@ -121,7 +122,7 @@ export function HeroSection({
 
         {/* Trust indicators */}
         {trustIndicators && (
-          <div className="mt-12 flex flex-col items-center space-y-3">
+          <div className="mt-16 flex flex-col items-center space-y-4">
             {trustIndicators}
           </div>
         )}
