@@ -47,13 +47,13 @@ if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
     const isLocalDev = getEnvTag() === 'dev';
 
     // Define PostHog options with type assertion to include custom properties
-    const options = {
+    const options: Record<string, any> = {
       autocapture: true,
       capture_pageview: false, // we'll send $pageview manually via page()
       persistence: 'localStorage+cookie',
-      // @ts-ignore - PostHog types don't include these properties but they're valid
+      // Disable Toolbar in local development to prevent 401 errors
       disable_toolbar: isLocalDev,
-      // @ts-ignore - PostHog types don't include these properties but they're valid
+      // Disable session recording in local development
       disable_session_recording: isLocalDev,
       // Only load feature flags when properly configured
       loaded: (ph: any) => {
@@ -65,7 +65,7 @@ if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
           };
         }
       },
-    } as Parameters<typeof posthog.init>[1];
+    };
 
     if (ANALYTICS.posthogHost) {
       options.api_host = ANALYTICS.posthogHost;
