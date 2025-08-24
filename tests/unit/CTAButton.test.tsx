@@ -7,7 +7,15 @@ import { CTAButton } from '@/components/atoms/CTAButton';
 vi.mock('next/link', () => {
   return {
     __esModule: true,
-    default: ({ href, children, ...rest }: any) => {
+    default: ({
+      href,
+      children,
+      ...rest
+    }: {
+      href: string;
+      children: React.ReactNode;
+      [key: string]: unknown;
+    }) => {
       return (
         <a href={href} {...rest}>
           {children}
