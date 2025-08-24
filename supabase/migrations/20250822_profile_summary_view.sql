@@ -33,12 +33,7 @@ CREATE INDEX IF NOT EXISTS idx_profile_summary_featured ON public.profile_summar
 -- Grant appropriate permissions
 GRANT SELECT ON public.profile_summary TO anon, authenticated, service_role;
 
--- Add RLS policy for the materialized view
-ALTER MATERIALIZED VIEW public.profile_summary ENABLE ROW LEVEL SECURITY;
-
--- Public profiles are visible to everyone
-CREATE POLICY "Public profiles are visible to everyone" 
-  ON public.profile_summary
-  FOR SELECT
-  USING (true);
+-- Note: RLS is not supported on materialized views
+-- The underlying creator_profiles table should have RLS enabled instead
+-- This view only contains public profiles (WHERE cp.is_public = true)
 
