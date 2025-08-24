@@ -5,7 +5,7 @@ on:
     types: [opened, reopened, synchronize]
   push:
     branches-ignore:
-      - main
+      - production
       - preview
   workflow_dispatch:
     inputs:

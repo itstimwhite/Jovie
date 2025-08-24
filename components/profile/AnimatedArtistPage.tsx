@@ -7,6 +7,7 @@ import { CTAButton } from '@/components/atoms/CTAButton';
 import dynamic from 'next/dynamic';
 import { Artist, LegacySocialLink } from '@/types/db';
 import { useRouter } from 'next/navigation';
+import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
 
 // Lazily load heavy profile sub-components to keep initial bundle lean
 const AnimatedListenInterface = dynamic(
@@ -37,6 +38,7 @@ function renderContent(
   socialLinks: LegacySocialLink[],
   router: ReturnType<typeof useRouter>,
   isNavigating: boolean,
+  prefersReducedMotion: boolean,
   setIsNavigating: (value: boolean) => void
 ) {
   switch (mode) {
@@ -72,9 +74,13 @@ function renderContent(
 
       return (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={
+            prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }
+          }
+          animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          transition={
+            prefersReducedMotion ? { duration: 0 } : { duration: 0.6 }
+          }
         >
           <div className="space-y-4">
             {venmoLink ? (
@@ -100,9 +106,13 @@ function renderContent(
     default: // 'profile' mode
       return (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          initial={
+            prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }
+          }
+          animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          transition={
+            prefersReducedMotion ? { duration: 0 } : { duration: 0.6 }
+          }
         >
           <div className="space-y-4">
             <CTAButton
@@ -131,6 +141,8 @@ export function AnimatedArtistPage({
 }: AnimatedArtistPageProps) {
   const router = useRouter();
   const [isNavigating, setIsNavigating] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+
   // Page-level animation variants with Apple-style easing
   const pageVariants = {
     initial: {
@@ -163,45 +175,45 @@ export function AnimatedArtistPage({
   };
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={mode}
-        variants={pageVariants}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-        className="w-full"
+    <div className="w-full">
+      <ArtistPageShell
+        artist={artist}
+        socialLinks={socialLinks}
+        subtitle={subtitle}
+        showTipButton={showTipButton}
+        showBackButton={showBackButton}
       >
-        <ArtistPageShell
-          artist={artist}
-          socialLinks={socialLinks}
-          subtitle={subtitle}
-          showTipButton={showTipButton}
-          showBackButton={showBackButton}
+        {/* Content pane with AnimatePresence for mode transitions */}
+        <div
+          className="content-pane"
+          style={{
+            contain: 'layout paint',
+            willChange: 'transform',
+            minHeight: '150px', // Reserve space for content to prevent layout shifts
+          }}
         >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{
-              opacity: 1,
-              y: 0,
-              transition: {
-                delay: 0.2,
-                duration: 0.4,
-                ease: [0.16, 1, 0.3, 1],
-              },
-            }}
-          >
-            {renderContent(
-              mode,
-              artist,
-              socialLinks,
-              router,
-              isNavigating,
-              setIsNavigating
-            )}
-          </motion.div>
-        </ArtistPageShell>
-      </motion.div>
-    </AnimatePresence>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={mode} // Keep key only on the content that should change
+              variants={prefersReducedMotion ? {} : pageVariants}
+              initial={prefersReducedMotion ? { opacity: 1 } : 'initial'}
+              animate={prefersReducedMotion ? { opacity: 1 } : 'animate'}
+              exit={prefersReducedMotion ? { opacity: 0 } : 'exit'}
+              className="w-full"
+            >
+              {renderContent(
+                mode,
+                artist,
+                socialLinks,
+                router,
+                isNavigating,
+                prefersReducedMotion,
+                setIsNavigating
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </ArtistPageShell>
+    </div>
   );
 }

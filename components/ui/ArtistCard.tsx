@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { motion, useReducedMotion } from 'framer-motion';
 // import { Button } from './Button'; // Not used in current implementation
 
 interface ArtistCardProps {
@@ -46,14 +47,47 @@ export function ArtistCard({
     return 'Growing';
   };
 
+  // Check if user prefers reduced motion
+  const prefersReducedMotion = useReducedMotion();
+
+  // Adjust animation settings based on motion preference
+  const animationProps = prefersReducedMotion
+    ? {
+        // Minimal animations for reduced motion preference
+        whileHover: { boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' },
+        whileFocus: { boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' },
+        transition: { duration: 0.1 },
+      }
+    : {
+        // Full animations for normal motion preference
+        whileHover: {
+          scale: 1.02,
+          boxShadow:
+            '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+          borderColor: isSelected ? undefined : 'rgb(209, 213, 219)',
+        },
+        whileFocus: {
+          scale: 1.02,
+          boxShadow:
+            '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+          borderColor: isSelected ? undefined : 'rgb(209, 213, 219)',
+        },
+        transition: {
+          type: 'spring',
+          stiffness: 400,
+          damping: 17,
+          mass: 0.8,
+        },
+      };
+
   return (
-    <div
+    <motion.div
       className={`
-        relative p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer hover:shadow-lg
+        relative p-4 rounded-xl border-2 cursor-pointer
         ${
           isSelected
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md'
-            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'
         }
         ${className}
       `}
@@ -68,6 +102,8 @@ export function ArtistCard({
       }}
       aria-label={`Select ${name} as your artist profile`}
       aria-pressed={isSelected}
+      {...animationProps}
+      initial={{ scale: 1, boxShadow: '0 0 0 rgba(0, 0, 0, 0)' }}
     >
       {/* Selection indicator */}
       {isSelected && (
@@ -163,6 +199,6 @@ export function ArtistCard({
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

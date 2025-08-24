@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useSession } from '@clerk/nextjs';
 import Image from 'next/image';
 import { Button } from '@/components/ui/Button';
 import { ProgressIndicator } from '@/components/ui/ProgressIndicator';
@@ -13,9 +13,14 @@ import {
 import { ArtistCard } from '@/components/ui/ArtistCard';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { OptimisticProgress } from '@/components/ui/OptimisticProgress';
+import { ErrorSummary } from '@/components/ui/ErrorSummary';
 import { APP_URL } from '@/constants/app';
 import { completeOnboarding } from '@/app/onboarding/actions';
 import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
+import {
+  getUserFriendlyMessage,
+  OnboardingErrorCode,
+} from '@/lib/errors/onboarding';
 
 // Progressive form steps
 interface OnboardingStep {
@@ -77,6 +82,7 @@ interface OnboardingState {
 
 export function ProgressiveOnboardingForm() {
   const { user } = useUser();
+  const { session } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -119,6 +125,21 @@ export function ProgressiveOnboardingForm() {
     clearResults,
   } = useArtistSearch();
 
+  // Session monitoring - redirect to sign-in if session expires
+  useEffect(() => {
+    if (!user || !session) {
+      // If user was authenticated but session is now null, redirect
+      const wasAuthenticated = sessionStorage.getItem('was_authenticated');
+      if (wasAuthenticated) {
+        router.push('/sign-in');
+        return;
+      }
+    } else {
+      // Mark that user was authenticated
+      sessionStorage.setItem('was_authenticated', 'true');
+    }
+  }, [user, session, router]);
+
   // Prefill handle and selected artist data
   useEffect(() => {
     // Prefill handle from URL
@@ -156,8 +177,8 @@ export function ProgressiveOnboardingForm() {
     }
     if (
       currentStepIndex === 2 &&
-      handleValidation.available &&
-      handleValidation.clientValid
+      handleValidation?.available &&
+      handleValidation?.clientValid
     ) {
       // Auto-advance from handle to confirmation when handle is valid and available
       setTimeout(() => setCurrentStepIndex(3), 1000);
@@ -165,8 +186,8 @@ export function ProgressiveOnboardingForm() {
   }, [
     currentStepIndex,
     selectedArtist,
-    handleValidation.available,
-    handleValidation.clientValid,
+    handleValidation?.available,
+    handleValidation?.clientValid,
   ]);
 
   // Navigation handlers with keyboard support and focus management
@@ -261,8 +282,8 @@ export function ProgressiveOnboardingForm() {
       if (
         !user ||
         state.isSubmitting ||
-        !handleValidation.available ||
-        !handleValidation.clientValid
+        !handleValidation?.available ||
+        !handleValidation?.clientValid
       )
         return;
 
@@ -303,14 +324,55 @@ export function ProgressiveOnboardingForm() {
           return;
         }
 
+        // Map error to user-friendly message
+        let userMessage = 'An unexpected error occurred';
+        let shouldRetry = true;
+
+        if (error instanceof Error) {
+          // Check if it's a database/auth error that can be mapped
+          if (
+            error.message.includes('Authentication session expired') ||
+            error.message.includes('JWT') ||
+            error.message.includes('PGRST301')
+          ) {
+            userMessage = getUserFriendlyMessage(
+              OnboardingErrorCode.INVALID_SESSION
+            );
+            shouldRetry = false; // Don't retry, redirect instead
+            // Redirect to sign-in
+            setTimeout(() => {
+              router.push('/sign-in');
+            }, 2000);
+          } else if (
+            error.message.includes('Username is already taken') ||
+            error.message.includes('already taken')
+          ) {
+            userMessage = getUserFriendlyMessage(
+              OnboardingErrorCode.USERNAME_TAKEN
+            );
+            shouldRetry = false; // User needs to choose a different username
+          } else if (
+            error.message.includes('Too many attempts') ||
+            error.message.includes('rate limit')
+          ) {
+            userMessage = getUserFriendlyMessage(
+              OnboardingErrorCode.RATE_LIMITED
+            );
+            shouldRetry = true;
+          } else {
+            // Use the original error message if it's user-friendly enough
+            userMessage =
+              error.message.length > 100
+                ? 'An unexpected error occurred. Please try again.'
+                : error.message;
+          }
+        }
+
         setState((prev) => ({
           ...prev,
-          error:
-            error instanceof Error
-              ? error.message
-              : 'An unexpected error occurred',
-          step: 'validating',
-          progress: 0,
+          error: userMessage,
+          step: shouldRetry ? 'validating' : 'checking-handle', // Go back to handle step for username issues
+          progress: shouldRetry ? 0 : 50,
           isSubmitting: false,
         }));
       }
@@ -334,17 +396,17 @@ export function ProgressiveOnboardingForm() {
       case 1: // Artist step
         return selectedArtist !== null;
       case 2: // Handle step
-        return handleValidation.available && handleValidation.clientValid;
+        return handleValidation?.available && handleValidation?.clientValid;
       case 3: // Confirm step
-        return handleValidation.available && handleValidation.clientValid;
+        return handleValidation?.available && handleValidation?.clientValid;
       default:
         return false;
     }
   }, [
     currentStepIndex,
     selectedArtist,
-    handleValidation.available,
-    handleValidation.clientValid,
+    handleValidation?.available,
+    handleValidation?.clientValid,
   ]);
 
   // Keyboard navigation
@@ -733,6 +795,35 @@ export function ProgressiveOnboardingForm() {
     }
   };
 
+  // Collect all form errors for the error summary
+  const formErrors = useMemo(() => {
+    const errors: Record<string, string> = {};
+
+    // Handle validation errors
+    if (currentStepIndex === 2 && handleValidation?.error) {
+      errors.handle = handleValidation.error;
+    } else if (
+      currentStepIndex === 2 &&
+      !handleValidation?.available &&
+      handle
+    ) {
+      errors.handle = 'Handle already taken';
+    }
+
+    // Include API error if present
+    if (state.error) {
+      errors.form = state.error;
+    }
+
+    return errors;
+  }, [
+    currentStepIndex,
+    handleValidation?.error,
+    handleValidation?.available,
+    handle,
+    state.error,
+  ]);
+
   return (
     <div className="space-y-6" role="main" aria-label="Onboarding form">
       {/* Skip link for accessibility */}
@@ -768,30 +859,57 @@ export function ProgressiveOnboardingForm() {
         />
       )}
 
-      {/* Error display */}
-      {state.error && (
+      {/* Error display - only show session expiry errors here, others in ErrorSummary */}
+      {state.error && state.error.includes('session') && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 transition-all duration-200">
           <div className="flex items-center justify-between">
             <p className="text-red-800 dark:text-red-200 text-sm" role="alert">
               {state.error}
             </p>
             <Button
-              onClick={() =>
-                setState((prev) => ({
-                  ...prev,
-                  error: null,
-                  retryCount: prev.retryCount + 1,
-                }))
-              }
-              variant="secondary"
+              onClick={() => router.push('/sign-in')}
+              variant="primary"
               size="sm"
-              disabled={state.retryCount >= 3}
-              aria-label="Retry onboarding process"
+              aria-label="Go to sign in"
             >
-              {state.retryCount >= 3 ? 'Max retries' : 'Retry'}
+              Sign In
             </Button>
           </div>
         </div>
+      )}
+
+      {/* Screen reader announcements */}
+      <div
+        className="sr-only"
+        aria-live="assertive"
+        aria-atomic="true"
+        id="step-announcement"
+      >
+        {isTransitioning
+          ? `Moving to ${ONBOARDING_STEPS[currentStepIndex]?.title} step`
+          : ''}
+        {state.error ? `Error: ${state.error}` : ''}
+        {state.isSubmitting ? 'Creating your profile. Please wait...' : ''}
+      </div>
+
+      {/* Error summary for screen readers - exclude session errors shown above */}
+      {Object.keys(formErrors || {}).filter(
+        (errorKey) => !(formErrors[errorKey] || '').includes('session')
+      ).length > 0 && (
+        <ErrorSummary
+          errors={Object.fromEntries(
+            Object.entries(formErrors || {}).filter(
+              ([, value]) => !(value || '').includes('session')
+            )
+          )}
+          title="Please fix the following errors before continuing"
+          onFocusField={(fieldName) => {
+            const element = document.getElementById(fieldName);
+            if (element) {
+              element.focus();
+            }
+          }}
+        />
       )}
 
       {/* Step content with smooth transitions */}

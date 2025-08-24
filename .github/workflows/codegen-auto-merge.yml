@@ -1,0 +1,64 @@
+name: Codegen PR Auto-Ready + Auto-Merge
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled]
+    branches: [preview]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  steward:
+    if: |
+      contains(github.event.pull_request.labels.*.name, 'codegen') &&
+      !contains(github.event.pull_request.labels.*.name, 'no-auto-merge') &&
+      !contains(github.event.pull_request.labels.*.name, 'needs-human') &&
+      !contains(github.event.pull_request.labels.*.name, 'human-review') &&
+      !contains(github.event.pull_request.labels.*.name, 'blocked') &&
+      !contains(github.event.pull_request.labels.*.name, 'claude:needs-fixes')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare codegen PR for merge queue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo  = context.repo.repo;
+            const pr    = context.payload.pull_request;
+
+            // Only target preview base
+            if (pr.base.ref !== 'preview') return core.info('Not targeting preview, skipping');
+
+            // Mark ready if draft
+            if (pr.draft) {
+              await github.graphql(
+                `mutation($id:ID!){ markPullRequestReadyForReview(input:{ pullRequestId:$id }){ clientMutationId } }`,
+                { id: pr.node_id }
+              );
+              core.info(`Marked PR #${pr.number} ready for review`);
+            }
+
+            // Update branch to latest base to reduce queue churn
+            try {
+              await github.rest.pulls.updateBranch({ owner, repo, pull_number: pr.number });
+              core.info(`Requested branch update for PR #${pr.number}`);
+            } catch (e) {
+              core.warning(`updateBranch not supported or failed: ${e.message}`);
+            }
+
+            // Enable auto-merge (squash) — Merge Queue will handle ordering
+            try {
+              await github.graphql(
+                `mutation($pullRequestId: ID!, $mergeMethod: PullRequestMergeMethod!) {
+                  enablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId, mergeMethod: $mergeMethod }) {
+                    pullRequest { number, autoMergeRequest { enabledAt } }
+                  }
+                }`,
+                { pullRequestId: pr.node_id, mergeMethod: 'SQUASH' }
+              );
+              core.info(`Enabled auto-merge for PR #${pr.number}`);
+            } catch (e) {
+              core.warning(`Failed to enable auto-merge: ${e.message}`);
+            }

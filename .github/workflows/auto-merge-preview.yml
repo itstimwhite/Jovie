@@ -30,7 +30,7 @@ jobs:
 
             // skip if human said "don't"
             const labels = new Set(pr.labels.map(l => l.name));
-            if (labels.has('blocked') || labels.has('human-review') || labels.has('no-auto-merge')) return;
+            if (labels.has('blocked') || labels.has('human-review') || labels.has('no-auto-merge') || labels.has('claude:needs-fixes')) return;
 
             // drafts can't merge — mark ready
             if (pr.draft) {

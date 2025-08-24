@@ -68,14 +68,21 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
     setIsEditing(false);
   }, [detectedLink, customTitle, onAdd]);
 
-  // Handle enter key
-  const handleKeyPress = useCallback(
+  // Handle keyboard interactions
+  const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === 'Enter' && detectedLink?.isValid) {
+        e.preventDefault();
         handleAdd();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        // Clear the input and reset state
+        setUrl('');
+        setCustomTitle('');
+        setIsEditing(false);
       }
     },
-    [handleAdd, detectedLink]
+    [handleAdd, detectedLink, setUrl, setCustomTitle, setIsEditing]
   );
 
   const displayTitle = customTitle || detectedLink?.suggestedTitle || '';
@@ -87,23 +94,31 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
     <div className="space-y-3">
       {/* URL Input */}
       <div className="relative">
+        <label htmlFor="link-url-input" className="sr-only">
+          Enter link URL
+        </label>
         <Input
+          id="link-url-input"
           type="url"
           placeholder={placeholder}
           value={url}
           onChange={handleUrlChange}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyDown}
           disabled={disabled}
           inputMode="url"
           autoCapitalize="none"
           autoCorrect="off"
           autoComplete="off"
           className="pr-24"
+          aria-describedby={detectedLink ? 'link-detection-status' : undefined}
         />
 
         {/* Platform icon in input */}
         {detectedLink && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+          <div
+            className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2"
+            aria-hidden="true"
+          >
             <div
               className="flex items-center justify-center w-6 h-6 rounded-full"
               style={{
@@ -120,6 +135,17 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
         )}
       </div>
 
+      {/* Screen reader status */}
+      <div id="link-detection-status" className="sr-only" aria-live="polite">
+        {detectedLink
+          ? detectedLink.isValid
+            ? `${detectedLink.platform.name} link detected. You can now add a title and add this link.`
+            : `Invalid ${detectedLink.platform.name} link. ${detectedLink.error || 'Please check the URL.'}`
+          : url
+            ? 'No valid link detected. Please enter a valid URL.'
+            : ''}
+      </div>
+
       {/* Link preview & title editing */}
       {detectedLink && (
         <div
@@ -130,6 +156,8 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
               ? `${brandColor}08`
               : '#ef444408',
           }}
+          role="region"
+          aria-label="Link preview"
         >
           <div className="flex items-start gap-3">
             {/* Platform icon */}
@@ -139,6 +167,7 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
                 backgroundColor: `${brandColor}15`,
                 color: brandColor,
               }}
+              aria-hidden="true"
             >
               <SocialIcon
                 platform={detectedLink.platform.icon}
@@ -164,17 +193,24 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
               </div>
 
               {/* Title input */}
+              <label htmlFor="link-title-input" className="sr-only">
+                Link title
+              </label>
               <Input
+                id="link-title-input"
                 type="text"
                 placeholder="Link title"
                 value={displayTitle}
                 onChange={handleTitleChange}
+                onKeyDown={handleKeyDown}
                 disabled={disabled}
                 inputMode="text"
                 autoCapitalize="words"
                 autoCorrect="on"
                 autoComplete="off"
                 className="text-sm mb-2"
+                aria-required="true"
+                aria-invalid={!displayTitle.trim() ? 'true' : 'false'}
               />
 
               {/* URL preview */}
@@ -184,7 +220,10 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
 
               {/* Validation error */}
               {!detectedLink.isValid && detectedLink.error && (
-                <div className="text-xs text-red-600 dark:text-red-400 mt-1">
+                <div
+                  className="text-xs text-red-600 dark:text-red-400 mt-1"
+                  role="alert"
+                >
                   {detectedLink.error}
                 </div>
               )}
@@ -201,6 +240,7 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
                 backgroundColor: detectedLink.isValid ? brandColor : undefined,
               }}
               className={!detectedLink.isValid ? 'opacity-50' : ''}
+              aria-label={`Add ${displayTitle || 'link'}`}
             >
               Add
             </Button>
@@ -210,7 +250,7 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
 
       {/* Validation hint */}
       {url && !detectedLink?.isValid && (
-        <div className="text-xs text-gray-500 dark:text-gray-400">
+        <div className="text-xs text-gray-500 dark:text-gray-400" role="status">
           💡 Paste links from Spotify, Instagram, TikTok, YouTube, and more for
           automatic detection
         </div>

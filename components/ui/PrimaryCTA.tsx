@@ -4,6 +4,17 @@ import React from 'react';
 import { clsx } from 'clsx';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 
+/**
+ * PrimaryCTA Component
+ *
+ * A primary call-to-action button component with enhanced visual effects.
+ * Follows standardized button styling guidelines:
+ * - Uses the global focus-ring utility for consistent focus states
+ * - Maintains consistent hover/active states
+ * - Ensures proper hit target sizes for accessibility
+ * - Supports light/dark mode with appropriate contrast
+ * - Includes subtle hover animations and glow effects
+ */
 type PrimaryCTAProps = {
   children: React.ReactNode;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
@@ -39,7 +50,7 @@ export default function PrimaryCTA({
   const a11yLabel = isLoading && loadingLabel ? loadingLabel : ariaLabel;
 
   const base =
-    'relative inline-flex items-center justify-center overflow-hidden group rounded-xl font-semibold tracking-tight shadow-lg transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40 focus-visible:ring-offset-2 dark:focus-visible:ring-white/40 cursor-pointer';
+    'relative inline-flex items-center justify-center overflow-hidden group rounded-xl font-semibold tracking-tight shadow-lg transition-all duration-200 ease-out focus-ring cursor-pointer';
   const color =
     'bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-50';
   const sizing =
@@ -71,7 +82,7 @@ export default function PrimaryCTA({
         color,
         sizing,
         width,
-        'hover:scale-[1.01] active:scale-[0.99] ring-1 ring-black/10 dark:ring-white/10 hover:ring-black/20 dark:hover:ring-white/20',
+        'hover:scale-[1.01] active:scale-[0.98] ring-1 ring-black/10 dark:ring-white/10 hover:ring-black/20 dark:hover:ring-white/20',
         // luminous subtle glow using before pseudo-element
         'before:pointer-events-none before:absolute before:inset-0 before:rounded-xl before:opacity-0 before:transition-opacity before:duration-300',
         'before:bg-[radial-gradient(80%_60%_at_50%_0%,rgba(255,255,255,0.35),transparent_60%)]',

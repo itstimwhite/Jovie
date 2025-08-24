@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect } from 'vitest';
 import { Toast } from './Toast';
 
@@ -12,27 +11,26 @@ describe('Toast Component', () => {
     );
 
     expect(screen.getByText('Test message')).toBeInTheDocument();
-    expect(screen.getByRole('alert')).toHaveClass('bg-gray-900');
+    expect(screen.getByRole('status')).toHaveClass('bg-gray-900');
   });
 
   it('renders with different types', () => {
     const { rerender } = render(
       <Toast id="test-toast" message="Success message" type="success" />
     );
-    expect(screen.getByRole('alert')).toHaveClass('bg-green-600');
+    expect(screen.getByRole('status')).toHaveClass('bg-green-600');
 
     rerender(
       <Toast id="test-toast" message="Warning message" type="warning" />
     );
-    expect(screen.getByRole('alert')).toHaveClass('bg-amber-500');
+    expect(screen.getByRole('status')).toHaveClass('bg-amber-500');
 
     rerender(<Toast id="test-toast" message="Error message" type="error" />);
-    expect(screen.getByRole('alert')).toHaveClass('bg-red-600');
+    expect(screen.getByRole('status')).toHaveClass('bg-red-600');
   });
 
-  it('renders with action button', async () => {
+  it('renders with action button', () => {
     const actionMock = vi.fn();
-    const user = userEvent.setup();
 
     render(
       <Toast
@@ -48,7 +46,8 @@ describe('Toast Component', () => {
     const actionButton = screen.getByText('Undo');
     expect(actionButton).toBeInTheDocument();
 
-    await user.click(actionButton);
+    // Click the button directly instead of using userEvent
+    actionButton.click();
     expect(actionMock).toHaveBeenCalledTimes(1);
   });
 
