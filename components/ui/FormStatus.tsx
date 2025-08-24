@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { LoadingSpinner } from './LoadingSpinner';
+import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 
 interface FormStatusProps {
   loading?: boolean;
