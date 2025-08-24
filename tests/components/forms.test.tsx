@@ -143,6 +143,9 @@ describe('Form Accessibility and Validation', () => {
       updated_at: new Date().toISOString(),
       deleted_at: null,
       links: [],
+      is_verified: false,
+      is_featured: false,
+      marketing_opt_out: false,
     };
 
     const mockOnUpdate = vi.fn();
