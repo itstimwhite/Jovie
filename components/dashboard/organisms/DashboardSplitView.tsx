@@ -39,7 +39,7 @@ interface SaveStatus {
 
 export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   artist,
-  creatorProfile, // Will be used for additional profile data in the future
+  creatorProfile, // eslint-disable-line @typescript-eslint/no-unused-vars
   onArtistUpdate,
   disabled = false,
 }) => {
@@ -72,7 +72,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
       ].includes(link.platform)
         ? 'dsp'
         : 'social';
-      
+
       return {
         id: link.id,
         title: link.platform,
@@ -115,7 +115,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   useEffect(() => {
     const fetchLinks = async () => {
       if (!session || !artist.id) return;
-      
+
       try {
         const supabase = createClerkSupabaseClient(session);
         if (!supabase) return;
@@ -125,7 +125,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
             .from('social_links')
             .select('*')
             .eq('creator_profile_id', artist.id);
-          
+
         if (socialLinksError) {
           console.error('Error fetching social links:', socialLinksError);
           return;
@@ -213,14 +213,14 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
     dspLinksToSave: LinkItem[]
   ) => {
     if (!session || !artist.id) return;
-    
+
     setSaveStatus((prev) => ({
       ...prev,
       saving: true,
       success: null,
       error: null,
     }));
-    
+
     try {
       const supabase = createClerkSupabaseClient(session);
       if (!supabase) {
@@ -294,8 +294,11 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
 
   // Debounced save function
   const debouncedSave = useMemo(
-    () => debounce(saveLinks, 800),
-    [artist.id, session]
+    () =>
+      debounce((socialLinks: LinkItem[], dspLinks: LinkItem[]) => {
+        saveLinks(socialLinks, dspLinks);
+      }, 800),
+    [saveLinks]
   );
 
   // Handle social link changes
