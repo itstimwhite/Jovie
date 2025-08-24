@@ -2,6 +2,7 @@ export { ArtistSelectionForm } from './ArtistSelectionForm';
 export { OnboardingForm } from './OnboardingForm';
 export { ProgressiveOnboardingForm } from './ProgressiveOnboardingForm';
 export { OnboardingFormWrapper } from './OnboardingFormWrapper';
+export { AppleStyleOnboardingForm } from './AppleStyleOnboardingForm';
 export { ProfileForm } from './ProfileForm';
 export { SocialsForm } from './SocialsForm';
 export { ListenNowForm } from './ListenNowForm';

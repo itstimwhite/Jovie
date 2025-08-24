@@ -11,6 +11,8 @@ export interface FeatureFlags {
   progressiveOnboardingEnabled: boolean;
   // Minimalist design for onboarding screens (Apple-inspired)
   minimalistOnboardingEnabled?: boolean;
+  // New Apple-style full-screen onboarding with improved UX (JOV-134)
+  appleStyleOnboardingEnabled?: boolean;
 }
 
 // Default feature flags (fallback)
@@ -27,6 +29,8 @@ const defaultFeatureFlags: FeatureFlags = {
   progressiveOnboardingEnabled: true,
   // Minimalist design for onboarding screens (Apple-inspired)
   minimalistOnboardingEnabled: true,
+  // New Apple-style full-screen onboarding with improved UX (JOV-134)
+  appleStyleOnboardingEnabled: true,
 };
 
 // Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
