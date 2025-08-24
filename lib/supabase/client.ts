@@ -94,7 +94,7 @@ export function useSupabase() {
   // Create a browser client with custom auth
   const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey, {
     global: {
-      fetch: async (url, options = {}) => {
+      fetch: async (url: string, options: RequestInit = {}) => {
         try {
           // Only inject token for Supabase API requests
           if (url.toString().includes(supabaseUrl)) {
@@ -106,10 +106,9 @@ export function useSupabase() {
             
             // Add token to request headers
             if (token) {
-              options.headers = {
-                ...options.headers,
-                Authorization: `Bearer ${token}`,
-              };
+              const headers = new Headers(options.headers || {});
+              headers.set('Authorization', `Bearer ${token}`);
+              options.headers = headers;
             }
           }
           
