@@ -46,16 +46,17 @@ if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
     // Determine environment for PostHog configuration
     const isLocalDev = getEnvTag() === 'dev';
 
-    const options: Parameters<typeof posthog.init>[1] = {
+    // Define PostHog options with type assertion to include custom properties
+    const options = {
       autocapture: true,
       capture_pageview: false, // we'll send $pageview manually via page()
       persistence: 'localStorage+cookie',
-      // Disable Toolbar in local development to prevent 401 errors
+      // @ts-ignore - PostHog types don't include these properties but they're valid
       disable_toolbar: isLocalDev,
-      // Disable session recording in local development
+      // @ts-ignore - PostHog types don't include these properties but they're valid
       disable_session_recording: isLocalDev,
       // Only load feature flags when properly configured
-      loaded: (ph) => {
+      loaded: (ph: any) => {
         if (isLocalDev) {
           // Prevent experiments/feature flags API calls in local dev
           // This eliminates the 401 errors from /web_experiments endpoint
@@ -64,7 +65,8 @@ if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
           };
         }
       },
-    };
+    } as Parameters<typeof posthog.init>[1];
+
     if (ANALYTICS.posthogHost) {
       options.api_host = ANALYTICS.posthogHost;
     }
@@ -75,13 +77,21 @@ if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
 
       // Handle token expiry errors more gracefully
       const originalOnError = window.onerror;
-      window.onerror = function (message, source, lineno, colno, error) {
+      window.onerror = function (
+        message: string | Event,
+        source?: string,
+        lineno?: number,
+        colno?: number,
+        error?: Error
+      ) {
         // Filter out PostHog token expiry errors to prevent console spam
         if (
-          source?.includes('posthog') &&
-          (message?.includes('token expired') ||
-            message?.includes('Unauthorized') ||
-            message?.includes('401'))
+          typeof source === 'string' &&
+          source.includes('posthog') &&
+          typeof message === 'string' &&
+          (message.includes('token expired') ||
+            message.includes('Unauthorized') ||
+            message.includes('401'))
         ) {
           // Suppress repeated PostHog auth errors
           return true;
