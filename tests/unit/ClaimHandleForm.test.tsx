@@ -152,7 +152,10 @@ describe('ClaimHandleForm', () => {
     // Wait for validation
     await waitFor(() => {
       expect(input).toHaveAttribute('aria-invalid', 'true');
-      expect(input).toHaveAttribute('aria-describedby', 'handle-input-help');
+      // FormField combines help and error IDs when error is present
+      const describedBy = input.getAttribute('aria-describedby') || '';
+      expect(describedBy).toContain('handle-input-help');
+      expect(describedBy).toContain('handle-input-error');
     });
 
     // Check that the URL preview shows the invalid handle in red styling
