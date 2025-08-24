@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       await trackServerEvent('notifications_subscribe_error', {
         artist_id: body.artist_id,
         error_type: 'validation_error',
-        validation_errors: result.error.errors.map((e) => e.message),
+        validation_errors: result.error.format()._errors,
         source: body.source || 'unknown',
       });
 
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: 'Invalid request data',
-          details: result.error.errors,
+          details: result.error.format(),
         },
         { status: 400 }
       );

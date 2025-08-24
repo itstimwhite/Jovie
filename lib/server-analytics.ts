@@ -18,8 +18,10 @@ export async function trackServerEvent(
     // Determine environment
     const env = process.env.NODE_ENV || 'development';
     const isProduction = env === 'production';
-    const isPreview = env === 'preview';
     const isDevelopment = env === 'development';
+    // Preview is a custom environment not in the standard NODE_ENV values
+    const isPreview =
+      env !== 'production' && env !== 'development' && env !== 'test';
 
     // Add environment tag to properties
     const envTag = isProduction ? 'prod' : isPreview ? 'preview' : 'dev';

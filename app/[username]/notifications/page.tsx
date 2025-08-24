@@ -28,7 +28,7 @@ export default function NotificationsPage() {
       emailSchema.parse(email);
     } catch (err) {
       if (err instanceof z.ZodError) {
-        const errorMessage = err.errors[0]?.message || 'Invalid email';
+        const errorMessage = err.format()._errors[0] || 'Invalid email';
         setError(errorMessage);
 
         // Track form validation error
