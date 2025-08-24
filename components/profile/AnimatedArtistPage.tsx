@@ -141,6 +141,7 @@ export function AnimatedArtistPage({
   const router = useRouter();
   const [isNavigating, setIsNavigating] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+
   // Page-level animation variants with Apple-style easing
   const pageVariants = {
     initial: {
