@@ -141,7 +141,6 @@ test.describe('Public Profile Performance', () => {
         const img = images.nth(i);
 
         // Should have lazy loading (except for LCP image)
-        const loading = await img.getAttribute('loading');
         const alt = await img.getAttribute('alt');
 
         // Verify images have alt text
