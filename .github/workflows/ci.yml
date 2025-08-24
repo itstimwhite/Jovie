@@ -28,6 +28,7 @@ concurrency:
 
 jobs:
   pr-policy:
+    name: PR Policy
     if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -46,7 +47,7 @@ jobs:
             }
 
   up-to-date-with-preview:
-    name: up-to-date-with-preview
+    name: PR Up-to-date with Preview
     if: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'preview' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -66,6 +67,7 @@ jobs:
           fi
 
   ci-typecheck:
+    name: Typecheck
     # Draft PRs skip; ready PRs + pushes + merge queue run fast checks in parallel
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
@@ -87,6 +89,7 @@ jobs:
         run: npm run typecheck --if-present
 
   ci-lint:
+    name: Lint
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -367,7 +370,7 @@ jobs:
         if: steps.check_changes.outputs.run_full_ci == 'true'
         run: npm ci
 
-      - name: Cache Playwright browsers
+      - name: Cache Playwright Browsers
         if: ${{ steps.check_changes.outputs.run_full_ci == 'true' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
         uses: actions/cache@v4
         with:
@@ -378,12 +381,16 @@ jobs:
         if: ${{ steps.check_changes.outputs.run_full_ci == 'true' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
         run: npx playwright install --with-deps
 
-      - name: E2E smoke tests
+      - name: E2E Smoke (PR to Preview)
         if: ${{ steps.check_changes.outputs.run_full_ci == 'true' && github.ref != 'refs/heads/main' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
         run: npm run e2e:smoke --if-present -- --trace=retain-on-failure
         continue-on-error: ${{ github.event_name == 'pull_request' }}
 
-      - name: Upload Playwright artifacts on failure
+      - name: E2E Full (Preview Branch)
+        if: ${{ steps.check_changes.outputs.run_full_ci == 'true' && github.ref == 'refs/heads/preview' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
+        run: npm run test:e2e --if-present -- --reporter=line
+
+      - name: Upload Playwright Artifacts on Failure
         if: ${{ failure() && steps.check_changes.outputs.run_full_ci == 'true' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
         uses: actions/upload-artifact@v4
         with:
