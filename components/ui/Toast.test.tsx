@@ -55,7 +55,7 @@ describe('Toast Component', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
   
-  it('calls onClose when close button is clicked', () => {
+  it('calls onClose when close button is clicked', async () => {
     const onClose = vi.fn();
     
     render(
@@ -71,9 +71,9 @@ describe('Toast Component', () => {
     fireEvent.click(closeButton);
     
     // Wait for animation to complete
-    setTimeout(() => {
-      expect(onClose).toHaveBeenCalledTimes(1);
-    }, 400);
+    await waitFor(() => {
+      expect(onClose).toHaveBeenCalled();
+    }, { timeout: 500 });
   });
 });
 
