@@ -2,23 +2,23 @@
 
 ## Critical Rules
 
-### ⚠️ **NEVER PUSH TO PREVIEW OR MAIN**
+### ⚠️ **NEVER PUSH TO PREVIEW OR PRODUCTION**
 
-- **NEVER push directly to `preview` or `main` branches**
+- **NEVER push directly to `preview` or `production` branches**
 - **Work on feature branches opened from `preview`**
   - Naming: `feat/<slug>`, `fix/<slug>`, `chore/<slug>` where `<slug>` is 3–6 words, kebab-case
 - **Open a PR against `preview`**
   - PRs must be up-to-date with `preview` and pass all checks
   - Auto-merge to `preview` after green CI is allowed
-- **Promotion to `main` is manual via PR** (no auto-merge to `main`)
+- **Promotion to `production` is manual via PR** (no auto-merge to `production`)
 
 ### 🔒 **Branch Protection**
 
-- `preview` and `main` are protected branches
+- `preview` and `production` are protected branches
 - No direct pushes to protected branches
 - All changes flow via PR to `preview` with an up-to-date-with-`preview` requirement
 - After CI success, feature PRs may auto-merge into `preview`
-- Promotion from `preview` → `main` is performed manually via a PR per policy
+- Promotion from `preview` → `production` is performed manually via a PR per policy
 
 ## Feature Development & Branching (Windsurf Rules)
 
@@ -43,7 +43,7 @@ Follow this standardized flow whenever implementing a new feature, enhancement, 
     - Ensure events fire in both light/dark mode flows
   - Add tests
     - Unit tests for logic
-    - E2E smoke test for the main happy path
+    - E2E smoke test for the primary happy path
 
 - **Step 4: Pull Request (target = `preview`)**
   - Title: `[feat|fix|chore]: <slug>`
@@ -72,7 +72,7 @@ Follow this standardized flow whenever implementing a new feature, enhancement, 
   - PR closed with changelog line auto-generated from the title
 
 - **Step 8: Merge to Main**
-  - When validated in preview/prod, promote to `main` via a manual PR
+  - When validated in preview/prod, promote to `production` via a manual PR
   - Always tag the release
 
 ## Clerk-Supabase Integration (Primary Method)

@@ -7,7 +7,7 @@ This document outlines the organization and purpose of all GitHub workflows in t
 ### **Branch Strategy**
 
 ```
-develop → preview → main
+develop → preview → production
    ↓        ↓        ↓
   CI/CD    CI/CD   Production
 Pipeline  Pipeline  Deployment
@@ -59,7 +59,7 @@ Pipeline  Pipeline  Deployment
 **Jobs:**
 
 - **CI Job:** Full testing suite with production-like environment
-- **Promote Job:** Create PR from preview → main (manual review required)
+- **Promote Job:** Create PR from preview → production (manual review required)
 
 **Features:**
 
@@ -77,7 +77,7 @@ Pipeline  Pipeline  Deployment
 
 **Triggers:**
 
-- Push to `main` branch
+- Push to `production` branch
 - Manual dispatch
 
 **Jobs:**
@@ -97,7 +97,7 @@ Pipeline  Pipeline  Deployment
 
 **Triggers:**
 
-- Push to main branches (`main`, `develop`, `preview`)
+- Push to main branches (`production`, `develop`, `preview`)
 - Pull requests to main branches
 - Weekly scheduled scan (Monday 13:36 UTC)
 
@@ -172,7 +172,7 @@ preview-ci.yml
 ├── Full E2E tests
 ├── Security scans
 ├── Performance budgets
-└── Manual PR (preview → main)
+└── Manual PR (preview → production)
     └── Manual review required
 ```
 
