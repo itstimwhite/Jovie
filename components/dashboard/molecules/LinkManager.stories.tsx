@@ -2,42 +2,46 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { LinkManager } from './LinkManager';
 import { detectPlatform } from '@/lib/utils/platform-detection';
 
-// Mock link items for stories
-const createMockLinks = () => {
-  const spotifyLink = {
-    ...detectPlatform('https://open.spotify.com/artist/123'),
-    id: '1',
-    title: 'Spotify',
-    isVisible: true,
-    order: 0,
-  };
-
-  const instagramLink = {
-    ...detectPlatform('https://instagram.com/artistname'),
-    id: '2',
-    title: 'Instagram',
-    isVisible: true,
-    order: 1,
-  };
-
-  const tiktokLink = {
-    ...detectPlatform('https://tiktok.com/@artistname'),
-    id: '3',
-    title: 'TikTok',
-    isVisible: false,
-    order: 2,
-  };
-
-  const youtubeLink = {
-    ...detectPlatform('https://youtube.com/channel/123'),
-    id: '4',
-    title: 'YouTube',
-    isVisible: true,
-    order: 3,
-  };
-
-  return [spotifyLink, instagramLink, tiktokLink, youtubeLink];
+// Pre-computed mock data for better performance
+const MOCK_SPOTIFY_LINK = {
+  ...detectPlatform('https://open.spotify.com/artist/123'),
+  id: '1',
+  title: 'Spotify',
+  isVisible: true,
+  order: 0,
 };
+
+const MOCK_INSTAGRAM_LINK = {
+  ...detectPlatform('https://instagram.com/artistname'),
+  id: '2',
+  title: 'Instagram',
+  isVisible: true,
+  order: 1,
+};
+
+const MOCK_TIKTOK_LINK = {
+  ...detectPlatform('https://tiktok.com/@artistname'),
+  id: '3',
+  title: 'TikTok',
+  isVisible: false,
+  order: 2,
+};
+
+const MOCK_YOUTUBE_LINK = {
+  ...detectPlatform('https://youtube.com/channel/123'),
+  id: '4',
+  title: 'YouTube',
+  isVisible: true,
+  order: 3,
+};
+
+// Optimized function that returns pre-computed links
+const createMockLinks = () => [
+  MOCK_SPOTIFY_LINK,
+  MOCK_INSTAGRAM_LINK,
+  MOCK_TIKTOK_LINK,
+  MOCK_YOUTUBE_LINK,
+];
 
 const meta: Meta<typeof LinkManager> = {
   title: 'Dashboard/Molecules/LinkManager',
@@ -174,71 +178,77 @@ export const EmptyState: Story = {
 
 // Dark mode demonstration
 export const DarkMode: Story = {
-  render: () => (
-    <div className="grid grid-cols-1 gap-8">
-      <div className="p-6 bg-white rounded-lg">
-        <h3 className="text-lg font-semibold mb-4">Light Theme</h3>
-        <LinkManager
-          initialLinks={createMockLinks()}
-          onLinksChange={() => {}}
-          maxLinks={20}
-          allowedCategory="all"
-        />
-      </div>
-      <div className="p-6 bg-gray-900 rounded-lg">
-        <h3 className="text-lg font-semibold mb-4 text-white">Dark Theme</h3>
-        <div className="dark">
+  render: () => {
+    const mockLinks = createMockLinks();
+    return (
+      <div className="grid grid-cols-1 gap-8">
+        <div className="p-6 bg-white rounded-lg">
+          <h3 className="text-lg font-semibold mb-4">Light Theme</h3>
           <LinkManager
-            initialLinks={createMockLinks()}
+            initialLinks={mockLinks}
             onLinksChange={() => {}}
             maxLinks={20}
             allowedCategory="all"
           />
         </div>
+        <div className="p-6 bg-gray-900 rounded-lg">
+          <h3 className="text-lg font-semibold mb-4 text-white">Dark Theme</h3>
+          <div className="dark">
+            <LinkManager
+              initialLinks={mockLinks}
+              onLinksChange={() => {}}
+              maxLinks={20}
+              allowedCategory="all"
+            />
+          </div>
+        </div>
       </div>
-    </div>
-  ),
+    );
+  },
 };
 
 // Responsive layout demonstration
 export const ResponsiveLayout: Story = {
-  render: () => (
-    <div className="space-y-8">
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Desktop View</h3>
-        <div className="w-full">
-          <LinkManager
-            initialLinks={createMockLinks()}
-            onLinksChange={() => {}}
-            maxLinks={20}
-            allowedCategory="all"
-          />
+  render: () => {
+    const mockLinks = createMockLinks();
+    return (
+      <div className="space-y-8">
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Desktop View</h3>
+          <div className="w-full">
+            <LinkManager
+              initialLinks={mockLinks}
+              onLinksChange={() => {}}
+              maxLinks={20}
+              allowedCategory="all"
+            />
+          </div>
         </div>
-      </div>
 
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Tablet View</h3>
-        <div className="w-[768px] mx-auto">
-          <LinkManager
-            initialLinks={createMockLinks()}
-            onLinksChange={() => {}}
-            maxLinks={20}
-            allowedCategory="all"
-          />
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Tablet View</h3>
+          <div className="w-[768px] mx-auto">
+            <LinkManager
+              initialLinks={mockLinks}
+              onLinksChange={() => {}}
+              maxLinks={20}
+              allowedCategory="all"
+            />
+          </div>
         </div>
-      </div>
 
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Mobile View</h3>
-        <div className="w-[375px] mx-auto">
-          <LinkManager
-            initialLinks={createMockLinks()}
-            onLinksChange={() => {}}
-            maxLinks={20}
-            allowedCategory="all"
-          />
+        <div>
+          <h3 className="text-lg font-semibold mb-2">Mobile View</h3>
+          <div className="w-[375px] mx-auto">
+            <LinkManager
+              initialLinks={mockLinks}
+              onLinksChange={() => {}}
+              maxLinks={20}
+              allowedCategory="all"
+            />
+          </div>
         </div>
       </div>
-    </div>
-  ),
+    );
+  },
 };
