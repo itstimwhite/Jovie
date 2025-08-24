@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
 
 interface Artist {
   id: string;
@@ -16,6 +17,8 @@ interface ArtistCarouselProps {
 }
 
 export function ArtistCarousel({ artists }: ArtistCarouselProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   if (!artists || artists.length === 0) {
     return null;
   }
@@ -30,7 +33,7 @@ export function ArtistCarousel({ artists }: ArtistCarouselProps) {
             <Link
               key={artist.id}
               href={`/${artist.handle}`}
-              className="group shrink-0 transition-transform duration-300 hover:scale-110"
+              className={`group shrink-0 ${prefersReducedMotion ? '' : 'transition-transform duration-300 hover:scale-110'}`}
             >
               <div className="relative">
                 {/* Artist image */}
@@ -45,7 +48,13 @@ export function ArtistCarousel({ artists }: ArtistCarouselProps) {
                 </div>
 
                 {/* Hover overlay with artist name */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div
+                  className={`absolute inset-0 flex items-center justify-center bg-black/50 rounded-full ${
+                    prefersReducedMotion
+                      ? 'opacity-0 focus-within:opacity-100 group-focus:opacity-100'
+                      : 'opacity-0 group-hover:opacity-100 transition-opacity duration-300'
+                  }`}
+                >
                   <span className="text-white text-xs sm:text-sm font-medium text-center px-2">
                     {artist.name}
                   </span>
