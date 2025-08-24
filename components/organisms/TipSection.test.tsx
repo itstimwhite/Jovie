@@ -7,9 +7,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 // Mock the useToast hook
 const mockShowToast = vi.fn();
 vi.mock('@/components/ui/ToastContainer', () => {
-  const originalModule = vi.importActual('@/components/ui/ToastContainer');
   return {
-    ...originalModule,
     useToast: () => ({
       showToast: mockShowToast,
       hideToast: vi.fn(),
@@ -17,6 +15,8 @@ vi.mock('@/components/ui/ToastContainer', () => {
     }),
   };
 });
+
+// No need to mock ToastProvider since we're importing it directly
 
 describe('TipSection', () => {
   const mockOnStripePayment = vi.fn();
