@@ -18,6 +18,8 @@ export async function GET() {
     feature_click_analytics_rpc: false,
     // Progressive onboarding with multi-step UX improvements
     progressiveOnboardingEnabled: true,
+    // Minimalist design for onboarding screens (Apple-inspired)
+    minimalistOnboardingEnabled: true,
   } as const;
 
   return new NextResponse(JSON.stringify(flags), {
