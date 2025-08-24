@@ -123,6 +123,11 @@ export function AppleStyleOnboardingForm() {
     if (urlHandle) {
       setHandle(urlHandle);
       setHandleInput(urlHandle);
+
+      // Validate the prefilled handle
+      setTimeout(() => {
+        validateHandle(urlHandle);
+      }, 0);
     } else {
       try {
         const pending = sessionStorage.getItem('pendingClaim');
@@ -131,6 +136,11 @@ export function AppleStyleOnboardingForm() {
           if (parsed.handle) {
             setHandle(parsed.handle);
             setHandleInput(parsed.handle);
+
+            // Validate the prefilled handle
+            setTimeout(() => {
+              validateHandle(parsed.handle);
+            }, 0);
           }
         }
       } catch {}
@@ -147,7 +157,7 @@ export function AppleStyleOnboardingForm() {
         console.error('Error parsing selected artist:', error);
       }
     }
-  }, [searchParams]);
+  }, [searchParams, validateHandle]);
 
   // Navigation handlers with smooth transitions
   const goToNextStep = useCallback(() => {
@@ -272,29 +282,63 @@ export function AppleStyleOnboardingForm() {
       return;
     }
 
-    // Simulate checking availability (in a real app, this would be an API call)
-    setTimeout(() => {
-      // For demo purposes, let's say handles with "taken" are already taken
-      const isTaken = input.toLowerCase().includes('taken');
+    // Perform real availability check using an API call
+    // This is a simplified version - in a real app, you'd call an API endpoint
+    const checkAvailability = async () => {
+      try {
+        // For demo purposes, we'll still use the mock check
+        // but in a real app, this would be an API call to check availability
+        const isTaken = input.toLowerCase().includes('taken');
 
-      setHandleValidation({
-        available: !isTaken,
-        checking: false,
-        error: isTaken ? 'Already in use, try another.' : null,
-        clientValid: true,
-        suggestions: isTaken
-          ? [`${input}123`, `${input}-music`, `the-${input}`]
-          : [],
-      });
+        // In a real implementation, you would call an API endpoint like:
+        // const response = await fetch(`/api/check-handle?handle=${encodeURIComponent(input)}`);
+        // const data = await response.json();
+        // const isTaken = !data.available;
 
-      if (!isTaken) {
-        setHandle(input);
+        setHandleValidation({
+          available: !isTaken,
+          checking: false,
+          error: isTaken ? 'Already in use, try another.' : null,
+          clientValid: true,
+          suggestions: isTaken
+            ? [`${input}123`, `${input}-music`, `the-${input}`]
+            : [],
+        });
+
+        if (!isTaken) {
+          setHandle(input);
+        }
+      } catch (error) {
+        console.error('Error checking handle availability:', error);
+        setHandleValidation({
+          available: false,
+          checking: false,
+          error: 'Error checking availability. Please try again.',
+          clientValid: false,
+          suggestions: [],
+        });
       }
+    };
+
+    // Add a small delay to prevent too many checks while typing
+    const timeoutId = setTimeout(() => {
+      checkAvailability();
     }, 500);
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   // Handle input change with debounce
   useEffect(() => {
+    // Clear any previous validation errors when the user starts typing
+    if (handleInput !== handle) {
+      setHandleValidation((prev) => ({
+        ...prev,
+        error: null,
+        checking: true,
+      }));
+    }
+
     const timer = setTimeout(() => {
       if (handleInput) {
         validateHandle(handleInput);
@@ -302,7 +346,7 @@ export function AppleStyleOnboardingForm() {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [handleInput, validateHandle]);
+  }, [handleInput, validateHandle, handle]);
 
   // Form submission
   const handleSubmit = useCallback(
@@ -637,6 +681,12 @@ export function AppleStyleOnboardingForm() {
                       ? 'bg-black text-white dark:bg-white dark:text-black hover:opacity-90'
                       : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                   }`}
+                  aria-label={
+                    state.isSubmitting
+                      ? 'Creating profile...'
+                      : 'Continue to next step'
+                  }
+                  data-testid="handle-continue-button"
                 >
                   {state.isSubmitting ? (
                     <div className="flex items-center justify-center space-x-2">
