@@ -86,7 +86,7 @@ describe.skip('Supabase RLS Integration Test', () => {
     const { data: socialLinks, error } = await anonymousClient
       .from('social_links')
       .select('id, platform, url, clicks')
-      .eq('artist_id', artistId);
+      .eq('creator_profile_id', artistId);
 
     // Should succeed without authentication
     expect(error).toBeNull();
