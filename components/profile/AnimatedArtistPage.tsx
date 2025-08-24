@@ -38,6 +38,7 @@ function renderContent(
   socialLinks: LegacySocialLink[],
   router: ReturnType<typeof useRouter>,
   isNavigating: boolean,
+  prefersReducedMotion: boolean,
   setIsNavigating: (value: boolean) => void
 ) {
   switch (mode) {
@@ -214,6 +215,7 @@ export function AnimatedArtistPage({
               socialLinks,
               router,
               isNavigating,
+              prefersReducedMotion,
               setIsNavigating
             )}
           </motion.div>
