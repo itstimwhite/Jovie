@@ -9,6 +9,8 @@ export interface FeatureFlags {
   featureClickAnalyticsRpc: boolean;
   // Progressive onboarding with multi-step UX improvements
   progressiveOnboardingEnabled: boolean;
+  // Minimalist design for onboarding screens (Apple-inspired)
+  minimalistOnboardingEnabled?: boolean;
 }
 
 // Default feature flags (fallback)
@@ -23,6 +25,8 @@ const defaultFeatureFlags: FeatureFlags = {
   featureClickAnalyticsRpc: false,
   // Progressive onboarding enabled by default for better UX
   progressiveOnboardingEnabled: true,
+  // Minimalist design for onboarding screens (Apple-inspired)
+  minimalistOnboardingEnabled: true,
 };
 
 // Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
