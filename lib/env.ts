@@ -12,6 +12,7 @@ const EnvSchema = z
     // Prefer publishable key; allow legacy anon key as fallback
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: z.string().optional(),
     NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
+    SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z
       .string()
       .min(1, 'Missing NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY'),
@@ -67,6 +68,7 @@ const rawEnv = {
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY:
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
     process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? 'https://jov.ie',
@@ -111,6 +113,9 @@ export const env = {
   NEXT_PUBLIC_SUPABASE_ANON_KEY: parsed.success
     ? parsed.data.NEXT_PUBLIC_SUPABASE_ANON_KEY
     : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  SUPABASE_SERVICE_ROLE_KEY: parsed.success
+    ? parsed.data.SUPABASE_SERVICE_ROLE_KEY
+    : process.env.SUPABASE_SERVICE_ROLE_KEY,
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: parsed.success
     ? parsed.data.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
     : process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
