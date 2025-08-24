@@ -22,7 +22,7 @@ export function SectionHeading({
     sm: 'text-lg md:text-xl leading-7 md:leading-8',
     md: 'text-xl md:text-2xl leading-8 md:leading-9',
     lg: 'text-2xl md:text-3xl leading-9 md:leading-10',
-    xl: 'text-3xl md:text-4xl leading-10 md:leading-[3rem]',
+    xl: 'text-3xl md:text-4xl sm:text-5xl leading-10 md:leading-[3rem]',
   };
 
   const alignClasses = {
