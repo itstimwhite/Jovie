@@ -2,7 +2,23 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { TipJar } from '@/components/profile/TipJar';
 import { loadStripe } from '@stripe/stripe-js';
-import { ToastProvider } from '@/components/providers/ToastProvider';
+
+// Mock the ToastContainer module
+vi.mock('@/components/ui/ToastContainer', () => {
+  return {
+    useToast: () => ({
+      showToast: vi.fn(),
+      hideToast: vi.fn(),
+      clearToasts: vi.fn(),
+    }),
+    ToastProvider: ({ children }) => <>{children}</>,
+  };
+});
+
+// Mock the ToastProvider from providers
+vi.mock('@/components/providers/ToastProvider', () => ({
+  ToastProvider: ({ children }) => <>{children}</>,
+}));
 
 vi.mock('@stripe/stripe-js', () => ({
   loadStripe: vi.fn(),
@@ -29,11 +45,7 @@ describe('TipJar', () => {
 
     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = 'pk_test';
 
-    render(
-      <ToastProvider>
-        <TipJar handle="tim" artistName="Tim" />
-      </ToastProvider>
-    );
+    render(<TipJar handle="tim" artistName="Tim" />);
 
     expect(await screen.findByText('$2 Tip')).toBeInTheDocument();
     fireEvent.click(screen.getByText('$2 Tip'));
@@ -50,11 +62,7 @@ describe('TipJar', () => {
 
     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = 'pk_test';
 
-    render(
-      <ToastProvider>
-        <TipJar handle="tim" artistName="Tim" />
-      </ToastProvider>
-    );
+    render(<TipJar handle="tim" artistName="Tim" />);
 
     expect(
       await screen.findByText('Scan to tip via Apple Pay')

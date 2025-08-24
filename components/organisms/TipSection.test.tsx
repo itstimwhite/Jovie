@@ -1,10 +1,9 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { TipSection } from './TipSection';
-import { ToastProvider } from '@/components/providers/ToastProvider';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-// Mock the useToast hook
+// Mock the ToastContainer module
 const mockShowToast = vi.fn();
 vi.mock('@/components/ui/ToastContainer', () => {
   return {
@@ -13,10 +12,18 @@ vi.mock('@/components/ui/ToastContainer', () => {
       hideToast: vi.fn(),
       clearToasts: vi.fn(),
     }),
+    ToastProvider: ({ children }: { children: React.ReactNode }) => (
+      <>{children}</>
+    ),
   };
 });
 
-// No need to mock ToastProvider since we're importing it directly
+// Mock the ToastProvider from providers
+vi.mock('@/components/providers/ToastProvider', () => ({
+  ToastProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+}));
 
 describe('TipSection', () => {
   const mockOnStripePayment = vi.fn();
@@ -30,13 +37,11 @@ describe('TipSection', () => {
     mockOnStripePayment.mockResolvedValueOnce(undefined);
 
     render(
-      <ToastProvider>
-        <TipSection
-          handle="artist123"
-          artistName="Test Artist"
-          onStripePayment={mockOnStripePayment}
-        />
-      </ToastProvider>
+      <TipSection
+        handle="artist123"
+        artistName="Test Artist"
+        onStripePayment={mockOnStripePayment}
+      />
     );
 
     // Find and click the $2 tip button
@@ -61,13 +66,11 @@ describe('TipSection', () => {
     mockOnStripePayment.mockRejectedValueOnce(new Error('Payment failed'));
 
     render(
-      <ToastProvider>
-        <TipSection
-          handle="artist123"
-          artistName="Test Artist"
-          onStripePayment={mockOnStripePayment}
-        />
-      </ToastProvider>
+      <TipSection
+        handle="artist123"
+        artistName="Test Artist"
+        onStripePayment={mockOnStripePayment}
+      />
     );
 
     // Find and click the $2 tip button
@@ -90,15 +93,13 @@ describe('TipSection', () => {
 
   it('renders payment method selection when both Stripe and Venmo are available', () => {
     render(
-      <ToastProvider>
-        <TipSection
-          handle="artist123"
-          artistName="Test Artist"
-          onStripePayment={mockOnStripePayment}
-          venmoLink="https://venmo.com/user"
-          onVenmoPayment={mockOnVenmoPayment}
-        />
-      </ToastProvider>
+      <TipSection
+        handle="artist123"
+        artistName="Test Artist"
+        onStripePayment={mockOnStripePayment}
+        venmoLink="https://venmo.com/user"
+        onVenmoPayment={mockOnVenmoPayment}
+      />
     );
 
     expect(screen.getByText('Choose payment method')).toBeInTheDocument();

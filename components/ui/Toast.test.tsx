@@ -1,6 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { vi, describe, it, expect } from 'vitest';
 import { Toast } from './Toast';
 
@@ -32,7 +31,6 @@ describe('Toast Component', () => {
 
   it('renders with action button', async () => {
     const actionMock = vi.fn();
-    const user = userEvent.setup();
 
     render(
       <Toast
@@ -48,7 +46,7 @@ describe('Toast Component', () => {
     const actionButton = screen.getByText('Undo');
     expect(actionButton).toBeInTheDocument();
 
-    await user.click(actionButton);
+    fireEvent.click(actionButton);
     expect(actionMock).toHaveBeenCalledTimes(1);
   });
 
