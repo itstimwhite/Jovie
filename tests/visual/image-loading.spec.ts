@@ -1,9 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 
 // Helper function to calculate CLS
-async function calculateCLS(page) {
+async function calculateCLS(page: Page) {
   return await page.evaluate(() => {
-    return new Promise((resolve) => {
+    return new Promise<number>((resolve) => {
       let cls = 0;
       let firstFrame = true;
 
@@ -12,7 +12,8 @@ async function calculateCLS(page) {
         for (const entry of list.getEntries()) {
           if (!firstFrame) {
             // Ignore shifts in the first frame
-            cls += entry.value;
+            // Cast entry to LayoutShift type which has the value property
+            cls += (entry as any).value;
           }
           firstFrame = false;
         }
@@ -130,4 +131,3 @@ test.describe('Image Loading Tests', () => {
     await page.screenshot({ path: 'test-results/image-loaded-no-placeholder.png' });
   });
 });
-
