@@ -17,11 +17,12 @@ export function SectionHeading({
 }: SectionHeadingProps) {
   const Tag = `h${level}` as keyof JSX.IntrinsicElements;
 
+  // Normalized type scale following 4/8pt grid system
   const sizeClasses = {
-    sm: 'text-lg md:text-xl',
-    md: 'text-xl md:text-2xl',
-    lg: 'text-2xl md:text-3xl',
-    xl: 'text-3xl md:text-4xl sm:text-5xl',
+    sm: 'text-lg md:text-xl leading-7 md:leading-8',
+    md: 'text-xl md:text-2xl leading-8 md:leading-9',
+    lg: 'text-2xl md:text-3xl leading-9 md:leading-10',
+    xl: 'text-3xl md:text-4xl sm:text-5xl leading-10 md:leading-[3rem]',
   };
 
   const alignClasses = {
@@ -34,6 +35,7 @@ export function SectionHeading({
     <Tag
       id={id}
       className={`font-bold tracking-tight text-gray-900 dark:text-white ${sizeClasses[size]} ${alignClasses[align]} ${className}`}
+      style={{ letterSpacing: '-0.02em' }}
     >
       {children}
     </Tag>
