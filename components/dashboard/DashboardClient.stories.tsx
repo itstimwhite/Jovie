@@ -10,7 +10,6 @@ const mockCreatorProfile: CreatorProfile = {
   display_name: 'Artist Name',
   bio: 'This is a sample artist bio',
   avatar_url: 'https://via.placeholder.com/150',
-  header_url: null,
   creator_type: 'artist',
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
