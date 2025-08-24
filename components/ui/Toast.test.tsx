@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect } from 'vitest';
 import { Toast } from './Toast';
 
@@ -30,9 +29,8 @@ describe('Toast Component', () => {
     expect(screen.getByRole('alert')).toHaveClass('bg-red-600');
   });
 
-  it('renders with action button', async () => {
+  it('renders with action button', () => {
     const actionMock = vi.fn();
-    const user = userEvent.setup();
 
     render(
       <Toast
@@ -48,7 +46,8 @@ describe('Toast Component', () => {
     const actionButton = screen.getByText('Undo');
     expect(actionButton).toBeInTheDocument();
 
-    await user.click(actionButton);
+    // Click the button directly instead of using userEvent
+    actionButton.click();
     expect(actionMock).toHaveBeenCalledTimes(1);
   });
 

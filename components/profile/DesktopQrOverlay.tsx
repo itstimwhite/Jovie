@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { XMarkIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import { QRCode } from '@/components/atoms/QRCode';
+import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
 
 interface DesktopQrOverlayProps {
   handle: string;
@@ -13,6 +14,7 @@ export function DesktopQrOverlay({ handle }: DesktopQrOverlayProps) {
   const [show, setShow] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [url, setUrl] = useState('');
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     const isDesktop = window.matchMedia('(min-width: 768px)').matches;
@@ -101,9 +103,21 @@ export function DesktopQrOverlay({ handle }: DesktopQrOverlayProps) {
       {show && (
         <motion.div
           key="qr"
-          initial={{ opacity: 0, y: 16, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
+          initial={
+            prefersReducedMotion
+              ? { opacity: 1 }
+              : { opacity: 0, y: 16, scale: 0.98 }
+          }
+          animate={
+            prefersReducedMotion
+              ? { opacity: 1 }
+              : { opacity: 1, y: 0, scale: 1 }
+          }
+          transition={
+            prefersReducedMotion
+              ? { duration: 0 }
+              : { duration: 0.2, ease: 'easeOut' }
+          }
           className="group fixed bottom-4 right-4 z-50 flex flex-col items-center rounded-xl p-4 ring-1 ring-black/10 dark:ring-white/10 shadow-xl bg-white/85 dark:bg-gray-900/80 backdrop-blur-md overflow-hidden"
         >
           <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
@@ -128,9 +142,15 @@ export function DesktopQrOverlay({ handle }: DesktopQrOverlayProps) {
       {!show && dismissed && (
         <motion.button
           key="reopen"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
+          initial={
+            prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 12 }
+          }
+          animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          transition={
+            prefersReducedMotion
+              ? { duration: 0 }
+              : { duration: 0.2, ease: 'easeOut' }
+          }
           onClick={reopen}
           aria-label="View on mobile"
           className="group fixed bottom-4 right-4 z-50 p-2 rounded-full bg-white/90 dark:bg-gray-900/80 backdrop-blur-md ring-1 ring-black/10 dark:ring-white/10 shadow-md hover:shadow-lg transition"
