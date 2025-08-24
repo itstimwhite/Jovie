@@ -23,7 +23,7 @@ test.describe('Dashboard Access Control', () => {
   // Only run when E2E_ONBOARDING_FULL=1 and environment is properly configured
   const runFull = process.env.E2E_ONBOARDING_FULL === '1';
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async () => {
     if (!runFull) {
       test.skip();
     }
@@ -76,7 +76,7 @@ test.describe('Dashboard Access Control', () => {
     // Sign up User A
     await page.evaluate(
       async ({ email, password }) => {
-        const clerk: any = (window as any).Clerk;
+        const clerk = (window as unknown as { Clerk: any }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         try {
@@ -159,7 +159,7 @@ test.describe('Dashboard Access Control', () => {
     // Sign up User B
     await page.evaluate(
       async ({ email, password }) => {
-        const clerk: any = (window as any).Clerk;
+        const clerk = (window as unknown as { Clerk: any }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         try {
@@ -226,7 +226,7 @@ test.describe('Dashboard Access Control', () => {
     // Sign in as User A
     await page.evaluate(
       async ({ email, password }) => {
-        const clerk: any = (window as any).Clerk;
+        const clerk = (window as unknown as { Clerk: any }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         const signIn = await clerk.signIn?.create({

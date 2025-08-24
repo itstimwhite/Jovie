@@ -21,7 +21,7 @@ test.describe('Onboarding Happy Path', () => {
   // Only run when E2E_ONBOARDING_FULL=1 and environment is properly configured
   const runFull = process.env.E2E_ONBOARDING_FULL === '1';
 
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async () => {
     if (!runFull) {
       test.skip();
     }
@@ -70,7 +70,7 @@ test.describe('Onboarding Happy Path', () => {
 
     await page.evaluate(
       async ({ email, password }) => {
-        const clerk: any = (window as any).Clerk;
+        const clerk = (window as unknown as { Clerk: any }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         try {
@@ -246,7 +246,7 @@ test.describe('Onboarding Happy Path', () => {
 
     await page.evaluate(
       async ({ email, password }) => {
-        const clerk: any = (window as any).Clerk;
+        const clerk = (window as unknown as { Clerk: any }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         const signIn = await clerk.signIn?.create({
