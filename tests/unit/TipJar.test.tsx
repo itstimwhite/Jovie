@@ -3,6 +3,27 @@ import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { TipJar } from '@/components/profile/TipJar';
 import { loadStripe } from '@stripe/stripe-js';
 
+// Mock the ToastContainer module
+vi.mock('@/components/ui/ToastContainer', () => {
+  return {
+    useToast: () => ({
+      showToast: vi.fn(),
+      hideToast: vi.fn(),
+      clearToasts: vi.fn(),
+    }),
+    ToastProvider: ({ children }: { children: React.ReactNode }) => (
+      <>{children}</>
+    ),
+  };
+});
+
+// Mock the ToastProvider from providers
+vi.mock('@/components/providers/ToastProvider', () => ({
+  ToastProvider: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+}));
+
 vi.mock('@stripe/stripe-js', () => ({
   loadStripe: vi.fn(),
 }));
