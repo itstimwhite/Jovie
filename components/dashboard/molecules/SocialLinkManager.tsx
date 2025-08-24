@@ -41,7 +41,10 @@ export const SocialLinkManager: React.FC<SocialLinkManagerProps> = ({
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+        <h3
+          className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2"
+          id="social-links-heading"
+        >
           Social Links
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -51,15 +54,17 @@ export const SocialLinkManager: React.FC<SocialLinkManagerProps> = ({
       </div>
 
       {/* Social Link Manager */}
-      <LinkManager
-        initialLinks={socialLinks}
-        onLinksChange={handleSocialLinksChange}
-        disabled={disabled}
-        maxLinks={maxLinks}
-        allowedCategory="social"
-        title="Social Links"
-        description="Add Instagram, Twitter, YouTube channels, and other social platforms."
-      />
+      <div aria-labelledby="social-links-heading">
+        <LinkManager
+          initialLinks={socialLinks}
+          onLinksChange={handleSocialLinksChange}
+          disabled={disabled}
+          maxLinks={maxLinks}
+          allowedCategory="social"
+          title="Social Links"
+          description="Add Instagram, Twitter, YouTube channels, and other social platforms."
+        />
+      </div>
     </div>
   );
 };

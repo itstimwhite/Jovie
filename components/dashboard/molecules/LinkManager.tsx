@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  KeyboardEvent,
+} from 'react';
 import {
   DndContext,
   closestCenter,
@@ -59,8 +65,17 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
   const [deletedLinks, setDeletedLinks] = useState<
     { link: LinkItem; timeout: NodeJS.Timeout }[]
   >([]);
+  const [focusedLinkIndex, setFocusedLinkIndex] = useState<number>(-1);
   const { showToast } = useToast();
+  const linksContainerRef = useRef<HTMLDivElement>(null);
+  const linkItemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  // Update refs array when links change
+  useEffect(() => {
+    linkItemRefs.current = linkItemRefs.current.slice(0, links.length);
+  }, [links.length]);
+
+  // Enhanced keyboard sensor with better accessibility
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -70,6 +85,43 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
+  );
+
+  // Handle keyboard navigation for the links list
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (disabled || links.length === 0) return;
+
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          setFocusedLinkIndex((prev) => {
+            const newIndex = prev < links.length - 1 ? prev + 1 : 0;
+            linkItemRefs.current[newIndex]?.focus();
+            return newIndex;
+          });
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          setFocusedLinkIndex((prev) => {
+            const newIndex = prev > 0 ? prev - 1 : links.length - 1;
+            linkItemRefs.current[newIndex]?.focus();
+            return newIndex;
+          });
+          break;
+        case 'Home':
+          e.preventDefault();
+          setFocusedLinkIndex(0);
+          linkItemRefs.current[0]?.focus();
+          break;
+        case 'End':
+          e.preventDefault();
+          setFocusedLinkIndex(links.length - 1);
+          linkItemRefs.current[links.length - 1]?.focus();
+          break;
+      }
+    },
+    [disabled, links.length]
   );
 
   // Update parent when links change
@@ -223,7 +275,10 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
 
       {/* Links Counter */}
       {links.length > 0 && (
-        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+        <div
+          className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400"
+          aria-live="polite"
+        >
           <span>
             {links.length} link{links.length === 1 ? '' : 's'}
           </span>
@@ -242,19 +297,51 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
           modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+          accessibility={{
+            announcements: {
+              onDragStart: ({ active }) =>
+                `Picked up ${links.find((link) => link.id === active.id)?.title || 'link'}. Use arrow keys to move, space to drop.`,
+              onDragOver: ({ active, over }) => {
+                if (!over) return '';
+                const activeLink = links.find((link) => link.id === active.id);
+                const overLink = links.find((link) => link.id === over.id);
+                return `${activeLink?.title || 'Link'} is over ${overLink?.title || 'position'}.`;
+              },
+              onDragEnd: ({ active, over }) => {
+                if (!over) return 'Cancelled sorting.';
+                const activeLink = links.find((link) => link.id === active.id);
+                const overLink = links.find((link) => link.id === over.id);
+                return `Dropped ${activeLink?.title || 'link'} at position of ${overLink?.title || 'link'}.`;
+              },
+              onDragCancel: () => 'Sorting cancelled.',
+            },
+          }}
         >
           <SortableContext
             items={links.map((link) => link.id)}
             strategy={verticalListSortingStrategy}
           >
-            <div className="space-y-2">
-              {links.map((link) => (
+            <div
+              className="space-y-2"
+              ref={linksContainerRef}
+              onKeyDown={handleKeyDown}
+              role="list"
+              aria-label="Sortable links list"
+              tabIndex={links.length > 0 ? 0 : -1}
+            >
+              {links.map((link, index) => (
                 <SortableLinkItem
                   key={link.id}
                   link={link}
                   onUpdate={handleUpdateLink}
                   onDelete={handleDeleteLink}
                   disabled={disabled}
+                  ref={(el) => {
+                    linkItemRefs.current[index] = el;
+                  }}
+                  isFocused={focusedLinkIndex === index}
+                  index={index}
+                  totalItems={links.length}
                 />
               ))}
             </div>
@@ -264,7 +351,11 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
 
       {/* Empty State */}
       {links.length === 0 && (
-        <div className="text-center py-12 px-4">
+        <div
+          className="text-center py-12 px-4"
+          role="status"
+          aria-live="polite"
+        >
           <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
             <svg
               width="24"
@@ -273,6 +364,7 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
               fill="none"
               stroke="currentColor"
               className="text-gray-400"
+              aria-hidden="true"
             >
               <path
                 strokeLinecap="round"
@@ -291,6 +383,12 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
           </p>
         </div>
       )}
+
+      {/* Screen reader announcements */}
+      <div aria-live="assertive" className="sr-only">
+        {deletedLinks.length > 0 &&
+          `Link deleted. ${deletedLinks.length} undo action available.`}
+      </div>
     </div>
   );
 };
