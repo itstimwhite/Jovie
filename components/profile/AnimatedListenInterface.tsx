@@ -7,6 +7,7 @@ import { Artist } from '@/types/db';
 import { getAvailableDSPs, AvailableDSP } from '@/lib/dsp';
 import { getDSPDeepLinkConfig, openDeepLink } from '@/lib/deep-links';
 import { LISTEN_COOKIE } from '@/constants/app';
+import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
 
 interface AnimatedListenInterfaceProps {
   artist: Artist;
@@ -20,6 +21,7 @@ export function AnimatedListenInterface({
   const [dsps] = useState<AvailableDSP[]>(() => getAvailableDSPs(artist));
   const [selectedDSP, setSelectedDSP] = useState<string | null>(null);
   const router = useRouter();
+  const prefersReducedMotion = useReducedMotion();
 
   // Mock DSPs for demo purposes if none are available
   const mockDSPs: AvailableDSP[] = [
@@ -164,29 +166,40 @@ export function AnimatedListenInterface({
     <AnimatePresence mode="wait">
       <motion.div
         key="listen-interface"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
+        variants={prefersReducedMotion ? {} : containerVariants}
+        initial={prefersReducedMotion ? { opacity: 1 } : 'hidden'}
+        animate={prefersReducedMotion ? { opacity: 1 } : 'visible'}
+        exit={prefersReducedMotion ? { opacity: 0 } : 'exit'}
         className="w-full max-w-sm"
       >
         {/* DSP Buttons */}
-        <motion.div variants={itemVariants} className="space-y-3">
+        <motion.div
+          variants={prefersReducedMotion ? {} : itemVariants}
+          className="space-y-3"
+        >
           {availableDSPs.map((dsp) => (
             <motion.button
               key={dsp.key}
               onClick={() => handleDSPClick(dsp)}
               disabled={selectedDSP === dsp.key}
-              variants={itemVariants}
-              whileHover={{
-                scale: 1.02,
-                y: -2,
-                transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] },
-              }}
-              whileTap={{
-                scale: 0.98,
-                transition: { duration: 0.1 },
-              }}
+              variants={prefersReducedMotion ? {} : itemVariants}
+              whileHover={
+                prefersReducedMotion
+                  ? {}
+                  : {
+                      scale: 1.02,
+                      y: -2,
+                      transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] },
+                    }
+              }
+              whileTap={
+                prefersReducedMotion
+                  ? {}
+                  : {
+                      scale: 0.98,
+                      transition: { duration: 0.1 },
+                    }
+              }
               className="w-full group relative overflow-hidden rounded-xl p-4 font-semibold text-base transition-all duration-300 ease-out shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white/50 disabled:cursor-not-allowed"
               style={{
                 backgroundColor: dsp.config.color,
@@ -197,13 +210,19 @@ export function AnimatedListenInterface({
               {/* Shimmer effect overlay */}
               <motion.div
                 className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                animate={{
-                  x: selectedDSP === dsp.key ? '200%' : '-100%',
-                }}
-                transition={{
-                  duration: 0.6,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
+                animate={
+                  prefersReducedMotion
+                    ? { opacity: selectedDSP === dsp.key ? 0.2 : 0 }
+                    : { x: selectedDSP === dsp.key ? '200%' : '-100%' }
+                }
+                transition={
+                  prefersReducedMotion
+                    ? { duration: 0 }
+                    : {
+                        duration: 0.6,
+                        ease: [0.16, 1, 0.3, 1],
+                      }
+                }
               />
 
               {/* Button content */}
@@ -217,13 +236,19 @@ export function AnimatedListenInterface({
                 <motion.span
                   className="flex items-center"
                   dangerouslySetInnerHTML={{ __html: dsp.config.logoSvg }}
-                  animate={{
-                    rotate: selectedDSP === dsp.key ? [0, 360] : 0,
-                  }}
-                  transition={{
-                    duration: 0.6,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
+                  animate={
+                    prefersReducedMotion
+                      ? {}
+                      : { rotate: selectedDSP === dsp.key ? [0, 360] : 0 }
+                  }
+                  transition={
+                    prefersReducedMotion
+                      ? { duration: 0 }
+                      : {
+                          duration: 0.6,
+                          ease: [0.16, 1, 0.3, 1],
+                        }
+                  }
                 />
                 <span>
                   {selectedDSP === dsp.key
@@ -232,8 +257,16 @@ export function AnimatedListenInterface({
                 </span>
                 {selectedDSP === dsp.key && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    initial={
+                      prefersReducedMotion
+                        ? { opacity: 1, scale: 1 }
+                        : { opacity: 0, scale: 0 }
+                    }
+                    animate={
+                      prefersReducedMotion
+                        ? { opacity: 1, scale: 1 }
+                        : { opacity: 1, scale: 1 }
+                    }
                     className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"
                   />
                 )}
@@ -244,7 +277,7 @@ export function AnimatedListenInterface({
 
         {/* Footer note */}
         <motion.p
-          variants={itemVariants}
+          variants={prefersReducedMotion ? {} : itemVariants}
           className="text-xs text-gray-500 dark:text-gray-400 text-center mt-6"
         >
           Tap to open in the app or your browser
