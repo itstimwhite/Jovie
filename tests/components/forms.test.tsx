@@ -30,7 +30,7 @@ describe('Form Accessibility and Validation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock fetch to return handle is available
-    (global.fetch as jest.Mock).mockResolvedValue({
+    (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       json: async () => ({ available: true }),
     });
@@ -135,6 +135,14 @@ describe('Form Accessibility and Validation', () => {
       tagline: 'Test tagline',
       image_url: '',
       settings: {},
+      owner_user_id: 'test-user-id',
+      handle: 'test-artist',
+      spotify_id: 'test-spotify-id',
+      published: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      deleted_at: null,
+      links: [],
     };
 
     const mockOnUpdate = vi.fn();

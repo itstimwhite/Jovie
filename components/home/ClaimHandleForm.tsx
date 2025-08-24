@@ -235,7 +235,7 @@ export function ClaimHandleForm() {
     if (handleError) return handleError;
     if (availError) return availError;
     if (available === false) return 'Handle already taken';
-    return null;
+    return undefined;
   })();
 
   const onCopyPreview = async () => {
