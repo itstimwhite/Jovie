@@ -161,8 +161,8 @@ export function ProgressiveOnboardingForm() {
     }
     if (
       currentStepIndex === 2 &&
-      handleValidation.available &&
-      handleValidation.clientValid
+      handleValidation?.available &&
+      handleValidation?.clientValid
     ) {
       // Auto-advance from handle to confirmation when handle is valid and available
       setTimeout(() => setCurrentStepIndex(3), 1000);
@@ -170,8 +170,8 @@ export function ProgressiveOnboardingForm() {
   }, [
     currentStepIndex,
     selectedArtist,
-    handleValidation.available,
-    handleValidation.clientValid,
+    handleValidation?.available,
+    handleValidation?.clientValid,
   ]);
 
   // Navigation handlers with keyboard support and focus management
@@ -266,8 +266,8 @@ export function ProgressiveOnboardingForm() {
       if (
         !user ||
         state.isSubmitting ||
-        !handleValidation.available ||
-        !handleValidation.clientValid
+        !handleValidation?.available ||
+        !handleValidation?.clientValid
       )
         return;
 
@@ -376,17 +376,17 @@ export function ProgressiveOnboardingForm() {
       case 1: // Artist step
         return selectedArtist !== null;
       case 2: // Handle step
-        return handleValidation.available && handleValidation.clientValid;
+        return handleValidation?.available && handleValidation?.clientValid;
       case 3: // Confirm step
-        return handleValidation.available && handleValidation.clientValid;
+        return handleValidation?.available && handleValidation?.clientValid;
       default:
         return false;
     }
   }, [
     currentStepIndex,
     selectedArtist,
-    handleValidation.available,
-    handleValidation.clientValid,
+    handleValidation?.available,
+    handleValidation?.clientValid,
   ]);
 
   // Keyboard navigation
@@ -780,11 +780,11 @@ export function ProgressiveOnboardingForm() {
     const errors: Record<string, string> = {};
 
     // Handle validation errors
-    if (currentStepIndex === 2 && handleValidation.error) {
+    if (currentStepIndex === 2 && handleValidation?.error) {
       errors.handle = handleValidation.error;
     } else if (
       currentStepIndex === 2 &&
-      !handleValidation.available &&
+      !handleValidation?.available &&
       handle
     ) {
       errors.handle = 'Handle already taken';
@@ -798,8 +798,8 @@ export function ProgressiveOnboardingForm() {
     return errors;
   }, [
     currentStepIndex,
-    handleValidation.error,
-    handleValidation.available,
+    handleValidation?.error,
+    handleValidation?.available,
     handle,
     state.error,
   ]);
