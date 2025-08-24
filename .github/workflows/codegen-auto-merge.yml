@@ -16,7 +16,8 @@ jobs:
       !contains(github.event.pull_request.labels.*.name, 'no-auto-merge') &&
       !contains(github.event.pull_request.labels.*.name, 'needs-human') &&
       !contains(github.event.pull_request.labels.*.name, 'human-review') &&
-      !contains(github.event.pull_request.labels.*.name, 'blocked')
+      !contains(github.event.pull_request.labels.*.name, 'blocked') &&
+      !contains(github.event.pull_request.labels.*.name, 'claude:needs-fixes')
     runs-on: ubuntu-latest
     steps:
       - name: Prepare codegen PR for merge queue

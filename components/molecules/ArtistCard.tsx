@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArtistAvatar } from '@/components/atoms/ArtistAvatar';
 
 export interface ArtistCardProps {
@@ -22,31 +23,80 @@ export function ArtistCard({
   showName = true,
   className = '',
 }: ArtistCardProps) {
+  // Check if user prefers reduced motion
+  const prefersReducedMotion = useReducedMotion();
+
+  // Adjust animation settings based on motion preference
+  const containerAnimationProps = prefersReducedMotion
+    ? {
+        // Minimal animations for reduced motion preference
+        whileHover: { y: -2 },
+        whileFocus: { y: -2 },
+        transition: { duration: 0.1 },
+      }
+    : {
+        // Full animations for normal motion preference
+        whileHover: { scale: 1.05, y: -5 },
+        whileFocus: { scale: 1.05, y: -5 },
+        transition: {
+          type: 'spring',
+          stiffness: 400,
+          damping: 17,
+          mass: 0.8,
+        },
+      };
+
+  // Avatar animation props
+  const avatarAnimationProps = prefersReducedMotion
+    ? {
+        whileHover: { boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' },
+        transition: { duration: 0.1 },
+      }
+    : {
+        whileHover: {
+          boxShadow:
+            '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        },
+        transition: { type: 'spring', stiffness: 400, damping: 17 },
+      };
+
   return (
-    <Link
-      href={`/${handle}`}
-      aria-label={`View ${name}'s profile`}
-      title={name}
-      className={`group block cursor-pointer ${className}`}
+    <motion.div
+      {...containerAnimationProps}
+      initial={{ scale: 1, y: 0 }}
+      className={className}
     >
-      <div className="text-center">
-        <ArtistAvatar
-          src={src}
-          alt={alt ?? name}
-          name={name}
-          size={size}
-          className="mx-auto"
-        />
-        {showName && (
-          <p
-            className={`mt-2 font-medium text-gray-700 dark:text-gray-300 ${
-              size === 'sm' ? 'text-xs' : 'text-sm'
-            }`}
-          >
-            {name}
-          </p>
-        )}
-      </div>
-    </Link>
+      <Link
+        href={`/${handle}`}
+        aria-label={`View ${name}'s profile`}
+        title={name}
+        className="group block cursor-pointer"
+      >
+        <div className="text-center">
+          <motion.div {...avatarAnimationProps}>
+            <ArtistAvatar
+              src={src}
+              alt={alt ?? name}
+              name={name}
+              size={size}
+              className="mx-auto"
+            />
+          </motion.div>
+          {showName && (
+            <motion.p
+              className={`mt-2 font-medium text-gray-700 dark:text-gray-300 ${
+                size === 'sm' ? 'text-xs' : 'text-sm'
+              }`}
+              whileHover={{
+                opacity: 0.8,
+              }}
+              transition={{ duration: 0.2 }}
+            >
+              {name}
+            </motion.p>
+          )}
+        </div>
+      </Link>
+    </motion.div>
   );
 }
