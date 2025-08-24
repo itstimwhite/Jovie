@@ -95,14 +95,22 @@ export function SmartHandleInput({
         // Check cache first
         if (lastValidatedRef.current?.handle === handleValue) {
           const { available } = lastValidatedRef.current;
-          const newValidation = {
-            ...handleValidation,
-            available,
-            checking: false,
-            error: available ? null : 'Handle already taken',
-          };
-          setHandleValidation(newValidation);
-          onValidationChange?.(newValidation);
+          let cachedValidation: HandleValidationState;
+
+          setHandleValidation((prev) => {
+            cachedValidation = {
+              ...prev,
+              available,
+              checking: false,
+              error: available ? null : 'Handle already taken',
+            };
+            return cachedValidation;
+          });
+
+          // Notify parent after state update
+          setTimeout(() => {
+            onValidationChange?.(cachedValidation);
+          }, 0);
           return;
         }
 
@@ -116,13 +124,21 @@ export function SmartHandleInput({
 
         // Add small delay to prevent flickering for very fast responses
         const checkingTimeout = setTimeout(() => {
-          const newValidation = {
-            ...handleValidation,
-            checking: true,
-            error: null,
-          };
-          setHandleValidation(newValidation);
-          onValidationChange?.(newValidation);
+          let checkingValidation: HandleValidationState;
+
+          setHandleValidation((prev) => {
+            checkingValidation = {
+              ...prev,
+              checking: true,
+              error: null,
+            };
+            return checkingValidation;
+          });
+
+          // Notify parent after state update
+          setTimeout(() => {
+            onValidationChange?.(checkingValidation);
+          }, 0);
         }, 200); // 200ms delay
 
         try {
@@ -153,30 +169,45 @@ export function SmartHandleInput({
 
           const result = await response.json();
           const available = !!result.available;
+          let finalValidation: HandleValidationState;
 
-          const finalValidation = {
-            ...handleValidation,
-            available,
-            checking: false,
-            error: available ? null : result.error || 'Handle already taken',
-          };
+          setHandleValidation((prev) => {
+            finalValidation = {
+              ...prev,
+              available,
+              checking: false,
+              error: available ? null : result.error || 'Handle already taken',
+            };
+            return finalValidation;
+          });
 
-          setHandleValidation(finalValidation);
-          onValidationChange?.(finalValidation);
+          // Notify parent after state update
+          setTimeout(() => {
+            onValidationChange?.(finalValidation);
+          }, 0);
+
           lastValidatedRef.current = { handle: handleValue, available };
         } catch (error) {
           clearTimeout(checkingTimeout);
 
           if (error instanceof Error && error.name === 'AbortError') {
             // Handle timeout specifically
-            const timeoutValidation = {
-              ...handleValidation,
-              available: false,
-              checking: false,
-              error: 'Check timed out - please try again',
-            };
-            setHandleValidation(timeoutValidation);
-            onValidationChange?.(timeoutValidation);
+            let timeoutValidation: HandleValidationState;
+
+            setHandleValidation((prev) => {
+              timeoutValidation = {
+                ...prev,
+                available: false,
+                checking: false,
+                error: 'Check timed out - please try again',
+              };
+              return timeoutValidation;
+            });
+
+            // Notify parent after state update
+            setTimeout(() => {
+              onValidationChange?.(timeoutValidation);
+            }, 0);
             return;
           }
 
@@ -192,33 +223,52 @@ export function SmartHandleInput({
               : 'Network error';
           }
 
-          const errorValidation = {
-            ...handleValidation,
-            available: false,
-            checking: false,
-            error: errorMessage,
-          };
-          setHandleValidation(errorValidation);
-          onValidationChange?.(errorValidation);
+          let errorValidation: HandleValidationState;
+
+          setHandleValidation((prev) => {
+            errorValidation = {
+              ...prev,
+              available: false,
+              checking: false,
+              error: errorMessage,
+            };
+            return errorValidation;
+          });
+
+          // Notify parent after state update
+          setTimeout(() => {
+            onValidationChange?.(errorValidation);
+          }, 0);
+
           lastValidatedRef.current = { handle: handleValue, available: false };
         }
       }, 500), // Reduced debounce from 1000ms to 500ms for better UX
-    [clientValidation.valid, handleValidation, onValidationChange]
+    [clientValidation.valid, onValidationChange]
   );
 
   // Update validation state when handle or client validation changes
   useEffect(() => {
-    // Update client validation state immediately
-    const newValidation = {
-      ...handleValidation,
-      clientValid: clientValidation.valid,
-      error: clientValidation.error,
-      suggestions: usernameSuggestions,
-      available: clientValidation.valid ? handleValidation.available : false,
-    };
+    let newValidation: HandleValidationState;
 
-    setHandleValidation(newValidation);
-    onValidationChange?.(newValidation);
+    // Update client validation state immediately using functional update to avoid dependency on handleValidation
+    setHandleValidation((prevValidation) => {
+      newValidation = {
+        ...prevValidation,
+        clientValid: clientValidation.valid,
+        error: clientValidation.error,
+        suggestions: usernameSuggestions,
+        available: clientValidation.valid ? prevValidation.available : false,
+      };
+
+      return newValidation;
+    });
+
+    // Notify parent of changes after state update
+    setTimeout(() => {
+      if (newValidation) {
+        onValidationChange?.(newValidation);
+      }
+    }, 0);
 
     // Only trigger API validation for format-valid handles
     if (clientValidation.valid && value.length >= 3) {
@@ -230,7 +280,6 @@ export function SmartHandleInput({
     usernameSuggestions,
     debouncedApiValidation,
     onValidationChange,
-    handleValidation,
   ]);
 
   const getValidationIcon = () => {
@@ -300,7 +349,7 @@ export function SmartHandleInput({
     <div className={`space-y-2 ${className}`}>
       {/* Input with prefix and validation icon */}
       <div className="relative">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm font-mono">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm font-mono z-10">
           {prefix}
         </div>
         <Input
@@ -309,28 +358,28 @@ export function SmartHandleInput({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
-          className={`font-mono pl-20 pr-10 ${
-            handleValidation.available && clientValidation.valid
-              ? 'border-green-300 dark:border-green-600 focus:ring-green-500'
+          className="font-mono pl-20"
+          inputClassName="font-mono"
+          validationState={
+            !value
+              ? null
               : handleValidation.error || clientValidation.error
-                ? 'border-red-300 dark:border-red-600 focus:ring-red-500'
-                : ''
-          }`}
-          aria-describedby="handle-status handle-preview"
-          aria-invalid={
-            handleValidation.error || clientValidation.error ? 'true' : 'false'
+                ? 'invalid'
+                : handleValidation.available && clientValidation.valid
+                  ? 'valid'
+                  : handleValidation.checking
+                    ? 'pending'
+                    : null
           }
+          statusIcon={showAvailability ? getValidationIcon() : undefined}
+          aria-describedby="handle-status handle-preview"
           aria-label="Enter your desired handle"
           autoCapitalize="none"
           autoCorrect="off"
           autoComplete="off"
           inputMode="text"
+          id="handle-input"
         />
-        {showAvailability && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
-            {getValidationIcon()}
-          </div>
-        )}
       </div>
 
       {/* Live preview */}

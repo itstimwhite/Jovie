@@ -109,14 +109,20 @@ async function updateArtistSocialLinks(handle, socialLinks) {
     }
 
     // Delete existing social links
-    await supabase.from('social_links').delete().eq('artist_id', artist.id);
+    await supabase
+      .from('social_links')
+      .delete()
+      .eq('creator_profile_id', artist.id);
 
     // Insert new social links
     const socialLinksToInsert = Object.entries(socialLinks).map(
       ([platform, url]) => ({
-        artist_id: artist.id,
+        creator_profile_id: artist.id,
         platform,
+        platform_type: platform,
         url,
+        sort_order: 0,
+        is_active: true,
       })
     );
 

@@ -25,17 +25,17 @@ export function FeaturedCreatorsSection({
   return (
     <section
       aria-label="Featured creators"
-      className={`relative py-8 ${className}`}
+      className={`relative py-12 md:py-16 ${className}`}
       data-testid="featured-creators"
     >
       <div className="container mx-auto px-4">
-        <SectionHeading level={2} className="mb-8">
+        <SectionHeading level={2} className="mb-12">
           {title}
         </SectionHeading>
 
         {/* Desktop: horizontal scroll */}
         <div className="hidden md:block">
-          <ul className="flex items-center gap-10 overflow-x-auto scroll-smooth pb-4">
+          <ul className="flex items-center gap-8 overflow-x-auto scroll-smooth pb-4">
             {creators.map((creator) => (
               <li key={creator.id} className="shrink-0">
                 <ArtistCard
@@ -52,7 +52,7 @@ export function FeaturedCreatorsSection({
 
         {/* Mobile: swipe */}
         <div className="md:hidden">
-          <ul className="flex items-center gap-6 overflow-x-auto scroll-smooth px-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <ul className="flex items-center gap-4 overflow-x-auto scroll-smooth px-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {creators.map((creator) => (
               <li key={creator.id} className="shrink-0 first:ml-2 last:mr-2">
                 <ArtistCard
