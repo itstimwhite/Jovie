@@ -2,27 +2,28 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { TipSection } from './TipSection';
 import { ToastProvider } from '@/components/providers/ToastProvider';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // Mock the useToast hook
-const mockShowToast = jest.fn();
-jest.mock('@/components/ui/ToastContainer', () => {
-  const originalModule = jest.requireActual('@/components/ui/ToastContainer');
+const mockShowToast = vi.fn();
+vi.mock('@/components/ui/ToastContainer', () => {
+  const originalModule = vi.importActual('@/components/ui/ToastContainer');
   return {
     ...originalModule,
     useToast: () => ({
       showToast: mockShowToast,
-      hideToast: jest.fn(),
-      clearToasts: jest.fn(),
+      hideToast: vi.fn(),
+      clearToasts: vi.fn(),
     }),
   };
 });
 
 describe('TipSection', () => {
-  const mockOnStripePayment = jest.fn();
-  const mockOnVenmoPayment = jest.fn();
+  const mockOnStripePayment = vi.fn();
+  const mockOnVenmoPayment = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('shows success toast when Stripe payment succeeds', async () => {
