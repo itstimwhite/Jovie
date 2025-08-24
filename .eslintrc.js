@@ -7,6 +7,8 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'error',
     '@typescript-eslint/no-explicit-any': 'warn',
     'prefer-const': 'error',
+    // Custom rule for image components will be enabled after migration is complete
+    // 'jovie/no-direct-next-image': 'warn',
   },
   parserOptions: {
     ecmaVersion: 2021,

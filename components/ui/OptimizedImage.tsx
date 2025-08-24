@@ -7,28 +7,77 @@ import { cn } from '@/lib/utils';
 import { generateSEOAltText } from '@/lib/images/seo';
 import { versionImageUrl } from '@/lib/images/versioning';
 
+/**
+ * Props for the OptimizedImage component
+ * 
+ * This component wraps next/image with additional features to prevent CLS,
+ * handle loading states, provide fallbacks, and optimize for SEO.
+ */
 interface OptimizedImageProps {
+  /** Image source URL (required unless using as a placeholder) */
   src?: string | null;
+  
+  /** Alt text for the image (required for accessibility) 
+   * Use empty string "" for purely decorative images */
   alt: string;
+  
+  /** Predefined size options with corresponding dimensions */
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  
+  /** Shape of the image container */
   shape?: 'circle' | 'square' | 'rounded';
+  
+  /** Additional CSS classes */
   className?: string;
+  
+  /** Set to true for LCP (Largest Contentful Paint) images
+   * This improves performance metrics by prioritizing the image load */
   priority?: boolean;
+  
+  /** Whether to use layout="fill" (requires parent to have position: relative) */
   fill?: boolean;
+  
+  /** Custom width in pixels (overrides size prop) */
   width?: number;
+  
+  /** Custom height in pixels (overrides size prop) */
   height?: number;
+  
+  /** Image quality (1-100) */
   quality?: number;
+  
+  /** Aspect ratio for the image (prevents CLS) */
   aspectRatio?: 'square' | 'video' | 'portrait' | 'wide' | number;
+  
+  /** Object-fit property for the image */
   objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
+  
+  /** Object-position property for the image */
   objectPosition?: string;
+  
+  /** Responsive sizes attribute for the image */
   sizes?: string;
+  
+  /** Placeholder type during loading */
   placeholder?: 'blur' | 'empty';
+  
+  /** Custom blur data URL (base64 encoded) */
   blurDataURL?: string;
+  
+  /** Fallback image to show on error */
   fallbackSrc?: string;
+  
+  /** Skip image optimization (not recommended) */
   unoptimized?: boolean;
+  
   // SEO and accessibility
+  /** Artist name for SEO alt text generation */
   artistName?: string;
+  
+  /** Type of image for SEO alt text generation */
   imageType?: 'avatar' | 'profile' | 'cover' | 'artwork' | 'icon';
+  
+  /** Enable cache-busting versioning for the image URL */
   enableVersioning?: boolean;
 }
 
@@ -100,6 +149,20 @@ function generateAltText(
   });
 }
 
+/**
+ * OptimizedImage component
+ * 
+ * A wrapper around next/image that provides:
+ * - CLS prevention through proper sizing and aspect ratios
+ * - Loading states with shimmer effect
+ * - Error handling with fallback images
+ * - SEO-friendly alt text generation
+ * - Image versioning for cache busting
+ * - Responsive sizing
+ * 
+ * Use this component instead of next/image directly to ensure consistent
+ * image loading behavior and prevent layout shifts.
+ */
 export function OptimizedImage({
   src,
   alt,

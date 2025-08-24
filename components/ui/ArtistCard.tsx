@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import Image from 'next/image';
-// import { Button } from './Button'; // Not used in current implementation
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 interface ArtistCardProps {
   id: string;
@@ -88,17 +87,21 @@ export function ArtistCard({
 
       <div className="flex items-center space-x-4">
         {/* Artist image */}
-        <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
+        <div className="flex-shrink-0">
           {imageUrl ? (
-            <Image
+            <OptimizedImage
               src={imageUrl}
-              alt={name}
-              width={64}
-              height={64}
-              className="w-full h-full object-cover"
+              alt={`${name} - Artist profile`}
+              size="lg"
+              shape="circle"
+              aspectRatio="square"
+              priority={false}
+              placeholder="blur"
+              artistName={name}
+              imageType="avatar"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+            <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500">
               <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
