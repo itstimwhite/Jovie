@@ -4,13 +4,35 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
+/**
+ * Props for the OptimizedAvatar component
+ * 
+ * This component is specifically designed for avatar images with:
+ * - Fixed aspect ratio (always 1:1)
+ * - Circular shape
+ * - Optimized loading behavior
+ * - Fallback for missing avatars
+ */
 interface OptimizedAvatarProps {
+  /** Avatar image source URL */
   src: string | null | undefined;
+  
+  /** Alt text for the avatar (e.g., "Profile picture of John Doe") */
   alt: string;
+  
+  /** Size in pixels (both width and height) */
   size?: 64 | 128 | 256 | 384;
+  
+  /** Additional CSS classes */
   className?: string;
+  
+  /** Set to true for important avatars (e.g., profile page main avatar) */
   priority?: boolean;
+  
+  /** Image quality (1-100) */
   quality?: number;
+  
+  /** Fallback image to show when src is null or on error */
   fallbackSrc?: string;
 }
 
@@ -22,6 +44,18 @@ const BLUR_DATA_URLS = {
   384: 'data:image/webp;base64,UklGRsICAABXRUJQVlA4WAoAAAAgAAAAfwEAfwEASUNDUMgBAAAAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADZWUDhUAAAANAAAAP8QEI0AAAAgHyAQg4CARGQ5iXnORlYAAAAgFxAQnYCARGQ5iXmJRlYjFxAQmQCARGQ=',
 };
 
+/**
+ * OptimizedAvatar component
+ * 
+ * A specialized image component for avatar/profile pictures that:
+ * - Maintains a perfect circle shape
+ * - Prevents CLS with fixed dimensions
+ * - Provides smooth loading with blur placeholder
+ * - Handles missing or errored images gracefully
+ * 
+ * Use this component for all user/artist avatars instead of OptimizedImage
+ * or next/image directly.
+ */
 export function OptimizedAvatar({
   src,
   alt,
@@ -79,12 +113,34 @@ export function OptimizedAvatar({
 }
 
 // Responsive avatar that adapts to screen size
+/**
+ * Props for the ResponsiveAvatar component
+ * 
+ * This component extends OptimizedAvatar to provide responsive sizing
+ * based on screen size, preventing the need for media queries in parent components.
+ */
 interface ResponsiveAvatarProps extends Omit<OptimizedAvatarProps, 'size'> {
+  /** Responsive sizes attribute for the image */
   sizes?: string;
+  
+  /** Size in pixels for mobile screens */
   mobileSize?: number;
+  
+  /** Size in pixels for desktop screens */
   desktopSize?: number;
 }
 
+/**
+ * ResponsiveAvatar component
+ * 
+ * A responsive version of OptimizedAvatar that automatically adjusts size
+ * based on screen width. This component:
+ * - Uses CSS classes for responsive sizing
+ * - Maintains all OptimizedAvatar benefits
+ * - Simplifies responsive avatar implementation
+ * 
+ * Use this component when you need avatars that change size based on viewport.
+ */
 export function ResponsiveAvatar({
   src,
   alt,

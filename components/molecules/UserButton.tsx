@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useUser, useClerk } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { OptimizedAvatar } from '@/components/ui/OptimizedAvatar';
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/react';
 import { useBillingStatus } from '@/hooks/use-billing-status';
 
@@ -83,12 +83,11 @@ export function UserButton() {
     <Menu as="div" className="relative">
       <MenuButton className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900">
         {userImageUrl ? (
-          <Image
+          <OptimizedAvatar
             src={userImageUrl}
-            alt={displayName || 'User avatar'}
-            width={32}
-            height={32}
-            className="w-8 h-8 rounded-full object-cover"
+            alt={displayName ? `Profile picture of ${displayName}` : 'User avatar'}
+            size={64}
+            className="w-8 h-8"
           />
         ) : (
           <span className="text-xs font-medium text-gray-700 dark:text-gray-200">
@@ -106,12 +105,11 @@ export function UserButton() {
         <div className="p-4 border-b border-gray-200/50 dark:border-gray-700/50">
           <div className="flex items-center gap-3">
             {userImageUrl ? (
-              <Image
+              <OptimizedAvatar
                 src={userImageUrl}
-                alt={displayName || 'User avatar'}
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-full object-cover"
+                alt={displayName ? `Profile picture of ${displayName}` : 'User avatar'}
+                size={64}
+                className="w-10 h-10"
               />
             ) : (
               <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
