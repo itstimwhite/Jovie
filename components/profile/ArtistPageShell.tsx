@@ -14,7 +14,8 @@ type ArtistPageShellProps = {
   maxWidthClass?: string;
 };
 
-export function ArtistPageShell({
+// Using React.memo to prevent unnecessary re-renders when only children content changes
+const ArtistPageShell = React.memo(function ArtistPageShell({
   artist,
   socialLinks,
   subtitle,
@@ -42,4 +43,6 @@ export function ArtistPageShell({
       {children}
     </ProfileShell>
   );
-}
+});
+
+export { ArtistPageShell };
