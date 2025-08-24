@@ -6,6 +6,7 @@ import { useTheme } from 'next-themes';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckIcon } from '@heroicons/react/24/solid';
 import { Spinner } from '@/components/ui/Spinner';
+import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
 
 export interface CTAButtonProps {
   /** The URL the button should navigate to */
@@ -67,6 +68,10 @@ export const CTAButton = forwardRef<
     const { theme, systemTheme } = useTheme();
     const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>('light');
     const [showSuccess, setShowSuccess] = useState(false);
+    // Use the hook to detect system preference for reduced motion
+    const systemPrefersReducedMotion = useReducedMotion();
+    // Respect both system preference and prop (if explicitly set)
+    const shouldReduceMotion = reducedMotion || systemPrefersReducedMotion;
 
     // Update current theme based on system/user preference
     useEffect(() => {
@@ -177,7 +182,7 @@ export const CTAButton = forwardRef<
             initial="hidden"
             animate="visible"
             exit="exit"
-            variants={reducedMotion ? {} : successVariants}
+            variants={shouldReduceMotion ? {} : successVariants}
           >
             <CheckIcon
               className={`${iconSize[size]} text-current`}
@@ -191,7 +196,7 @@ export const CTAButton = forwardRef<
             initial="hidden"
             animate="visible"
             exit="exit"
-            variants={reducedMotion ? {} : contentVariants}
+            variants={shouldReduceMotion ? {} : contentVariants}
           >
             <Spinner
               size={size === 'lg' ? 'md' : size === 'md' ? 'sm' : 'sm'}
@@ -215,7 +220,7 @@ export const CTAButton = forwardRef<
             initial="hidden"
             animate="visible"
             exit="exit"
-            variants={reducedMotion ? {} : contentVariants}
+            variants={shouldReduceMotion ? {} : contentVariants}
           >
             {icon && <span className="flex-shrink-0">{icon}</span>}
             <span>{children}</span>
@@ -237,7 +242,7 @@ export const CTAButton = forwardRef<
             ? 'disabled'
             : 'idle',
       'data-theme': currentTheme,
-      'data-reduced-motion': reducedMotion,
+      'data-reduced-motion': shouldReduceMotion,
       onClick:
         !disabled && !isLoading
           ? onClick
