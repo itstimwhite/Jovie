@@ -3,6 +3,7 @@ import { TipSelector } from '@/components/molecules/TipSelector';
 import { QRCodeCard } from '@/components/molecules/QRCodeCard';
 import { LoadingButton } from '@/components/molecules/LoadingButton';
 import { Button } from '@/components/ui/Button';
+import { useToast } from '@/components/ui/ToastContainer';
 
 interface TipSectionProps {
   handle: string;
@@ -27,6 +28,7 @@ export function TipSection({
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'venmo' | null>(
     null
   );
+  const { showToast } = useToast();
 
   const handleStripePayment = async (amount: number) => {
     if (!onStripePayment) return;
@@ -34,10 +36,18 @@ export function TipSection({
     setLoading(amount);
     try {
       await onStripePayment(amount);
-      alert(`Thanks for the $${amount} tip 🎉`);
+      showToast({
+        message: `Thanks for the $${amount} tip 🎉`,
+        type: 'success',
+        duration: 5000,
+      });
     } catch (error) {
       console.error('Tip failed', error);
-      alert('Payment failed. Please try again.');
+      showToast({
+        message: 'Payment failed. Please try again.',
+        type: 'error',
+        duration: 7000,
+      });
     } finally {
       setLoading(null);
     }

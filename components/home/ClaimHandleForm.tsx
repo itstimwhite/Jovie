@@ -6,11 +6,15 @@ import { useAuth } from '@clerk/nextjs';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
+import { FormField } from '@/components/ui/FormField';
+import { ErrorSummary } from '@/components/ui/ErrorSummary';
 import { APP_URL } from '@/constants/app';
 
 export function ClaimHandleForm() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
+  const formRef = useRef<HTMLFormElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Extract domain from APP_URL for display
   const displayDomain = APP_URL.replace(/^https?:\/\//, '');
@@ -26,6 +30,8 @@ export function ClaimHandleForm() {
   const [isShaking, setIsShaking] = useState(false);
   const [copied, setCopied] = useState(false);
   const lastQueriedRef = useRef<string>('');
+  // Form submission state
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   // Better handle validation with stricter regex for lowercase a-z, 0-9, hyphen
   const handleError = useMemo(() => {
@@ -98,12 +104,20 @@ export function ClaimHandleForm() {
   const onSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
+      setFormSubmitted(true);
 
       // Guard: invalid or unavailable or still checking
       if (handleError || checkingAvail || available !== true) {
         // Micro shake for quick feedback
         setIsShaking(true);
         setTimeout(() => setIsShaking(false), 180);
+
+        // Focus the input for accessibility
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+
+        // Announce error to screen readers
         return;
       }
 
@@ -120,6 +134,13 @@ export function ClaimHandleForm() {
       )}`;
 
       setNavigating(true);
+
+      // Announce loading state to screen readers
+      const loadingMessage = document.getElementById('loading-announcement');
+      if (loadingMessage) {
+        loadingMessage.textContent = 'Creating your profile. Please wait...';
+      }
+
       if (!isSignedIn) {
         // Send users to sign up; include redirect to onboarding with handle
         router.push(`/sign-up?redirect_url=${encodeURIComponent(target)}`);
@@ -138,6 +159,23 @@ export function ClaimHandleForm() {
   const btnLabel = available === true ? 'Create Profile' : 'Create Profile';
   const btnColor: 'green' | 'indigo' = available === true ? 'green' : 'indigo';
   const btnDisabled = !canSubmit;
+
+  // Collect all form errors for the error summary
+  const formErrors = useMemo(() => {
+    const errors: Record<string, string> = {};
+
+    if (formSubmitted) {
+      if (handleError) {
+        errors.handle = handleError;
+      } else if (availError) {
+        errors.handle = availError;
+      } else if (available === false) {
+        errors.handle = 'Handle already taken';
+      }
+    }
+
+    return errors;
+  }, [formSubmitted, handleError, availError, available]);
 
   // Status icon to show inside the input
   const StatusIcon = () => {
@@ -197,7 +235,7 @@ export function ClaimHandleForm() {
     if (handleError) return handleError;
     if (availError) return availError;
     if (available === false) return 'Handle already taken';
-    return null;
+    return undefined;
   })();
 
   const onCopyPreview = async () => {
@@ -209,53 +247,86 @@ export function ClaimHandleForm() {
   };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <Input
-        type="text"
-        value={handle}
-        onChange={(e) => setHandle(e.target.value.toLowerCase())}
-        placeholder="your-handle"
-        aria-label="Claim your handle"
-        aria-describedby={
-          helperText ? 'handle-helper-text' : 'handle-preview-text'
-        }
-        aria-invalid={unavailable ? 'true' : 'false'}
-        autoCapitalize="none"
-        autoCorrect="off"
-        className={`${isShaking ? 'jv-shake' : ''} ${available === true ? 'jv-available' : ''} transition-all duration-150 hover:shadow-lg focus-within:shadow-lg`}
-        inputClassName="text-[16px] leading-6 tracking-tight font-medium placeholder:text-zinc-400 dark:placeholder:text-zinc-500 pr-36 sm:pr-40 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
-        trailing={
-          <div className="flex items-center gap-2">
-            {/* Live status icon */}
-            <div aria-hidden className="flex items-center justify-center">
-              <StatusIcon />
-            </div>
-            {/* Fixed-size CTA button with cross-fade animation */}
-            <Button
-              type="submit"
-              variant="primary"
-              color={btnColor}
-              size="sm"
-              className="min-w-[136px] w-[136px] h-[36px] justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
-              disabled={btnDisabled || !handle}
-              aria-describedby="claim-button-status"
-            >
-              <span className="inline-flex items-center justify-center gap-2 transition-opacity duration-250">
-                {showChecking ? (
-                  <>
-                    <LoadingSpinner size="sm" className="text-white" />
-                    <span>Checking…</span>
-                  </>
-                ) : navigating ? (
-                  'Setting things up…'
-                ) : (
-                  btnLabel
-                )}
-              </span>
-            </Button>
-          </div>
-        }
+    <form ref={formRef} onSubmit={onSubmit} className="space-y-4" noValidate>
+      {/* Screen reader announcements */}
+      <div
+        className="sr-only"
+        aria-live="assertive"
+        aria-atomic="true"
+        id="loading-announcement"
+      ></div>
+
+      {/* Error summary for screen readers */}
+      <ErrorSummary
+        errors={formErrors}
+        onFocusField={(fieldName) => {
+          if (fieldName === 'handle' && inputRef.current) {
+            inputRef.current.focus();
+          }
+        }}
       />
+
+      <FormField
+        label="Choose your handle"
+        error={formSubmitted ? helperText : undefined}
+        helpText="Your unique identifier for your profile URL"
+        id="handle-input"
+        required
+      >
+        <Input
+          ref={inputRef}
+          type="text"
+          value={handle}
+          onChange={(e) => setHandle(e.target.value.toLowerCase())}
+          placeholder="your-handle"
+          required
+          autoCapitalize="none"
+          autoCorrect="off"
+          validationState={
+            !handle
+              ? null
+              : unavailable
+                ? 'invalid'
+                : available === true
+                  ? 'valid'
+                  : checkingAvail
+                    ? 'pending'
+                    : null
+          }
+          className={`${isShaking ? 'jv-shake' : ''} ${available === true ? 'jv-available' : ''} transition-all duration-150 hover:shadow-lg focus-within:shadow-lg`}
+          inputClassName="text-[16px] leading-6 tracking-tight font-medium placeholder:text-zinc-400 dark:placeholder:text-zinc-500 pr-36 sm:pr-40 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+          statusIcon={<StatusIcon />}
+          trailing={
+            <div className="flex items-center gap-2">
+              {/* Fixed-size CTA button with cross-fade animation */}
+              <Button
+                type="submit"
+                variant="primary"
+                color={btnColor}
+                size="sm"
+                className="min-w-[136px] w-[136px] h-[36px] justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
+                disabled={btnDisabled || !handle}
+              >
+                <span className="inline-flex items-center justify-center gap-2 transition-opacity duration-250">
+                  {showChecking ? (
+                    <>
+                      <LoadingSpinner size="sm" className="text-white" />
+                      <span>Checking…</span>
+                    </>
+                  ) : navigating ? (
+                    <>
+                      <LoadingSpinner size="sm" className="text-white" />
+                      <span>Setting things up…</span>
+                    </>
+                  ) : (
+                    btnLabel
+                  )}
+                </span>
+              </Button>
+            </div>
+          }
+        />
+      </FormField>
 
       {/* Compact URL preview under input */}
       <div className="min-h-[1.25rem]" id="handle-preview-text">
@@ -308,6 +379,7 @@ export function ClaimHandleForm() {
                       className="w-3 h-3"
                       fill="currentColor"
                       viewBox="0 0 20 20"
+                      aria-hidden="true"
                     >
                       <path
                         fillRule="evenodd"
@@ -323,6 +395,7 @@ export function ClaimHandleForm() {
                       className="w-3 h-3"
                       fill="currentColor"
                       viewBox="0 0 20 20"
+                      aria-hidden="true"
                     >
                       <path
                         fillRule="evenodd"
@@ -346,54 +419,6 @@ export function ClaimHandleForm() {
             </span>
           </p>
         )}
-      </div>
-
-      {/* Single inline helper that swaps to error/success */}
-      <div
-        className="min-h-[1.125rem]"
-        aria-live="polite"
-        aria-atomic="true"
-        id="handle-helper-text"
-      >
-        {helperText ? (
-          <p
-            className={`flex items-center gap-1.5 text-[12px] transition-all duration-200 ${
-              unavailable
-                ? 'text-red-600 dark:text-red-400'
-                : 'text-gray-500 dark:text-gray-400'
-            }`}
-            role="alert"
-          >
-            {unavailable ? (
-              <svg
-                className="h-3.5 w-3.5 flex-shrink-0"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 6h2v6H9V6zm0 7h2v2H9v-2z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            ) : (
-              <svg
-                className="h-3.5 w-3.5 flex-shrink-0"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 10-1.214-.882l-3.2 4.4-1.63-1.63a.75.75 0 10-1.06 1.06l2.25 2.25a.75.75 0 001.145-.089l3.71-5.109z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            )}
-            <span>{helperText}</span>
-          </p>
-        ) : null}
       </div>
 
       <style jsx>{`

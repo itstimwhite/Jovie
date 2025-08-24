@@ -349,7 +349,7 @@ export function SmartHandleInput({
     <div className={`space-y-2 ${className}`}>
       {/* Input with prefix and validation icon */}
       <div className="relative">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm font-mono">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm font-mono z-10">
           {prefix}
         </div>
         <Input
@@ -358,28 +358,28 @@ export function SmartHandleInput({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
-          className={`font-mono pl-20 pr-10 ${
-            handleValidation.available && clientValidation.valid
-              ? 'border-green-300 dark:border-green-600 focus:ring-green-500'
+          className="font-mono pl-20"
+          inputClassName="font-mono"
+          validationState={
+            !value
+              ? null
               : handleValidation.error || clientValidation.error
-                ? 'border-red-300 dark:border-red-600 focus:ring-red-500'
-                : ''
-          }`}
-          aria-describedby="handle-status handle-preview"
-          aria-invalid={
-            handleValidation.error || clientValidation.error ? 'true' : 'false'
+                ? 'invalid'
+                : handleValidation.available && clientValidation.valid
+                  ? 'valid'
+                  : handleValidation.checking
+                    ? 'pending'
+                    : null
           }
+          statusIcon={showAvailability ? getValidationIcon() : undefined}
+          aria-describedby="handle-status handle-preview"
           aria-label="Enter your desired handle"
           autoCapitalize="none"
           autoCorrect="off"
           autoComplete="off"
           inputMode="text"
+          id="handle-input"
         />
-        {showAvailability && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center">
-            {getValidationIcon()}
-          </div>
-        )}
       </div>
 
       {/* Live preview */}
