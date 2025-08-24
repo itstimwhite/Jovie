@@ -293,13 +293,12 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   };
 
   // Debounced save function
-  const debouncedSave = useMemo(
-    () =>
-      debounce((socialLinks: LinkItem[], dspLinks: LinkItem[]) => {
-        saveLinks(socialLinks, dspLinks);
-      }, 800),
-    [saveLinks]
-  );
+  const debouncedSave = useMemo(() => {
+    const fn = (socialLinks: LinkItem[], dspLinks: LinkItem[]) => {
+      saveLinks(socialLinks, dspLinks);
+    };
+    return debounce(fn as (...args: unknown[]) => void, 800);
+  }, [saveLinks]);
 
   // Handle social link changes
   const handleSocialLinksChange = (newLinks: LinkItem[]) => {
