@@ -63,13 +63,17 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
 
   const showToast = useCallback(
     (options: ToastOptions): string => {
-      // Check for similar toasts if grouping is enabled
-      if (options.groupSimilar) {
-        const similarToastId = getSimilarToastId(toasts, options);
-        if (similarToastId) {
-          // Update existing toast instead of creating a new one
-          setToasts((prevToasts) => 
-            prevToasts.map((toast) => 
+      const id =
+        options.id ||
+        `toast-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+      setToasts((prevToasts) => {
+        // Check for similar toasts if grouping is enabled
+        if (options.groupSimilar) {
+          const similarToastId = getSimilarToastId(prevToasts, options);
+          if (similarToastId) {
+            // Update existing toast instead of creating a new one
+            return prevToasts.map((toast) => 
               toast.id === similarToastId 
                 ? { 
                     ...toast, 
@@ -78,17 +82,10 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
                     duration: options.duration || toast.duration,
                   } 
                 : toast
-            )
-          );
-          return similarToastId;
+            );
+          }
         }
-      }
 
-      const id =
-        options.id ||
-        `toast-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-
-      setToasts((prevToasts) => {
         // If we're at max capacity, remove the oldest toast
         const newToasts = prevToasts.length >= maxToasts 
           ? prevToasts.slice(1) 
@@ -108,7 +105,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
 
       return id;
     },
-    [hideToast, maxToasts, playSounds, toasts]
+    [hideToast, maxToasts, playSounds]
   );
 
   const clearToasts = useCallback(() => {

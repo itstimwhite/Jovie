@@ -75,15 +75,27 @@ export function useAudioContext(): AudioContextState {
     const audio = new Audio(soundUrl);
     audio.volume = volume;
     
+    // Clean up audio element when playback ends or errors
+    const cleanup = () => {
+      audio.removeEventListener('ended', cleanup);
+      audio.removeEventListener('error', cleanup);
+      audio.src = '';
+      audio.load(); // Force cleanup
+    };
+    
+    audio.addEventListener('ended', cleanup);
+    audio.addEventListener('error', cleanup);
+    
     // Try to play the sound
     const promise = audio.play();
     
     if (promise !== undefined) {
       promise.catch((error) => {
-        // If playback fails, update mute status
+        // If playback fails, update mute status and cleanup
         if (error.name === 'NotAllowedError') {
           setIsMuted(true);
         }
+        cleanup();
       });
     }
   }, [isSupported, isMuted]);

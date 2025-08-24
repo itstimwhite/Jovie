@@ -69,7 +69,7 @@ export const Toast: React.FC<ToastProps> = ({
   const adjustedDuration = Math.max(
     effectiveDuration,
     // Ensure minimum duration of 3 seconds or longer for longer messages
-    Math.min(3000, message.length * 50)
+    Math.max(3000, message.length * 50)
   );
 
   useEffect(() => {
