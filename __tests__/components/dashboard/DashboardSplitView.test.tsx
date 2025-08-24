@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { DashboardSplitView } from '@/components/dashboard/organisms/DashboardSplitView';
 import { render, screen } from '@testing-library/react';
 import { mockArtist, mockCreatorProfile } from '@/lib/test-utils/mock-data';

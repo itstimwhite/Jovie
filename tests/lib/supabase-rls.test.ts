@@ -194,7 +194,7 @@ describe('Supabase RLS Policies', () => {
 
       expect(mockClient.from).toHaveBeenCalledWith('social_links');
       expect(mockSocialLinksQuery.eq).toHaveBeenCalledWith(
-        'artist_id',
+        'creator_profile_id',
         'published-artist-id'
       );
     });
