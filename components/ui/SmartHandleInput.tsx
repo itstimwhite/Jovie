@@ -86,152 +86,177 @@ export function SmartHandleInput({
     return generateUsernameSuggestions(value, artistName);
   }, [value, artistName, clientValidation.valid]);
 
-  // Debounced API validation with reduced delay for better UX
-  const debouncedApiValidation = useMemo(
-    () =>
-      debounce(async (handleValue: string) => {
-        if (!clientValidation.valid) return;
+  // Store the validation callback in a ref to avoid recreation
+  const apiValidationRef = useRef<(handleValue: string) => Promise<void>>();
+  
+  // Create the API validation function (not debounced yet)
+  apiValidationRef.current = async (handleValue: string) => {
+    if (!clientValidation.valid) return;
 
-        // Check cache first
-        if (lastValidatedRef.current?.handle === handleValue) {
-          const { available } = lastValidatedRef.current;
-          const newValidation = {
-            ...handleValidation,
-            available,
-            checking: false,
-            error: available ? null : 'Handle already taken',
-          };
-          setHandleValidation(newValidation);
-          onValidationChange?.(newValidation);
-          return;
+    // Check cache first
+    if (lastValidatedRef.current?.handle === handleValue) {
+      const { available } = lastValidatedRef.current;
+      setHandleValidation(prev => {
+        const newValidation = {
+          ...prev,
+          available,
+          checking: false,
+          error: available ? null : 'Handle already taken',
+        };
+        onValidationChange?.(newValidation);
+        return newValidation;
+      });
+      return;
+    }
+
+    // Cancel previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    // Add small delay to prevent flickering for very fast responses
+    const checkingTimeout = setTimeout(() => {
+      setHandleValidation(prev => {
+        const newValidation = {
+          ...prev,
+          checking: true,
+          error: null,
+        };
+        onValidationChange?.(newValidation);
+        return newValidation;
+      });
+    }, 200); // 200ms delay
+
+    try {
+      // Add timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        abortController.abort();
+      }, 5000); // 5 second timeout
+
+      const response = await fetch(
+        `/api/handle/check?handle=${encodeURIComponent(handleValue.toLowerCase())}`,
+        {
+          signal: abortController.signal,
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
         }
+      );
 
-        // Cancel previous request
-        if (abortControllerRef.current) {
-          abortControllerRef.current.abort();
-        }
+      clearTimeout(timeoutId);
+      clearTimeout(checkingTimeout);
 
-        const abortController = new AbortController();
-        abortControllerRef.current = abortController;
+      if (abortController.signal.aborted) return;
 
-        // Add small delay to prevent flickering for very fast responses
-        const checkingTimeout = setTimeout(() => {
-          const newValidation = {
-            ...handleValidation,
-            checking: true,
-            error: null,
-          };
-          setHandleValidation(newValidation);
-          onValidationChange?.(newValidation);
-        }, 200); // 200ms delay
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
 
-        try {
-          // Add timeout to prevent infinite loading
-          const timeoutId = setTimeout(() => {
-            abortController.abort();
-          }, 5000); // 5 second timeout
+      const result = await response.json();
+      const available = !!result.available;
 
-          const response = await fetch(
-            `/api/handle/check?handle=${encodeURIComponent(handleValue.toLowerCase())}`,
-            {
-              signal: abortController.signal,
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-              },
-            }
-          );
+      setHandleValidation(prev => {
+        const finalValidation = {
+          ...prev,
+          available,
+          checking: false,
+          error: available ? null : result.error || 'Handle already taken',
+        };
+        onValidationChange?.(finalValidation);
+        return finalValidation;
+      });
+      
+      lastValidatedRef.current = { handle: handleValue, available };
+    } catch (error) {
+      clearTimeout(checkingTimeout);
 
-          clearTimeout(timeoutId);
-          clearTimeout(checkingTimeout);
-
-          if (abortController.signal.aborted) return;
-
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-
-          const result = await response.json();
-          const available = !!result.available;
-
-          const finalValidation = {
-            ...handleValidation,
-            available,
-            checking: false,
-            error: available ? null : result.error || 'Handle already taken',
-          };
-
-          setHandleValidation(finalValidation);
-          onValidationChange?.(finalValidation);
-          lastValidatedRef.current = { handle: handleValue, available };
-        } catch (error) {
-          clearTimeout(checkingTimeout);
-
-          if (error instanceof Error && error.name === 'AbortError') {
-            // Handle timeout specifically
-            const timeoutValidation = {
-              ...handleValidation,
-              available: false,
-              checking: false,
-              error: 'Check timed out - please try again',
-            };
-            setHandleValidation(timeoutValidation);
-            onValidationChange?.(timeoutValidation);
-            return;
-          }
-
-          console.error('Handle validation error:', error);
-
-          // Provide more specific error messages
-          let errorMessage = 'Network error';
-          if (error instanceof TypeError && error.message.includes('fetch')) {
-            errorMessage = 'Connection failed - check your internet';
-          } else if (error instanceof Error) {
-            errorMessage = error.message.includes('HTTP')
-              ? 'Server error - please try again'
-              : 'Network error';
-          }
-
-          const errorValidation = {
-            ...handleValidation,
+      if (error instanceof Error && error.name === 'AbortError') {
+        // Handle timeout specifically
+        setHandleValidation(prev => {
+          const timeoutValidation = {
+            ...prev,
             available: false,
             checking: false,
-            error: errorMessage,
+            error: 'Check timed out - please try again',
           };
-          setHandleValidation(errorValidation);
-          onValidationChange?.(errorValidation);
-          lastValidatedRef.current = { handle: handleValue, available: false };
-        }
-      }, 500), // Reduced debounce from 1000ms to 500ms for better UX
-    [clientValidation.valid, handleValidation, onValidationChange]
+          onValidationChange?.(timeoutValidation);
+          return timeoutValidation;
+        });
+        return;
+      }
+
+      console.error('Handle validation error:', error);
+
+      // Provide more specific error messages
+      let errorMessage = 'Network error';
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorMessage = 'Connection failed - check your internet';
+      } else if (error instanceof Error) {
+        errorMessage = error.message.includes('HTTP')
+          ? 'Server error - please try again'
+          : 'Network error';
+      }
+
+      setHandleValidation(prev => {
+        const errorValidation = {
+          ...prev,
+          available: false,
+          checking: false,
+          error: errorMessage,
+        };
+        onValidationChange?.(errorValidation);
+        return errorValidation;
+      });
+      
+      lastValidatedRef.current = { handle: handleValue, available: false };
+    }
+  };
+
+  // Debounced API validation with reduced delay for better UX
+  // Create a stable debounced version of the validation function
+  const debouncedApiValidation = useMemo(
+    () => debounce((handleValue: string) => {
+      apiValidationRef.current?.(handleValue);
+    }, 500), // Reduced debounce from 1000ms to 500ms for better UX
+    [/* No dependencies to prevent recreation */]
   );
 
-  // Update validation state when handle or client validation changes
+  // Split into two separate effects with distinct responsibilities
+  
+  // Effect 1: Update client validation state when client validation or suggestions change
   useEffect(() => {
-    // Update client validation state immediately
-    const newValidation = {
-      ...handleValidation,
-      clientValid: clientValidation.valid,
-      error: clientValidation.error,
-      suggestions: usernameSuggestions,
-      available: clientValidation.valid ? handleValidation.available : false,
-    };
+    setHandleValidation(prev => {
+      const newValidation = {
+        ...prev,
+        clientValid: clientValidation.valid,
+        error: clientValidation.error,
+        suggestions: usernameSuggestions,
+        available: clientValidation.valid ? prev.available : false,
+      };
+      
+      onValidationChange?.(newValidation);
+      return newValidation;
+    });
+  }, [clientValidation, usernameSuggestions, onValidationChange]);
 
-    setHandleValidation(newValidation);
-    onValidationChange?.(newValidation);
-
+  // Effect 2: Trigger API validation when value changes and meets criteria
+  useEffect(() => {
     // Only trigger API validation for format-valid handles
     if (clientValidation.valid && value.length >= 3) {
       debouncedApiValidation(value);
     }
-  }, [
-    value,
-    clientValidation,
-    usernameSuggestions,
-    debouncedApiValidation,
-    onValidationChange,
-    handleValidation,
-  ]);
+    
+    // Cleanup function to abort any pending requests when unmounting
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [value, clientValidation.valid, debouncedApiValidation]);
 
   const getValidationIcon = () => {
     if (handleValidation.checking) {
