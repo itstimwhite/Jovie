@@ -63,12 +63,14 @@ const processFile = (filePath) => {
   }
   
   // Determine if this file is more likely to need OptimizedImage or OptimizedAvatar
+  const widthMatch = content.match(/width={\s*(\d+)\s*}/);
+  const heightMatch = content.match(/height={\s*(\d+)\s*}/);
   const isLikelyAvatar = 
     filePath.toLowerCase().includes('avatar') || 
     filePath.toLowerCase().includes('profile') ||
     content.includes('rounded-full') ||
-    (content.includes('width={') && content.includes('height={') && 
-     content.match(/width={\s*(\d+)\s*}/)?.[1] === content.match(/height={\s*(\d+)\s*}/)?.[1]);
+    (content.includes('width={') && content.includes('height={') &&
+     widthMatch?.[1] === heightMatch?.[1]);
   
   // Replace the import
   let newContent = content.replace(
@@ -98,49 +100,82 @@ const processFile = (filePath) => {
   }
 };
 
+// Helper function to parse Image component props
+const parseImageProps = (propsStr) => {
+  // Match props like src={...} width={...} height={...}
+  const srcMatch = propsStr.match(/src={([^}]+)}/);
+  const altMatch = propsStr.match(/alt={([^}]+)}/);
+  const widthMatch = propsStr.match(/width={(\d+)}/);
+  const heightMatch = propsStr.match(/height={(\d+)}/);
+  return {
+    src: srcMatch ? srcMatch[1] : null,
+    alt: altMatch ? altMatch[1] : null,
+    width: widthMatch ? widthMatch[1] : null,
+    height: heightMatch ? heightMatch[1] : null,
+  };
+};
+
 // Replace Image components with OptimizedAvatar
 const replaceAvatarComponents = (content) => {
-  // This is a simplified replacement that handles common patterns
+  // This is a more flexible replacement that handles props in any order
   // More complex cases will need manual intervention
-  
   return content.replace(
-    /<Image\s+src={([^}]+)}\s+alt={([^}]+)}\s+width={(\d+)}\s+height={(\d+)}([^>]*)\/>/g,
-    (match, src, alt, width, height, rest) => {
-      // Check if width and height are the same (avatar)
-      if (width === height) {
-        return `<OptimizedAvatar src={${src}} alt={${alt}} size={${width}}${rest}/>`;
+    /<Image\s+([^>]*)\/?>/g,
+    (match, propsStr) => {
+      const { src, alt, width, height } = parseImageProps(propsStr);
+      if (src && alt && width && height && width === height) {
+        // Remove src, alt, width, height from propsStr for rest
+        const rest = propsStr
+          .replace(/src={[^}]+}/, '')
+          .replace(/alt={[^}]+}/, '')
+          .replace(/width={\d+}/, '')
+          .replace(/height={\d+}/, '')
+          .trim();
+        const restProps = rest ? ` ${rest}` : '';
+        return `<OptimizedAvatar src={${src}} alt={${alt}} size={${width}}${restProps} />`;
       }
-      return match; // Keep original if not a square image
+      return match; // Keep original if not a square image or missing props
     }
   );
 };
 
 // Replace Image components with OptimizedImage
 const replaceImageComponents = (content) => {
-  // This is a simplified replacement that handles common patterns
+  // This is a more flexible replacement that handles props in any order
   // More complex cases will need manual intervention
-  
   return content.replace(
-    /<Image\s+src={([^}]+)}\s+alt={([^}]+)}\s+width={(\d+)}\s+height={(\d+)}([^>]*)\/>/g,
-    (match, src, alt, width, height, rest) => {
-      // Calculate aspect ratio if possible
-      let aspectRatioProp = '';
-      const w = parseInt(width, 10);
-      const h = parseInt(height, 10);
-      
-      if (w && h) {
-        if (w === h) {
-          aspectRatioProp = ' aspectRatio="square"';
-        } else if (Math.abs(w/h - 16/9) < 0.1) {
-          aspectRatioProp = ' aspectRatio="video"';
-        } else if (Math.abs(w/h - 4/5) < 0.1) {
-          aspectRatioProp = ' aspectRatio="portrait"';
-        } else if (Math.abs(w/h - 21/9) < 0.1) {
-          aspectRatioProp = ' aspectRatio="wide"';
+    /<Image\s+([^>]*)\/?>/g,
+    (match, propsStr) => {
+      const { src, alt, width, height } = parseImageProps(propsStr);
+      if (src && alt && width && height) {
+        // Calculate aspect ratio if possible
+        let aspectRatioProp = '';
+        const w = parseInt(width, 10);
+        const h = parseInt(height, 10);
+        
+        if (w && h) {
+          if (w === h) {
+            aspectRatioProp = ' aspectRatio="square"';
+          } else if (Math.abs(w/h - 16/9) < 0.1) {
+            aspectRatioProp = ' aspectRatio="video"';
+          } else if (Math.abs(w/h - 4/5) < 0.1) {
+            aspectRatioProp = ' aspectRatio="portrait"';
+          } else if (Math.abs(w/h - 21/9) < 0.1) {
+            aspectRatioProp = ' aspectRatio="wide"';
+          }
         }
+        
+        // Remove src, alt, width, height from propsStr for rest
+        const rest = propsStr
+          .replace(/src={[^}]+}/, '')
+          .replace(/alt={[^}]+}/, '')
+          .replace(/width={\d+}/, '')
+          .replace(/height={\d+}/, '')
+          .trim();
+        const restProps = rest ? ` ${rest}` : '';
+        return `<OptimizedImage src={${src}} alt={${alt}} width={${width}} height={${height}}${aspectRatioProp}${restProps} />`;
       }
-      
-      return `<OptimizedImage src={${src}} alt={${alt}} width={${width}} height={${height}}${aspectRatioProp}${rest}/>`;
+      return match; // Keep original if missing props
     }
   );
 };

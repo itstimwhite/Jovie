@@ -69,7 +69,6 @@ export function OptimizedAvatar({
   const [loaded, setLoaded] = useState(false);
 
   const imageSrc = error || !src ? fallbackSrc : src;
-  const aspectRatio = size / size; // Always square for avatars
 
   return (
     <div
@@ -99,7 +98,7 @@ export function OptimizedAvatar({
         onError={() => setError(true)}
         sizes={`${size}px`}
         style={{
-          aspectRatio,
+          aspectRatio: 1, // Always square for avatars
           objectPosition: 'center',
         }}
       />

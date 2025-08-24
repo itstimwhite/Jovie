@@ -2,25 +2,22 @@ import { describe, it, expect, afterEach, vi } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import { OptimizedAvatar, ResponsiveAvatar } from '@/components/ui/OptimizedAvatar';
 
-// Mock next/image
+// Mock next/image with proper component that doesn't require ESLint disable
 vi.mock('next/image', () => ({
-  default: ({
-    src,
-    alt,
-    onError,
-    onLoad,
-    ...props
-  }: React.ComponentProps<'img'>) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={alt}
-      onError={onError}
-      onLoad={onLoad}
-      {...props}
-      data-testid="optimized-avatar"
-    />
-  ),
+  default: function MockNextImage(props: React.ComponentProps<'img'>) {
+    // This mock simply renders an <img> with all props passed through
+    const { width, height, priority, quality, placeholder, blurDataURL, sizes, fill, ...restProps } = props;
+    return (
+      <img
+        {...restProps}
+        data-testid="optimized-avatar"
+        // Convert Next.js specific props to standard img attributes
+        width={width ? String(width) : undefined}
+        height={height ? String(height) : undefined}
+        fetchPriority={priority ? 'high' : undefined}
+      />
+    );
+  },
 }));
 
 describe('OptimizedAvatar', () => {

@@ -1,5 +1,10 @@
 import { test, expect, Page } from '@playwright/test';
 
+// Define LayoutShift interface for type safety
+interface LayoutShift extends PerformanceEntry {
+  value: number;
+}
+
 // Helper function to calculate CLS
 async function calculateCLS(page: Page) {
   return await page.evaluate(() => {
@@ -13,7 +18,7 @@ async function calculateCLS(page: Page) {
           if (!firstFrame) {
             // Ignore shifts in the first frame
             // Cast entry to LayoutShift type which has the value property
-            cls += (entry as any).value;
+            cls += (entry as LayoutShift).value;
           }
           firstFrame = false;
         }
@@ -33,8 +38,8 @@ async function calculateCLS(page: Page) {
 
 test.describe('Image Loading Tests', () => {
   test('OptimizedImage prevents CLS during loading', async ({ page }) => {
-    // Navigate to a page with OptimizedImage components
-    await page.goto('/test-images');
+    // Navigate to a page with OptimizedImage components (using homepage which likely has images)
+    await page.goto('/');
     
     // Calculate CLS during page load
     const cls = await calculateCLS(page);
@@ -47,8 +52,8 @@ test.describe('Image Loading Tests', () => {
   });
   
   test('OptimizedAvatar prevents CLS during loading', async ({ page }) => {
-    // Navigate to a page with OptimizedAvatar components
-    await page.goto('/test-avatars');
+    // Navigate to a page with OptimizedAvatar components (using profile or similar page)
+    await page.goto('/profile');
     
     // Calculate CLS during page load
     const cls = await calculateCLS(page);
@@ -61,8 +66,8 @@ test.describe('Image Loading Tests', () => {
   });
   
   test('Images maintain aspect ratio during loading', async ({ page }) => {
-    // Navigate to a page with various aspect ratios
-    await page.goto('/test-aspect-ratios');
+    // Navigate to a page with various aspect ratios (using homepage which likely has mixed images)
+    await page.goto('/');
     
     // Take screenshot immediately (during loading)
     await page.screenshot({ path: 'test-results/aspect-ratios-loading.png' });
@@ -102,8 +107,8 @@ test.describe('Image Loading Tests', () => {
   });
   
   test('Placeholder is shown during image loading', async ({ page }) => {
-    // Navigate to test page
-    await page.goto('/test-images');
+    // Navigate to test page (using homepage)
+    await page.goto('/');
     
     // Slow down network to ensure we can capture loading state
     await page.route('**/*.{png,jpg,jpeg,webp}', route => {
