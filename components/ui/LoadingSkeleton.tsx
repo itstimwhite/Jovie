@@ -10,18 +10,80 @@ interface LoadingSkeletonProps {
 
 // Valid Tailwind height/width classes for validation
 const VALID_SIZE_CLASSES = new Set([
-  'h-1', 'h-2', 'h-3', 'h-4', 'h-5', 'h-6', 'h-7', 'h-8', 'h-9', 'h-10', 'h-11', 'h-12',
-  'h-16', 'h-20', 'h-24', 'h-32', 'h-40', 'h-48', 'h-56', 'h-64', 'h-72', 'h-80', 'h-96',
-  'h-auto', 'h-full', 'h-screen',
-  'w-1', 'w-2', 'w-3', 'w-4', 'w-5', 'w-6', 'w-7', 'w-8', 'w-9', 'w-10', 'w-11', 'w-12',
-  'w-16', 'w-20', 'w-24', 'w-32', 'w-40', 'w-48', 'w-56', 'w-64', 'w-72', 'w-80', 'w-96',
-  'w-auto', 'w-full', 'w-screen', 'w-1/2', 'w-1/3', 'w-2/3', 'w-1/4', 'w-2/4', 'w-3/4',
-  'w-1/5', 'w-2/5', 'w-3/5', 'w-4/5', 'w-1/6', 'w-2/6', 'w-3/6', 'w-4/6', 'w-5/6'
+  'h-1',
+  'h-2',
+  'h-3',
+  'h-4',
+  'h-5',
+  'h-6',
+  'h-7',
+  'h-8',
+  'h-9',
+  'h-10',
+  'h-11',
+  'h-12',
+  'h-16',
+  'h-20',
+  'h-24',
+  'h-32',
+  'h-40',
+  'h-48',
+  'h-56',
+  'h-64',
+  'h-72',
+  'h-80',
+  'h-96',
+  'h-auto',
+  'h-full',
+  'h-screen',
+  'w-1',
+  'w-2',
+  'w-3',
+  'w-4',
+  'w-5',
+  'w-6',
+  'w-7',
+  'w-8',
+  'w-9',
+  'w-10',
+  'w-11',
+  'w-12',
+  'w-16',
+  'w-20',
+  'w-24',
+  'w-32',
+  'w-40',
+  'w-48',
+  'w-56',
+  'w-64',
+  'w-72',
+  'w-80',
+  'w-96',
+  'w-auto',
+  'w-full',
+  'w-screen',
+  'w-1/2',
+  'w-1/3',
+  'w-2/3',
+  'w-1/4',
+  'w-2/4',
+  'w-3/4',
+  'w-1/5',
+  'w-2/5',
+  'w-3/5',
+  'w-4/5',
+  'w-1/6',
+  'w-2/6',
+  'w-3/6',
+  'w-4/6',
+  'w-5/6',
 ]);
 
 function validateSizeClass(value: string, propName: string): string {
   if (!VALID_SIZE_CLASSES.has(value)) {
-    console.warn(`LoadingSkeleton: Invalid ${propName} class "${value}". Using default value instead.`);
+    console.warn(
+      `LoadingSkeleton: Invalid ${propName} class "${value}". Using default value instead.`
+    );
     return propName === 'height' ? 'h-4' : 'w-full';
   }
   return value;
@@ -37,7 +99,7 @@ export function LoadingSkeleton({
   // Validate height and width classes
   const validatedHeight = validateSizeClass(height, 'height');
   const validatedWidth = validateSizeClass(width, 'width');
-  
+
   const roundedClasses = {
     sm: 'rounded-sm',
     md: 'rounded-md',
