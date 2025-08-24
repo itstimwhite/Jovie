@@ -8,7 +8,7 @@ This repository uses GitHub Copilot (including the Coding Agent) to propose and 
 - Auth/Billing: Clerk (auth + pricing table)
 - Data: Supabase (RLS enabled), Postgres
 - Env validation: `lib/env.ts` (Zod)
-- Branches: `develop` (work) → `preview` (staging) → `main` (production)
+- Branches: `develop` (work) → `preview` (staging) → `production`
 - CI gates: `lint`, `typecheck`, `test`, `build`, and e2e (if present)
 
 ## Definition of Done

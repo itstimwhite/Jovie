@@ -60,6 +60,7 @@ describe('ClaimHandleForm', () => {
     // Check aria-live region exists
     const liveRegion = document.querySelector('[aria-live="assertive"]');
     expect(liveRegion).not.toBeNull();
+    expect(liveRegion).toHaveAttribute('aria-live', 'assertive');
   });
 
   test('tap-to-copy functionality with proper keyboard support', async () => {
@@ -145,11 +146,16 @@ describe('ClaimHandleForm', () => {
 
     const input = screen.getByRole('textbox', { name: /choose your handle/i });
     fireEvent.change(input, { target: { value: 'taken-handle' } });
+    const form = document.querySelector('form') as HTMLFormElement;
+    fireEvent.submit(form);
 
     // Wait for validation
     await waitFor(() => {
       expect(input).toHaveAttribute('aria-invalid', 'true');
-      expect(input).toHaveAttribute('aria-describedby', 'handle-input-help');
+      // FormField combines help and error IDs when error is present
+      const describedBy = input.getAttribute('aria-describedby') || '';
+      expect(describedBy).toContain('handle-input-help');
+      expect(describedBy).toContain('handle-input-error');
     });
 
     // Check that the URL preview shows the invalid handle in red styling

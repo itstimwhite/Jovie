@@ -5,7 +5,7 @@ This document explains the complete CI/CD pipeline flow from develop branch to p
 ## 🔄 **Complete Flow Overview**
 
 ```
-develop → preview → main → production
+develop → preview → production
    ↓        ↓        ↓        ↓
   CI/CD    CI/CD   Manual   Production
 Pipeline  Pipeline  Review   Deployment
@@ -50,16 +50,16 @@ Pipeline  Pipeline  Review   Deployment
    - Dependency security audit
 
 2. ✅ **Auto-Promotion to Main:**
-   - Check if preview is ahead of main
-   - Create PR: `preview → main`
+   - Check if preview is ahead of production
+   - Create PR: `preview → production`
    - Add "needs-review" label
    - **Manual review required**
 
-**Output:** PR created for `preview → main` (manual approval needed)
+**Output:** PR created for `preview → production` (manual approval needed)
 
-### **Step 3: Main Branch (production-deploy.yml)**
+### **Step 3: Production Branch (production-deploy.yml)**
 
-**Trigger:** Push to `main` branch (after preview → main merge)
+**Trigger:** Push to `production` branch (after preview → production merge)
 
 **Process:**
 
@@ -76,8 +76,7 @@ Pipeline  Pipeline  Review   Deployment
 ### **Automated Promotions:**
 
 - ✅ **develop → preview:** Fully automated with auto-merge
-- ✅ **preview → main:** Automated PR creation, manual review required
-- ✅ **main → production:** Automated deployment
+- ✅ **preview → production:** Automated PR creation, manual review required
 
 ### **Safety Gates:**
 
@@ -122,7 +121,7 @@ on:
 ```yaml
 on:
   push:
-    branches: [main]
+    branches: [production]
   workflow_dispatch: {}
 ```
 
@@ -181,8 +180,8 @@ on:
    - Verify CI checks are passing
    - Check auto-merge conditions
 
-2. **Preview → Main not creating PR:**
-   - Check if preview is ahead of main
+2. **Preview → Production not creating PR:**
+   - Check if preview is ahead of production
    - Verify all preview CI checks passed
    - Check workflow permissions
 
@@ -197,7 +196,7 @@ on:
 # Check branch status
 git fetch origin
 git rev-list --count preview..develop
-git rev-list --count main..preview
+git rev-list --count production..preview
 
 # Check workflow runs
 gh run list --workflow=develop-ci.yml
@@ -216,7 +215,7 @@ gh run list --workflow=production-deploy.yml
 
 ### **Review Process:**
 
-- ✅ Review preview → main PRs carefully
+- ✅ Review preview → production PRs carefully
 - ✅ Test preview environment before approval
 - ✅ Check security scan results
 - ✅ Verify performance metrics

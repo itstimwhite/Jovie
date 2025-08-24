@@ -23,7 +23,7 @@ Go to **Settings > General > Pull Requests** and:
 
 ### 2. Branch Protection Rules
 
-For both `preview` and `main` branches, ensure these settings:
+For both `preview` and `production` branches, ensure these settings:
 
 **Required Status Checks:**
 
@@ -77,7 +77,7 @@ For both `preview` and `main` branches, ensure these settings:
 1. **Safer Merging**: Multiple PRs tested together
 2. **No Race Conditions**: Prevents integration conflicts
 3. **Better CI Efficiency**: Batched testing reduces CI load
-4. **Automatic Rollback**: Failed batches don't reach main branch
+4. **Automatic Rollback**: Failed batches don't reach production branch
 5. **Queue Visibility**: See what's being tested in GitHub UI
 
 ## Monitoring
