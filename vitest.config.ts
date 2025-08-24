@@ -8,13 +8,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
     exclude: ['tests/e2e/**', 'tests/performance/**', 'node_modules/**'],
-    // Run tests sequentially to avoid interference
-    pool: 'threads',
-    poolOptions: {
-      threads: {
-        singleThread: true,
-      },
-    },
+    // Use forks pool to prevent JS heap OOM in worker threads
+    pool: 'forks',
     // Coverage optimization
     coverage: {
       provider: 'v8',
