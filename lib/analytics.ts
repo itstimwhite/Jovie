@@ -43,10 +43,27 @@ if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
       }
     };
 
+    // Determine environment for PostHog configuration
+    const isLocalDev = getEnvTag() === 'dev';
+
     const options: Parameters<typeof posthog.init>[1] = {
       autocapture: true,
       capture_pageview: false, // we'll send $pageview manually via page()
       persistence: 'localStorage+cookie',
+      // Disable Toolbar in local development to prevent 401 errors
+      disable_toolbar: isLocalDev,
+      // Disable session recording in local development
+      disable_session_recording: isLocalDev,
+      // Only load feature flags when properly configured
+      loaded: (ph) => {
+        if (isLocalDev) {
+          // Prevent experiments/feature flags API calls in local dev
+          // This eliminates the 401 errors from /web_experiments endpoint
+          ph._send_request = function () {
+            return Promise.resolve();
+          };
+        }
+      },
     };
     if (ANALYTICS.posthogHost) {
       options.api_host = ANALYTICS.posthogHost;
@@ -55,10 +72,35 @@ if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
       posthog.init(ANALYTICS.posthogKey, options);
       // Ensure every event has env attached
       posthog.register({ env: getEnvTag() });
+
+      // Handle token expiry errors more gracefully
+      const originalOnError = window.onerror;
+      window.onerror = function (message, source, lineno, colno, error) {
+        // Filter out PostHog token expiry errors to prevent console spam
+        if (
+          source?.includes('posthog') &&
+          (message?.includes('token expired') ||
+            message?.includes('Unauthorized') ||
+            message?.includes('401'))
+        ) {
+          // Suppress repeated PostHog auth errors
+          return true;
+        }
+
+        // Call the original handler for other errors
+        if (originalOnError) {
+          return originalOnError(message, source, lineno, colno, error);
+        }
+        return false;
+      };
     } catch (e) {
       // noop – avoid breaking the app if analytics fails to init
       // eslint-disable-next-line no-console
-      console.warn('PostHog init failed:', e);
+      const isLocalDev = getEnvTag() === 'dev';
+      if (!isLocalDev) {
+        // Only log in non-local environments to reduce noise
+        console.warn('PostHog init failed:', e);
+      }
     }
   }, 0); // Execute on next tick to not block initial paint
 }
