@@ -7,7 +7,6 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
 import '@/styles/globals.css';
-import { StatsigProviderWrapper } from '@/components/providers/StatsigProvider';
 import { CookieBannerSection } from '@/components/organisms/CookieBannerSection';
 import { headers } from 'next/headers';
 // Import performance monitoring
@@ -170,11 +169,9 @@ export default async function RootLayout({
         />
       </head>
       <body className={`${inter.variable} font-sans`}>
-        <StatsigProviderWrapper>
-          <ClientProviders initialFeatureFlags={featureFlags}>
-            {children}
-          </ClientProviders>
-        </StatsigProviderWrapper>
+        <ClientProviders initialFeatureFlags={featureFlags}>
+          {children}
+        </ClientProviders>
         {showCookieBanner && <CookieBannerSection />}
         <SpeedInsights />
         {shouldInjectToolbar && (
