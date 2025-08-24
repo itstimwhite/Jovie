@@ -62,7 +62,7 @@ test.describe('Onboarding smoke', () => {
 
       // Use Clerk's client-side API to sign in programmatically
       await page.evaluate(async (email) => {
-        const clerk: any = (window as any).Clerk;
+        const clerk = (window as unknown as { Clerk: any }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         try {
@@ -76,7 +76,7 @@ test.describe('Onboarding smoke', () => {
           await clerk.setActive({
             session: clerk.client?.lastActiveSessionId || null,
           });
-        } catch (error) {
+        } catch {
           // If user already exists, try to sign in
           await clerk.signIn?.create({
             identifier: email,

@@ -1,6 +1,16 @@
 import { ButtonHTMLAttributes, forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 
+/**
+ * FrostedButton Component
+ *
+ * A button component with a frosted glass effect.
+ * Follows standardized button styling guidelines:
+ * - Uses the global focus-ring utility for consistent focus states
+ * - Maintains consistent hover/active states across variants
+ * - Ensures proper hit target sizes for accessibility
+ * - Supports light/dark mode with appropriate contrast
+ */
 interface FrostedButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'default' | 'ghost' | 'outline';
   size?: 'sm' | 'md' | 'lg';
@@ -43,7 +53,7 @@ export const FrostedButton = forwardRef<HTMLButtonElement, FrostedButtonProps>(
     return (
       <button
         className={cn(
-          'backdrop-blur-sm border border-gray-200/30 dark:border-white/10 flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
+          'backdrop-blur-sm border border-gray-200/30 dark:border-white/10 flex items-center justify-center transition-colors cursor-pointer focus-ring active:scale-[0.98]',
           sizeClasses[size],
           variantClasses[variant],
           shapeClasses[shape],
