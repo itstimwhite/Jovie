@@ -46,8 +46,16 @@ if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
     // Determine environment for PostHog configuration
     const isLocalDev = getEnvTag() === 'dev';
 
-    // Define PostHog options with type assertion to include custom properties
-    const options: Record<string, any> = {
+    // Define PostHog options with proper typing
+    const options: {
+      autocapture: boolean;
+      capture_pageview: boolean;
+      persistence: string;
+      disable_toolbar: boolean;
+      disable_session_recording: boolean;
+      loaded: (ph: typeof posthog) => void;
+      api_host?: string;
+    } = {
       autocapture: true,
       capture_pageview: false, // we'll send $pageview manually via page()
       persistence: 'localStorage+cookie',
@@ -56,7 +64,7 @@ if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
       // Disable session recording in local development
       disable_session_recording: isLocalDev,
       // Only load feature flags when properly configured
-      loaded: (ph: any) => {
+      loaded: (ph: typeof posthog) => {
         if (isLocalDev) {
           // Prevent experiments/feature flags API calls in local dev
           // This eliminates the 401 errors from /web_experiments endpoint
