@@ -12,10 +12,10 @@ describe('useReducedMotion', () => {
 
   beforeEach(() => {
     // Setup mocks before each test
-    global.window = {
-      ...global.window,
-      matchMedia: matchMediaMock,
-    } as unknown;
+    Object.defineProperty(global.window, 'matchMedia', {
+      writable: true,
+      value: matchMediaMock,
+    });
   });
 
   afterEach(() => {
@@ -83,10 +83,10 @@ describe('useReducedMotion', () => {
 
   it('should handle missing matchMedia gracefully', () => {
     // Mock window without matchMedia
-    global.window = {
-      ...global.window,
-      matchMedia: undefined,
-    } as unknown;
+    Object.defineProperty(global.window, 'matchMedia', {
+      writable: true,
+      value: undefined,
+    });
 
     const { result } = renderHook(() => useReducedMotion());
 
