@@ -70,13 +70,30 @@ describe('ClaimHandleForm', () => {
       json: async () => ({ available: true }),
     });
 
-    // Mock clipboard API
-    Object.defineProperty(navigator, 'clipboard', {
-      value: {
-        writeText: vi.fn(),
-      },
-      writable: true,
-    });
+    // Mock clipboard API only if not already defined
+    const originalClipboard = navigator.clipboard;
+    if (!navigator.clipboard) {
+      Object.defineProperty(navigator, 'clipboard', {
+        value: {
+          writeText: vi.fn(),
+        },
+        writable: true,
+        configurable: true,
+      });
+    } else {
+      vi.spyOn(navigator.clipboard, 'writeText').mockImplementation(vi.fn());
+    }
+
+    // Cleanup function to restore original state
+    const cleanup = () => {
+      if (originalClipboard) {
+        Object.defineProperty(navigator, 'clipboard', {
+          value: originalClipboard,
+          writable: true,
+          configurable: true,
+        });
+      }
+    };
 
     render(<ClaimHandleForm />);
 
@@ -113,6 +130,9 @@ describe('ClaimHandleForm', () => {
 
     fireEvent.keyDown(copyButton, { key: ' ' });
     expect(navigator.clipboard.writeText).toHaveBeenCalledTimes(3);
+
+    // Cleanup
+    cleanup();
   });
 
   test('validation messages update aria attributes correctly', async () => {

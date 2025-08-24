@@ -183,7 +183,7 @@ test.describe('Onboarding Handle Race Conditions', () => {
           contentType: 'application/json',
           body: JSON.stringify({ available }),
         });
-      } catch (error) {
+      } catch {
         // Request was likely aborted
         abortedCount++;
         await route.abort();

@@ -17,8 +17,6 @@ import {
   sanitizeForCrawlers,
 } from '@/lib/utils/domain-categorizer';
 import {
-  encryptUrl,
-  decryptUrl,
   simpleEncryptUrl,
   simpleDecryptUrl,
   extractDomain,

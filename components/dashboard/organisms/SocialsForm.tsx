@@ -38,7 +38,7 @@ export function SocialsForm({ artist }: SocialsFormProps) {
         const { data, error } = await supabase
           .from('social_links')
           .select('*')
-          .eq('artist_id', artist.id);
+          .eq('creator_profile_id', artist.id);
 
         if (error) {
           console.error('Error fetching social links:', error);
@@ -69,15 +69,21 @@ export function SocialsForm({ artist }: SocialsFormProps) {
       }
 
       // Delete existing social links
-      await supabase.from('social_links').delete().eq('artist_id', artist.id);
+      await supabase
+        .from('social_links')
+        .delete()
+        .eq('creator_profile_id', artist.id);
 
       // Insert new social links
       const linksToInsert = socialLinks
         .filter((link) => link.url.trim())
         .map((link) => ({
-          artist_id: artist.id,
+          creator_profile_id: artist.id,
           platform: link.platform,
+          platform_type: link.platform,
           url: link.url.trim(),
+          sort_order: 0,
+          is_active: true,
         }));
 
       if (linksToInsert.length > 0) {
