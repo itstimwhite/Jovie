@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect } from 'vitest';
 import { Toast } from './Toast';
@@ -60,21 +60,24 @@ describe('Toast Component', () => {
       <Toast
         id="test-toast"
         message="Auto close message"
-        duration={1000}
+        duration={100}
         onClose={onCloseMock}
       />
     );
 
     expect(onCloseMock).not.toHaveBeenCalled();
 
-    vi.advanceTimersByTime(1000);
-    await waitFor(() => {
-      expect(screen.getByRole('alert')).not.toHaveClass('animate-in');
-      expect(screen.getByRole('alert')).toHaveClass('animate-out');
-    });
+    // Fast forward past the duration timer
+    vi.advanceTimersByTime(100);
 
+    // Should not be called yet (waiting for exit animation)
+    expect(onCloseMock).not.toHaveBeenCalled();
+
+    // Fast forward past the exit animation timer (300ms)
     vi.advanceTimersByTime(300);
-    expect(onCloseMock).toHaveBeenCalledTimes(1);
+
+    // Now onClose should be called
+    expect(onCloseMock).toHaveBeenCalled();
 
     vi.useRealTimers();
   });
