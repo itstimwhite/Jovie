@@ -126,7 +126,9 @@ export function AppleStyleOnboardingForm() {
 
       // Validate the prefilled handle
       setTimeout(() => {
-        validateHandle(urlHandle);
+        if (urlHandle) {
+          validateHandle(urlHandle);
+        }
       }, 0);
     } else {
       try {
@@ -139,7 +141,9 @@ export function AppleStyleOnboardingForm() {
 
             // Validate the prefilled handle
             setTimeout(() => {
-              validateHandle(parsed.handle);
+              if (parsed.handle) {
+                validateHandle(parsed.handle);
+              }
             }, 0);
           }
         }
@@ -237,7 +241,8 @@ export function AppleStyleOnboardingForm() {
   }, [goToNextStep]);
 
   // Handle validation
-  const validateHandle = useCallback((input: string) => {
+  const validateHandle = useCallback((input: string | undefined) => {
+    if (!input) return;
     // Reset validation state
     setHandleValidation({
       available: false,
