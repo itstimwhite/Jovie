@@ -6,7 +6,7 @@ export { Textarea } from './Textarea';
 export { Select } from './Select';
 export { Dialog } from './Dialog';
 export { Combobox } from './Combobox';
-export { LoadingSpinner } from './LoadingSpinner';
+export { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 export { Spinner } from './Spinner'; // Legacy - use LoadingSpinner from atoms instead
 export { LoadingSkeleton } from './LoadingSkeleton';
 export { OptimizedImage } from './OptimizedImage';

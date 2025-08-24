@@ -1,4 +1,7 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 import { clsx } from 'clsx';
 
 interface LoadingSpinnerProps {
@@ -14,6 +17,7 @@ export function LoadingSpinner({
   className,
   showDebounce = false,
 }: LoadingSpinnerProps) {
+  const { theme, systemTheme } = useTheme();
   const [isVisible, setIsVisible] = useState(!showDebounce);
 
   // Debounce visibility to avoid flicker (only if showDebounce is true)
@@ -43,23 +47,29 @@ export function LoadingSpinner({
     lg: 3,
   };
 
-  // Colors based on variant
+  // Determine the effective theme for coloring
+  const getEffectiveTheme = () => {
+    if (variant === 'light') return 'light';
+    if (variant === 'dark') return 'dark';
+
+    // For 'auto', use the current theme
+    const currentTheme = theme === 'system' ? systemTheme : theme;
+    return currentTheme === 'dark' ? 'dark' : 'light';
+  };
+
+  const effectiveTheme = getEffectiveTheme();
+
+  // Colors based on effective theme (consistent with ui/Spinner)
   const getColors = () => {
-    if (variant === 'light') {
+    if (effectiveTheme === 'light') {
       return {
-        primary: 'text-white',
-        secondary: 'text-white/30',
-      };
-    } else if (variant === 'dark') {
-      return {
-        primary: 'text-indigo-600',
-        secondary: 'text-indigo-200',
+        primary: 'text-gray-900',
+        secondary: 'text-gray-200',
       };
     } else {
-      // 'auto' defaults to dark for backward compatibility
       return {
-        primary: 'text-indigo-600',
-        secondary: 'text-indigo-200',
+        primary: 'text-white',
+        secondary: 'text-gray-700',
       };
     }
   };
@@ -115,17 +125,7 @@ export function LoadingSpinner({
           strokeWidth={strokeWidth[size]}
           strokeLinecap="round"
           d="M12 2a10 10 0 0 1 10 10"
-        >
-          <animateTransform
-            attributeName="transform"
-            type="rotate"
-            from="0 12 12"
-            to="360 12 12"
-            dur="1s"
-            repeatCount="indefinite"
-            className="motion-reduce:duration-[1.5s]"
-          />
-        </path>
+        />
       </svg>
     </div>
   );

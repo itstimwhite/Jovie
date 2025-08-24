@@ -127,17 +127,7 @@ export function Spinner({
           strokeWidth={strokeWidth[size]}
           strokeLinecap="round"
           d="M12 2a10 10 0 0 1 10 10"
-        >
-          <animateTransform
-            attributeName="transform"
-            type="rotate"
-            from="0 12 12"
-            to="360 12 12"
-            dur="1s"
-            repeatCount="indefinite"
-            className="motion-reduce:duration-[1.5s]"
-          />
-        </path>
+        />
       </svg>
     </div>
   );
