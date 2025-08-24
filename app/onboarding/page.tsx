@@ -17,8 +17,30 @@ export default async function OnboardingPage() {
   // Get feature flags to determine which onboarding flow to use
   const featureFlags = await getFeatureFlags();
 
-  // Enable minimalist design based on feature flag
+  // Enable Apple-style design based on feature flag (default to true)
+  const useAppleStyle = featureFlags.appleStyleOnboardingEnabled ?? true;
+
+  // Enable minimalist design based on feature flag (as fallback)
   const useMinimalistDesign = featureFlags.minimalistOnboardingEnabled ?? true;
+
+  // If using Apple-style design, render a clean full-screen layout
+  if (useAppleStyle) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-black transition-colors">
+        {/* Theme Toggle */}
+        <div className="absolute top-4 right-4 z-20">
+          <ThemeToggle />
+        </div>
+
+        {/* Full-screen form without container or card */}
+        <OnboardingFormWrapper
+          useProgressiveForm={featureFlags.progressiveOnboardingEnabled}
+          useMinimalistDesign={useMinimalistDesign}
+          useAppleStyle={useAppleStyle}
+        />
+      </div>
+    );
+  }
 
   // Read prefilled handle from query or cookie/session fallback later in the form
   // We cannot access searchParams directly here without defining them in the component signature,
@@ -71,6 +93,7 @@ export default async function OnboardingPage() {
             <OnboardingFormWrapper
               useProgressiveForm={featureFlags.progressiveOnboardingEnabled}
               useMinimalistDesign={useMinimalistDesign}
+              useAppleStyle={false} // Disable Apple style for the card-based layout
             />
           </div>
         </div>

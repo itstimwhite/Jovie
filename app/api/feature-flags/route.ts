@@ -20,6 +20,8 @@ export async function GET() {
     progressiveOnboardingEnabled: true,
     // Minimalist design for onboarding screens (Apple-inspired)
     minimalistOnboardingEnabled: true,
+    // New Apple-style full-screen onboarding with improved UX (JOV-134)
+    appleStyleOnboardingEnabled: true,
   } as const;
 
   return new NextResponse(JSON.stringify(flags), {
