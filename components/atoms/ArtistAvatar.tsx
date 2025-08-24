@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useMemo } from 'react';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 export interface ArtistAvatarProps {
@@ -11,14 +12,15 @@ export interface ArtistAvatarProps {
   className?: string;
 }
 
-const sizeMap = {
+// Define size map outside component to prevent recreation
+const SIZE_MAP = {
   sm: { width: 112, height: 112, className: 'size-28' },
   md: { width: 160, height: 160, className: 'size-40' },
   lg: { width: 192, height: 192, className: 'size-48' },
   xl: { width: 224, height: 224, className: 'size-56' },
 };
 
-export function ArtistAvatar({
+export const ArtistAvatar = React.memo(function ArtistAvatar({
   src,
   alt,
   name,
@@ -26,7 +28,10 @@ export function ArtistAvatar({
   priority = false,
   className = '',
 }: ArtistAvatarProps) {
-  const { width, height, className: sizeClass } = sizeMap[size];
+  // Use useMemo to ensure stable props for the OptimizedImage component
+  const sizeProps = useMemo(() => SIZE_MAP[size], [size]);
+
+  const { width, height, className: sizeClass } = sizeProps;
 
   return (
     <OptimizedImage
@@ -48,4 +53,4 @@ export function ArtistAvatar({
       enableVersioning={true}
     />
   );
-}
+});

@@ -175,52 +175,45 @@ export function AnimatedArtistPage({
   };
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={mode}
-        variants={prefersReducedMotion ? {} : pageVariants}
-        initial={prefersReducedMotion ? { opacity: 1 } : 'initial'}
-        animate={prefersReducedMotion ? { opacity: 1 } : 'animate'}
-        exit={prefersReducedMotion ? { opacity: 0 } : 'exit'}
-        className="w-full"
+    <div className="w-full">
+      <ArtistPageShell
+        artist={artist}
+        socialLinks={socialLinks}
+        subtitle={subtitle}
+        showTipButton={showTipButton}
+        showBackButton={showBackButton}
       >
-        <ArtistPageShell
-          artist={artist}
-          socialLinks={socialLinks}
-          subtitle={subtitle}
-          showTipButton={showTipButton}
-          showBackButton={showBackButton}
+        {/* Content pane with AnimatePresence for mode transitions */}
+        <div
+          className="content-pane"
+          style={{
+            contain: 'layout paint',
+            willChange: 'transform',
+            minHeight: '150px', // Reserve space for content to prevent layout shifts
+          }}
         >
-          <motion.div
-            initial={
-              prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 }
-            }
-            animate={
-              prefersReducedMotion
-                ? { opacity: 1 }
-                : {
-                    opacity: 1,
-                    y: 0,
-                    transition: {
-                      delay: 0.2,
-                      duration: 0.4,
-                      ease: [0.16, 1, 0.3, 1],
-                    },
-                  }
-            }
-          >
-            {renderContent(
-              mode,
-              artist,
-              socialLinks,
-              router,
-              isNavigating,
-              prefersReducedMotion,
-              setIsNavigating
-            )}
-          </motion.div>
-        </ArtistPageShell>
-      </motion.div>
-    </AnimatePresence>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={mode} // Keep key only on the content that should change
+              variants={prefersReducedMotion ? {} : pageVariants}
+              initial={prefersReducedMotion ? { opacity: 1 } : 'initial'}
+              animate={prefersReducedMotion ? { opacity: 1 } : 'animate'}
+              exit={prefersReducedMotion ? { opacity: 0 } : 'exit'}
+              className="w-full"
+            >
+              {renderContent(
+                mode,
+                artist,
+                socialLinks,
+                router,
+                isNavigating,
+                prefersReducedMotion,
+                setIsNavigating
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </ArtistPageShell>
+    </div>
   );
 }
