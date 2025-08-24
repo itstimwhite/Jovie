@@ -1,7 +1,7 @@
 'use client';
 
+import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
-import { useState } from 'react';
 import { PlaceholderImage } from './PlaceholderImage';
 import { cn } from '@/lib/utils';
 import { generateSEOAltText } from '@/lib/images/seo';
@@ -100,7 +100,8 @@ function generateAltText(
   });
 }
 
-export function OptimizedImage({
+// Memoize the OptimizedImage component to prevent unnecessary re-renders
+export const OptimizedImage = React.memo(function OptimizedImage({
   src,
   alt,
   size = 'md',
@@ -126,56 +127,90 @@ export function OptimizedImage({
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  let imageSrc = hasError || !src ? fallbackSrc : src;
+  // Memoize the image source to prevent unnecessary re-renders
+  const imageSrc = useMemo(() => {
+    let source = hasError || !src ? fallbackSrc : src;
 
-  // Apply versioning for cache busting if enabled
-  if (enableVersioning && imageSrc && !imageSrc.includes('/android-chrome-')) {
-    imageSrc = versionImageUrl(imageSrc);
-  }
+    // Apply versioning for cache busting if enabled
+    if (enableVersioning && source && !source.includes('/android-chrome-')) {
+      source = versionImageUrl(source);
+    }
 
-  const computedAlt = generateAltText(imageSrc, alt, artistName, imageType);
-  const aspectRatioValue = getAspectRatioValue(aspectRatio);
-  const defaultBlur = blurDataURL || getBlurPlaceholder(aspectRatio);
+    return source;
+  }, [src, hasError, fallbackSrc, enableVersioning]);
+
+  // Memoize computed values to prevent unnecessary re-renders
+  const computedValues = useMemo(() => {
+    const computedAlt = generateAltText(imageSrc, alt, artistName, imageType);
+    const aspectRatioValue = getAspectRatioValue(aspectRatio);
+    const defaultBlur = blurDataURL || getBlurPlaceholder(aspectRatio);
+
+    return { computedAlt, aspectRatioValue, defaultBlur };
+  }, [imageSrc, alt, artistName, imageType, aspectRatio, blurDataURL]);
+
+  const { computedAlt, aspectRatioValue, defaultBlur } = computedValues;
+
+  // Memoize sizes and classes to prevent unnecessary re-renders - must be before conditional returns
+  const { defaultSizes, containerClasses, imageProps } = useMemo(() => {
+    // Generate intelligent sizes if not provided
+    const defaultSizes =
+      !sizes && !fill
+        ? `(max-width: 640px) ${size === 'sm' ? '32px' : size === 'md' ? '48px' : size === 'lg' ? '64px' : size === 'xl' ? '96px' : '128px'}, ${size === 'sm' ? '32px' : size === 'md' ? '48px' : size === 'lg' ? '64px' : size === 'xl' ? '96px' : '128px'}`
+        : sizes || '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw';
+
+    const containerClasses = cn(
+      'relative overflow-hidden',
+      !fill && sizeClasses[size],
+      shapeClasses[shape],
+      className
+    );
+
+    const imageProps = {
+      src: imageSrc,
+      alt: computedAlt,
+      priority,
+      quality,
+      placeholder: placeholder as 'blur' | 'empty',
+      ...(placeholder === 'blur' && { blurDataURL: defaultBlur }),
+      ...(priority && { fetchPriority: 'high' as const }),
+      className: cn(
+        'transition-opacity duration-300',
+        isLoading ? 'opacity-0' : 'opacity-100'
+      ),
+      onLoad: () => setIsLoading(false),
+      onError: () => setHasError(true),
+      style: {
+        objectFit,
+        objectPosition,
+        ...(aspectRatioValue && { aspectRatio: aspectRatioValue }),
+      },
+      unoptimized,
+    };
+
+    return { defaultSizes, containerClasses, imageProps };
+  }, [
+    sizes,
+    fill,
+    size,
+    shape,
+    className,
+    imageSrc,
+    computedAlt,
+    priority,
+    quality,
+    placeholder,
+    defaultBlur,
+    isLoading,
+    objectFit,
+    objectPosition,
+    aspectRatioValue,
+    unoptimized,
+  ]);
 
   // If no src or error occurred and no fallback, show placeholder
   if (!imageSrc) {
     return <PlaceholderImage size={size} shape={shape} className={className} />;
   }
-
-  // Generate intelligent sizes if not provided
-  const defaultSizes =
-    !sizes && !fill
-      ? `(max-width: 640px) ${size === 'sm' ? '32px' : size === 'md' ? '48px' : size === 'lg' ? '64px' : size === 'xl' ? '96px' : '128px'}, ${size === 'sm' ? '32px' : size === 'md' ? '48px' : size === 'lg' ? '64px' : size === 'xl' ? '96px' : '128px'}`
-      : sizes || '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw';
-
-  const containerClasses = cn(
-    'relative overflow-hidden',
-    !fill && sizeClasses[size],
-    shapeClasses[shape],
-    className
-  );
-
-  const imageProps = {
-    src: imageSrc,
-    alt: computedAlt,
-    priority,
-    quality,
-    placeholder: placeholder as 'blur' | 'empty',
-    ...(placeholder === 'blur' && { blurDataURL: defaultBlur }),
-    ...(priority && { fetchPriority: 'high' as const }),
-    className: cn(
-      'transition-opacity duration-300',
-      isLoading ? 'opacity-0' : 'opacity-100'
-    ),
-    onLoad: () => setIsLoading(false),
-    onError: () => setHasError(true),
-    style: {
-      objectFit,
-      objectPosition,
-      ...(aspectRatioValue && { aspectRatio: aspectRatioValue }),
-    },
-    unoptimized,
-  };
 
   return (
     <div className={containerClasses}>
@@ -219,4 +254,4 @@ export function OptimizedImage({
       )}
     </div>
   );
-}
+});
