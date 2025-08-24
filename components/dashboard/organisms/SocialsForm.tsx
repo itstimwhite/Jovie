@@ -69,7 +69,10 @@ export function SocialsForm({ artist }: SocialsFormProps) {
       }
 
       // Delete existing social links
-      await supabase.from('social_links').delete().eq('creator_profile_id', artist.id);
+      await supabase
+        .from('social_links')
+        .delete()
+        .eq('creator_profile_id', artist.id);
 
       // Insert new social links
       const linksToInsert = socialLinks

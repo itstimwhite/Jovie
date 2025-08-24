@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  useCallback,
+} from 'react';
 import { useSession } from '@clerk/nextjs';
 import { SocialLinkManager } from '../molecules/SocialLinkManager';
 import { DSPLinkManager } from '../molecules/DSPLinkManager';
@@ -192,7 +198,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   );
 
   // Show update indicator
-  const showUpdateIndicator = (success: boolean) => {
+  const showUpdateIndicator = useCallback((success: boolean) => {
     if (updateIndicatorRef.current) {
       updateIndicatorRef.current.dataset.show = 'true';
       updateIndicatorRef.current.innerHTML = success
@@ -205,92 +211,92 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
         }
       }, 2000);
     }
-  };
+  }, []);
 
   // Save links to database
-  const saveLinks = async (
-    socialLinksToSave: LinkItem[],
-    dspLinksToSave: LinkItem[]
-  ) => {
-    if (!session || !artist.id) return;
+  const saveLinks = useCallback(
+    async (socialLinksToSave: LinkItem[], dspLinksToSave: LinkItem[]) => {
+      if (!session || !artist.id) return;
 
-    setSaveStatus((prev) => ({
-      ...prev,
-      saving: true,
-      success: null,
-      error: null,
-    }));
+      setSaveStatus((prev) => ({
+        ...prev,
+        saving: true,
+        success: null,
+        error: null,
+      }));
 
-    try {
-      const supabase = createClerkSupabaseClient(session);
-      if (!supabase) {
-        throw new Error('Failed to create Supabase client');
-      }
+      try {
+        const supabase = createClerkSupabaseClient(session);
+        if (!supabase) {
+          throw new Error('Failed to create Supabase client');
+        }
 
-      // Convert links to database format
-      const allLinks = [
-        ...convertLinkItemsToDbFormat(socialLinksToSave, artist.id),
-        ...convertLinkItemsToDbFormat(dspLinksToSave, artist.id),
-      ];
+        // Convert links to database format
+        const allLinks = [
+          ...convertLinkItemsToDbFormat(socialLinksToSave, artist.id),
+          ...convertLinkItemsToDbFormat(dspLinksToSave, artist.id),
+        ];
 
-      // Delete existing links
-      const { error: deleteError } = await supabase
-        .from('social_links')
-        .delete()
-        .eq('creator_profile_id', artist.id);
-
-      if (deleteError) {
-        throw new Error(
-          `Failed to delete existing links: ${deleteError.message}`
-        );
-      }
-
-      // Insert new links
-      if (allLinks.length > 0) {
-        const { error: insertError } = await supabase
+        // Delete existing links
+        const { error: deleteError } = await supabase
           .from('social_links')
-          .insert(allLinks);
+          .delete()
+          .eq('creator_profile_id', artist.id);
 
-        if (insertError) {
-          throw new Error(`Failed to insert links: ${insertError.message}`);
+        if (deleteError) {
+          throw new Error(
+            `Failed to delete existing links: ${deleteError.message}`
+          );
+        }
+
+        // Insert new links
+        if (allLinks.length > 0) {
+          const { error: insertError } = await supabase
+            .from('social_links')
+            .insert(allLinks);
+
+          if (insertError) {
+            throw new Error(`Failed to insert links: ${insertError.message}`);
+          }
+        }
+
+        // Update artist record with timestamp
+        const updatedArtist = {
+          ...artist,
+          updated_at: new Date().toISOString(),
+        };
+
+        onArtistUpdate(updatedArtist);
+
+        setSaveStatus({
+          saving: false,
+          success: true,
+          error: null,
+          lastSaved: new Date(),
+        });
+
+        showUpdateIndicator(true);
+      } catch (error) {
+        console.error('Error saving links:', error);
+        setSaveStatus({
+          saving: false,
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+          lastSaved: null,
+        });
+
+        showUpdateIndicator(false);
+
+        // Retry after a delay if it's a network error
+        if (error instanceof Error && error.message.includes('network')) {
+          setTimeout(() => {
+            saveLinks(socialLinksToSave, dspLinksToSave);
+          }, 5000);
         }
       }
-
-      // Update artist record with timestamp
-      const updatedArtist = {
-        ...artist,
-        updated_at: new Date().toISOString(),
-      };
-
-      onArtistUpdate(updatedArtist);
-
-      setSaveStatus({
-        saving: false,
-        success: true,
-        error: null,
-        lastSaved: new Date(),
-      });
-
-      showUpdateIndicator(true);
-    } catch (error) {
-      console.error('Error saving links:', error);
-      setSaveStatus({
-        saving: false,
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        lastSaved: null,
-      });
-
-      showUpdateIndicator(false);
-
-      // Retry after a delay if it's a network error
-      if (error instanceof Error && error.message.includes('network')) {
-        setTimeout(() => {
-          saveLinks(socialLinksToSave, dspLinksToSave);
-        }, 5000);
-      }
-    }
-  };
+    },
+    [session, artist, onArtistUpdate, showUpdateIndicator]
+  );
 
   // Debounced save function
   const debouncedSave = useMemo(() => {
