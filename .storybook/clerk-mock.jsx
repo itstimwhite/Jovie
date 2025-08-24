@@ -37,9 +37,9 @@ const mockSession = {
   user: mockUser,
   getToken: (options) => {
     if (options?.template) {
-      return Promise.resolve('mock.jwt.token');
+      return Promise.resolve('sb-mock-jwt-token-12345');
     }
-    return Promise.resolve('mock-token-123');
+    return Promise.resolve('sb-mock-session-token-67890');
   },
   touch: () => Promise.resolve(),
   end: () => Promise.resolve(),
@@ -59,9 +59,9 @@ export const useAuth = () => ({
   sessionId: 'sess_mock123',
   getToken: (options) => {
     if (options?.template) {
-      return Promise.resolve('mock.jwt.token');
+      return Promise.resolve('sb-mock-jwt-token-12345');
     }
-    return Promise.resolve('mock-token-123');
+    return Promise.resolve('sb-mock-session-token-67890');
   },
   isSignedIn: true,
   isLoaded: true,

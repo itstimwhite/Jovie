@@ -34,9 +34,9 @@ const mockAuth = {
   sessionId: 'sess_mock123',
   getToken: (options) => {
     if (options?.template) {
-      return Promise.resolve('mock.jwt.token');
+      return Promise.resolve('sb-mock-jwt-token-12345');
     }
-    return Promise.resolve('mock-token-123');
+    return Promise.resolve('sb-mock-session-token-67890');
   },
   isSignedIn: true,
   isLoaded: true,
@@ -51,8 +51,11 @@ const mockAuth = {
 const auth = () => Promise.resolve(mockAuth);
 const currentUser = () => Promise.resolve(mockUser);
 
-// Export all server-side functions
-module.exports = {
+// Export all server-side functions using ES modules for consistency
+export { auth, currentUser };
+
+// Also provide default export for compatibility
+export default {
   auth,
   currentUser,
 };
