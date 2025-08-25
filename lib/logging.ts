@@ -48,7 +48,7 @@ export function logEvent(event: LogEvent): void {
   // Log to console in development
   if (process.env.NODE_ENV !== 'production') {
     const logFn = console[event.level] || console.log;
-    logFn(`[${timestamp}] [${event.level.toUpperCase()}] [${userId}] ${event.type}: ${event.message}`, data);
+    logFn(`[${timestamp}] [${event.level.toUpperCase()}] [${userId}] ${event.type}: %s`, event.message, data);
   }
   
   // In production, we would send this to a logging service like Datadog, Sentry, etc.
