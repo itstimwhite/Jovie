@@ -6,7 +6,6 @@
  */
 
 // Import types and utilities
-import type { LogEvent } from './logging';
 
 // Types for the processor
 export interface RemoteImageProcessorOptions {

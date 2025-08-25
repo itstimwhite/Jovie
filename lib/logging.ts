@@ -24,7 +24,7 @@ export interface LogEvent {
   type: LogEventType;
   level: LogLevel;
   message: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   timestamp?: string;
   userId?: string;
 }
@@ -70,7 +70,7 @@ export function logEvent(event: LogEvent): void {
 export function logInstagramAvatarImport(
   type: LogEventType,
   message: string,
-  data?: Record<string, any>,
+  data?: Record<string, unknown>,
   userId?: string,
   level: LogLevel = 'info'
 ): void {

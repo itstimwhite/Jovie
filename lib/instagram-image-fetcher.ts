@@ -67,7 +67,7 @@ export async function fetchInstagramProfileImage(
   } catch (error) {
     return {
       success: false,
-      error: `Error fetching Instagram profile image: ${error.message || 'Unknown error'}`,
+      error: `Error fetching Instagram profile image: ${error instanceof Error ? error.message : 'Unknown error'}`,
     };
   }
 }
@@ -117,7 +117,7 @@ async function fetchViaOEmbed(
   } catch (error) {
     return {
       success: false,
-      error: `oEmbed fetch error: ${error.message || 'Unknown error'}`,
+      error: `oEmbed fetch error: ${error instanceof Error ? error.message : 'Unknown error'}`,
       source: 'oembed',
     };
   }
@@ -167,7 +167,7 @@ async function fetchViaOpenGraph(
   } catch (error) {
     return {
       success: false,
-      error: `Open Graph fetch error: ${error.message || 'Unknown error'}`,
+      error: `Open Graph fetch error: ${error instanceof Error ? error.message : 'Unknown error'}`,
       source: 'opengraph',
     };
   }
@@ -218,7 +218,7 @@ async function fetchViaHtmlParsing(
   } catch (error) {
     return {
       success: false,
-      error: `HTML parsing error: ${error.message || 'Unknown error'}`,
+      error: `HTML parsing error: ${error instanceof Error ? error.message : 'Unknown error'}`,
       source: 'html',
     };
   }
@@ -269,7 +269,7 @@ async function fetchViaDirect(
   } catch (error) {
     return {
       success: false,
-      error: `Direct scraping error: ${error.message || 'Unknown error'}`,
+      error: `Direct scraping error: ${error instanceof Error ? error.message : 'Unknown error'}`,
       source: 'direct',
     };
   }
