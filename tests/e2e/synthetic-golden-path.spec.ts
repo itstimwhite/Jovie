@@ -149,9 +149,9 @@ test.describe('Synthetic Monitoring - Golden Path', () => {
 
     const criticalPages = [
       { path: '/', name: 'Homepage' },
-      { path: '/ladygaga', name: 'Profile Page' },
-      { path: '/ladygaga?mode=listen', name: 'Listen Mode' },
-      { path: '/ladygaga?mode=tip', name: 'Tip Mode' },
+      { path: '/dualipa', name: 'Profile Page' },
+      { path: '/dualipa?mode=listen', name: 'Listen Mode' },
+      { path: '/dualipa?mode=tip', name: 'Tip Mode' },
       { path: '/sign-up', name: 'Sign Up' },
     ];
 

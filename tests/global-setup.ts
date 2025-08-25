@@ -10,10 +10,13 @@ async function globalSetup() {
   Object.assign(process.env, {
     NODE_ENV: process.env.NODE_ENV || 'test',
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
-      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 'pk_test_dummy',
+      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+      'pk_test_dGVzdC1wYXNzLTUzLmNsZXJrLmFjY291bnRzLmRldiQ',
     NEXT_PUBLIC_CLERK_PRICING_TABLE_ID:
       process.env.NEXT_PUBLIC_CLERK_PRICING_TABLE_ID || 'prctbl_dummy',
-    CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY || 'sk_test_dummy',
+    CLERK_SECRET_KEY:
+      process.env.CLERK_SECRET_KEY ||
+      'sk_test_1234567890abcdefghijklmnopqrstuvwxyz1234567890',
     NEXT_PUBLIC_SUPABASE_URL:
       process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
     // Ensure Supabase client keys exist so server can boot locally
