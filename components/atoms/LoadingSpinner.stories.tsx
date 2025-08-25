@@ -60,7 +60,7 @@ export const WithDebounce: Story = {
   },
 };
 
-export const JovieLogoSpinner: Story = {
+export const SVGSpinner: Story = {
   args: {
     size: 'lg',
   },
@@ -68,7 +68,7 @@ export const JovieLogoSpinner: Story = {
     <div className="text-center space-y-4">
       <LoadingSpinner {...args} />
       <p className="text-sm text-gray-600 dark:text-gray-400">
-        Custom Jovie logo spinner
+        SVG-based spinner with reduced motion support
       </p>
     </div>
   ),
@@ -142,7 +142,7 @@ export const AllSizes: Story = {
 export const InButton: Story = {
   render: () => (
     <button className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg">
-      <LoadingSpinner size="sm" />
+      <LoadingSpinner size="sm" variant="light" />
       <span>Loading...</span>
     </button>
   ),
@@ -151,7 +151,7 @@ export const InButton: Story = {
 export const InListenButton: Story = {
   render: () => (
     <button className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-semibold">
-      <LoadingSpinner size="sm" />
+      <LoadingSpinner size="sm" variant="light" />
       <span>Opening...</span>
     </button>
   ),
@@ -167,6 +167,33 @@ export const InCard: Story = {
       <p className="text-gray-600 dark:text-gray-400">
         Please wait while we fetch the latest information...
       </p>
+    </div>
+  ),
+};
+
+export const ReducedMotion: Story = {
+  render: () => (
+    <div className="space-y-6">
+      <div className="text-center">
+        <LoadingSpinner size="lg" />
+        <p className="text-sm mt-2 text-gray-600 dark:text-gray-400">
+          With prefers-reduced-motion: Slower animation
+        </p>
+      </div>
+      <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+        <p className="text-sm mb-2 font-medium">How it works:</p>
+        <ul className="text-sm text-gray-600 dark:text-gray-400 list-disc pl-5 space-y-1">
+          <li>Standard animation for most users</li>
+          <li>
+            Slower, less intense animation when prefers-reduced-motion is
+            enabled
+          </li>
+          <li>
+            Uses motion-reduce:animate-[spin_1.5s_linear_infinite] utility class
+          </li>
+          <li>Respects user accessibility preferences</li>
+        </ul>
+      </div>
     </div>
   ),
 };

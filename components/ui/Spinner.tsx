@@ -46,6 +46,30 @@ export function Spinner({
     lg: 'h-8 w-8',
   };
 
+  // Stroke width based on size
+  const strokeWidth = {
+    sm: 2,
+    md: 2.5,
+    lg: 3,
+  };
+
+  // Colors based on theme
+  const getColors = () => {
+    if (effectiveTheme === 'light') {
+      return {
+        primary: 'text-gray-900',
+        secondary: 'text-gray-200',
+      };
+    } else {
+      return {
+        primary: 'text-white',
+        secondary: 'text-gray-700',
+      };
+    }
+  };
+
+  const colors = getColors();
+
   if (!isVisible) {
     return (
       <div
@@ -65,7 +89,7 @@ export function Spinner({
   return (
     <div
       className={clsx(
-        'inline-flex items-center justify-center animate-spin',
+        'inline-flex items-center justify-center',
         sizeClasses[size],
         className
       )}
@@ -76,23 +100,35 @@ export function Spinner({
       data-variant={variant}
       data-theme={effectiveTheme}
     >
-      {/* CSS-based spinner with proper light/dark variants */}
-      <div
+      <svg
         className={clsx(
-          'rounded-full border-2 border-solid',
-          {
-            // Light variant (dark spinner on light background)
-            'border-gray-200 border-t-gray-900': effectiveTheme === 'light',
-            // Dark variant (light spinner on dark background)
-            'border-gray-700 border-t-white': effectiveTheme === 'dark',
-          },
-          sizeClasses[size]
+          'animate-spin motion-reduce:animate-[spin_1.5s_linear_infinite]',
+          'h-full w-full'
         )}
-        style={{
-          borderTopColor:
-            effectiveTheme === 'light' ? 'rgb(17 24 39)' : 'rgb(255 255 255)',
-        }}
-      />
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+      >
+        {/* Background circle (lighter color) */}
+        <circle
+          className={colors.secondary}
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth={strokeWidth[size]}
+          strokeLinecap="round"
+          strokeDasharray="1, 1"
+        />
+        {/* Foreground arc (primary color) */}
+        <path
+          className={colors.primary}
+          stroke="currentColor"
+          strokeWidth={strokeWidth[size]}
+          strokeLinecap="round"
+          d="M12 2a10 10 0 0 1 10 10"
+        />
+      </svg>
     </div>
   );
 }
