@@ -12,11 +12,12 @@ async function globalSetup() {
   }
 
   // Set up Clerk testing token if we have real Clerk keys and test user credentials
+  const SENSITIVE_PATTERNS = ['dummy', 'mock', '1234567890', 'test-key', 'placeholder'];
   const hasRealClerkKeys =
     process.env.CLERK_SECRET_KEY &&
-    !process.env.CLERK_SECRET_KEY.includes('dummy') &&
-    !process.env.CLERK_SECRET_KEY.includes('1234567890') &&
-    !process.env.CLERK_SECRET_KEY.includes('mock');
+    !SENSITIVE_PATTERNS.some(pattern =>
+      process.env.CLERK_SECRET_KEY!.toLowerCase().includes(pattern)
+    );
 
   const hasTestUser =
     process.env.E2E_CLERK_USER_USERNAME && process.env.E2E_CLERK_USER_PASSWORD;
@@ -30,10 +31,11 @@ async function globalSetup() {
       console.log('✓ Clerk testing token set up successfully');
       console.log('✓ E2E test user is configured');
     } catch (error) {
-      console.warn(
-        '⚠ Failed to set up Clerk testing token:',
-        error instanceof Error ? error.message : String(error)
-      );
+      console.warn('⚠ Failed to set up Clerk testing token');
+      // Only log error details in development, not the actual error which may contain sensitive info
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Error details:', error instanceof Error ? error.message : String(error));
+      }
       console.log('  Tests will run without Clerk authentication');
     }
   } else if (!hasRealClerkKeys) {

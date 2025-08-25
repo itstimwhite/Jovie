@@ -68,7 +68,7 @@ test.describe('Golden Path - Complete User Journey', () => {
     await expect(page.locator('text=Dashboard')).toBeVisible();
 
     // STEP 4: Navigate to profile (if user has one)
-    const profileLink = page.locator('text=View Profile, text=Public Profile');
+    const profileLink = page.locator('text="View Profile"').or(page.locator('text="Public Profile"'));
     if (await profileLink.isVisible()) {
       await profileLink.click();
 
@@ -80,8 +80,9 @@ test.describe('Golden Path - Complete User Journey', () => {
   test('Golden path with listen mode', async ({ page }) => {
     test.setTimeout(45_000);
 
-    // Navigate to existing profile in listen mode (use seed data)
-    await page.goto('/dualipa?mode=listen', {
+    // Navigate to existing profile in listen mode (use env var or seed data)
+    const testProfile = process.env.E2E_TEST_PROFILE || 'dualipa';
+    await page.goto(`/${testProfile}?mode=listen`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });
@@ -99,8 +100,9 @@ test.describe('Golden Path - Complete User Journey', () => {
   test('Golden path with tip mode', async ({ page }) => {
     test.setTimeout(45_000);
 
-    // Navigate to existing profile in tip mode (use seed data)
-    await page.goto('/dualipa?mode=tip', {
+    // Navigate to existing profile in tip mode (use env var or seed data)
+    const testProfile = process.env.E2E_TEST_PROFILE || 'dualipa';
+    await page.goto(`/${testProfile}?mode=tip`, {
       waitUntil: 'networkidle',
       timeout: 15000,
     });

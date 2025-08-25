@@ -2,6 +2,16 @@ import { Page, expect } from '@playwright/test';
 import { setupClerkTestingToken } from '@clerk/testing/playwright';
 
 /**
+ * Custom error types for better test debugging
+ */
+export class ClerkTestError extends Error {
+  constructor(message: string, public code: string) {
+    super(message);
+    this.name = 'ClerkTestError';
+  }
+}
+
+/**
  * Authenticates a user in Clerk for E2E tests
  * This function handles the complete sign-in flow
  */
@@ -13,8 +23,9 @@ export async function signInUser(
   } = {}
 ) {
   if (!username || !password) {
-    throw new Error(
-      'E2E test user credentials not configured. Set E2E_CLERK_USER_USERNAME and E2E_CLERK_USER_PASSWORD.'
+    throw new ClerkTestError(
+      'E2E test user credentials not configured. Set E2E_CLERK_USER_USERNAME and E2E_CLERK_USER_PASSWORD.',
+      'MISSING_CREDENTIALS'
     );
   }
 
@@ -112,7 +123,7 @@ export async function setupAuthenticatedTest(page: Page) {
     console.warn(
       '⚠ Skipping authenticated test - no test user credentials configured'
     );
-    throw new Error('Test user credentials not configured');
+    throw new ClerkTestError('Test user credentials not configured', 'MISSING_CREDENTIALS');
   }
 
   await signInUser(page);

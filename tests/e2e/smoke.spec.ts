@@ -11,13 +11,14 @@ test.describe('Smoke Tests', () => {
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
         const text = msg.text();
-        // Ignore Clerk-related errors and 400 errors in test environment
-        if (
-          !text.includes('clerk') &&
-          !text.includes('Clerk') &&
-          !text.includes('400') &&
-          !text.includes('Failed to load resource')
-        ) {
+        // Ignore specific expected errors in test environment
+        const isClerkError = text.toLowerCase().includes('clerk');
+        const isNetworkError = text.includes('Failed to load resource') && 
+          (text.includes('clerk') || text.includes('/_next/'));
+        const isExpectedTestError = text.includes('Test environment') || 
+          text.includes('Mock data');
+        
+        if (!isClerkError && !isNetworkError && !isExpectedTestError) {
           errors.push(text);
         }
       }
