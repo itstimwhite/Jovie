@@ -24,28 +24,27 @@ export async function signInUser(
   // Navigate to sign-in page
   await page.goto('/sign-in');
 
-  // Wait for sign-in form to load
-  await expect(page.locator('[data-clerk-element="signIn"]')).toBeVisible({
+  // Wait for sign-in form to load - look for the heading and form elements
+  await expect(page.locator('h1:has-text("Sign in")')).toBeVisible({
     timeout: 10000,
   });
 
-  // Fill in credentials
-  const emailInput = page.locator(
-    'input[name="identifier"], input[type="email"]'
-  );
+  // Fill in email address
+  const emailInput = page
+    .locator('input[name="identifier"]')
+    .or(page.getByLabel('Email address'));
   await emailInput.waitFor({ state: 'visible' });
   await emailInput.fill(username);
 
-  const passwordInput = page.locator(
-    'input[name="password"], input[type="password"]'
-  );
+  // Fill in password
+  const passwordInput = page
+    .locator('input[name="password"]')
+    .or(page.getByLabel('Password'));
   await passwordInput.waitFor({ state: 'visible' });
   await passwordInput.fill(password);
 
   // Submit the form
-  const submitButton = page.locator(
-    'button[type="submit"], button:has-text("Sign in"), button:has-text("Continue")'
-  );
+  const submitButton = page.locator('button:has-text("Continue")');
   await submitButton.click();
 
   // Wait for successful authentication (redirect away from sign-in)

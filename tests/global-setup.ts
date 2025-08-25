@@ -1,5 +1,9 @@
 import { chromium } from '@playwright/test';
 import { clerkSetup } from '@clerk/testing/playwright';
+import { config } from 'dotenv';
+
+// Load environment variables from .env.development.local
+config({ path: '.env.development.local' });
 
 async function globalSetup() {
   // When running against an external BASE_URL in CI (e.g., Preview), skip local env overrides and warmup.
