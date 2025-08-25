@@ -173,10 +173,11 @@ export async function processRemoteImage(
       thumbnailUrl,
       publicId,
     };
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return {
       success: false,
-      error: `Error processing remote image: ${error.message || 'Unknown error'}`,
+      error: `Error processing remote image: ${errorMessage}`,
     };
   }
 }
@@ -251,10 +252,11 @@ async function uploadToCloudinary(
       imageUrl: uploadData.secure_url,
       publicId: uploadData.public_id,
     };
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return {
       success: false,
-      error: `Cloudinary upload error: ${error.message || 'Unknown error'}`,
+      error: `Cloudinary upload error: ${errorMessage}`,
     };
   }
 }

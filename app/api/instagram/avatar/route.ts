@@ -7,7 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { createServerClient } from '@/lib/supabase-server';
 import { fetchInstagramProfileImage } from '@/lib/instagram-image-fetcher';
 import { processRemoteImage } from '@/lib/remote-image-processor';
 import { validateInstagramHandle, normalizeInstagramHandle } from '@/lib/instagram-utils';
@@ -183,7 +183,7 @@ export async function POST(req: NextRequest) {
     );
     
     // Get Supabase client
-    const supabase = createServerSupabaseClient();
+    const supabase = createServerClient();
     
     // Update creator_profiles table with Instagram handle and avatar URL
     const { data, error } = await supabase
