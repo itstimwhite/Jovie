@@ -28,10 +28,7 @@ async function globalSetup() {
         secretKey: process.env.CLERK_SECRET_KEY!,
       });
       console.log('✓ Clerk testing token set up successfully');
-      console.log(
-        '✓ E2E test user configured:',
-        process.env.E2E_CLERK_USER_USERNAME
-      );
+      console.log('✓ E2E test user is configured');
     } catch (error) {
       console.warn(
         '⚠ Failed to set up Clerk testing token:',
