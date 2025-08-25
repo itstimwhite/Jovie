@@ -18,7 +18,10 @@ async function globalSetup() {
       await clerkSetup();
       console.log('✓ Clerk testing token set up successfully');
     } catch (error) {
-      console.warn('⚠ Failed to set up Clerk testing token:', error.message);
+      console.warn(
+        '⚠ Failed to set up Clerk testing token:',
+        error instanceof Error ? error.message : String(error)
+      );
       console.log('  Tests will run without Clerk authentication');
     }
   } else {
