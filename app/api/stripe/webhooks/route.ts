@@ -35,7 +35,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 
-    console.log('Received webhook event:', {
+    // Log webhook events for debugging - use console.warn for visibility
+    console.warn('Received webhook event:', {
       type: event.type,
       id: event.id,
     });
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
         break;
 
       default:
-        console.log('Unhandled webhook event type:', event.type);
+        console.warn('Unhandled webhook event type:', event.type);
         break;
     }
 
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   try {
-    console.log('Processing checkout completion:', {
+    console.warn('Processing checkout completion:', {
       sessionId: session.id,
       customerId: session.customer,
       subscriptionId: session.subscription,
@@ -120,7 +121,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
 async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
   try {
-    console.log('Processing subscription creation:', {
+    console.warn('Processing subscription creation:', {
       subscriptionId: subscription.id,
       customerId: subscription.customer,
       status: subscription.status,
@@ -141,7 +142,7 @@ async function handleSubscriptionCreated(subscription: Stripe.Subscription) {
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   try {
-    console.log('Processing subscription update:', {
+    console.warn('Processing subscription update:', {
       subscriptionId: subscription.id,
       customerId: subscription.customer,
       status: subscription.status,
@@ -162,7 +163,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   try {
-    console.log('Processing subscription deletion:', {
+    console.warn('Processing subscription deletion:', {
       subscriptionId: subscription.id,
       customerId: subscription.customer,
     });
@@ -182,7 +183,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     });
 
     if (result.success) {
-      console.log('User downgraded to free plan:', { userId });
+      console.warn('User downgraded to free plan:', { userId });
     } else {
       console.error('Failed to downgrade user:', result.error);
     }
@@ -204,7 +205,7 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
           ? (subField as Stripe.Subscription).id
           : null;
 
-    console.log('Processing successful payment:', {
+    console.warn('Processing successful payment:', {
       invoiceId: invoice.id,
       customerId: invoice.customer,
       subscriptionId,
@@ -236,7 +237,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
           ? (subField as Stripe.Subscription).id
           : null;
 
-    console.log('Processing failed payment:', {
+    console.warn('Processing failed payment:', {
       invoiceId: invoice.id,
       customerId: invoice.customer,
       subscriptionId,
@@ -269,7 +270,7 @@ async function processSubscription(
       });
 
       if (result.success) {
-        console.log('User subscription inactive, downgraded:', {
+        console.warn('User subscription inactive, downgraded:', {
           userId,
           status: subscription.status,
         });
@@ -278,7 +279,12 @@ async function processSubscription(
     }
 
     // Get the price ID from the subscription to determine the plan
-    const priceId = subscription.items.data[0]?.price.id;
+    const firstItem = subscription.items.data[0];
+    if (!firstItem) {
+      console.error('No subscription items found in subscription:', subscription.id);
+      return;
+    }
+    const priceId = firstItem.price.id;
     if (!priceId) {
       console.error('No price ID found in subscription:', subscription.id);
       return;
@@ -300,7 +306,7 @@ async function processSubscription(
     });
 
     if (result.success) {
-      console.log('User billing status updated:', {
+      console.warn('User billing status updated:', {
         userId,
         plan,
         subscriptionId: subscription.id,

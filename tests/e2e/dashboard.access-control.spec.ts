@@ -40,7 +40,7 @@ test.describe('Dashboard Access Control', () => {
     // Skip if any required env var is missing or contains dummy values
     for (const [key, value] of Object.entries(requiredEnvVars)) {
       if (!value || value.includes('dummy')) {
-        console.log(`Skipping test: ${key} is not properly configured`);
+        console.warn(`Skipping test: ${key} is not properly configured`);
         test.skip();
       }
     }
@@ -76,7 +76,7 @@ test.describe('Dashboard Access Control', () => {
     // Sign up User A
     await page.evaluate(
       async ({ email, password }) => {
-        const clerk = (window as unknown as { Clerk: any }).Clerk;
+        const clerk = (window as unknown as { Clerk: { client: { signUp: Function } } }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         try {
@@ -92,7 +92,7 @@ test.describe('Dashboard Access Control', () => {
               null,
           });
         } catch (error) {
-          console.log('User A sign-up error:', error);
+          console.error('User A sign-up error:', error);
           throw error;
         }
       },
@@ -145,7 +145,7 @@ test.describe('Dashboard Access Control', () => {
 
     // Sign out User A
     await page.evaluate(async () => {
-      const clerk: any = (window as any).Clerk;
+      const clerk = (window as { Clerk: { client: { signUp: Function, lastActiveSessionId?: string } } }).Clerk;
       await clerk.signOut();
     });
 
@@ -159,7 +159,7 @@ test.describe('Dashboard Access Control', () => {
     // Sign up User B
     await page.evaluate(
       async ({ email, password }) => {
-        const clerk = (window as unknown as { Clerk: any }).Clerk;
+        const clerk = (window as unknown as { Clerk: { client: { signUp: Function } } }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         try {
@@ -175,7 +175,7 @@ test.describe('Dashboard Access Control', () => {
               null,
           });
         } catch (error) {
-          console.log('User B sign-up error:', error);
+          console.error('User B sign-up error:', error);
           throw error;
         }
       },
@@ -216,7 +216,7 @@ test.describe('Dashboard Access Control', () => {
 
     // Sign out User B
     await page.evaluate(async () => {
-      const clerk: any = (window as any).Clerk;
+      const clerk = (window as { Clerk: { client: { signUp: Function, lastActiveSessionId?: string } } }).Clerk;
       await clerk.signOut();
     });
 
@@ -226,7 +226,7 @@ test.describe('Dashboard Access Control', () => {
     // Sign in as User A
     await page.evaluate(
       async ({ email, password }) => {
-        const clerk = (window as unknown as { Clerk: any }).Clerk;
+        const clerk = (window as unknown as { Clerk: { client: { signUp: Function } } }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         const signIn = await clerk.signIn?.create({
@@ -365,8 +365,8 @@ test.describe('Dashboard Access Control', () => {
       expect(responseString).not.toContain(userBHandle.toLowerCase());
     }
 
-    console.log('✅ Access control test completed successfully');
-    console.log(
+    console.warn('✅ Access control test completed successfully');
+    console.warn(
       `User A (${userAHandle}) cannot access User B (${userBHandle}) data`
     );
   });

@@ -62,7 +62,7 @@ test.describe('Onboarding smoke', () => {
 
       // Use Clerk's client-side API to sign in programmatically
       await page.evaluate(async (email) => {
-        const clerk = (window as unknown as { Clerk: any }).Clerk;
+        const clerk = (window as unknown as { Clerk: { client: { signUp: Function } } }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 
         try {
