@@ -173,4 +173,5 @@ export const env = {
 export const flags = {
   // Feature flags controlled via feature-flags.ts instead of env
   feature_image_cdn_cloudinary: false,
+  feature_instagram_avatar_import: false,
 } as const;

@@ -1,0 +1,91 @@
+# Jovie - Artist Profile Platform
+
+Jovie is a Next.js 14 application with Clerk authentication and Supabase database integration, designed to help artists create beautiful profiles and connect with their fans.
+
+## Features
+
+### Instagram Avatar Import
+
+When a user adds an Instagram handle to their profile and doesn't have an avatar set, Jovie will automatically import their Instagram profile picture as their avatar. This feature:
+
+- Triggers on profile save when avatar_url is empty and instagram_handle is present/valid
+- Fetches the Instagram profile image using oEmbed/Open Graph with fallbacks
+- Processes the image (strips EXIF, converts to RGB, center-crops to square)
+- Generates both full-size (1024px) and thumbnail (256px) versions
+- Uploads to Cloudinary storage
+- Sets as the user's avatar atomically
+- Handles errors gracefully (private profiles, network issues, etc.)
+- Is idempotent (repeated saves don't re-download if avatar already set)
+
+### Profile Management
+
+- Create and customize artist profiles
+- Upload profile pictures
+- Add social media links
+- Customize profile appearance
+- Track profile views and analytics
+
+## Technology Stack
+
+- **Frontend**: Next.js 14 (App Router)
+- **Database**: Supabase (PostgreSQL with RLS)
+- **Authentication**: Clerk with native Supabase integration
+- **Feature Flags**: Statsig for experimentation and feature management
+- **Styling**: Tailwind CSS
+- **Testing**: Vitest + Playwright
+- **Deployment**: Vercel
+
+## Development
+
+### Prerequisites
+
+- Node.js 20.x
+- pnpm
+- Supabase CLI
+- Clerk account
+- Cloudinary account (for image uploads)
+
+### Environment Variables
+
+Required environment variables:
+
+```bash
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_KEY=your-anon-key
+
+# Cloudinary
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+```
+
+### Getting Started
+
+1. Clone the repository
+2. Install dependencies: `pnpm install`
+3. Set up environment variables
+4. Run the development server: `pnpm dev`
+
+### Feature Flags
+
+The following feature flags are available:
+
+- `feature_image_cdn_cloudinary`: Controls Cloudinary image upload functionality
+- `feature_instagram_avatar_import`: Controls Instagram avatar import functionality
+
+## Contributing
+
+1. Create a feature branch from `preview`
+2. Make your changes
+3. Run tests: `pnpm test`
+4. Submit a pull request to `preview`
+
+## License
+
+Proprietary - All rights reserved
+

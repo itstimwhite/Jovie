@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -11,6 +11,7 @@ import Image from 'next/image';
 import AvatarUploader from '@/components/dashboard/molecules/AvatarUploader';
 import { ErrorSummary } from '@/components/ui/ErrorSummary';
 import { flags } from '@/lib/env';
+import { validateInstagramHandle } from '@/lib/instagram-utils';
 
 interface ProfileFormProps {
   artist: Artist;
@@ -39,6 +40,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
     name: artist.name || '',
     tagline: artist.tagline || '',
     image_url: artist.image_url || '',
+    instagram_handle: artist.instagram_handle || '',
     hide_branding: artist.settings?.hide_branding ?? false,
   });
 
@@ -54,6 +56,14 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
 
     if (formData.tagline.length > 160) {
       errors.tagline = 'Tagline must be less than 160 characters';
+    }
+
+    // Validate Instagram handle if provided
+    if (formData.instagram_handle.trim()) {
+      const instagramValidation = validateInstagramHandle(formData.instagram_handle);
+      if (!instagramValidation.isValid) {
+        errors.instagram_handle = instagramValidation.error || 'Invalid Instagram handle';
+      }
     }
 
     setValidationErrors(errors);
@@ -86,18 +96,55 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
         return;
       }
 
+      // Check if we should trigger Instagram avatar import
+      const shouldImportInstagramAvatar = 
+        formData.instagram_handle.trim() && 
+        !formData.image_url && 
+        flags.feature_image_cdn_cloudinary &&
+        flags.feature_instagram_avatar_import;
+      
+      // Prepare update data
+      const updateData = {
+        display_name: formData.name,
+        bio: formData.tagline,
+        instagram_handle: formData.instagram_handle.trim() || null,
+        avatar_url: formData.image_url || null,
+        // Note: settings field doesn't exist in creator_profiles schema
+        // hide_branding could be added later if needed
+      };
+      
       const { data, error } = await supabase
         .from('creator_profiles')
-        .update({
-          display_name: formData.name,
-          bio: formData.tagline,
-          avatar_url: formData.image_url || null,
-          // Note: settings field doesn't exist in creator_profiles schema
-          // hide_branding could be added later if needed
-        })
+        .update(updateData)
         .eq('id', artist.id)
         .select('*')
         .single();
+        
+      // If we should import Instagram avatar, trigger the import
+      if (shouldImportInstagramAvatar && data) {
+        try {
+          // Call the Instagram avatar import API
+          const importResponse = await fetch('/api/instagram/avatar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ instagramHandle: formData.instagram_handle }),
+          });
+          
+          if (importResponse.ok) {
+            const importResult = await importResponse.json();
+            if (importResult.success && importResult.avatarUrl) {
+              // Update the form data with the new avatar URL
+              setFormData(prev => ({ ...prev, image_url: importResult.avatarUrl }));
+              
+              // Update the data object with the new avatar URL
+              data.avatar_url = importResult.avatarUrl;
+            }
+          }
+        } catch (importError) {
+          // Log error but don't fail the profile update
+          console.error('Instagram avatar import error:', importError);
+        }
+      }
 
       if (error) {
         console.error('Error updating profile:', error);
@@ -241,6 +288,28 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
           autoComplete="off"
           validationState={
             formSubmitted && validationErrors.tagline ? 'invalid' : null
+          }
+        />
+      </FormField>
+      
+      <FormField
+        label="Instagram Handle"
+        error={formSubmitted ? validationErrors.instagram_handle : undefined}
+        helpText={formData.image_url ? "Your Instagram handle" : "Your Instagram handle (we'll import your profile picture if you don't have one)"}
+        id="instagram-handle"
+      >
+        <Input
+          type="text"
+          value={formData.instagram_handle}
+          onChange={(e) =>
+            setFormData({ ...formData, instagram_handle: e.target.value })
+          }
+          placeholder="@username or instagram.com/username"
+          autoCapitalize="off"
+          autoCorrect="off"
+          autoComplete="off"
+          validationState={
+            formSubmitted && validationErrors.instagram_handle ? 'invalid' : null
           }
         />
       </FormField>
