@@ -17,7 +17,7 @@ import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
 } from '@heroicons/react/20/solid';
-import { LoadingSpinner } from './LoadingSpinner';
+import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 
 interface ComboboxOption {
   id: string;
