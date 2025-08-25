@@ -20,7 +20,17 @@ interface ClientProvidersProps {
 function ClerkWrapper({ children }: { children: React.ReactNode }) {
   const publishableKey = env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
+  // In test mode without Clerk keys, bypass authentication
   if (!publishableKey) {
+    if (
+      process.env.NODE_ENV === 'test' ||
+      process.env.NODE_ENV === 'development'
+    ) {
+      // Bypass Clerk in test/dev mode when no keys are provided
+      logger.debug('Bypassing Clerk authentication (no keys provided)');
+      return <>{children}</>;
+    }
+
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">

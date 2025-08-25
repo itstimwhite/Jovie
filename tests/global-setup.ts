@@ -1,4 +1,5 @@
 import { chromium } from '@playwright/test';
+import { clerkSetup } from '@clerk/testing/playwright';
 
 async function globalSetup() {
   // When running against an external BASE_URL in CI (e.g., Preview), skip local env overrides and warmup.
@@ -6,17 +7,34 @@ async function globalSetup() {
     return;
   }
 
+  // Set up Clerk testing token if we have real Clerk keys
+  const hasRealClerkKeys =
+    process.env.CLERK_SECRET_KEY &&
+    !process.env.CLERK_SECRET_KEY.includes('dummy') &&
+    !process.env.CLERK_SECRET_KEY.includes('1234567890');
+
+  if (hasRealClerkKeys) {
+    try {
+      await clerkSetup();
+      console.log('✓ Clerk testing token set up successfully');
+    } catch (error) {
+      console.warn('⚠ Failed to set up Clerk testing token:', error.message);
+      console.log('  Tests will run without Clerk authentication');
+    }
+  } else {
+    console.log('ℹ Using mock Clerk keys for testing');
+  }
+
   // Set up environment variables for local testing defaults (do not override if already set)
   Object.assign(process.env, {
     NODE_ENV: process.env.NODE_ENV || 'test',
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
-      'pk_test_dGVzdC1wYXNzLTUzLmNsZXJrLmFjY291bnRzLmRldiQ',
+      'pk_test_mock-key-for-testing',
     NEXT_PUBLIC_CLERK_PRICING_TABLE_ID:
       process.env.NEXT_PUBLIC_CLERK_PRICING_TABLE_ID || 'prctbl_dummy',
     CLERK_SECRET_KEY:
-      process.env.CLERK_SECRET_KEY ||
-      'sk_test_1234567890abcdefghijklmnopqrstuvwxyz1234567890',
+      process.env.CLERK_SECRET_KEY || 'sk_test_mock-key-for-testing',
     NEXT_PUBLIC_SUPABASE_URL:
       process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://dummy.supabase.co',
     // Ensure Supabase client keys exist so server can boot locally
