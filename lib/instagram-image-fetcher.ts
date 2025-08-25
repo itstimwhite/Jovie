@@ -12,7 +12,7 @@ export interface InstagramImageFetchResult {
   success: boolean;
   imageUrl?: string;
   error?: string;
-  source?: 'oembed' | 'opengraph' | 'html';
+  source?: 'oembed' | 'opengraph' | 'html' | 'direct';
 }
 
 /**
@@ -47,10 +47,16 @@ export async function fetchInstagramProfileImage(
       return ogResult;
     }
     
-    // Last resort: parse HTML directly
+    // Third attempt: parse HTML directly
     const htmlResult = await fetchViaHtmlParsing(normalizedHandle);
     if (htmlResult.success) {
       return htmlResult;
+    }
+    
+    // Last resort: direct scraping with alternative service
+    const directResult = await fetchViaDirect(normalizedHandle);
+    if (directResult.success) {
+      return directResult;
     }
     
     // All methods failed
@@ -214,6 +220,57 @@ async function fetchViaHtmlParsing(
       success: false,
       error: `HTML parsing error: ${error.message || 'Unknown error'}`,
       source: 'html',
+    };
+  }
+}
+
+/**
+ * Fetches Instagram profile image via alternative direct service
+ * 
+ * @param handle Normalized Instagram handle
+ * @returns Promise resolving to the fetch result
+ */
+async function fetchViaDirect(
+  handle: string
+): Promise<InstagramImageFetchResult> {
+  try {
+    const profileUrl = getInstagramProfileUrl(handle);
+    
+    // Use an alternative service (e.g., ScrapingBee, Apify, or custom scraper)
+    // For now, we'll use urlbox.io as an alternative to microlink.io
+    const directUrl = `https://api.urlbox.io/v1/${process.env.URLBOX_API_KEY || 'demo'}/png?url=${encodeURIComponent(profileUrl)}&width=400&height=400&format=json`;
+    
+    const response = await fetchWithTimeout(directUrl, { timeout: 8000 });
+    
+    if (!response.ok) {
+      return {
+        success: false,
+        error: `Direct scraping API returned status ${response.status}`,
+        source: 'direct',
+      };
+    }
+    
+    const data = await response.json();
+    
+    // Try to extract image URL from response
+    if (data?.renderUrl) {
+      return {
+        success: true,
+        imageUrl: data.renderUrl,
+        source: 'direct',
+      };
+    }
+    
+    return {
+      success: false,
+      error: 'Could not find profile image in direct scraping response',
+      source: 'direct',
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: `Direct scraping error: ${error.message || 'Unknown error'}`,
+      source: 'direct',
     };
   }
 }

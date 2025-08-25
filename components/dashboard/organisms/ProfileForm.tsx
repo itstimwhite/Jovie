@@ -28,6 +28,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [instagramImportWarning, setInstagramImportWarning] = useState<string | undefined>();
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
@@ -86,6 +87,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
     setLoading(true);
     setError(undefined);
     setSuccess(false);
+    setInstagramImportWarning(undefined);
 
     try {
       // Get authenticated Supabase client using native integration
@@ -143,6 +145,12 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
         } catch (importError) {
           // Log error but don't fail the profile update
           console.error('Instagram avatar import error:', importError);
+          
+          // Provide user feedback about the failed import
+          setInstagramImportWarning(
+            'Profile updated successfully, but we couldn\'t import your Instagram avatar. ' +
+            'Please try uploading an image manually or check that your Instagram profile is public.'
+          );
         }
       }
 
@@ -212,6 +220,38 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
           }
         }}
       />
+
+      {/* Instagram import warning */}
+      {instagramImportWarning && (
+        <div className="p-3 rounded-md bg-yellow-50 border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                {instagramImportWarning}
+              </p>
+            </div>
+            <div className="ml-auto pl-3">
+              <div className="-mx-1.5 -my-1.5">
+                <button
+                  type="button"
+                  className="inline-flex rounded-md bg-yellow-50 p-1.5 text-yellow-500 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-offset-2 focus:ring-offset-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-300 dark:hover:bg-yellow-900/30"
+                  onClick={() => setInstagramImportWarning(undefined)}
+                  aria-label="Dismiss warning"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Avatar uploader (feature-flagged) */}
       {flags.feature_image_cdn_cloudinary && (

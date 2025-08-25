@@ -13,11 +13,7 @@ import { processRemoteImage } from '@/lib/remote-image-processor';
 import { validateInstagramHandle, normalizeInstagramHandle } from '@/lib/instagram-utils';
 import { env, flags } from '@/lib/env';
 import { logInstagramAvatarImport } from '@/lib/logging';
-
-// Rate limiting to prevent abuse
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
-const MAX_REQUESTS_PER_WINDOW = 5;
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+import { checkRateLimit } from '@/lib/rate-limiter';
 
 export async function POST(req: NextRequest) {
   // Check if features are enabled
@@ -38,29 +34,22 @@ export async function POST(req: NextRequest) {
   }
   
   // Rate limiting
-  const now = Date.now();
-  const userRateLimit = rateLimitMap.get(userId) || { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS };
+  const rateLimitResult = await checkRateLimit(userId, {
+    windowMs: 60 * 60 * 1000, // 1 hour
+    maxRequests: 5,
+    keyPrefix: 'instagram_avatar_import',
+  });
   
-  // Reset rate limit if window has expired
-  if (userRateLimit.resetAt < now) {
-    userRateLimit.count = 0;
-    userRateLimit.resetAt = now + RATE_LIMIT_WINDOW_MS;
-  }
-  
-  // Check if user has exceeded rate limit
-  if (userRateLimit.count >= MAX_REQUESTS_PER_WINDOW) {
+  if (!rateLimitResult.allowed) {
     return NextResponse.json(
       {
         error: 'Rate limit exceeded',
-        resetAt: new Date(userRateLimit.resetAt).toISOString(),
+        resetAt: rateLimitResult.resetAt.toISOString(),
+        remaining: rateLimitResult.remaining,
       },
       { status: 429 }
     );
   }
-  
-  // Increment rate limit counter
-  userRateLimit.count++;
-  rateLimitMap.set(userId, userRateLimit);
   
   try {
     // Parse request body
