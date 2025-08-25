@@ -120,6 +120,9 @@ export interface CreatorProfile {
   display_name: string | null;
   bio: string | null;
   avatar_url: string | null;
+  // Social media handles
+  instagram_handle: string | null;
+  instagram_handle_normalized: string | null; // Auto-generated normalized Instagram handle
   // Music platform URLs (for artists)
   spotify_url: string | null;
   apple_music_url: string | null;
@@ -161,6 +164,7 @@ export interface Artist {
   name: string; // maps to display_name
   image_url?: string; // maps to avatar_url
   tagline?: string; // maps to bio
+  instagram_handle?: string; // maps to instagram_handle
   theme?: Record<string, unknown>;
   settings?: {
     hide_branding?: boolean;
@@ -327,6 +331,7 @@ export function convertCreatorProfileToArtist(profile: CreatorProfile): Artist {
     name: profile.display_name || profile.username,
     image_url: profile.avatar_url || undefined,
     tagline: profile.bio || undefined,
+    instagram_handle: profile.instagram_handle || undefined,
     theme: profile.theme || undefined,
     settings: (profile.settings as { hide_branding?: boolean }) || {
       hide_branding: false,
@@ -352,6 +357,7 @@ export function convertArtistToCreatorProfile(
     display_name: artist.name,
     bio: artist.tagline,
     avatar_url: artist.image_url,
+    instagram_handle: artist.instagram_handle,
     spotify_url: artist.spotify_url,
     apple_music_url: artist.apple_music_url,
     youtube_url: artist.youtube_url,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
@@ -11,6 +11,7 @@ import Image from 'next/image';
 import AvatarUploader from '@/components/dashboard/molecules/AvatarUploader';
 import { ErrorSummary } from '@/components/ui/ErrorSummary';
 import { flags } from '@/lib/env';
+import { validateInstagramHandle } from '@/lib/instagram-utils';
 
 interface ProfileFormProps {
   artist: Artist;
@@ -27,6 +28,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [instagramImportWarning, setInstagramImportWarning] = useState<string | undefined>();
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
@@ -39,6 +41,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
     name: artist.name || '',
     tagline: artist.tagline || '',
     image_url: artist.image_url || '',
+    instagram_handle: artist.instagram_handle || '',
     hide_branding: artist.settings?.hide_branding ?? false,
   });
 
@@ -54,6 +57,14 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
 
     if (formData.tagline.length > 160) {
       errors.tagline = 'Tagline must be less than 160 characters';
+    }
+
+    // Validate Instagram handle if provided
+    if (formData.instagram_handle.trim()) {
+      const instagramValidation = validateInstagramHandle(formData.instagram_handle);
+      if (!instagramValidation.isValid) {
+        errors.instagram_handle = instagramValidation.error || 'Invalid Instagram handle';
+      }
     }
 
     setValidationErrors(errors);
@@ -76,6 +87,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
     setLoading(true);
     setError(undefined);
     setSuccess(false);
+    setInstagramImportWarning(undefined);
 
     try {
       // Get authenticated Supabase client using native integration
@@ -86,18 +98,61 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
         return;
       }
 
+      // Check if we should trigger Instagram avatar import
+      const shouldImportInstagramAvatar = 
+        formData.instagram_handle.trim() && 
+        !formData.image_url && 
+        flags.feature_image_cdn_cloudinary &&
+        flags.feature_instagram_avatar_import;
+      
+      // Prepare update data
+      const updateData = {
+        display_name: formData.name,
+        bio: formData.tagline,
+        instagram_handle: formData.instagram_handle.trim() || null,
+        avatar_url: formData.image_url || null,
+        // Note: settings field doesn't exist in creator_profiles schema
+        // hide_branding could be added later if needed
+      };
+      
       const { data, error } = await supabase
         .from('creator_profiles')
-        .update({
-          display_name: formData.name,
-          bio: formData.tagline,
-          avatar_url: formData.image_url || null,
-          // Note: settings field doesn't exist in creator_profiles schema
-          // hide_branding could be added later if needed
-        })
+        .update(updateData)
         .eq('id', artist.id)
         .select('*')
         .single();
+        
+      // If we should import Instagram avatar, trigger the import
+      if (shouldImportInstagramAvatar && data) {
+        try {
+          // Call the Instagram avatar import API
+          const importResponse = await fetch('/api/instagram/avatar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ instagramHandle: formData.instagram_handle }),
+          });
+          
+          if (importResponse.ok) {
+            const importResult = await importResponse.json();
+            if (importResult.success && importResult.avatarUrl) {
+              // Update the form data with the new avatar URL
+              setFormData(prev => ({ ...prev, image_url: importResult.avatarUrl }));
+              
+              // Update the data object with the new avatar URL
+              data.avatar_url = importResult.avatarUrl;
+            }
+          }
+        } catch (importError) {
+          // Log error but don't fail the profile update
+          console.error('Instagram avatar import error:', importError);
+          
+          // Provide user feedback about the failed import
+          setInstagramImportWarning(
+            'Profile updated successfully, but we couldn\'t import your Instagram avatar. ' +
+            'Please try uploading an image manually or check that your Instagram profile is public.'
+          );
+        }
+      }
 
       if (error) {
         console.error('Error updating profile:', error);
@@ -165,6 +220,38 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
           }
         }}
       />
+
+      {/* Instagram import warning */}
+      {instagramImportWarning && (
+        <div className="p-3 rounded-md bg-yellow-50 border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                {instagramImportWarning}
+              </p>
+            </div>
+            <div className="ml-auto pl-3">
+              <div className="-mx-1.5 -my-1.5">
+                <button
+                  type="button"
+                  className="inline-flex rounded-md bg-yellow-50 p-1.5 text-yellow-500 hover:bg-yellow-100 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-offset-2 focus:ring-offset-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-300 dark:hover:bg-yellow-900/30"
+                  onClick={() => setInstagramImportWarning(undefined)}
+                  aria-label="Dismiss warning"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Avatar uploader (feature-flagged) */}
       {flags.feature_image_cdn_cloudinary && (
@@ -241,6 +328,28 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
           autoComplete="off"
           validationState={
             formSubmitted && validationErrors.tagline ? 'invalid' : null
+          }
+        />
+      </FormField>
+      
+      <FormField
+        label="Instagram Handle"
+        error={formSubmitted ? validationErrors.instagram_handle : undefined}
+        helpText={formData.image_url ? "Your Instagram handle" : "Your Instagram handle (we'll import your profile picture if you don't have one)"}
+        id="instagram-handle"
+      >
+        <Input
+          type="text"
+          value={formData.instagram_handle}
+          onChange={(e) =>
+            setFormData({ ...formData, instagram_handle: e.target.value })
+          }
+          placeholder="@username or instagram.com/username"
+          autoCapitalize="off"
+          autoCorrect="off"
+          autoComplete="off"
+          validationState={
+            formSubmitted && validationErrors.instagram_handle ? 'invalid' : null
           }
         />
       </FormField>
