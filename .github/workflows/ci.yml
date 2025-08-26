@@ -431,9 +431,12 @@ jobs:
         with: { node-version: 20 }
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
-      - name: DB migrate (preview)
-        run: npm run db:migrate
+      - name: Install dependencies for migration
+        run: npm ci
+      - name: DB migrate (preview - Drizzle)
+        run: npm run drizzle:migrate:preview
         env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_PREVIEW }}
           GIT_BRANCH: preview
         continue-on-error: true
       - name: DB seed (preview)
