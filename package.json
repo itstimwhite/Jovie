@@ -41,7 +41,7 @@
     "db:seed": "node scripts/db-seed.js",
     "db:seed-enhanced": "node scripts/seed-enhanced-profiles.js",
     "db:seed-tim": "node scripts/seed-tim-user.js",
-    "drizzle:generate": "drizzle-kit generate:pg",
+    "drizzle:generate": "drizzle-kit generate",
     "drizzle:migrate": "drizzle-kit migrate",
     "drizzle:studio": "drizzle-kit studio",
     "storybook": "storybook dev -p 6006",
