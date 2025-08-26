@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { drizzle as drizzleNeon } from 'drizzle-orm/neon-serverless';
-import { Pool } from 'postgres';
+import postgres from 'postgres';
 import { neon } from '@neondatabase/serverless';
 import { env } from '../lib/env';
 
@@ -34,14 +34,13 @@ function createDrizzleClient() {
   ) {
     // Use Neon serverless driver
     const sql = neon(env.DATABASE_URL);
-    return drizzleNeon(sql);
+    return drizzleNeon(sql as any); // Type assertion to avoid TypeScript errors
   } else {
     // Use standard Postgres driver
-    const pool = new Pool({
-      connectionString: env.DATABASE_URL,
+    const client = postgres(env.DATABASE_URL, {
       max: 10,
     });
-    return drizzle(pool);
+    return drizzle(client);
   }
 }
 
@@ -70,9 +69,9 @@ export async function closeDb() {
   if (_db) {
     // If using postgres-js, we need to end the pool
     // This is a no-op for Neon serverless connections
-    const pool = (_db as any)?.driver?.pool;
-    if (pool && typeof pool.end === 'function') {
-      await pool.end();
+    const client = (_db as any)?.driver?.client;
+    if (client && typeof client.end === 'function') {
+      await client.end();
     }
     _db = null;
   }
