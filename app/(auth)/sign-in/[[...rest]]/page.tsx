@@ -7,10 +7,10 @@ export default function SignInPage() {
   const searchParams = useSearchParams();
 
   // Check for redirect_url parameter (e.g., from protected pages like /onboarding)
-  const redirectUrl = searchParams.get('redirect_url');
+  const redirectUrl = searchParams?.get('redirect_url') ?? null;
 
   // Check for artistId parameter (legacy flow)
-  const artistId = searchParams.get('artistId');
+  const artistId = searchParams?.get('artistId') ?? null;
 
   // Determine destination: prioritize redirect_url, then artistId flow, then default to dashboard
   const destination =

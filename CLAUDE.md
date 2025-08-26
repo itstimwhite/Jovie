@@ -1,546 +1,407 @@
 # Claude AI Guidelines for Jovie Project
 
-## Critical Rules
+## 🚦 Jovie PR & Integration Rules
 
-### ⚠️ **NEVER PUSH TO PREVIEW OR PRODUCTION**
+1. **Intent**
+   - Clearly define the purpose of the PR or integration.
+   - Ensure it aligns with project goals and KPIs.
+   - Keep scope focused on one primary user-visible outcome.
 
-- **NEVER push directly to `preview` or `production` branches**
-- **Work on feature branches opened from `preview`**
-  - Naming: `feat/<slug>`, `fix/<slug>`, `chore/<slug>` where `<slug>` is 3–6 words, kebab-case
-- **Open a PR against `preview`**
-  - PRs must be up-to-date with `preview` and pass all checks
-  - Auto-merge to `preview` after green CI is allowed
-- **Promotion to `production` is manual via PR** (no auto-merge to `production`)
+2. **Triggers**
+   - Use feature flags to gate new functionality.
+   - Name flags using lowercase snake*case: `feature*<slug>`.
+   - Trigger PostHog events for key user actions.
+   - Ensure events fire in all UI modes (light/dark).
 
-### 🔒 **Branch Protection**
+3. **Environment**
+   - Work exclusively on feature branches derived from `preview`.
+   - Never push directly to `preview` or `production`.
+   - Use standardized branch naming: `feat/<slug>`, `fix/<slug>`, `chore/<slug>`.
+   - Keep branches scoped to 3–6 words in kebab-case.
 
-- `preview` and `production` are protected branches
-- No direct pushes to protected branches
-- All changes flow via PR to `preview` with an up-to-date-with-`preview` requirement
-- After CI success, feature PRs may auto-merge into `preview`
-- Promotion from `preview` → `production` is performed manually via a PR per policy
+4. **Smoke Steps**
+   - Add unit tests for logic.
+   - Add E2E smoke tests for primary happy path.
+   - Verify lint, typecheck, unit, and E2E tests pass before merge.
+   - Ensure preview deploy builds successfully.
 
-## Feature Development & Branching (Windsurf Rules)
+5. **Policy**
+   - PRs must be up-to-date with `preview`.
+   - PR titles formatted as `[feat|fix|chore]: <slug>`.
+   - PR body includes:
+     1. Goal (1–2 sentences)
+     2. KPI target (if applicable)
+     3. Feature flag name
+     4. New PostHog events added
+     5. Rollback plan (typically "disable feature flag")
+   - Auto-merge to `preview` allowed after green CI.
+   - Promotion to `production` is manual via PR.
 
-Follow this standardized flow whenever implementing a new feature, enhancement, or bugfix.
+6. **Failure Behavior**
+   - Disable feature flag to rollback.
+   - Monitor Sentry and PostHog for errors.
+   - Revert PR if critical issues arise.
 
-- **Step 1: Branching**
-  - Create a branch from `preview`
-  - Name it using: `feat/<slug>`, `fix/<slug>`, or `chore/<slug>`
-  - `<slug>` is 3–6 words in kebab-case describing the scope
+7. **Success Behavior**
+   - Enable flag internally first.
+   - Verify metrics and events.
+   - Roll out progressively to all users.
 
-- **Step 2: Scoping**
-  - Keep scope to one user-visible outcome
-  - If multiple outcomes are needed, split into separate branches/tasks
-  - Tie scope to a KPI where possible (e.g., "+capture-email")
+8. **PR Template**
+   - Use the standardized template:
 
-- **Step 3: Implementation**
-  - Wrap new functionality behind a feature flag
-    - Default OFF
-    - Name: `feature_<slug>` (lowercase snake_case)
-  - Instrument PostHog events for primary user actions
-    - Naming: `page_element_action` (e.g., `profile_button_click`)
-    - Ensure events fire in both light/dark mode flows
-  - Add tests
-    - Unit tests for logic
-    - E2E smoke test for the primary happy path
+     ```
+     Title: [feat|fix|chore]: <slug>
 
-- **Step 4: Pull Request (target = `preview`)**
-  - Title: `[feat|fix|chore]: <slug>`
-  - Body must include:
-    1. Goal (1–2 sentences)
-    2. KPI target (if applicable)
-    3. Feature flag name
-    4. New PostHog events added
-    5. Rollback plan (usually "disable feature flag")
-  - PR must be up-to-date with `preview`
+     ## Goal
+     <1-2 sentences>
 
-- **Step 5: CI/CD Checks**
-  - Must pass: lint, typecheck, unit tests, E2E tests
-  - Preview deployment must build successfully
-  - Chromatic/Storybook check if any component was touched
+     ## KPI Target
+     <if applicable>
 
-- **Step 6: Post-Deploy**
-  - After merge, deploy to prod with the feature flag still OFF
-  - Enable the flag for the internal segment only
-  - Verify Sentry + PostHog capture
-  - Roll out progressively when stable
+     ## Feature Flag
+     feature_<slug>
 
-- **Step 7: Done Criteria**
-  - Code merged to `preview`
-  - Feature behind a flag, minimally tested, metrics firing
-  - PR closed with changelog line auto-generated from the title
+     ## PostHog Events
+     - event_name_1
+     - event_name_2
 
-- **Step 8: Merge to Main**
-  - When validated in preview/prod, promote to `production` via a manual PR
-  - Always tag the release
+     ## Rollback Plan
+     Disable feature flag
+     ```
 
-## Clerk-Supabase Integration (Primary Method)
+9. **Post-Open Flow**
+   - Ensure PR is rebased onto latest `preview`.
+   - Run all CI checks.
+   - Address review comments promptly.
+   - After merge, deploy preview with flag OFF.
+   - Enable flag internally and monitor.
 
-**Purpose:** Enforce the **current** and **correct** instructions for integrating Clerk with Supabase using the native integration method.  
-**Scope:** All AI-generated advice or code related to Clerk-Supabase integration must follow these guardrails.
+10. **Branching & Protection**
+    - `preview` and `production` are protected.
+    - No direct pushes allowed.
+    - All changes via PR to `preview`.
+    - Feature branches must be current with `preview`.
+    - Manual promotion from `preview` to `production`.
+
+11. **Feature Development Flow**
+    - Step 1: Branch from `preview` with proper naming.
+    - Step 2: Scope to one user-visible outcome.
+    - Step 3: Implement behind feature flag.
+    - Step 4: Add PostHog instrumentation.
+    - Step 5: Add tests (unit + E2E).
+    - Step 6: Create PR with required info.
+    - Step 7: Pass all CI/CD checks.
+    - Step 8: Deploy and roll out progressively.
+
+12. **Clerk-Supabase Integration**
+    - Use native Supabase integration; avoid JWT templates.
+    - Use `accessToken()` in Supabase client config.
+    - Use `auth.jwt()` in RLS policies.
+    - Use `useSession()` client-side, `auth()` server-side.
+    - Configure Clerk as third-party provider in Supabase.
+    - Enable RLS on all user data tables.
+    - Test with multiple users for isolation.
+    - Avoid deprecated patterns like manual token fetching or `createClerkClient()`.
+
+13. **Stripe Billing**
+    - Integrate Stripe billing directly, server-only.
+    - Do not use Clerk Billing or related components.
+    - Use Stripe Checkout, Portal, and Webhook APIs on server routes.
+    - Never bypass Clerk billing system.
+    - Test billing flows end-to-end.
+    - Handle subscription states properly.
+
+14. **Deprecated Patterns**
+    - Do NOT use JWT templates or manual token fetching.
+    - Do NOT hardcode user IDs in RLS policies.
+    - Do NOT bypass RLS or Clerk billing system.
+    - Do NOT use client SDKs for database or billing access.
+    - Do NOT use `createClerkClient()` for client operations.
+    - Avoid old `authMiddleware()` approach.
 
 ---
 
-## **1. Official Clerk-Supabase Integration Overview**
+## Auth & Access (Clerk → Server-only)
 
-Use only the **native Supabase integration** approach from [Clerk's official documentation](https://clerk.com/docs/raw/integrations/databases/supabase.mdx):
+**Purpose:** Enforce secure, server-only authentication and access patterns using Clerk for auth and Drizzle for database access.  
+**Scope:** All AI-generated advice or code related to authentication, authorization, and database access must follow these guardrails.
+
+---
+
+## **1. Official Auth & Database Integration Overview**
+
+Follow these principles for secure, scalable authentication and access:
 
 ### **1.1 – Setup Requirements**
 
-1. **Configure Clerk as Supabase Third-Party Provider**:
-   - In Clerk Dashboard: Navigate to [Supabase integration setup](https://dashboard.clerk.com/setup/supabase)
-   - In Supabase Dashboard: Add Clerk as a third-party auth provider
-   - Use the Clerk domain provided in the setup
+1. **Configure Clerk as Identity Provider**:
+   - In Clerk Dashboard: Set up your application and obtain the publishable and secret keys.
+   - Use Clerk's session tokens server-side to authenticate users.
 
-2. **Use Native Integration (NOT JWT Templates)**:
-   - The native integration is the **recommended approach** as of April 1st, 2025
-   - JWT templates are deprecated and should not be used
-   - No need to fetch new tokens for each Supabase request
-   - No need to share Supabase JWT secret with Clerk
+2. **Database Access via Drizzle**:
+   - Use Drizzle ORM for all database access.
+   - Do not use `@supabase/supabase-js` on the client or server for querying data.
 
-### **1.2 – Client-Side Integration**
-
-```typescript
-// ✅ CORRECT: Use native integration with accessToken
-import { useSession } from '@clerk/nextjs';
-import { createClient } from '@supabase/supabase-js';
-
-function createClerkSupabaseClient() {
-  const { session } = useSession();
-
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
-    {
-      async accessToken() {
-        return session?.getToken() ?? null;
-      },
-    }
-  );
-}
-```
-
-### **1.3 – Server-Side Integration**
-
-```typescript
-// ✅ CORRECT: Use auth() for server-side operations
-import { auth } from '@clerk/nextjs/server';
-import { createClient } from '@supabase/supabase-js';
-
-export function createServerSupabaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
-    {
-      async accessToken() {
-        return (await auth()).getToken();
-      },
-    }
-  );
-}
-```
-
-### **1.4 – RLS Policies**
-
-```sql
--- ✅ CORRECT: Use auth.jwt() for RLS policies
-create policy "User can view their own data" on "public"."users"
-for select to authenticated using (
-  auth.jwt()->>'sub' = user_id
-);
-
-create policy "Users must insert their own data" on "public"."users"
-for insert to authenticated with check (
-  auth.jwt()->>'sub' = user_id
-);
-```
+3. **Session Variable Propagation**:
+   - Set PostgreSQL session variables (e.g., `app.user_id`) for each authenticated request.
+   - Use these variables in RLS policies (see below).
 
 ---
 
-## **2. Clerk Billing with Stripe Integration**
+## **2. Database Layer (Drizzle-first, Neon-ready)**
 
-**Purpose:** Enforce the **current** and **correct** instructions for integrating Clerk billing with Stripe for B2C SaaS applications.  
-**Scope:** All AI-generated advice or code related to Clerk billing must follow these guardrails.
+**Purpose:** Use Drizzle ORM to interact with Postgres (or Neon) via a driver abstraction that supports both Node Postgres and Neon HTTP drivers.
 
-### **2.1 – Official Clerk Billing Setup**
-
-Use the **Clerk billing with Stripe** approach from [Clerk's official documentation](https://clerk.com/docs/nextjs/billing/b2c-saas):
-
-#### **Setup Requirements:**
-
-1. **Enable Billing in Clerk Dashboard**:
-   - Navigate to **Billing Settings** in Clerk Dashboard
-   - Enable billing for your application
-   - Choose payment gateway: **Clerk development gateway** (test) or **Stripe account** (production)
-
-2. **Create Plans and Features**:
-   - Navigate to **Plans** page in Clerk Dashboard
-   - Select **Plans for Users** tab
-   - Create subscription plans with features
-   - Set **Publicly available** option as needed
-
-3. **Use Clerk's Pricing Components**:
-   - Use `<PricingTable />` component for pricing pages
-   - Use `has()` method for plan/feature access control
-   - Use `<Protect>` component for React-based protection
-
-### **2.2 – Pricing Page Implementation**
+### **2.1 – Driver Abstraction Example**
 
 ```typescript
-// ✅ CORRECT: Create dedicated pricing page
-// app/pricing/page.tsx
-import { PricingTable } from '@clerk/nextjs'
+// db/connection.ts
+import { drizzle } from 'drizzle-orm/node-postgres'; // or 'drizzle-orm/neon-http'
+import { Pool } from 'pg'; // For Node Postgres
+// import { NeonHttpDriver } from '@neondatabase/serverless'; // For Neon HTTP
 
-export default function PricingPage() {
-  return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 1rem' }}>
-      <PricingTable />
-    </div>
-  )
-}
-```
-
-### **2.3 – Access Control with Plans**
-
-```typescript
-// ✅ CORRECT: Use has() method for plan access
-import { auth } from '@clerk/nextjs/server'
-
-export default async function PremiumContentPage() {
-  const { has } = await auth()
-  const hasPremiumAccess = has({ plan: 'premium' })
-
-  if (!hasPremiumAccess) {
-    return <h1>Only premium subscribers can access this content.</h1>
-  }
-
-  return <h1>Premium Content</h1>
-}
-```
-
-### **2.4 – Access Control with Features**
-
-```typescript
-// ✅ CORRECT: Use has() method for feature access
-import { auth } from '@clerk/nextjs/server'
-
-export default async function FeatureContentPage() {
-  const { has } = await auth()
-  const hasFeatureAccess = has({ feature: 'advanced_analytics' })
-
-  if (!hasFeatureAccess) {
-    return <h1>Only users with Advanced Analytics can access this content.</h1>
-  }
-
-  return <h1>Advanced Analytics Dashboard</h1>
-}
-```
-
-### **2.5 – React Component Protection**
-
-```typescript
-// ✅ CORRECT: Use Protect component for React-based protection
-import { Protect } from '@clerk/nextjs'
-
-export default function ProtectedContentPage() {
-  return (
-    <Protect
-      plan="premium"
-      fallback={<p>Only premium subscribers can access this content.</p>}
-    >
-      <h1>Exclusive Premium Content</h1>
-      <p>This content is only visible to premium subscribers.</p>
-    </Protect>
-  )
-}
-```
-
-### **2.6 – Environment Variables for Billing**
-
-```bash
-# Clerk Billing
-CLERK_SECRET_KEY=sk_test_...
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
-
-# Optional: Clerk Billing Configuration
-NEXT_PUBLIC_CLERK_BILLING_ENABLED=true
-NEXT_PUBLIC_CLERK_BILLING_GATEWAY=stripe
-
-# Note: Stripe keys are not needed when using Clerk billing
-# Clerk handles the Stripe integration internally
-```
-
----
-
-## **3. CRITICAL INSTRUCTIONS FOR AI MODELS**
-
-### **3.1 – ALWAYS DO THE FOLLOWING**
-
-#### **For Clerk-Supabase Integration:**
-
-1. **Use native Supabase integration** - NOT JWT templates
-2. **Use `accessToken()` method** in Supabase client configuration
-3. **Use `auth.jwt()`** in RLS policies for user identification
-4. **Use `useSession()`** for client-side token access
-5. **Use `auth()`** for server-side token access
-6. **Configure Clerk as third-party provider** in Supabase dashboard
-7. **Enable RLS** on all tables that contain user data
-8. **Test authentication flow** with multiple users to verify isolation
-
-#### **For Clerk Billing:**
-
-1. **Use Clerk's billing system** - NOT direct Stripe integration
-2. **Use `<PricingTable />` component** for pricing pages
-3. **Use `has()` method** for plan/feature access control
-4. **Use `<Protect>` component** for React-based protection
-5. **Create plans and features** in Clerk Dashboard
-6. **Link pricing page** from homepage and navigation
-7. **Test billing flow** end-to-end
-8. **Handle subscription states** properly
-
-### **3.2 – NEVER DO THE FOLLOWING**
-
-#### **For Clerk-Supabase Integration:**
-
-1. **Do not** use JWT templates - they are deprecated
-2. **Do not** manually fetch tokens with `getToken({ template: 'supabase' })`
-3. **Do not** use `createClerkClient()` for client-side operations
-4. **Do not** hardcode user IDs in RLS policies
-5. **Do not** bypass RLS policies
-6. **Do not** use the old `authMiddleware()` approach
-
-#### **For Clerk Billing:**
-
-1. **Do not** implement direct Stripe integration
-2. **Do not** bypass Clerk's billing system
-3. **Do not** hardcode plan/feature checks
-4. **Do not** ignore subscription states
-5. **Do not** forget to link pricing page
-
----
-
-## **4. DEPRECATED PATTERNS TO AVOID**
-
-Below are **examples of deprecated instructions** that **must not** be generated:
-
-```typescript
-// ❌ DO NOT use JWT templates (deprecated)
-const token = await getToken({ template: 'supabase' });
-
-// ❌ DO NOT manually configure JWT headers
-const supabase = createClient(url, key, {
-  global: {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  },
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
 });
 
-// ❌ DO NOT use createClerkClient for client-side
-import { createClerkClient } from '@clerk/backend';
-const clerk = createClerkClient({ secretKey: '...' });
-
-// ❌ DO NOT bypass Clerk billing system
-// Use Clerk's billing components and methods instead
+export const db = drizzle(pool);
 ```
 
-```sql
--- ❌ DO NOT use hardcoded user IDs in RLS
-create policy "bad_policy" on users
-for select using (user_id = 'hardcoded-uuid');
+### **2.2 – Setting Session Variables**
+
+```typescript
+// utils/setSessionVars.ts
+import { db } from './db/connection';
+
+export async function setSessionUser(userId: string) {
+  await db.execute(`set local "app.user_id" = '${userId}'`);
+}
+```
+
+### **2.3 – Usage in API Route**
+
+```typescript
+// app/api/some-resource/route.ts
+import { auth } from '@clerk/nextjs/server';
+import { db } from '@/db/connection';
+import { setSessionUser } from '@/utils/setSessionVars';
+
+export async function GET(req: Request) {
+  const { userId } = await auth();
+  await setSessionUser(userId);
+  const data = await db.select().from('users');
+  return Response.json(data);
+}
 ```
 
 ---
 
-## **5. CORRECT IMPLEMENTATION PATTERNS**
+## **3. Postgres Security & Policies**
 
-### **5.1 – Client Component Example**
+**Purpose:** Enforce strict security by leveraging session variables and RLS policies referencing `current_setting('app.user_id')`.
 
-```typescript
-'use client';
-import { useSession } from '@clerk/nextjs';
-import { createClient } from '@supabase/supabase-js';
-
-export function UserDataComponent() {
-  const { session } = useSession();
-
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
-    {
-      async accessToken() {
-        return session?.getToken() ?? null;
-      },
-    }
-  );
-
-  const fetchUserData = async () => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .single();
-
-    if (error) console.error('Error:', error);
-    return data;
-  };
-
-  return (
-    <div>
-      {/* Component content */}
-    </div>
-  );
-}
-```
-
-### **5.2 – Server Component Example**
-
-```typescript
-import { auth } from '@clerk/nextjs/server';
-import { createClient } from '@supabase/supabase-js';
-
-export default async function ServerComponent() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_KEY!,
-    {
-      async accessToken() {
-        return (await auth()).getToken();
-      },
-    }
-  );
-
-  const { data, error } = await supabase
-    .from('users')
-    .select('*');
-
-  if (error) throw error;
-
-  return (
-    <div>
-      {data?.map(user => (
-        <div key={user.id}>{user.name}</div>
-      ))}
-    </div>
-  );
-}
-```
-
-### **5.3 – RLS Policy Example**
+### **3.1 – RLS Policy Example**
 
 ```sql
 -- Enable RLS on table
 alter table "users" enable row level security;
 
--- Create policies using auth.jwt()
+-- Use session variable for user identification
 create policy "Users can view own data" on "users"
 for select to authenticated using (
-  auth.jwt()->>'sub' = user_id
+  current_setting('app.user_id', true) = user_id
 );
 
 create policy "Users can insert own data" on "users"
 for insert to authenticated with check (
-  auth.jwt()->>'sub' = user_id
+  current_setting('app.user_id', true) = user_id
 );
 
 create policy "Users can update own data" on "users"
 for update to authenticated using (
-  auth.jwt()->>'sub' = user_id
+  current_setting('app.user_id', true) = user_id
 );
 ```
 
-### **5.4 – Pricing Page Example**
+---
+
+## **4. Storage, Realtime, RPC (server-only)**
+
+**All Supabase features (storage, realtime, RPC, etc.) must be accessed exclusively from server-side endpoints.**  
+Never use client SDKs for direct access. Always proxy requests through authenticated server routes that enforce session variables and RLS.
+
+---
+
+## **5. Stripe Billing (Direct)**
+
+**Purpose:** Integrate Stripe billing directly, server-only. Do not use Clerk Billing or any Clerk billing components.
+
+### **5.1 – Stripe Checkout Session Example**
 
 ```typescript
-// app/pricing/page.tsx
-import { PricingTable } from '@clerk/nextjs'
+// app/api/stripe/checkout/route.ts
+import Stripe from 'stripe';
 
-export default function PricingPage() {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8">
-          Choose Your Plan
-        </h1>
-        <PricingTable />
-      </div>
-    </div>
-  )
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2022-11-15',
+});
+
+export async function POST(req: Request) {
+  const { priceId, userId } = await req.json();
+  const session = await stripe.checkout.sessions.create({
+    mode: 'subscription',
+    payment_method_types: ['card'],
+    line_items: [{ price: priceId, quantity: 1 }],
+    customer_email: 'user@example.com', // Fetch from your user DB
+    success_url: 'https://your-app.com/success',
+    cancel_url: 'https://your-app.com/cancel',
+    metadata: { userId },
+  });
+  return Response.json({ url: session.url });
 }
 ```
 
-### **5.5 – Homepage Pricing Link Example**
+### **5.2 – Stripe Customer Portal Example**
 
 ```typescript
-// app/page.tsx or components/home/HomeHero.tsx
-import Link from 'next/link'
+// app/api/stripe/portal/route.ts
+import Stripe from 'stripe';
 
-export default function HomePage() {
-  return (
-    <div>
-      {/* Other content */}
-      <div className="flex gap-4">
-        <Link
-          href="/pricing"
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
-        >
-          View Pricing
-        </Link>
-        {/* Other buttons */}
-      </div>
-    </div>
-  )
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2022-11-15',
+});
+
+export async function POST(req: Request) {
+  const { customerId } = await req.json();
+  const portal = await stripe.billingPortal.sessions.create({
+    customer: customerId,
+    return_url: 'https://your-app.com/account',
+  });
+  return Response.json({ url: portal.url });
+}
+```
+
+### **5.3 – Stripe Webhook Example**
+
+```typescript
+// app/api/stripe/webhook/route.ts
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2022-11-15',
+});
+
+export async function POST(req: Request) {
+  const sig = req.headers.get('stripe-signature');
+  const body = await req.text();
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      body,
+      sig!,
+      process.env.STRIPE_WEBHOOK_SECRET!
+    );
+  } catch (err) {
+    return new Response('Webhook Error', { status: 400 });
+  }
+  // Handle event types (e.g., subscription.created, invoice.paid)
+  return new Response('ok');
 }
 ```
 
 ---
 
-## **6. AI MODEL VERIFICATION STEPS**
+## **6. Driver Matrix**
 
-Before returning any Clerk integration solution, you **must** verify:
+| Driver        | Library/Module              | Example Usage |
+| ------------- | --------------------------- | ------------- |
+| Node Postgres | `drizzle-orm/node-postgres` | See below     |
+| Neon HTTP     | `drizzle-orm/neon-http`     | See below     |
 
-### **For Clerk-Supabase Integration:**
+### **6.1 – Node Postgres Example**
 
-1. **Native Integration**: Is the native Supabase integration being used (not JWT templates)?
-2. **Access Token**: Is `accessToken()` method used in Supabase client configuration?
-3. **RLS Policies**: Are RLS policies using `auth.jwt()->>'sub'` for user identification?
-4. **Client vs Server**: Is the correct approach used for client vs server components?
-5. **Security**: Are RLS policies enabled and properly configured?
-6. **Deprecation**: Are any deprecated patterns being avoided?
+```typescript
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+export const db = drizzle(pool);
+```
 
-### **For Clerk Billing:**
+### **6.2 – Neon HTTP Example**
 
-1. **Pricing Table**: Is `<PricingTable />` component being used?
-2. **Access Control**: Is `has()` method or `<Protect>` component being used?
-3. **Navigation**: Is pricing page linked from homepage and navigation?
-4. **Plans/Features**: Are plans and features created in Clerk Dashboard?
-5. **Subscription States**: Are subscription states being handled properly?
+```typescript
+import { drizzle } from 'drizzle-orm/neon-http';
+import { NeonHttpDriver } from '@neondatabase/serverless';
+const neon = new NeonHttpDriver(process.env.DATABASE_URL!);
+export const db = drizzle(neon);
+```
+
+---
+
+## **7. AI MODEL VERIFICATION STEPS**
+
+Before returning any integration solution, you **must** verify:
+
+### **Auth & Access**
+
+1. **No client-side Supabase usage**: All database access is via Drizzle on the server.
+2. **Session variable set**: PostgreSQL session variable (`app.user_id`) is set per request.
+3. **RLS policies**: Use `current_setting('app.user_id')` in RLS policies.
+4. **No deprecated Supabase or Clerk Billing patterns**.
+
+### **Billing**
+
+1. **Stripe Billing only**: All billing flows use direct Stripe integration (Checkout, Portal, webhooks).
+2. **No use of Clerk Billing or related components**.
+3. **Server-only Stripe API usage**.
 
 If any check **fails**, **stop** and revise until compliance is achieved.
 
 ---
 
-## **7. ENVIRONMENT VARIABLES**
+## **8. Environment Variables**
 
-Required environment variables for Clerk integration:
+Required environment variables for Clerk, database, and Stripe billing:
 
 ```bash
 # Clerk
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_KEY=your-anon-key
+# Database (Postgres/Neon)
+DATABASE_URL=postgresql://...
 
-# Stripe (if using own Stripe account with Clerk billing)
+# Stripe (Direct Integration)
 STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 ```
 
 ---
 
-## **8. TESTING GUIDELINES**
+## **9. Unit Test Performance Rules**
+
+- Unit tests must run in under 200ms each whenever possible.
+- Keep unit test suite lightweight; push heavier coverage into integration/E2E tests.
+- Mock external services (Stripe, Clerk, Upstash, Supabase) to avoid network delays.
+- Split slow-running tests into separate categories (integration, e2e).
+- Follow YC principle: fast feedback loops > exhaustive coverage.
+
+---
+
+## **10. Upstash Usage**
+
+- Use Upstash Redis for rate limiting public endpoints (`@upstash/ratelimit`).
+- Use short-TTL caches (≤15 minutes) for public, non-sensitive data to offload Postgres/Neon.
+- Use QStash for webhook handling (Stripe, Clerk) with retries and dead-letter queue.
+- All usage is server-only; never expose tokens or Upstash client to the browser.
+- Do not cache or queue sensitive PII unless encrypted.
+- Keep regional deployments aligned with Neon/Vercel for low latency.
+
+---
+
+## **11. TESTING GUIDELINES**
 
 When testing Clerk integration:
 
@@ -562,7 +423,7 @@ When testing Clerk integration:
 
 ---
 
-## **9. MIGRATION FROM OLD APPROACH**
+## **12. MIGRATION FROM OLD APPROACH**
 
 If migrating from JWT templates:
 
@@ -574,9 +435,10 @@ If migrating from JWT templates:
 
 ---
 
-## **10. RESOURCES**
+## **13. RESOURCES**
 
-- [Clerk Supabase Integration Docs](https://clerk.com/docs/raw/integrations/databases/supabase.mdx)
-- [Clerk Billing with Stripe Docs](https://clerk.com/docs/nextjs/billing/b2c-saas)
-- [Supabase RLS Documentation](https://supabase.com/docs/guides/auth/row-level-security)
+- [Drizzle ORM Docs](https://orm.drizzle.team/docs)
+- [Neon Serverless Docs](https://neon.tech/docs/introduction)
+- [Postgres RLS Documentation](https://www.postgresql.org/docs/current/ddl-rowsecurity.html)
 - [Clerk Next.js Documentation](https://clerk.com/docs/quickstarts/nextjs)
+- [Stripe API Docs](https://stripe.com/docs/api)

@@ -3,9 +3,6 @@ import { SocialsForm } from './SocialsForm';
 import { Artist } from '@/types/db';
 import * as React from 'react';
 
-// Mock the useAuthenticatedSupabase hook
-import * as supabaseModule from '@/lib/supabase';
-
 // Mock artist data for stories
 const mockArtist: Artist = {
   id: 'mock-artist-id',
@@ -92,56 +89,45 @@ const meta: Meta<typeof SocialsForm> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Helper to setup mocks for each story
-const withSupabaseMock = (
+// Helper to setup fetch mocks for each story
+const withFetchMock = (
   Story: React.ComponentType,
   socialLinks: SocialLink[] = [],
   shouldError: boolean = false
 ) => {
-  // Save the original implementation
-  const originalUseAuthenticatedSupabase =
-    supabaseModule.useAuthenticatedSupabase;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
+    const url = typeof input === 'string' ? input : input.toString();
+    if (
+      url.includes('/api/dashboard/social-links') &&
+      (!init || init.method === undefined)
+    ) {
+      // GET
+      return Promise.resolve(
+        new Response(JSON.stringify({ links: socialLinks }), { status: 200 })
+      );
+    }
+    if (url.includes('/api/dashboard/social-links') && init?.method === 'PUT') {
+      if (shouldError) {
+        return Promise.resolve(
+          new Response(JSON.stringify({ error: 'Validation error' }), {
+            status: 400,
+          })
+        );
+      }
+      return Promise.resolve(new Response('{}', { status: 200 }));
+    }
+    return originalFetch!(input as RequestInfo, init);
+  }) as typeof fetch;
 
-  // Mock the Supabase client and responses
-  const mockSupabaseClient = {
-    from: () => ({
-      select: () => ({
-        eq: () =>
-          Promise.resolve({
-            data: socialLinks,
-            error: null,
-          }),
-      }),
-      delete: () => ({
-        eq: () => Promise.resolve({ error: null }),
-      }),
-      insert: () =>
-        Promise.resolve({
-          error: shouldError ? { message: 'Validation error' } : null,
-        }),
-    }),
-  };
-
-  // Override the useAuthenticatedSupabase hook
-  // @ts-ignore - we're intentionally mocking this
-  supabaseModule.useAuthenticatedSupabase = () => ({
-    getAuthenticatedClient: () => mockSupabaseClient,
-    supabase: mockSupabaseClient,
-  });
-
-  // Render the story
   const result = <Story />;
-
-  // Restore the original implementation after rendering
-  // @ts-ignore - we're intentionally restoring this
-  supabaseModule.useAuthenticatedSupabase = originalUseAuthenticatedSupabase;
-
+  globalThis.fetch = originalFetch!;
   return result;
 };
 
 // Default story - empty state
 export const Default: Story = {
-  decorators: [(Story) => withSupabaseMock(Story, mockEmptySocialLinks)],
+  decorators: [(Story) => withFetchMock(Story, mockEmptySocialLinks)],
   args: {
     artist: mockArtist,
   },
@@ -149,7 +135,7 @@ export const Default: Story = {
 
 // Prefilled story - with existing social links
 export const Prefilled: Story = {
-  decorators: [(Story) => withSupabaseMock(Story, mockSocialLinks)],
+  decorators: [(Story) => withFetchMock(Story, mockSocialLinks)],
   args: {
     artist: mockArtist,
   },
@@ -157,9 +143,7 @@ export const Prefilled: Story = {
 
 // Validation error story
 export const ValidationError: Story = {
-  decorators: [
-    (Story) => withSupabaseMock(Story, mockInvalidSocialLinks, true),
-  ],
+  decorators: [(Story) => withFetchMock(Story, mockInvalidSocialLinks, true)],
   args: {
     artist: mockArtist,
   },
@@ -172,7 +156,7 @@ export const DarkMode: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="dark">{withSupabaseMock(Story, mockSocialLinks)}</div>
+      <div className="dark">{withFetchMock(Story, mockSocialLinks)}</div>
     ),
   ],
   args: {
@@ -184,31 +168,23 @@ export const DarkMode: Story = {
 export const Loading: Story = {
   decorators: [
     (Story) => {
-      // Save the original implementation
-      const originalUseAuthenticatedSupabase =
-        supabaseModule.useAuthenticatedSupabase;
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
+        const url = typeof input === 'string' ? input : input.toString();
+        if (
+          url.includes('/api/dashboard/social-links') &&
+          (!init || init.method === undefined)
+        ) {
+          // GET that never resolves
+          return new Promise<Response>(() => {}) as unknown as ReturnType<
+            typeof fetch
+          >;
+        }
+        return originalFetch!(input as RequestInfo, init);
+      }) as typeof fetch;
 
-      // Mock a loading state by returning a promise that never resolves
-      // @ts-ignore - we're intentionally mocking this
-      supabaseModule.useAuthenticatedSupabase = () => ({
-        getAuthenticatedClient: () => ({
-          from: () => ({
-            select: () => ({
-              eq: () => new Promise(() => {}), // Never resolves
-            }),
-          }),
-        }),
-        supabase: null,
-      });
-
-      // Render the story
       const result = <Story />;
-
-      // Restore the original implementation after rendering
-      // @ts-ignore - we're intentionally restoring this
-      supabaseModule.useAuthenticatedSupabase =
-        originalUseAuthenticatedSupabase;
-
+      globalThis.fetch = originalFetch!;
       return result;
     },
   ],
@@ -221,31 +197,30 @@ export const Loading: Story = {
 export const SuccessMessage: Story = {
   decorators: [
     (Story) => {
-      // Save the original implementation
-      const originalUseAuthenticatedSupabase =
-        supabaseModule.useAuthenticatedSupabase;
       const originalUseState = React.useState;
 
-      // Mock the Supabase client
-      // @ts-ignore - we're intentionally mocking this
-      supabaseModule.useAuthenticatedSupabase = () => ({
-        getAuthenticatedClient: () => ({
-          from: () => ({
-            select: () => ({
-              eq: () =>
-                Promise.resolve({
-                  data: mockSocialLinks,
-                  error: null,
-                }),
-            }),
-            delete: () => ({
-              eq: () => Promise.resolve({ error: null }),
-            }),
-            insert: () => Promise.resolve({ error: null }),
-          }),
-        }),
-        supabase: null,
-      });
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
+        const url = typeof input === 'string' ? input : input.toString();
+        if (
+          url.includes('/api/dashboard/social-links') &&
+          (!init || init.method === undefined)
+        ) {
+          // GET
+          return Promise.resolve(
+            new Response(JSON.stringify({ links: mockSocialLinks }), {
+              status: 200,
+            })
+          );
+        }
+        if (
+          url.includes('/api/dashboard/social-links') &&
+          init?.method === 'PUT'
+        ) {
+          return Promise.resolve(new Response('{}', { status: 200 }));
+        }
+        return originalFetch!(input as RequestInfo, init);
+      }) as typeof fetch;
 
       // Mock useState to show success message
       let callCount = 0;
@@ -264,10 +239,8 @@ export const SuccessMessage: Story = {
 
       // Restore the original implementations after rendering
       // @ts-ignore - we're intentionally restoring this
-      supabaseModule.useAuthenticatedSupabase =
-        originalUseAuthenticatedSupabase;
-      // @ts-ignore - we're intentionally restoring this
       React.useState = originalUseState;
+      globalThis.fetch = originalFetch!;
 
       return result;
     },

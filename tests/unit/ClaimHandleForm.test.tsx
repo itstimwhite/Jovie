@@ -3,6 +3,7 @@ import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { ClaimHandleForm } from '@/components/home/ClaimHandleForm';
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+import { APP_URL } from '@/constants/app';
 
 // Mock dependencies
 vi.mock('@clerk/nextjs', () => ({
@@ -75,6 +76,35 @@ describe('ClaimHandleForm', () => {
     const form = document.querySelector('form') as HTMLFormElement;
     expect(form).not.toBeNull();
     const input = screen.getByRole('textbox', { name: /choose your handle/i });
+
+    fireEvent.change(input, { target: { value: 'testhandle' } });
+
+    // Wait for availability check
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/handle/check?handle=testhandle',
+        expect.any(Object)
+      );
+    });
+
+    // Wait for the Available badge to appear
+    await waitFor(() => {
+      const availableText = screen.getByText('Available');
+      expect(availableText).toBeInTheDocument();
+    });
+
+    // Expected domain (component strips protocol)
+    const displayDomain = APP_URL.replace(/^https?:\/\//, '');
+
+    // Test click functionality on the URL preview
+    const copyButton = screen.getByRole('button', {
+      name: `Copy profile URL ${displayDomain}/testhandle`,
+    });
+    fireEvent.click(copyButton);
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      `${displayDomain}/testhandle`
+    );
 
     // Try to submit with invalid handle
     fireEvent.change(input, { target: { value: 'ab' } }); // Too short

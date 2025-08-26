@@ -19,7 +19,6 @@ import type {
   SocialLink,
   SocialPlatform,
 } from '@/types/db';
-import { createClerkSupabaseClient } from '@/lib/supabase';
 import { debounce } from '@/lib/utils';
 
 interface LinkItem extends DetectedLink {
@@ -123,25 +122,18 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
       if (!session || !artist.id) return;
 
       try {
-        const supabase = createClerkSupabaseClient(session);
-        if (!supabase) return;
-
-        const { data: socialLinksData, error: socialLinksError } =
-          await supabase
-            .from('social_links')
-            .select('*')
-            .eq('creator_profile_id', artist.id);
-
-        if (socialLinksError) {
-          console.error('Error fetching social links:', socialLinksError);
-          return;
-        }
+        const res = await fetch(
+          `/api/dashboard/social-links?profileId=${encodeURIComponent(artist.id)}`,
+          { cache: 'no-store' }
+        );
+        if (!res.ok) throw new Error(`Failed to fetch links (${res.status})`);
+        const json: { links: SocialLink[] } = await res.json();
 
         // Split links into social and DSP categories
         const socialLinksItems: LinkItem[] = [];
         const dspLinksItems: LinkItem[] = [];
 
-        const allLinks = convertDbLinksToLinkItems(socialLinksData || []);
+        const allLinks = convertDbLinksToLinkItems(json.links || []);
 
         allLinks.forEach((link) => {
           if (link.platform.category === 'dsp') {
@@ -226,38 +218,22 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
       }));
 
       try {
-        const supabase = createClerkSupabaseClient(session);
-        if (!supabase) {
-          throw new Error('Failed to create Supabase client');
-        }
-
-        // Convert links to database format
+        // Convert links to database format for API payload
         const allLinks = [
           ...convertLinkItemsToDbFormat(socialLinksToSave, artist.id),
           ...convertLinkItemsToDbFormat(dspLinksToSave, artist.id),
         ];
 
-        // Delete existing links
-        const { error: deleteError } = await supabase
-          .from('social_links')
-          .delete()
-          .eq('creator_profile_id', artist.id);
-
-        if (deleteError) {
-          throw new Error(
-            `Failed to delete existing links: ${deleteError.message}`
-          );
-        }
-
-        // Insert new links
-        if (allLinks.length > 0) {
-          const { error: insertError } = await supabase
-            .from('social_links')
-            .insert(allLinks);
-
-          if (insertError) {
-            throw new Error(`Failed to insert links: ${insertError.message}`);
-          }
+        const res = await fetch('/api/dashboard/social-links', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profileId: artist.id, links: allLinks }),
+        });
+        if (!res.ok) {
+          const err = (await res.json().catch(() => ({}))) as {
+            error?: string;
+          };
+          throw new Error(`Failed to save links: ${err?.error ?? res.status}`);
         }
 
         // Update artist record with timestamp

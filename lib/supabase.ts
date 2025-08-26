@@ -1,100 +1,62 @@
-import { createClient } from '@supabase/supabase-js';
-import { useSession } from '@clerk/nextjs';
-import { env } from '@/lib/env';
+// Compatibility shim for tests that import '@/lib/supabase'
+// Do NOT use in application code. Client-side Supabase is deprecated in this repo.
 
-const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
-const supabasePublicKey =
-  env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-  env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-// Create a single singleton instance for unauthenticated requests
-let supabaseClient: ReturnType<typeof createClient> | null = null;
+export type ClerkSessionForSupabaseCompat = {
+  getToken: (options?: unknown) => Promise<string | null>;
+};
 
-export function createBrowserClient() {
-  if (!supabaseUrl || !supabasePublicKey) {
+export function createBrowserClient(): SupabaseClient | null {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key) return null;
+  try {
+    return createClient(url, key, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    });
+  } catch {
     return null;
   }
-
-  if (!supabaseClient) {
-    supabaseClient = createClient(supabaseUrl, supabasePublicKey, {
-      auth: {
-        persistSession: false, // Prevent multiple auth instances
-      },
-    });
-  }
-  return supabaseClient;
 }
 
-// Export the singleton instance for unauthenticated requests
-export const supabase = createBrowserClient();
-
-// Hook to get authenticated client with native Clerk integration
-export function useAuthenticatedSupabase() {
-  const { session } = useSession();
-
-  const getAuthenticatedClient = () => {
-    if (!supabaseUrl || !supabasePublicKey) {
-      return null;
-    }
-
-    // Use native Supabase integration with accessToken in the global config
-    return createClient(supabaseUrl, supabasePublicKey, {
-      auth: {
-        persistSession: false, // Prevent multiple auth instances
-      },
-      accessToken: async () => {
-        return session?.getToken() ?? null;
-      },
-    });
-  };
-
-  return { getAuthenticatedClient, supabase };
-}
-
-// Function to create authenticated client with session - uses native integration
 export function createClerkSupabaseClient(
-  session: ReturnType<typeof useSession>['session']
-) {
-  if (!supabaseUrl || !supabasePublicKey) {
-    return null;
-  }
+  _session: ClerkSessionForSupabaseCompat
+): SupabaseClient | null {
+  // Mark parameter as used for linting purposes in this test-only shim
+  void _session;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  return createClient(supabaseUrl, supabasePublicKey, {
+  if (!url || !key) return null;
+  // We don't wire token injection in tests; just return a basic client
+  return createClient(url, key, {
     auth: {
-      persistSession: false, // Prevent multiple auth instances
-    },
-    accessToken: async () => {
-      return session?.getToken() ?? null;
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
     },
   });
 }
 
-// Legacy function for backward compatibility (deprecated)
-export async function getAuthenticatedClient(token?: string | null) {
-  try {
-    if (!supabaseUrl || !supabasePublicKey) {
-      return null;
-    }
-
-    if (token) {
-      return createClient(supabaseUrl, supabasePublicKey, {
-        auth: {
-          persistSession: false, // Prevent multiple auth instances
-        },
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      });
-    }
-    return supabaseClient;
-  } catch {
-    return supabaseClient;
-  }
+export function useAuthenticatedSupabase(): {
+  getAuthenticatedClient: () => SupabaseClient | null;
+  supabase: SupabaseClient | null;
+} {
+  const client = createBrowserClient();
+  return {
+    getAuthenticatedClient: () => client,
+    supabase: client,
+  };
 }
 
-// Legacy hook for backward compatibility (deprecated)
-export function useSupabase() {
-  return { getAuthenticatedClient, supabase };
-}
+export const supabase: SupabaseClient | null = createBrowserClient();

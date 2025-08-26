@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuthenticatedSupabase } from '@/lib/supabase';
 import { AnalyticsCard } from '../atoms/AnalyticsCard';
 
 interface AnalyticsData {
@@ -12,7 +11,6 @@ interface AnalyticsData {
 }
 
 export function AnalyticsCards() {
-  const { getAuthenticatedClient } = useAuthenticatedSupabase();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
   const [data, setData] = useState<AnalyticsData>({
@@ -25,47 +23,13 @@ export function AnalyticsCards() {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        // Get authenticated Supabase client using native integration
-        const supabase = getAuthenticatedClient();
-
-        if (!supabase) {
-          console.error('Failed to get authenticated Supabase client');
-          return;
-        }
-
-        // Get analytics data for the current user's artists
-        const { data: analyticsData, error } = await supabase
-          .from('click_events')
-          .select('*')
-          .gte(
-            'created_at',
-            new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
-          );
-
-        if (error) {
-          console.error('Error fetching analytics:', error);
-          setError('Failed to load analytics');
-        } else {
-          // Process analytics data
-          const totalClicks = analyticsData?.length || 0;
-          const spotifyClicks =
-            analyticsData?.filter((e) => e.link_type === 'listen').length || 0;
-          const socialClicks =
-            analyticsData?.filter((e) => e.link_type === 'social').length || 0;
-          const recentClicks =
-            analyticsData?.filter(
-              (e) =>
-                new Date(e.created_at as string) >
-                new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-            ).length || 0;
-
-          setData({
-            total_clicks: totalClicks,
-            spotify_clicks: spotifyClicks,
-            social_clicks: socialClicks,
-            recent_clicks: recentClicks,
-          });
-        }
+        const res = await fetch('/api/dashboard/analytics', {
+          cache: 'no-store',
+        });
+        if (!res.ok)
+          throw new Error(`Failed to fetch analytics (${res.status})`);
+        const json: AnalyticsData = await res.json();
+        setData(json);
       } catch (error) {
         console.error('Error:', error);
         setError('Failed to load analytics');
@@ -75,7 +39,7 @@ export function AnalyticsCards() {
     };
 
     fetchAnalytics();
-  }, [getAuthenticatedClient]);
+  }, []);
 
   const cards = [
     {

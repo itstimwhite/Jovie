@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createPublicSupabaseClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 import { Suspense } from 'react';
@@ -11,28 +11,15 @@ import {
   convertCreatorProfileToArtist,
 } from '@/types/db';
 import { PAGE_SUBTITLES } from '@/constants/app';
-import { env } from '@/lib/env';
 
-// Create an anonymous Supabase client for public data
-function createAnonSupabase() {
-  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey =
-    env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || // New standard key
-    env.NEXT_PUBLIC_SUPABASE_ANON_KEY; // Fallback to deprecated key
-
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing Supabase configuration');
-  }
-
-  return createClient(supabaseUrl, supabaseKey);
-}
+// Use centralized server helper for public data access
 
 // Using CreatorProfile type and convertCreatorProfileToArtist utility from types/db.ts
 
 // Cache the database query to prevent duplicate calls during page + metadata generation
 const getCreatorProfile = cache(
   async (username: string): Promise<CreatorProfile | null> => {
-    const supabase = createAnonSupabase();
+    const supabase = createPublicSupabaseClient();
 
     const { data, error } = await supabase
       .from('creator_profiles')

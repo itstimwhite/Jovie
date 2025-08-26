@@ -51,8 +51,8 @@ describe('Integration Health Diagnostics', () => {
         expect(
           () => new URL(env.NEXT_PUBLIC_SUPABASE_URL as string)
         ).not.toThrow();
-        // Allow both supabase.co and custom domains
-        expect(env.NEXT_PUBLIC_SUPABASE_URL).toMatch(/^https:\/\/.+/);
+        // Allow both supabase.co and custom domains, and http for localhost in tests
+        expect(env.NEXT_PUBLIC_SUPABASE_URL).toMatch(/^https?:\/\/.+/);
       }
     });
   });
