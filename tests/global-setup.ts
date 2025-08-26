@@ -14,9 +14,9 @@ async function globalSetup() {
   // Set up Clerk testing token if we have real Clerk keys and test user credentials
   const hasRealClerkKeys =
     process.env.CLERK_SECRET_KEY &&
-    !process.env.CLERK_SECRET_KEY.includes('dummy') &&
-    !process.env.CLERK_SECRET_KEY.includes('1234567890') &&
-    !process.env.CLERK_SECRET_KEY.includes('mock');
+    !CLERK_MOCK_KEY_INDICATORS.some(indicator =>
+      process.env.CLERK_SECRET_KEY!.includes(indicator)
+    );
 
   const hasTestUser =
     process.env.E2E_CLERK_USER_USERNAME && process.env.E2E_CLERK_USER_PASSWORD;
