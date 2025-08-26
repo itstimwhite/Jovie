@@ -14,7 +14,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 // Mock fetch for handle checking
-global.fetch = vi.fn();
+global.fetch = vi.fn() as unknown as typeof fetch;
 
 const mockPush = vi.fn();
 const mockPrefetch = vi.fn();
@@ -33,7 +33,7 @@ describe('ClaimHandleForm', () => {
     } as any);
     
     // Mock fetch to respond immediately
-    (global.fetch as any).mockResolvedValue({
+    (global.fetch as unknown as { mockResolvedValue: Function }).mockResolvedValue({
       ok: true,
       json: async () => ({ available: true }),
     });
