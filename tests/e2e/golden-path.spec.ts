@@ -163,8 +163,7 @@ test.describe('Golden Path - Complete User Journey', () => {
     });
 
     // STEP 5: Fill handle input (test session persistence)
-    const handleInput = page.locator(
-      'input[placeholder*="handle"], input[name*="handle"]'
+      '[data-testid="handle-input"]'
     );
     await handleInput.waitFor({ state: 'visible' });
     await handleInput.fill('testuser' + Date.now());
