@@ -9,8 +9,25 @@ interface DebugInfo {
     hasToken: boolean;
     tokenPreview: string | null;
   };
-  environment: Record<string, unknown>;
-  request: Record<string, unknown>;
+  environment: {
+    NODE_ENV?: string;
+    VERCEL_ENV?: string;
+    hasClerkPublishableKey?: boolean;
+    hasClerkSecretKey?: boolean;
+    clerkPublishableKeyPrefix?: string;
+    hasE2ECredentials?: boolean;
+    e2eUsername?: string | null;
+  };
+  request: {
+    userAgent?: string;
+    ip?: string;
+    method?: string;
+    url?: string;
+    headers?: {
+      'x-clerk-session-id'?: string;
+      cookie?: string;
+    };
+  };
   botDetection: {
     suspiciousPatterns: Array<{ pattern: string; matches: boolean }>;
     isSuspicious: boolean;
@@ -144,11 +161,12 @@ export default function DebugAuthPage() {
           </h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <strong>NODE_ENV:</strong> {serverInfo.environment.NODE_ENV}
+              <strong>NODE_ENV:</strong>{' '}
+              {String(serverInfo.environment.NODE_ENV || 'unknown')}
             </div>
             <div>
               <strong>VERCEL_ENV:</strong>{' '}
-              {serverInfo.environment.VERCEL_ENV || 'local'}
+              {String(serverInfo.environment.VERCEL_ENV || 'local')}
             </div>
             <div>
               <strong>Clerk Publishable Key:</strong>{' '}
@@ -170,12 +188,15 @@ export default function DebugAuthPage() {
             </div>
             <div>
               <strong>E2E Username:</strong>{' '}
-              {serverInfo.environment.e2eUsername || 'Not set'}
+              {String(serverInfo.environment.e2eUsername || 'Not set')}
             </div>
             <div className="col-span-2">
               <strong>Publishable Key Prefix:</strong>
               <code className="text-xs bg-gray-200 p-1 rounded ml-2">
-                {serverInfo.environment.clerkPublishableKeyPrefix}...
+                {String(
+                  serverInfo.environment.clerkPublishableKeyPrefix || 'unknown'
+                )}
+                ...
               </code>
             </div>
           </div>
@@ -198,13 +219,13 @@ export default function DebugAuthPage() {
             </div>
             <div>
               <strong>Cookies:</strong>{' '}
-              {serverInfo.request.headers.cookie === 'present'
+              {serverInfo.request.headers?.cookie === 'present'
                 ? '✅ Present'
                 : '❌ Missing'}
             </div>
             <div>
               <strong>Clerk Session Header:</strong>{' '}
-              {serverInfo.request.headers['x-clerk-session-id'] || 'None'}
+              {serverInfo.request.headers?.['x-clerk-session-id'] || 'None'}
             </div>
           </div>
         </div>
