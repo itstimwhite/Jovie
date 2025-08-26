@@ -88,21 +88,14 @@ describe('FeaturedCreators Component', () => {
   it('renders creator links with correct hrefs', () => {
     render(<FeaturedArtists />);
 
-    const links = screen.getAllByRole('link');
-
-    const ladyGagaLinks = links.filter(
-      (link) => link.getAttribute('href') === '/ladygaga'
-    );
-    const taylorSwiftLinks = links.filter(
-      (link) => link.getAttribute('href') === '/taylorswift'
-    );
-    const dualipaLinks = links.filter(
-      (link) => link.getAttribute('href') === '/dualipa'
-    );
-
-    expect(ladyGagaLinks.length).toBeGreaterThan(0);
-    expect(taylorSwiftLinks.length).toBeGreaterThan(0);
-    expect(dualipaLinks.length).toBeGreaterThan(0);
+    // More efficient approach - check for at least one link with each expected href
+    const expectedHrefs = ['/ladygaga', '/taylorswift', '/dualipa'];
+    
+    // Check each href individually instead of getting all links at once
+    for (const href of expectedHrefs) {
+      const link = document.querySelector(`a[href="${href}"]`);
+      expect(link).not.toBeNull();
+    }
   });
 
   it('renders creator names', () => {
