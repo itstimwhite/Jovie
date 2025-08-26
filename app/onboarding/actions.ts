@@ -25,16 +25,25 @@ export async function completeOnboarding({
   username: string;
   displayName?: string;
 }) {
+  console.log(
+    '🚀 Starting onboarding for username:',
+    username,
+    'displayName:',
+    displayName
+  );
   try {
     // Step 1: Authentication check
+    console.log('Step 1: Checking authentication...');
     const { userId } = await auth();
     if (!userId) {
+      console.error('Authentication failed - no userId');
       const error = createOnboardingError(
         OnboardingErrorCode.NOT_AUTHENTICATED,
         'User not authenticated'
       );
       throw new Error(error.message);
     }
+    console.log('✅ Authentication successful, userId:', userId);
 
     // Step 2: Input validation
     const validation = validateUsername(username);
@@ -59,7 +68,9 @@ export async function completeOnboarding({
     const forwarded = headersList.get('x-forwarded-for');
     const clientIP = forwarded ? forwarded.split(',')[0] : null;
 
+    console.log('Step 3: Creating authenticated Supabase client...');
     const supabase = await createAuthenticatedClient();
+    console.log('✅ Supabase client created successfully');
 
     // Check rate limits - handle JWT errors gracefully
     const { data: rateLimitResult, error: rateLimitError } = await supabase.rpc(
@@ -133,6 +144,7 @@ export async function completeOnboarding({
 
     // Step 8: Create records using database transaction simulation
     // First create app_users record
+    console.log('Creating app_users record for userId:', userId);
     const { error: userError } = await queryWithRetry(
       async () =>
         await supabase.from('app_users').upsert({
@@ -144,10 +156,19 @@ export async function completeOnboarding({
     if (userError) {
       const mappedError = mapDatabaseError(userError);
       console.error('Error creating user record:', userError);
+      console.error('Raw error details:', JSON.stringify(userError, null, 2));
+      console.error('Mapped error:', mappedError);
       throw new Error(mappedError.message);
     }
+    console.log('Successfully created app_users record');
 
     // Then create creator profile
+    console.log(
+      'Creating creator_profiles record for userId:',
+      userId,
+      'username:',
+      normalizedUsername
+    );
     const { error: profileError } = await queryWithRetry(
       async () =>
         await supabase.from('creator_profiles').insert({
@@ -163,11 +184,17 @@ export async function completeOnboarding({
     if (profileError) {
       const mappedError = mapDatabaseError(profileError);
       console.error('Error creating profile:', profileError);
+      console.error(
+        'Raw profile error details:',
+        JSON.stringify(profileError, null, 2)
+      );
+      console.error('Mapped profile error:', mappedError);
 
       // If profile creation fails, we should clean up the app_users record
       // But since we're using RLS, the user can only see their own data anyway
       throw new Error(mappedError.message);
     }
+    console.log('Successfully created creator_profiles record');
 
     // Success - redirect to dashboard
     redirect('/dashboard');
