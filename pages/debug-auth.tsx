@@ -284,7 +284,7 @@ export default function DebugAuthPage() {
             <strong>Pattern Checks:</strong>
             <ul className="list-disc list-inside mt-1">
               {serverInfo.botDetection.suspiciousPatterns.map(
-                (pattern, index: number) => (
+                (pattern, index) => (
                   <li
                     key={index}
                     className={
