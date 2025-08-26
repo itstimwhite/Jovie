@@ -59,7 +59,18 @@ export async function completeOnboarding({
     const forwarded = headersList.get('x-forwarded-for');
     const clientIP = forwarded ? forwarded.split(',')[0] : null;
 
-    const supabase = await createAuthenticatedClient();
+    let supabase;
+    try {
+      supabase = await createAuthenticatedClient();
+    } catch (clientError) {
+      console.error('❌ Failed to create Supabase client:', clientError);
+      throw new Error(
+        'Failed to initialize database connection: ' +
+          (clientError instanceof Error
+            ? clientError.message
+            : String(clientError))
+      );
+    }
 
     // Check rate limits - handle JWT errors gracefully
     const { data: rateLimitResult, error: rateLimitError } = await supabase.rpc(
@@ -76,9 +87,15 @@ export async function completeOnboarding({
       const errorMessage = rateLimitError.message || '';
       if (
         typeof errorMessage === 'string' &&
-        errorMessage.includes('JWSInvalidSignature')
+        (errorMessage.includes('JWSInvalidSignature') ||
+          errorMessage.includes('JWT') ||
+          errorMessage.includes('PGRST301'))
       ) {
-        console.warn('JWT signature invalid - skipping rate limit check');
+        console.warn(
+          'JWT validation failed - this indicates a Clerk-Supabase integration issue'
+        );
+        console.warn('Error details:', errorMessage);
+        // Continue with onboarding but log the issue
       } else {
         // For other errors, we might want to be more restrictive
         // but for now, let's continue with onboarding
@@ -138,6 +155,8 @@ export async function completeOnboarding({
     if (userError) {
       const mappedError = mapDatabaseError(userError);
       console.error('Error creating user record:', userError);
+      console.error('Raw error details:', JSON.stringify(userError, null, 2));
+      console.error('Mapped error:', mappedError);
       throw new Error(mappedError.message);
     }
 
@@ -157,6 +176,11 @@ export async function completeOnboarding({
     if (profileError) {
       const mappedError = mapDatabaseError(profileError);
       console.error('Error creating profile:', profileError);
+      console.error(
+        'Raw profile error details:',
+        JSON.stringify(profileError, null, 2)
+      );
+      console.error('Mapped profile error:', mappedError);
 
       // If profile creation fails, we should clean up the app_users record
       // But since we're using RLS, the user can only see their own data anyway
@@ -166,7 +190,11 @@ export async function completeOnboarding({
     // Success - redirect to dashboard
     redirect('/dashboard');
   } catch (error) {
-    console.error('Onboarding error:', error);
+    console.error('🔴 ONBOARDING ERROR:', error);
+    console.error(
+      '🔴 ERROR STACK:',
+      error instanceof Error ? error.stack : 'No stack available'
+    );
     throw error;
   }
 }

@@ -4,8 +4,11 @@ import { useState } from 'react';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { useAuthenticatedSupabase } from '@/lib/supabase';
-import { Artist, convertCreatorProfileToArtist } from '@/types/db';
+import {
+  Artist,
+  CreatorProfile,
+  convertCreatorProfileToArtist,
+} from '@/types/db';
 
 interface ListenNowFormProps {
   artist: Artist;
@@ -13,7 +16,6 @@ interface ListenNowFormProps {
 }
 
 export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
-  const { getAuthenticatedClient } = useAuthenticatedSupabase();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState(false);
@@ -30,35 +32,31 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
     setSuccess(false);
 
     try {
-      // Get authenticated Supabase client using native integration
-      const supabase = getAuthenticatedClient();
-
-      if (!supabase) {
-        setError('Database connection failed. Please try again later.');
-        return;
+      const res = await fetch('/api/dashboard/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profileId: artist.id,
+          updates: {
+            spotify_url: formData.spotify_url || null,
+            apple_music_url: formData.apple_music_url || null,
+            youtube_url: formData.youtube_url || null,
+          },
+        }),
+      });
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        throw new Error(err?.error ?? 'Failed to update music links');
       }
-
-      const { data, error } = await supabase
-        .from('creator_profiles')
-        .update({
-          spotify_url: formData.spotify_url || null,
-          apple_music_url: formData.apple_music_url || null,
-          youtube_url: formData.youtube_url || null,
-        })
-        .eq('id', artist.id)
-        .select('*')
-        .single();
-
-      if (error) {
-        console.error('Error updating music links:', error);
-        setError('Failed to update music links');
-      } else {
-        // Convert CreatorProfile back to Artist format for the callback
-        const updatedArtist = convertCreatorProfileToArtist(data);
-        onUpdate(updatedArtist);
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
-      }
+      const json: { profile: unknown } = await res.json();
+      const updatedArtist = convertCreatorProfileToArtist(
+        json.profile as CreatorProfile
+      );
+      onUpdate(updatedArtist);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
       console.error('Error:', error);
       setError('Failed to update music links');

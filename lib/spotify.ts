@@ -1,8 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
 import { env } from '@/lib/env';
-
-const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Spotify API configuration
 const SPOTIFY_CLIENT_ID = env.SPOTIFY_CLIENT_ID;
@@ -116,39 +112,6 @@ export async function getSpotifyArtist(
     return await response.json();
   } catch {
     return null;
-  }
-}
-
-// Update artist with Spotify data
-export async function updateArtistWithSpotifyData(
-  artistId: string,
-  spotifyId: string
-): Promise<boolean> {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return false;
-  }
-
-  try {
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-    const spotifyArtist = await getSpotifyArtist(spotifyId);
-
-    if (!spotifyArtist) {
-      return false;
-    }
-
-    const imageUrl = spotifyArtist.images?.[0]?.url || null;
-
-    const { error } = await supabase
-      .from('artists')
-      .update({
-        spotify_id: spotifyId,
-        image_url: imageUrl,
-      })
-      .eq('id', artistId);
-
-    return !error;
-  } catch {
-    return false;
   }
 }
 

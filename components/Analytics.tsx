@@ -13,8 +13,8 @@ export function Analytics() {
       if (typeof window === 'undefined') return;
 
       // Track page views with our analytics
-      page(pathname, {
-        url: pathname,
+      page(pathname ?? undefined, {
+        url: pathname ?? undefined,
       });
     } catch (error) {
       console.error('Analytics error:', error);

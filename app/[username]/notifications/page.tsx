@@ -11,7 +11,14 @@ const emailSchema = z.string().email('Please enter a valid email address');
 
 export default function NotificationsPage() {
   const params = useParams();
-  const username = params.username as string;
+  const rawUsername = (params as Record<string, unknown> | null | undefined)
+    ?.username;
+  const username =
+    typeof rawUsername === 'string'
+      ? rawUsername
+      : Array.isArray(rawUsername)
+        ? String(rawUsername[0] ?? '')
+        : '';
 
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -6,7 +6,6 @@
 import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 import { auth } from '@clerk/nextjs/server';
-import { cache } from 'react';
 
 /**
  * Get Supabase configuration at runtime
@@ -34,18 +33,24 @@ function getSupabaseConfig() {
 }
 
 /**
- * Cache the Clerk token fetching to avoid redundant auth calls
- * This significantly improves performance for multiple Supabase queries
+ * Cache the Clerk token fetching to avoid redundant auth calls.
+ * Uses a module-scoped Promise for compatibility in test environments.
  */
-const getCachedClerkToken = cache(async () => {
-  try {
-    const { getToken } = await auth();
-    return await getToken();
-  } catch (error) {
-    console.error('Error fetching Clerk token:', error);
-    return null;
+let cachedTokenPromise: Promise<string | null> | null = null;
+async function getClerkTokenCached(): Promise<string | null> {
+  if (!cachedTokenPromise) {
+    cachedTokenPromise = (async () => {
+      try {
+        const { getToken } = await auth();
+        return await getToken();
+      } catch (error) {
+        console.error('Error fetching Clerk token:', error);
+        return null;
+      }
+    })();
   }
-});
+  return cachedTokenPromise;
+}
 
 /**
  * Standard configuration for all Supabase clients
@@ -77,7 +82,7 @@ export async function createAuthenticatedClient() {
   return createClient(supabaseUrl, supabaseAnonKey, {
     ...baseConfig,
     async accessToken() {
-      return (await getCachedClerkToken()) ?? null;
+      return (await getClerkTokenCached()) ?? null;
     },
   });
 }
