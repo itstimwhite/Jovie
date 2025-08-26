@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { drizzle as drizzleNeon } from 'drizzle-orm/neon-serverless';
 import postgres from 'postgres';
-import { neon } from '@neondatabase/serverless';
+import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
 import { env } from '../lib/env';
 
 /**
@@ -34,12 +34,13 @@ function createDrizzleClient() {
   ) {
     // Use Neon serverless driver
     const sql = neon(env.DATABASE_URL);
-    return drizzleNeon(sql as NeonHttpDatabase); // Use specific type assertion for Neon connection
+    return drizzleNeon(sql);
   } else {
     // Use standard Postgres driver
     const client = postgres(env.DATABASE_URL, {
       max: 10,
     });
+    _postgresClient = client;
     return drizzle(client);
   }
 }
@@ -61,42 +62,21 @@ export function getDb() {
   return _db;
 }
 
+// Keep a reference to the postgres client for proper cleanup
+let _postgresClient: ReturnType<typeof postgres> | null = null;
+
 /**
  * Explicitly closes the database connection
  * Useful for tests and scripts that need to clean up connections
  */
-// Type for Drizzle client with postgres-js
-interface PostgresJsDrizzleClient {
-  driver?: {
-    client?: {
-      end?: () => Promise<void>;
-    };
-  };
-}
-
-// Type guard to check if _db is a PostgresJsDrizzleClient
-function isPostgresJsDrizzleClient(db: unknown): db is PostgresJsDrizzleClient {
-  return (
-    typeof db === 'object' &&
-    db !== null &&
-    'driver' in db &&
-    typeof (db as any).driver === 'object' &&
-    (db as any).driver !== null &&
-    'client' in (db as any).driver &&
-    typeof (db as any).driver.client === 'object'
-  );
-}
-
 export async function closeDb() {
   if (_db) {
-    // If using postgres-js, we need to end the pool
-    // This is a no-op for Neon serverless connections
-    if (isPostgresJsDrizzleClient(_db)) {
-      const client = _db.driver?.client;
-      if (client && typeof client.end === 'function') {
-        await client.end();
-      }
+    // If we have a postgres client, close it properly
+    if (_postgresClient) {
+      await _postgresClient.end();
+      _postgresClient = null;
     }
+    // For Neon serverless, there's no persistent connection to close
     _db = null;
   }
 }
