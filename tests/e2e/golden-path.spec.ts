@@ -116,4 +116,77 @@ test.describe('Golden Path - Complete User Journey', () => {
     );
     await expect(tipContainer).toBeVisible();
   });
+
+  test('Complete onboarding flow with session persistence', async ({
+    page,
+  }) => {
+    test.setTimeout(90_000); // Longer timeout for complete onboarding flow
+
+    // This test specifically catches authentication session expiry during onboarding
+    // which was not caught by the existing authenticated user tests
+
+    // STEP 1: Start onboarding flow
+    await page.goto('/sign-up');
+
+    // STEP 2: Fill out sign-up form (use test credentials)
+    const emailInput = page
+      .locator('input[name="emailAddress"]')
+      .or(page.getByLabel('Email address'));
+    await emailInput.waitFor({ state: 'visible' });
+    await emailInput.fill(process.env.E2E_CLERK_USER_USERNAME!);
+
+    const passwordInput = page
+      .locator('input[name="password"]')
+      .or(page.getByLabel('Password'));
+    await passwordInput.waitFor({ state: 'visible' });
+    await passwordInput.fill(process.env.E2E_CLERK_USER_PASSWORD!);
+
+    const submitButton = page.locator(
+      'button:has-text("Continue"), button:has-text("Sign up")'
+    );
+    await submitButton.click();
+
+    // STEP 3: Handle email verification (if required)
+    // This may redirect to verification page or continue directly
+    await page.waitForURL((url) => !url.pathname.includes('/sign-up'), {
+      timeout: 15000,
+    });
+
+    // STEP 4: Should reach onboarding handle selection
+    // This is where the session expiry bug occurs
+    await expect(
+      page.locator(
+        'text="Choose your handle", text="This becomes your profile link"'
+      )
+    ).toBeVisible({
+      timeout: 15000,
+    });
+
+    // STEP 5: Fill handle input (test session persistence)
+    const handleInput = page.locator(
+      'input[placeholder*="handle"], input[name*="handle"]'
+    );
+    await handleInput.waitFor({ state: 'visible' });
+    await handleInput.fill('testuser' + Date.now());
+
+    // STEP 6: Verify no authentication session expired error
+    await expect(
+      page.locator('text="Authentication session expired"')
+    ).not.toBeVisible();
+
+    // STEP 7: Continue with onboarding
+    const continueButton = page.locator('button:has-text("Continue")');
+    await continueButton.click();
+
+    // STEP 8: Should proceed to next onboarding step without session expiry
+    await expect(
+      page.locator('text="Authentication session expired"')
+    ).not.toBeVisible();
+
+    // Complete flow should not encounter session expiry
+    await page.waitForTimeout(2000); // Allow for any async session checks
+    await expect(
+      page.locator('text="Authentication session expired"')
+    ).not.toBeVisible();
+  });
 });
