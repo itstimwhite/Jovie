@@ -31,6 +31,11 @@ export async function completeOnboarding({
     'displayName:',
     displayName
   );
+  console.log('Server action called at:', new Date().toISOString());
+  console.log('Environment check - NODE_ENV:', process.env.NODE_ENV);
+
+  // Also write to stderr to ensure visibility
+  console.error('🔍 ONBOARDING DEBUG: Server action started');
   try {
     // Step 1: Authentication check
     console.log('Step 1: Checking authentication...');
@@ -210,7 +215,14 @@ export async function completeOnboarding({
     // Success - redirect to dashboard
     redirect('/dashboard');
   } catch (error) {
-    console.error('Onboarding error:', error);
+    console.error('🔴 ONBOARDING ERROR:', error);
+    console.error(
+      '🔴 ERROR STACK:',
+      error instanceof Error ? error.stack : 'No stack available'
+    );
+
+    // Also log to stderr for visibility
+    console.error('🔍 ONBOARDING DEBUG: Error occurred in server action');
     throw error;
   }
 }
