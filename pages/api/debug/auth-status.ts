@@ -21,10 +21,10 @@ export default async function handler(
       req.headers['x-forwarded-for'] || req.connection?.remoteAddress || '';
 
     // Get session token
-    let token = null;
+    let token = null as string | null;
     let tokenError = null;
     try {
-      token = await getToken({ req });
+      token = await getToken();
     } catch (error) {
       console.error('Token error:', error);
       tokenError = error instanceof Error ? error.message : String(error);

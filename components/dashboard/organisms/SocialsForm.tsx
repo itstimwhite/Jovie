@@ -5,7 +5,6 @@ import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
-import { useAuthenticatedSupabase } from '@/lib/supabase';
 import { Artist } from '@/types/db';
 
 interface SocialLink {
@@ -19,7 +18,6 @@ interface SocialsFormProps {
 }
 
 export function SocialsForm({ artist }: SocialsFormProps) {
-  const { getAuthenticatedClient } = useAuthenticatedSupabase();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState(false);
@@ -28,30 +26,27 @@ export function SocialsForm({ artist }: SocialsFormProps) {
   useEffect(() => {
     const fetchSocialLinks = async () => {
       try {
-        const supabase = await getAuthenticatedClient();
-
-        if (!supabase) {
-          console.error('Database connection failed');
-          return;
+        const res = await fetch(
+          `/api/dashboard/social-links?profileId=${encodeURIComponent(
+            artist.id
+          )}`,
+          { cache: 'no-store' }
+        );
+        if (!res.ok) {
+          const err = (await res.json().catch(() => ({}))) as {
+            error?: string;
+          };
+          throw new Error(err?.error ?? 'Failed to fetch social links');
         }
-
-        const { data, error } = await supabase
-          .from('social_links')
-          .select('*')
-          .eq('creator_profile_id', artist.id);
-
-        if (error) {
-          console.error('Error fetching social links:', error);
-        } else {
-          setSocialLinks((data as unknown as SocialLink[]) || []);
-        }
+        const json: { links: SocialLink[] } = await res.json();
+        setSocialLinks(json.links || []);
       } catch (error) {
         console.error('Error:', error);
       }
     };
 
     fetchSocialLinks();
-  }, [artist.id, getAuthenticatedClient]);
+  }, [artist.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,21 +55,7 @@ export function SocialsForm({ artist }: SocialsFormProps) {
     setSuccess(false);
 
     try {
-      // Get authenticated Supabase client using native integration
-      const supabase = getAuthenticatedClient();
-
-      if (!supabase) {
-        setError('Database connection failed. Please try again later.');
-        return;
-      }
-
-      // Delete existing social links
-      await supabase
-        .from('social_links')
-        .delete()
-        .eq('creator_profile_id', artist.id);
-
-      // Insert new social links
+      // Insert new social links via server API
       const linksToInsert = socialLinks
         .filter((link) => link.url.trim())
         .map((link) => ({
@@ -86,22 +67,19 @@ export function SocialsForm({ artist }: SocialsFormProps) {
           is_active: true,
         }));
 
-      if (linksToInsert.length > 0) {
-        const { error } = await supabase
-          .from('social_links')
-          .insert(linksToInsert);
-
-        if (error) {
-          console.error('Error updating social links:', error);
-          setError('Failed to update social links');
-        } else {
-          setSuccess(true);
-          setTimeout(() => setSuccess(false), 3000);
-        }
-      } else {
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
+      const res = await fetch('/api/dashboard/social-links', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId: artist.id, links: linksToInsert }),
+      });
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        throw new Error(err?.error ?? 'Failed to update social links');
       }
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
       console.error('Error:', error);
       setError('Failed to update social links');

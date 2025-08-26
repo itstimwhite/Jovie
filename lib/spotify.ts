@@ -1,8 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
 import { env } from '@/lib/env';
-
-const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+import { createPublicSupabaseClient } from '@/lib/supabase/server';
 
 // Spotify API configuration
 const SPOTIFY_CLIENT_ID = env.SPOTIFY_CLIENT_ID;
@@ -124,12 +121,8 @@ export async function updateArtistWithSpotifyData(
   artistId: string,
   spotifyId: string
 ): Promise<boolean> {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return false;
-  }
-
   try {
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    const supabase = createPublicSupabaseClient();
     const spotifyArtist = await getSpotifyArtist(spotifyId);
 
     if (!spotifyArtist) {

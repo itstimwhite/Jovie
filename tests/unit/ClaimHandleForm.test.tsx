@@ -3,6 +3,7 @@ import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { ClaimHandleForm } from '@/components/home/ClaimHandleForm';
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+import { APP_URL } from '@/constants/app';
 
 // Mock dependencies
 vi.mock('@clerk/nextjs', () => ({
@@ -114,14 +115,17 @@ describe('ClaimHandleForm', () => {
       expect(availableText).toBeInTheDocument();
     });
 
+    // Expected domain (component strips protocol)
+    const displayDomain = APP_URL.replace(/^https?:\/\//, '');
+
     // Test click functionality on the URL preview
     const copyButton = screen.getByRole('button', {
-      name: 'Copy profile URL jov.ie/testhandle',
+      name: `Copy profile URL ${displayDomain}/testhandle`,
     });
     fireEvent.click(copyButton);
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      'jov.ie/testhandle'
+      `${displayDomain}/testhandle`
     );
 
     // Test keyboard support
