@@ -25,30 +25,16 @@ export async function completeOnboarding({
   username: string;
   displayName?: string;
 }) {
-  console.log(
-    '🚀 Starting onboarding for username:',
-    username,
-    'displayName:',
-    displayName
-  );
-  console.log('Server action called at:', new Date().toISOString());
-  console.log('Environment check - NODE_ENV:', process.env.NODE_ENV);
-
-  // Also write to stderr to ensure visibility
-  console.error('🔍 ONBOARDING DEBUG: Server action started');
   try {
     // Step 1: Authentication check
-    console.log('Step 1: Checking authentication...');
     const { userId } = await auth();
     if (!userId) {
-      console.error('Authentication failed - no userId');
       const error = createOnboardingError(
         OnboardingErrorCode.NOT_AUTHENTICATED,
         'User not authenticated'
       );
       throw new Error(error.message);
     }
-    console.log('✅ Authentication successful, userId:', userId);
 
     // Step 2: Input validation
     const validation = validateUsername(username);
@@ -73,11 +59,9 @@ export async function completeOnboarding({
     const forwarded = headersList.get('x-forwarded-for');
     const clientIP = forwarded ? forwarded.split(',')[0] : null;
 
-    console.log('Step 3: Creating authenticated Supabase client...');
     let supabase;
     try {
       supabase = await createAuthenticatedClient();
-      console.log('✅ Supabase client created successfully');
     } catch (clientError) {
       console.error('❌ Failed to create Supabase client:', clientError);
       throw new Error(
@@ -160,7 +144,6 @@ export async function completeOnboarding({
 
     // Step 8: Create records using database transaction simulation
     // First create app_users record
-    console.log('Creating app_users record for userId:', userId);
     const { error: userError } = await queryWithRetry(
       async () =>
         await supabase.from('app_users').upsert({
@@ -176,15 +159,8 @@ export async function completeOnboarding({
       console.error('Mapped error:', mappedError);
       throw new Error(mappedError.message);
     }
-    console.log('Successfully created app_users record');
 
     // Then create creator profile
-    console.log(
-      'Creating creator_profiles record for userId:',
-      userId,
-      'username:',
-      normalizedUsername
-    );
     const { error: profileError } = await queryWithRetry(
       async () =>
         await supabase.from('creator_profiles').insert({
@@ -210,7 +186,6 @@ export async function completeOnboarding({
       // But since we're using RLS, the user can only see their own data anyway
       throw new Error(mappedError.message);
     }
-    console.log('Successfully created creator_profiles record');
 
     // Success - redirect to dashboard
     redirect('/dashboard');
@@ -220,9 +195,6 @@ export async function completeOnboarding({
       '🔴 ERROR STACK:',
       error instanceof Error ? error.stack : 'No stack available'
     );
-
-    // Also log to stderr for visibility
-    console.error('🔍 ONBOARDING DEBUG: Error occurred in server action');
     throw error;
   }
 }
