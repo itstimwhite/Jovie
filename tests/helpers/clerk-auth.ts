@@ -40,7 +40,7 @@ export async function signInUser(
   await passwordInput.fill(password);
 
   // Submit the form
-  const submitButton = page.locator('button:has-text("Continue")');
+  const submitButton = page.locator('[data-testid="sign-in-submit"]');
   await submitButton.click();
 
   // Wait for successful authentication (redirect away from sign-in)
