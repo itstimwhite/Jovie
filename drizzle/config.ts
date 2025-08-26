@@ -65,13 +65,37 @@ export function getDb() {
  * Explicitly closes the database connection
  * Useful for tests and scripts that need to clean up connections
  */
+// Type for Drizzle client with postgres-js
+interface PostgresJsDrizzleClient {
+  driver?: {
+    client?: {
+      end?: () => Promise<void>;
+    };
+  };
+}
+
+// Type guard to check if _db is a PostgresJsDrizzleClient
+function isPostgresJsDrizzleClient(db: unknown): db is PostgresJsDrizzleClient {
+  return (
+    typeof db === 'object' &&
+    db !== null &&
+    'driver' in db &&
+    typeof (db as any).driver === 'object' &&
+    (db as any).driver !== null &&
+    'client' in (db as any).driver &&
+    typeof (db as any).driver.client === 'object'
+  );
+}
+
 export async function closeDb() {
   if (_db) {
     // If using postgres-js, we need to end the pool
     // This is a no-op for Neon serverless connections
-    const client = (_db as any)?.driver?.client;
-    if (client && typeof client.end === 'function') {
-      await client.end();
+    if (isPostgresJsDrizzleClient(_db)) {
+      const client = _db.driver?.client;
+      if (client && typeof client.end === 'function') {
+        await client.end();
+      }
     }
     _db = null;
   }
