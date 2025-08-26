@@ -30,16 +30,12 @@ export async function signInUser(
   });
 
   // Fill in email address
-  const emailInput = page
-    .locator('input[name="identifier"]')
-    .or(page.getByLabel('Email address'));
+  const emailInput = page.locator('[data-testid="email-input"]');
   await emailInput.waitFor({ state: 'visible' });
   await emailInput.fill(username);
 
   // Fill in password
-  const passwordInput = page
-    .locator('input[name="password"]')
-    .or(page.getByLabel('Password'));
+  const passwordInput = page.locator('[data-testid="password-input"]');
   await passwordInput.waitFor({ state: 'visible' });
   await passwordInput.fill(password);
 
