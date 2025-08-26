@@ -34,7 +34,7 @@ function createDrizzleClient() {
   ) {
     // Use Neon serverless driver
     const sql = neon(env.DATABASE_URL);
-    return drizzleNeon(sql as any); // Type assertion to avoid TypeScript errors
+    return drizzleNeon(sql as NeonHttpDatabase); // Use specific type assertion for Neon connection
   } else {
     // Use standard Postgres driver
     const client = postgres(env.DATABASE_URL, {
