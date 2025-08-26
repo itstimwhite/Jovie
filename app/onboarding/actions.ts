@@ -76,9 +76,15 @@ export async function completeOnboarding({
       const errorMessage = rateLimitError.message || '';
       if (
         typeof errorMessage === 'string' &&
-        errorMessage.includes('JWSInvalidSignature')
+        (errorMessage.includes('JWSInvalidSignature') ||
+          errorMessage.includes('JWT') ||
+          errorMessage.includes('PGRST301'))
       ) {
-        console.warn('JWT signature invalid - skipping rate limit check');
+        console.warn(
+          'JWT validation failed - this indicates a Clerk-Supabase integration issue'
+        );
+        console.warn('Error details:', errorMessage);
+        // Continue with onboarding but log the issue
       } else {
         // For other errors, we might want to be more restrictive
         // but for now, let's continue with onboarding

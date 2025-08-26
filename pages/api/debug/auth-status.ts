@@ -22,10 +22,12 @@ export default async function handler(
 
     // Get session token
     let token = null;
+    let tokenError = null;
     try {
       token = await getToken({ req });
-    } catch (tokenError) {
-      console.error('Token error:', tokenError);
+    } catch (error) {
+      console.error('Token error:', error);
+      tokenError = error instanceof Error ? error.message : String(error);
     }
 
     const debugInfo = {
@@ -35,6 +37,7 @@ export default async function handler(
         sessionId,
         hasToken: !!token,
         tokenPreview: token ? `${token.substring(0, 20)}...` : null,
+        tokenError,
       },
 
       // Environment Variables (safe subset)
