@@ -30,6 +30,9 @@ const EnvSchema = z
     CLOUDINARY_UPLOAD_FOLDER: z.string().optional(),
     CLOUDINARY_UPLOAD_PRESET: z.string().optional(),
 
+    // Database configuration
+    DATABASE_URL: z.string().optional(),
+
     // Server or build-time envs (may be undefined locally)
     SPOTIFY_CLIENT_ID: z.string().optional(),
     SPOTIFY_CLIENT_SECRET: z.string().optional(),
@@ -81,6 +84,7 @@ const rawEnv = {
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   CLOUDINARY_UPLOAD_FOLDER: process.env.CLOUDINARY_UPLOAD_FOLDER,
   CLOUDINARY_UPLOAD_PRESET: process.env.CLOUDINARY_UPLOAD_PRESET,
+  DATABASE_URL: process.env.DATABASE_URL,
   SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID,
   SPOTIFY_CLIENT_SECRET: process.env.SPOTIFY_CLIENT_SECRET,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
@@ -144,6 +148,9 @@ export const env = {
   CLOUDINARY_UPLOAD_PRESET: parsed.success
     ? parsed.data.CLOUDINARY_UPLOAD_PRESET
     : process.env.CLOUDINARY_UPLOAD_PRESET,
+  DATABASE_URL: parsed.success
+    ? parsed.data.DATABASE_URL
+    : process.env.DATABASE_URL,
   SPOTIFY_CLIENT_ID: parsed.success
     ? parsed.data.SPOTIFY_CLIENT_ID
     : process.env.SPOTIFY_CLIENT_ID,
