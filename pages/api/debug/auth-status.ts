@@ -89,7 +89,7 @@ export default async function handler(
       },
 
       // Recommendations
-      recommendations: [],
+      recommendations: [] as string[],
     };
 
     // Add specific recommendations based on findings
