@@ -306,7 +306,7 @@ export default function DebugAuthPage() {
         <div className="mb-8 bg-gray-50 p-6 rounded-lg">
           <h2 className="text-xl font-semibold mb-4">💡 Recommendations</h2>
           <ul className="space-y-1">
-            {serverInfo.recommendations.map((rec: string, index: number) => (
+            {serverInfo.recommendations.map((rec, index) => (
               <li key={index} className="flex items-start">
                 <span className="mr-2">•</span>
                 <span>{rec}</span>
