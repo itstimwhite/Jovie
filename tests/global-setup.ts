@@ -5,6 +5,9 @@ import { config } from 'dotenv';
 // Load environment variables from .env.development.local
 config({ path: '.env.development.local' });
 
+// Constants for identifying mock/dummy Clerk keys
+const CLERK_MOCK_KEY_INDICATORS = ['dummy', '1234567890', 'mock'];
+
 async function globalSetup() {
   // When running against an external BASE_URL in CI (e.g., Preview), skip local env overrides and warmup.
   if (process.env.CI && process.env.BASE_URL) {
