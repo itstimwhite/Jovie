@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { auth } from '@clerk/nextjs/server';
+import { getAuth } from '@clerk/nextjs/server';
 
 /**
  * Development-only API endpoint to debug authentication status
@@ -15,7 +15,7 @@ export default async function handler(
   }
 
   try {
-    const { userId, sessionId, getToken } = await auth();
+    const { userId, sessionId, getToken } = getAuth(req);
     const userAgent = req.headers['user-agent'] || '';
     const ip =
       req.headers['x-forwarded-for'] || req.connection?.remoteAddress || '';
@@ -23,7 +23,7 @@ export default async function handler(
     // Get session token
     let token = null;
     try {
-      token = await getToken();
+      token = await getToken({ req });
     } catch (tokenError) {
       console.error('Token error:', tokenError);
     }

@@ -45,13 +45,29 @@ export default function DebugAuthPage() {
   const [serverInfo, setServerInfo] = useState<DebugInfo | null>(null);
   const [tokenInfo, setTokenInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchDebugInfo() {
       try {
+        setError(null);
         // Get server-side auth status
         const serverResponse = await fetch('/api/debug/auth-status');
+
+        if (!serverResponse.ok) {
+          throw new Error(
+            `API responded with status: ${serverResponse.status}`
+          );
+        }
+
         const serverData = await serverResponse.json();
+
+        if (serverData.error) {
+          throw new Error(
+            `API error: ${serverData.message || serverData.error}`
+          );
+        }
+
         setServerInfo(serverData);
 
         // Get client-side token
@@ -66,6 +82,7 @@ export default function DebugAuthPage() {
         }
       } catch (error) {
         console.error('Debug fetch error:', error);
+        setError(error instanceof Error ? error.message : String(error));
       } finally {
         setLoading(false);
       }
@@ -83,6 +100,28 @@ export default function DebugAuthPage() {
 
   if (loading) {
     return <div className="p-8">Loading debug information...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6 text-red-600">
+          Debug Tool Error
+        </h1>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+          <p className="text-red-800 font-semibold">
+            Error loading debug information:
+          </p>
+          <p className="text-red-700 mt-2">{error}</p>
+        </div>
+        <button
+          onClick={() => window.location.reload()}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
