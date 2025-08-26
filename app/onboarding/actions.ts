@@ -69,8 +69,19 @@ export async function completeOnboarding({
     const clientIP = forwarded ? forwarded.split(',')[0] : null;
 
     console.log('Step 3: Creating authenticated Supabase client...');
-    const supabase = await createAuthenticatedClient();
-    console.log('✅ Supabase client created successfully');
+    let supabase;
+    try {
+      supabase = await createAuthenticatedClient();
+      console.log('✅ Supabase client created successfully');
+    } catch (clientError) {
+      console.error('❌ Failed to create Supabase client:', clientError);
+      throw new Error(
+        'Failed to initialize database connection: ' +
+          (clientError instanceof Error
+            ? clientError.message
+            : String(clientError))
+      );
+    }
 
     // Check rate limits - handle JWT errors gracefully
     const { data: rateLimitResult, error: rateLimitError } = await supabase.rpc(
