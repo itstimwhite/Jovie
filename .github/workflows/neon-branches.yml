@@ -59,12 +59,17 @@ jobs:
             echo "db_url_with_pooler=$db_url_with_pooler_encoded" >> $GITHUB_OUTPUT
           }
 
+      - name: Install dependencies
+        run: npm ci
+
       - name: Run Database Migrations
         run: |
           # Decode the database URL
           DB_URL=$(echo "${{ steps.create_neon_branch_encode.outputs.db_url }}" | base64 -d)
           echo "Running migrations..."
           DATABASE_URL="$DB_URL" npm run drizzle:migrate
+        env:
+          NODE_ENV: production
 
   delete_neon_branch:
     name: Delete Neon Branch
