@@ -55,7 +55,7 @@ export function OptimizedAvatar({
         height={size}
         priority={priority}
         quality={quality}
-        placeholder="blur"
+        placeholder='blur'
         blurDataURL={BLUR_DATA_URLS[size]}
         className={cn(
           'object-cover transition-opacity duration-300',
@@ -72,7 +72,7 @@ export function OptimizedAvatar({
 
       {/* Loading shimmer effect */}
       {!loaded && !error && (
-        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700" />
+        <div className='absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700' />
       )}
     </div>
   );
@@ -114,7 +114,7 @@ export function ResponsiveAvatar({
         fill
         priority={priority}
         quality={quality}
-        placeholder="blur"
+        placeholder='blur'
         blurDataURL={
           BLUR_DATA_URLS[desktopSize as keyof typeof BLUR_DATA_URLS] ||
           BLUR_DATA_URLS[256]
@@ -133,7 +133,7 @@ export function ResponsiveAvatar({
 
       {/* Loading shimmer effect */}
       {!loaded && !error && (
-        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700" />
+        <div className='absolute inset-0 animate-pulse bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700' />
       )}
     </div>
   );

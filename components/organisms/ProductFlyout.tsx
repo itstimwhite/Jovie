@@ -43,13 +43,13 @@ export function ProductFlyout({
           break;
         case 'ArrowDown':
           e.preventDefault();
-          setCurrentFocusIndex((prev) =>
+          setCurrentFocusIndex(prev =>
             prev < focusableItems.length - 1 ? prev + 1 : 0
           );
           break;
         case 'ArrowUp':
           e.preventDefault();
-          setCurrentFocusIndex((prev) =>
+          setCurrentFocusIndex(prev =>
             prev > 0 ? prev - 1 : focusableItems.length - 1
           );
           break;
@@ -119,24 +119,24 @@ export function ProductFlyout({
   return (
     <div
       ref={panelRef}
-      role="menu"
-      aria-labelledby="product-trigger"
+      role='menu'
+      aria-labelledby='product-trigger'
       className={`absolute left-1/2 top-full z-50 mt-2 w-[calc(100vw-2rem)] max-w-4xl min-w-80 -translate-x-1/2 transform rounded-lg border bg-[var(--panel)] shadow-lg ring-1 ring-[var(--border)] ${className}`}
       style={{
         animation: 'flyout-enter 100ms ease-out',
       }}
     >
       {/* Desktop Layout */}
-      <div className="hidden md:block">
-        <div className="p-6">
+      <div className='hidden md:block'>
+        <div className='p-6'>
           {/* Flattened 2-column grid for all features */}
-          <div className="grid grid-cols-2 gap-x-8 gap-y-1">
+          <div className='grid grid-cols-2 gap-x-8 gap-y-1'>
             {FEATURES.map((feature, index) => (
               <FlyoutItem
                 key={feature.slug}
                 feature={feature}
                 ref={index === 0 ? firstItemRef : undefined}
-                className="hover:bg-[var(--bg)] focus-visible:bg-[var(--bg)]"
+                className='hover:bg-[var(--bg)] focus-visible:bg-[var(--bg)]'
                 style={
                   {
                     '--ring-color': `color-mix(in srgb, var(${feature.colorVar}) 25%, transparent)`,
@@ -150,14 +150,14 @@ export function ProductFlyout({
         </div>
 
         {/* Changelog Banner */}
-        <div className="border-t border-[var(--border)] px-6 py-3">
+        <div className='border-t border-[var(--border)] px-6 py-3'>
           <Link
-            href="/changelog"
-            className="group flex items-center justify-between rounded-lg p-2 text-sm text-[var(--muted)] transition-colors hover:bg-[var(--bg)] hover:text-[var(--fg)]"
-            role="menuitem"
+            href='/changelog'
+            className='group flex items-center justify-between rounded-lg p-2 text-sm text-[var(--muted)] transition-colors hover:bg-[var(--bg)] hover:text-[var(--fg)]'
+            role='menuitem'
           >
             <span>View Changelog</span>
-            <span className="text-xs opacity-75 group-hover:opacity-100">
+            <span className='text-xs opacity-75 group-hover:opacity-100'>
               →
             </span>
           </Link>
@@ -165,15 +165,15 @@ export function ProductFlyout({
       </div>
 
       {/* Mobile Layout */}
-      <div className="md:hidden">
-        <div className="max-h-[80vh] overflow-y-auto p-4">
-          <div className="space-y-1">
+      <div className='md:hidden'>
+        <div className='max-h-[80vh] overflow-y-auto p-4'>
+          <div className='space-y-1'>
             {FEATURES.map((feature, index) => (
               <FlyoutItem
                 key={feature.slug}
                 feature={feature}
                 ref={index === 0 ? firstItemRef : undefined}
-                className="min-h-[44px] hover:bg-[var(--bg)] focus-visible:bg-[var(--bg)]"
+                className='min-h-[44px] hover:bg-[var(--bg)] focus-visible:bg-[var(--bg)]'
                 style={
                   {
                     '--ring-color': `color-mix(in srgb, var(${feature.colorVar}) 25%, transparent)`,
@@ -186,14 +186,14 @@ export function ProductFlyout({
           </div>
 
           {/* Mobile Changelog */}
-          <div className="mt-4 border-t border-[var(--border)] pt-4">
+          <div className='mt-4 border-t border-[var(--border)] pt-4'>
             <Link
-              href="/changelog"
-              className="flex min-h-[44px] items-center justify-between rounded-lg p-3 text-sm text-[var(--muted)] transition-colors hover:bg-[var(--bg)] hover:text-[var(--fg)]"
-              role="menuitem"
+              href='/changelog'
+              className='flex min-h-[44px] items-center justify-between rounded-lg p-3 text-sm text-[var(--muted)] transition-colors hover:bg-[var(--bg)] hover:text-[var(--fg)]'
+              role='menuitem'
             >
               <span>View Changelog</span>
-              <span className="text-xs opacity-75">→</span>
+              <span className='text-xs opacity-75'>→</span>
             </Link>
           </div>
         </div>

@@ -1,9 +1,9 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test('No CORS errors on homepage', async ({ page }) => {
   const corsErrors: string[] = [];
 
-  page.on('console', (msg) => {
+  page.on('console', msg => {
     if (msg.type() === 'error' && msg.text().includes('CORS')) {
       corsErrors.push(msg.text());
     }

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ArtistSelectionForm } from './ArtistSelectionForm';
 import { ThemeProvider } from 'next-themes';
+import { ArtistSelectionForm } from './ArtistSelectionForm';
+
 // Simplified Storybook story for ArtistSelectionForm
 // This component requires complex API mocking which is handled by Storybook's Next.js integration
 
@@ -18,9 +19,9 @@ const meta: Meta<typeof ArtistSelectionForm> = {
     },
   },
   decorators: [
-    (Story) => (
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <div className="min-h-screen bg-white dark:bg-gray-900">
+    Story => (
+      <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
+        <div className='min-h-screen bg-white dark:bg-gray-900'>
           <Story />
         </div>
       </ThemeProvider>

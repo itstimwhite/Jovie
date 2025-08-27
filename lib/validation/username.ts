@@ -217,7 +217,7 @@ export function validateUsername(username: string): UsernameValidationResult {
 
   // Check if it's a reserved pattern (e.g., starts with reserved word)
   const startsWithReserved = RESERVED_USERNAMES.some(
-    (reserved) =>
+    reserved =>
       normalized.startsWith(reserved + '_') ||
       normalized.startsWith(reserved + '-')
   );

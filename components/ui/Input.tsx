@@ -1,5 +1,5 @@
 import * as Headless from '@headlessui/react';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React, { forwardRef, useId } from 'react';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 
@@ -8,7 +8,7 @@ export function InputGroup({
 }: React.ComponentPropsWithoutRef<'span'>) {
   return (
     <span
-      data-slot="control"
+      data-slot='control'
       className={clsx(
         'relative isolate block',
         '[&_input]:has-[[data-slot=icon]:first-child]:pl-10 [&_input]:has-[[data-slot=icon]:last-child]:pr-10 sm:[&_input]:has-[[data-slot=icon]:first-child]:pl-8 sm:[&_input]:has-[[data-slot=icon]:last-child]:pr-8',
@@ -94,7 +94,7 @@ export const Input = forwardRef(function Input(
 
   const inputElement = (
     <span
-      data-slot="control"
+      data-slot='control'
       className={clsx([
         className,
         // Basic layout
@@ -172,24 +172,24 @@ export const Input = forwardRef(function Input(
 
       {/* Status Icon (validation state) */}
       {statusIcon && !isPending && (
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 sm:right-2.5">
+        <div className='absolute right-3 top-1/2 -translate-y-1/2 sm:right-2.5'>
           {statusIcon}
         </div>
       )}
 
       {/* Loading Spinner */}
       {isPending && (
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 sm:right-2.5">
+        <div className='absolute right-3 top-1/2 -translate-y-1/2 sm:right-2.5'>
           <LoadingSpinner
-            size="sm"
-            className="text-zinc-500 dark:text-zinc-400"
+            size='sm'
+            className='text-zinc-500 dark:text-zinc-400'
           />
         </div>
       )}
 
       {/* Trailing slot (e.g., action button) */}
       {trailing ? (
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 sm:right-2.5 z-10">
+        <div className='absolute right-2 top-1/2 -translate-y-1/2 sm:right-2.5 z-10'>
           {trailing}
         </div>
       ) : null}
@@ -199,26 +199,26 @@ export const Input = forwardRef(function Input(
   // If we have label, error, or helpText, wrap in a container
   if (label || error || helpText) {
     return (
-      <div className="space-y-2">
+      <div className='space-y-2'>
         {label && (
           <label
             htmlFor={id}
-            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            className='text-sm font-medium text-gray-700 dark:text-gray-300'
           >
             {label}
             {props.required && (
-              <span className="text-red-500 ml-1" aria-hidden="true">
+              <span className='text-red-500 ml-1' aria-hidden='true'>
                 *
               </span>
             )}
-            {props.required && <span className="sr-only">(required)</span>}
+            {props.required && <span className='sr-only'>(required)</span>}
           </label>
         )}
 
         {helpText && (
           <p
             id={helpTextId}
-            className="text-xs text-gray-500 dark:text-gray-400"
+            className='text-xs text-gray-500 dark:text-gray-400'
           >
             {helpText}
           </p>
@@ -229,9 +229,9 @@ export const Input = forwardRef(function Input(
         {error && (
           <p
             id={errorId}
-            className="text-sm text-red-600 dark:text-red-400"
-            role="alert"
-            aria-live="polite"
+            className='text-sm text-red-600 dark:text-red-400'
+            role='alert'
+            aria-live='polite'
           >
             {error}
           </p>

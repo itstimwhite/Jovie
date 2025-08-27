@@ -1,16 +1,15 @@
 'use client';
 
-import React, {
-  useState,
-  useMemo,
-  useEffect,
-  useRef,
-  useCallback,
-} from 'react';
 import { useSession } from '@clerk/nextjs';
-import { SocialLinkManager } from '../molecules/SocialLinkManager';
-import { DSPLinkManager } from '../molecules/DSPLinkManager';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { StaticArtistPage } from '@/components/profile/StaticArtistPage';
+import { debounce } from '@/lib/utils';
 import type { DetectedLink } from '@/lib/utils/platform-detection';
 import type {
   Artist,
@@ -19,7 +18,8 @@ import type {
   SocialLink,
   SocialPlatform,
 } from '@/types/db';
-import { debounce } from '@/lib/utils';
+import { DSPLinkManager } from '../molecules/DSPLinkManager';
+import { SocialLinkManager } from '../molecules/SocialLinkManager';
 
 interface LinkItem extends DetectedLink {
   id: string;
@@ -105,7 +105,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
     creatorProfileId: string
   ): Partial<SocialLink>[] => {
     return linkItems
-      .filter((link) => link.isVisible)
+      .filter(link => link.isVisible)
       .map((link, index) => ({
         creator_profile_id: creatorProfileId,
         platform: link.platform.id,
@@ -135,7 +135,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
 
         const allLinks = convertDbLinksToLinkItems(json.links || []);
 
-        allLinks.forEach((link) => {
+        allLinks.forEach(link => {
           if (link.platform.category === 'dsp') {
             dspLinksItems.push(link);
           } else {
@@ -164,8 +164,8 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   // Convert social LinkItems to LegacySocialLink format for preview
   const previewSocialLinks = useMemo((): LegacySocialLink[] => {
     return socialLinks
-      .filter((link) => link.isVisible && link.platform.category === 'social')
-      .map((link) => ({
+      .filter(link => link.isVisible && link.platform.category === 'social')
+      .map(link => ({
         id: link.id,
         artist_id: artist.id, // LegacySocialLink still uses artist_id for backwards compatibility
         platform: link.platform.icon,
@@ -174,8 +174,8 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
         created_at: new Date().toISOString(),
       }))
       .sort((a, b) => {
-        const aIndex = socialLinks.findIndex((l) => l.id === a.id);
-        const bIndex = socialLinks.findIndex((l) => l.id === b.id);
+        const aIndex = socialLinks.findIndex(l => l.id === a.id);
+        const bIndex = socialLinks.findIndex(l => l.id === b.id);
         return aIndex - bIndex;
       });
   }, [socialLinks, artist.id]);
@@ -210,7 +210,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
     async (socialLinksToSave: LinkItem[], dspLinksToSave: LinkItem[]) => {
       if (!session || !artist.id) return;
 
-      setSaveStatus((prev) => ({
+      setSaveStatus(prev => ({
         ...prev,
         saving: true,
         success: null,
@@ -295,9 +295,9 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col lg:flex-row">
+    <div className='h-full flex flex-col lg:flex-row'>
       {/* Mobile View Toggle */}
-      <div className="lg:hidden flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mb-6">
+      <div className='lg:hidden flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mb-6'>
         <button
           onClick={() => setViewMode('edit')}
           className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${
@@ -327,17 +327,17 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
         ${viewMode === 'edit' ? 'block' : 'hidden lg:block'}
       `}
       >
-        <div className="space-y-8">
+        <div className='space-y-8'>
           {/* Header */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            <h2 className='text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2'>
               Manage Your Links
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className='text-sm text-gray-600 dark:text-gray-400'>
               Organize your social media and music streaming links. Changes save
               automatically.
               {saveStatus.lastSaved && (
-                <span className="ml-2 text-xs text-gray-400">
+                <span className='ml-2 text-xs text-gray-400'>
                   Last saved: {saveStatus.lastSaved.toLocaleTimeString()}
                 </span>
               )}
@@ -353,7 +353,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
           />
 
           {/* Separator */}
-          <div className="border-t border-gray-200 dark:border-gray-700" />
+          <div className='border-t border-gray-200 dark:border-gray-700' />
 
           {/* DSP Links Manager */}
           <DSPLinkManager
@@ -372,37 +372,37 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
         ${viewMode === 'preview' ? 'block' : 'hidden lg:block'}
       `}
       >
-        <div className="space-y-6">
+        <div className='space-y-6'>
           {/* Header */}
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+          <div className='flex items-center gap-3'>
+            <h2 className='text-xl font-semibold text-gray-900 dark:text-gray-100'>
               Live Preview
             </h2>
-            <div className="flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            <div className='flex items-center gap-1.5 text-xs text-green-600 dark:text-green-400'>
+              <div className='w-2 h-2 bg-green-500 rounded-full animate-pulse' />
               Live
             </div>
           </div>
 
           {/* Preview Container */}
-          <div className="relative">
+          <div className='relative'>
             {/* Mobile Frame */}
-            <div className="max-w-sm mx-auto bg-gray-50 dark:bg-gray-900 rounded-[2.5rem] p-2">
-              <div className="bg-white dark:bg-gray-800 rounded-[2rem] overflow-hidden">
+            <div className='max-w-sm mx-auto bg-gray-50 dark:bg-gray-900 rounded-[2.5rem] p-2'>
+              <div className='bg-white dark:bg-gray-800 rounded-[2rem] overflow-hidden'>
                 {/* Status Bar Mockup */}
-                <div className="bg-gray-100 dark:bg-gray-700 h-6 flex items-center justify-center">
-                  <div className="text-xs text-gray-600 dark:text-gray-400">
+                <div className='bg-gray-100 dark:bg-gray-700 h-6 flex items-center justify-center'>
+                  <div className='text-xs text-gray-600 dark:text-gray-400'>
                     Preview Mode
                   </div>
                 </div>
 
                 {/* Profile Preview */}
-                <div className="h-[600px] overflow-y-auto">
+                <div className='h-[600px] overflow-y-auto'>
                   <StaticArtistPage
-                    mode="default"
+                    mode='default'
                     artist={previewArtist}
                     socialLinks={previewSocialLinks}
-                    subtitle=""
+                    subtitle=''
                     showTipButton={false}
                     showBackButton={false}
                   />
@@ -413,17 +413,17 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
             {/* Update Indicator */}
             <div
               ref={updateIndicatorRef}
-              className="absolute top-4 right-4 opacity-0 transition-opacity duration-300 data-[show=true]:opacity-100"
+              className='absolute top-4 right-4 opacity-0 transition-opacity duration-300 data-[show=true]:opacity-100'
             >
-              <div className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+              <div className='bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium'>
                 Updated
               </div>
             </div>
           </div>
 
           {/* Preview Info */}
-          <div className="text-center">
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+          <div className='text-center'>
+            <p className='text-xs text-gray-500 dark:text-gray-400'>
               This is how your profile will appear to visitors
             </p>
           </div>

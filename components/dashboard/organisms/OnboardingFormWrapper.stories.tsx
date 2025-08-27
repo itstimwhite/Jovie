@@ -22,8 +22,8 @@ const meta: Meta<typeof OnboardingFormWrapper> = {
     },
   },
   decorators: [
-    (Story) => (
-      <div className="w-full max-w-md">
+    Story => (
+      <div className='w-full max-w-md'>
         <Story />
       </div>
     ),
@@ -83,8 +83,8 @@ export const StandardFormDarkMode: Story = {
     },
   },
   decorators: [
-    (Story) => (
-      <div className="dark w-full max-w-md">
+    Story => (
+      <div className='dark w-full max-w-md'>
         <Story />
       </div>
     ),
@@ -114,8 +114,8 @@ export const ProgressiveFormDarkMode: Story = {
     },
   },
   decorators: [
-    (Story) => (
-      <div className="dark w-full max-w-md">
+    Story => (
+      <div className='dark w-full max-w-md'>
         <Story />
       </div>
     ),

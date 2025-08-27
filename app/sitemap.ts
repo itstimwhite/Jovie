@@ -1,40 +1,25 @@
+import { eq } from 'drizzle-orm';
 import { MetadataRoute } from 'next';
-import { createServerClient } from '@/lib/supabase-server';
 import { APP_URL } from '@/constants/app';
+import { db } from '@/lib/db';
+import { creatorProfiles } from '@/lib/db/schema';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = await createServerClient();
+  let profiles: Array<{ username: string; updatedAt: Date | null }> = [];
 
-  if (!supabase) {
-    // Return basic sitemap if database is not available
-    const baseUrl = APP_URL;
-    return [
-      {
-        url: baseUrl,
-        lastModified: new Date(),
-        changeFrequency: 'daily' as const,
-        priority: 1,
-      },
-      {
-        url: `${baseUrl}/legal/privacy`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly' as const,
-        priority: 0.3,
-      },
-      {
-        url: `${baseUrl}/legal/terms`,
-        lastModified: new Date(),
-        changeFrequency: 'monthly' as const,
-        priority: 0.3,
-      },
-    ];
+  try {
+    // Get all public creator profiles
+    profiles = await db
+      .select({
+        username: creatorProfiles.username,
+        updatedAt: creatorProfiles.updatedAt,
+      })
+      .from(creatorProfiles)
+      .where(eq(creatorProfiles.isPublic, true));
+  } catch (error) {
+    console.error('Error fetching profiles for sitemap:', error);
+    // Continue with empty profiles array on error
   }
-
-  // Get all public creator profiles
-  const { data: profiles } = await supabase
-    .from('creator_profiles')
-    .select('username, updated_at')
-    .eq('is_public', true);
 
   const baseUrl = APP_URL;
 
@@ -61,15 +46,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // Creator profile pages with optimized priorities
-  const profilePages =
-    profiles?.map((profile) => ({
-      url: `${baseUrl}/${profile.username}`,
-      lastModified: profile.updated_at
-        ? new Date(profile.updated_at)
-        : new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    })) || [];
+  const profilePages = profiles.map(profile => ({
+    url: `${baseUrl}/${profile.username}`,
+    lastModified: profile.updatedAt || new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }));
 
   return [...staticPages, ...profilePages];
 }

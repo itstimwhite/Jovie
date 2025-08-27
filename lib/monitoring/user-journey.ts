@@ -202,7 +202,7 @@ export class UserJourneyTracker {
 
     // Set up event listeners for each step
     if (typeof window !== 'undefined') {
-      steps.forEach((step) => {
+      steps.forEach(step => {
         window.addEventListener(`jovie:${step}`, (event: Event) => {
           const customEvent = event as CustomEvent;
           journey.goToStep(step, customEvent.detail || {});

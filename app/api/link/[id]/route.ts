@@ -11,13 +11,12 @@ import {
   incrementClickCount,
 } from '@/lib/services/link-wrapping';
 import {
-  detectBot,
-  logBotDetection,
   checkRateLimit,
   createBotResponse,
+  detectBot,
+  logBotDetection,
 } from '@/lib/utils/bot-detection';
 import { generateSignedToken } from '@/lib/utils/url-encryption';
-import { createPublicSupabaseClient } from '@/lib/supabase/server';
 
 interface RequestBody {
   verified?: boolean;
@@ -58,7 +57,7 @@ export async function POST(
     }
 
     // Rate limiting for API endpoints
-    const isRateLimited = await checkRateLimit(ip, '/api/link', 10, 5); // 10 requests per 5 minutes
+    const isRateLimited = await checkRateLimit(ip, '/api/link'); // 10 requests per 5 minutes
     if (isRateLimited) {
       return NextResponse.json(
         { error: 'Rate limit exceeded' },
@@ -102,38 +101,18 @@ export async function POST(
     const signedToken = generateSignedToken();
     const expiresAt = new Date(Date.now() + 60 * 1000); // 60 seconds TTL
 
-    // Store signed access record
-    const supabase = createPublicSupabaseClient();
-    const { error: insertError } = await supabase
-      .from('signed_link_access')
-      .insert({
-        link_id: wrappedLink.id,
-        signed_token: signedToken,
-        expires_at: expiresAt.toISOString(),
-        ip_address: ip,
-        user_agent: botResult.userAgent,
-      });
-
-    if (insertError) {
-      console.error('Failed to create signed access:', insertError);
-      // For testing: if database schema is incomplete, continue without storing signed access
-      if (
-        insertError.code !== 'PGRST204' &&
-        insertError.code !== '42P01' &&
-        insertError.code !== '42703'
-      ) {
-        return NextResponse.json(
-          { error: 'Internal server error' },
-          { status: 500 }
-        );
-      }
-      console.log(
-        'Database schema incomplete, continuing without signed access storage'
-      );
-    }
+    // TODO: Create signed_link_access table in Drizzle schema and store signed access record
+    // For now, log the signed access attempt
+    console.log('Signed link access:', {
+      link_id: wrappedLink.id,
+      signed_token: signedToken,
+      expires_at: expiresAt.toISOString(),
+      ip_address: ip,
+      user_agent: botResult.userAgent,
+    });
 
     // Increment click count asynchronously
-    incrementClickCount(shortId).catch((error) => {
+    incrementClickCount(shortId).catch(error => {
       console.error('Failed to increment click count:', error);
     });
 

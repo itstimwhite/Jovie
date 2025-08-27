@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
-import { TipJar } from '@/components/profile/TipJar';
 import { loadStripe } from '@stripe/stripe-js';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { TipJar } from '@/components/profile/TipJar';
 
 // Mock the ToastContainer module
 vi.mock('@/components/ui/ToastContainer', () => {
@@ -49,7 +49,7 @@ describe('TipJar', () => {
 
     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = 'pk_test';
 
-    render(<TipJar handle="tim" artistName="Tim" />);
+    render(<TipJar handle='tim' artistName='Tim' />);
 
     expect(await screen.findByText('$2 Tip')).toBeInTheDocument();
     fireEvent.click(screen.getByText('$2 Tip'));
@@ -66,7 +66,7 @@ describe('TipJar', () => {
 
     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = 'pk_test';
 
-    render(<TipJar handle="tim" artistName="Tim" />);
+    render(<TipJar handle='tim' artistName='Tim' />);
 
     expect(
       await screen.findByText('Scan to tip via Apple Pay')

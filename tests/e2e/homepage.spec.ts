@@ -1,4 +1,4 @@
-import { test, expect } from './setup';
+import { expect, test } from './setup';
 
 test.describe('Homepage', () => {
   test.beforeEach(async ({ page }) => {

@@ -1,6 +1,6 @@
 import { clerkMiddleware } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import { detectBot, createBotResponse } from '@/lib/utils/bot-detection';
+import { createBotResponse, detectBot } from '@/lib/utils/bot-detection';
 
 const EU_EEA_UK = [
   'AT',

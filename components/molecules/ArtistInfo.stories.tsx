@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ArtistInfo } from './ArtistInfo';
 import { Artist } from '@/types/db';
+import { ArtistInfo } from './ArtistInfo';
 
 const meta: Meta<typeof ArtistInfo> = {
   title: 'Molecules/ArtistInfo',

@@ -30,7 +30,7 @@ export function ArtistInfo({
         priority
       />
 
-      <div className="space-y-1.5 sm:space-y-2 max-w-md">
+      <div className='space-y-1.5 sm:space-y-2 max-w-md'>
         <ArtistName
           name={artist.name}
           handle={artist.handle}
@@ -39,16 +39,16 @@ export function ArtistInfo({
         />
 
         <p
-          className="text-base sm:text-lg leading-snug text-gray-600 dark:text-gray-400 line-clamp-2"
-          itemProp="description"
+          className='text-base sm:text-lg leading-snug text-gray-600 dark:text-gray-400 line-clamp-2'
+          itemProp='description'
         >
           {subtitle ?? artist.tagline ?? DEFAULT_PROFILE_TAGLINE}
         </p>
 
         {/* Hidden SEO elements */}
-        <meta itemProp="jobTitle" content="Music Artist" />
-        <meta itemProp="worksFor" content="Music Industry" />
-        <meta itemProp="knowsAbout" content="Music, Art, Entertainment" />
+        <meta itemProp='jobTitle' content='Music Artist' />
+        <meta itemProp='worksFor' content='Music Industry' />
+        <meta itemProp='knowsAbout' content='Music, Art, Entertainment' />
       </div>
     </div>
   );

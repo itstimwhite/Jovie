@@ -3,7 +3,7 @@
  * This test verifies that the handle check API and profile creation use the same data source
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 describe('Handle Availability Integration', () => {
   it('should use creator_profiles.username as canonical identifier', () => {

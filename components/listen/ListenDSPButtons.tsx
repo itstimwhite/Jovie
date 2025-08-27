@@ -18,7 +18,7 @@ export default function ListenDSPButtons({
       handle={handle}
       dsps={dsps}
       initialPreferredUrl={initialPreferredUrl}
-      size="md"
+      size='md'
       showPreferenceNotice={true}
       savePreferences={true}
       enableDeepLinks={true}

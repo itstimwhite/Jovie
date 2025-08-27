@@ -102,17 +102,17 @@ export const WithId: Story = {
 
 export const AllSizes: Story = {
   render: () => (
-    <div className="flex flex-col gap-6 text-center">
-      <SectionHeading level={2} size="sm">
+    <div className='flex flex-col gap-6 text-center'>
+      <SectionHeading level={2} size='sm'>
         Small Heading
       </SectionHeading>
-      <SectionHeading level={2} size="md">
+      <SectionHeading level={2} size='md'>
         Medium Heading
       </SectionHeading>
-      <SectionHeading level={2} size="lg">
+      <SectionHeading level={2} size='lg'>
         Large Heading
       </SectionHeading>
-      <SectionHeading level={2} size="xl">
+      <SectionHeading level={2} size='xl'>
         Extra Large Heading
       </SectionHeading>
     </div>
@@ -121,14 +121,14 @@ export const AllSizes: Story = {
 
 export const AllAlignments: Story = {
   render: () => (
-    <div className="flex flex-col gap-6 w-96">
-      <SectionHeading level={2} align="left" size="md">
+    <div className='flex flex-col gap-6 w-96'>
+      <SectionHeading level={2} align='left' size='md'>
         Left Aligned
       </SectionHeading>
-      <SectionHeading level={2} align="center" size="md">
+      <SectionHeading level={2} align='center' size='md'>
         Center Aligned
       </SectionHeading>
-      <SectionHeading level={2} align="right" size="md">
+      <SectionHeading level={2} align='right' size='md'>
         Right Aligned
       </SectionHeading>
     </div>

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
-import { Button } from '@/components/ui/Button';
-import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
-import { APP_URL } from '@/constants/app';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import { completeOnboarding } from '@/app/onboarding/actions';
+import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
+import { Button } from '@/components/ui/Button';
+import { APP_URL } from '@/constants/app';
 import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
 
 // Define the onboarding steps based on the new UX requirements
@@ -317,7 +317,7 @@ export function AppleStyleOnboardingForm() {
       )
         return;
 
-      setState((prev) => ({
+      setState(prev => ({
         ...prev,
         error: null,
         step: 'validating',
@@ -331,7 +331,7 @@ export function AppleStyleOnboardingForm() {
           displayName: selectedArtist?.artistName || handle,
         });
 
-        setState((prev) => ({ ...prev, step: 'complete', progress: 100 }));
+        setState(prev => ({ ...prev, step: 'complete', progress: 100 }));
 
         // Clear session data
         sessionStorage.removeItem('selectedArtist');
@@ -343,7 +343,7 @@ export function AppleStyleOnboardingForm() {
         console.error('Onboarding error:', error);
 
         if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
-          setState((prev) => ({ ...prev, step: 'complete', progress: 100 }));
+          setState(prev => ({ ...prev, step: 'complete', progress: 100 }));
           return;
         }
 
@@ -361,7 +361,7 @@ export function AppleStyleOnboardingForm() {
           }
         }
 
-        setState((prev) => ({
+        setState(prev => ({
           ...prev,
           error: userMessage,
           step: 'validating',
@@ -388,12 +388,12 @@ export function AppleStyleOnboardingForm() {
       .writeText(link)
       .then(() => {
         // Show a temporary success message
-        setState((prev) => ({ ...prev, error: 'Link copied to clipboard!' }));
+        setState(prev => ({ ...prev, error: 'Link copied to clipboard!' }));
         setTimeout(() => {
-          setState((prev) => ({ ...prev, error: null }));
+          setState(prev => ({ ...prev, error: null }));
         }, 2000);
       })
-      .catch((err) => {
+      .catch(err => {
         console.error('Failed to copy link:', err);
       });
   }, [handle]);
@@ -405,7 +405,7 @@ export function AppleStyleOnboardingForm() {
 
   // Retry operation on error
   const retryOperation = useCallback(() => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       retryCount: prev.retryCount + 1,
       error: null,
@@ -418,16 +418,16 @@ export function AppleStyleOnboardingForm() {
       // Step 1: Welcome
       case 0:
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-8">
-            <h1 className="text-4xl font-bold text-black dark:text-white">
+          <div className='flex flex-col items-center justify-center h-full text-center space-y-8'>
+            <h1 className='text-4xl font-bold text-black dark:text-white'>
               {ONBOARDING_STEPS[0].title}
             </h1>
-            <p className="text-gray-600 dark:text-gray-300 text-xl">
+            <p className='text-gray-600 dark:text-gray-300 text-xl'>
               {ONBOARDING_STEPS[0].prompt}
             </p>
             <Button
               onClick={goToNextStep}
-              className="w-full py-4 text-lg bg-black text-white dark:bg-white dark:text-black rounded-xl hover:opacity-90 transition-opacity"
+              className='w-full py-4 text-lg bg-black text-white dark:bg-white dark:text-black rounded-xl hover:opacity-90 transition-opacity'
             >
               Start
             </Button>
@@ -437,25 +437,25 @@ export function AppleStyleOnboardingForm() {
       // Step 2: Artist Search
       case 1:
         return (
-          <div className="flex flex-col items-center justify-center h-full space-y-8">
-            <div className="text-center space-y-3">
-              <h1 className="text-4xl font-bold text-black dark:text-white">
+          <div className='flex flex-col items-center justify-center h-full space-y-8'>
+            <div className='text-center space-y-3'>
+              <h1 className='text-4xl font-bold text-black dark:text-white'>
                 {ONBOARDING_STEPS[1].title}
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 text-xl">
+              <p className='text-gray-600 dark:text-gray-300 text-xl'>
                 {ONBOARDING_STEPS[1].prompt}
               </p>
             </div>
 
-            <div className="w-full max-w-md space-y-6">
-              <div className="space-y-4">
+            <div className='w-full max-w-md space-y-6'>
+              <div className='space-y-4'>
                 <input
-                  type="text"
+                  type='text'
                   value={artistSearchQuery}
-                  onChange={(e) => setArtistSearchQuery(e.target.value)}
-                  placeholder="Search by artist name"
-                  className="w-full px-4 py-4 text-lg bg-gray-100 dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-black dark:focus:ring-white transition-all"
-                  onKeyDown={(e) => {
+                  onChange={e => setArtistSearchQuery(e.target.value)}
+                  placeholder='Search by artist name'
+                  className='w-full px-4 py-4 text-lg bg-gray-100 dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-black dark:focus:ring-white transition-all'
+                  onKeyDown={e => {
                     if (e.key === 'Enter' && artistSearchQuery.trim()) {
                       searchArtists(artistSearchQuery);
                     }
@@ -464,11 +464,11 @@ export function AppleStyleOnboardingForm() {
                 <Button
                   onClick={() => searchArtists(artistSearchQuery)}
                   disabled={!artistSearchQuery.trim() || isSearching}
-                  className="w-full py-4 text-lg bg-black text-white dark:bg-white dark:text-black rounded-xl hover:opacity-90 transition-opacity"
+                  className='w-full py-4 text-lg bg-black text-white dark:bg-white dark:text-black rounded-xl hover:opacity-90 transition-opacity'
                 >
                   {isSearching ? (
-                    <div className="flex items-center justify-center space-x-2">
-                      <LoadingSpinner size="sm" className="text-current" />
+                    <div className='flex items-center justify-center space-x-2'>
+                      <LoadingSpinner size='sm' className='text-current' />
                       <span>Searching...</span>
                     </div>
                   ) : (
@@ -479,16 +479,16 @@ export function AppleStyleOnboardingForm() {
 
               {/* Search results */}
               {searchResults.length > 0 && (
-                <div className="space-y-4 mt-6">
-                  <h3 className="text-lg font-medium text-black dark:text-white">
+                <div className='space-y-4 mt-6'>
+                  <h3 className='text-lg font-medium text-black dark:text-white'>
                     Select your artist profile
                   </h3>
-                  <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
-                    {searchResults.map((artist) => (
+                  <div className='space-y-3 max-h-[300px] overflow-y-auto pr-2'>
+                    {searchResults.map(artist => (
                       <button
                         key={artist.id}
                         onClick={() => handleArtistSelect(artist)}
-                        className="w-full flex items-center space-x-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left"
+                        className='w-full flex items-center space-x-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left'
                       >
                         {artist.imageUrl ? (
                           <Image
@@ -496,21 +496,21 @@ export function AppleStyleOnboardingForm() {
                             alt={artist.name}
                             width={48}
                             height={48}
-                            className="w-12 h-12 rounded-full object-cover"
+                            className='w-12 h-12 rounded-full object-cover'
                           />
                         ) : (
-                          <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                            <span className="text-gray-500 dark:text-gray-300 font-medium">
+                          <div className='w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center'>
+                            <span className='text-gray-500 dark:text-gray-300 font-medium'>
                               {artist.name.charAt(0).toUpperCase()}
                             </span>
                           </div>
                         )}
                         <div>
-                          <div className="font-medium text-black dark:text-white">
+                          <div className='font-medium text-black dark:text-white'>
                             {artist.name}
                           </div>
                           {artist.followers && (
-                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                            <div className='text-sm text-gray-500 dark:text-gray-400'>
                               {new Intl.NumberFormat().format(artist.followers)}{' '}
                               followers
                             </div>
@@ -523,7 +523,7 @@ export function AppleStyleOnboardingForm() {
               )}
 
               {searchError && (
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl text-red-600 dark:text-red-300 text-sm">
+                <div className='p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl text-red-600 dark:text-red-300 text-sm'>
                   {searchError}
                 </div>
               )}
@@ -531,7 +531,7 @@ export function AppleStyleOnboardingForm() {
               {/* Skip option */}
               <button
                 onClick={handleSkipArtist}
-                className="w-full text-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 py-2 text-sm"
+                className='w-full text-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 py-2 text-sm'
               >
                 Skip for now
               </button>
@@ -542,26 +542,24 @@ export function AppleStyleOnboardingForm() {
       // Step 3: Handle Selection
       case 2:
         return (
-          <div className="flex flex-col items-center justify-center h-full space-y-8">
-            <div className="text-center space-y-3">
-              <h1 className="text-4xl font-bold text-black dark:text-white">
+          <div className='flex flex-col items-center justify-center h-full space-y-8'>
+            <div className='text-center space-y-3'>
+              <h1 className='text-4xl font-bold text-black dark:text-white'>
                 {ONBOARDING_STEPS[2].title}
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 text-xl">
+              <p className='text-gray-600 dark:text-gray-300 text-xl'>
                 {ONBOARDING_STEPS[2].prompt}
               </p>
             </div>
 
-            <div className="w-full max-w-md space-y-6">
-              <div className="space-y-4">
-                <div className="relative">
+            <div className='w-full max-w-md space-y-6'>
+              <div className='space-y-4'>
+                <div className='relative'>
                   <input
-                    type="text"
+                    type='text'
                     value={handleInput}
-                    onChange={(e) =>
-                      setHandleInput(e.target.value.toLowerCase())
-                    }
-                    placeholder="yourhandle"
+                    onChange={e => setHandleInput(e.target.value.toLowerCase())}
+                    placeholder='yourhandle'
                     className={`w-full px-4 py-4 text-lg bg-gray-100 dark:bg-gray-800 border-2 rounded-xl transition-all ${
                       handleValidation.error
                         ? 'border-red-500 dark:border-red-500'
@@ -571,50 +569,50 @@ export function AppleStyleOnboardingForm() {
                     } focus:ring-2 focus:ring-black dark:focus:ring-white`}
                   />
                   {handleValidation.checking && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      <LoadingSpinner size="sm" className="text-gray-400" />
+                    <div className='absolute right-3 top-1/2 transform -translate-y-1/2'>
+                      <LoadingSpinner size='sm' className='text-gray-400' />
                     </div>
                   )}
                 </div>
 
                 {/* Live preview */}
-                <div className="text-center p-3 bg-gray-100 dark:bg-gray-800 rounded-xl">
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">
+                <div className='text-center p-3 bg-gray-100 dark:bg-gray-800 rounded-xl'>
+                  <p className='text-gray-500 dark:text-gray-400 text-sm'>
                     Your profile link
                   </p>
-                  <p className="font-mono text-black dark:text-white">
+                  <p className='font-mono text-black dark:text-white'>
                     {displayDomain}/{handleInput || 'yourhandle'}
                   </p>
                 </div>
 
                 {/* Validation feedback - inline below input */}
                 {handleValidation.error && (
-                  <div className="text-red-500 dark:text-red-400 text-sm px-1">
+                  <div className='text-red-500 dark:text-red-400 text-sm px-1'>
                     {handleValidation.error}
                   </div>
                 )}
 
                 {handleValidation.available && handleValidation.clientValid && (
-                  <div className="text-green-500 dark:text-green-400 text-sm px-1">
+                  <div className='text-green-500 dark:text-green-400 text-sm px-1'>
                     Handle is available!
                   </div>
                 )}
 
                 {/* Suggestions if handle is taken */}
                 {handleValidation.suggestions.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                  <div className='space-y-2'>
+                    <p className='text-sm text-gray-600 dark:text-gray-300'>
                       Try one of these instead:
                     </p>
-                    <div className="flex flex-wrap gap-2">
-                      {handleValidation.suggestions.map((suggestion) => (
+                    <div className='flex flex-wrap gap-2'>
+                      {handleValidation.suggestions.map(suggestion => (
                         <button
                           key={suggestion}
                           onClick={() => {
                             setHandleInput(suggestion);
                             validateHandle(suggestion);
                           }}
-                          className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-lg text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                          className='px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded-lg text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors'
                         >
                           {suggestion}
                         </button>
@@ -639,8 +637,8 @@ export function AppleStyleOnboardingForm() {
                   }`}
                 >
                   {state.isSubmitting ? (
-                    <div className="flex items-center justify-center space-x-2">
-                      <LoadingSpinner size="sm" className="text-current" />
+                    <div className='flex items-center justify-center space-x-2'>
+                      <LoadingSpinner size='sm' className='text-current' />
                       <span>Creating profile...</span>
                     </div>
                   ) : (
@@ -651,10 +649,10 @@ export function AppleStyleOnboardingForm() {
 
               {/* Error display */}
               {state.error && (
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl text-red-600 dark:text-red-300 text-sm">
+                <div className='p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl text-red-600 dark:text-red-300 text-sm'>
                   {state.error}
                   {state.retryCount < 3 && (
-                    <button onClick={retryOperation} className="ml-2 underline">
+                    <button onClick={retryOperation} className='ml-2 underline'>
                       Retry
                     </button>
                   )}
@@ -664,7 +662,7 @@ export function AppleStyleOnboardingForm() {
               {/* Back button */}
               <button
                 onClick={goToPreviousStep}
-                className="w-full text-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 py-2 text-sm"
+                className='w-full text-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 py-2 text-sm'
               >
                 Back
               </button>
@@ -675,36 +673,36 @@ export function AppleStyleOnboardingForm() {
       // Step 4: Done
       case 3:
         return (
-          <div className="flex flex-col items-center justify-center h-full space-y-8">
-            <div className="text-center space-y-3">
-              <h1 className="text-4xl font-bold text-black dark:text-white">
+          <div className='flex flex-col items-center justify-center h-full space-y-8'>
+            <div className='text-center space-y-3'>
+              <h1 className='text-4xl font-bold text-black dark:text-white'>
                 {ONBOARDING_STEPS[3].title}
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 text-xl">
+              <p className='text-gray-600 dark:text-gray-300 text-xl'>
                 {ONBOARDING_STEPS[3].prompt}
               </p>
             </div>
 
-            <div className="w-full max-w-md space-y-6">
+            <div className='w-full max-w-md space-y-6'>
               {/* Profile link */}
-              <div className="text-center p-4 bg-gray-100 dark:bg-gray-800 rounded-xl">
-                <p className="font-mono text-lg text-black dark:text-white">
+              <div className='text-center p-4 bg-gray-100 dark:bg-gray-800 rounded-xl'>
+                <p className='font-mono text-lg text-black dark:text-white'>
                   {displayDomain}/{handle}
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <div className='space-y-3'>
                 <Button
                   onClick={goToDashboard}
-                  className="w-full py-4 text-lg bg-black text-white dark:bg-white dark:text-black rounded-xl hover:opacity-90 transition-opacity"
+                  className='w-full py-4 text-lg bg-black text-white dark:bg-white dark:text-black rounded-xl hover:opacity-90 transition-opacity'
                 >
                   Go to Dashboard
                 </Button>
 
                 <Button
                   onClick={copyProfileLink}
-                  variant="outline"
-                  className="w-full py-4 text-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  variant='outline'
+                  className='w-full py-4 text-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors'
                 >
                   Copy Link
                 </Button>
@@ -712,7 +710,7 @@ export function AppleStyleOnboardingForm() {
 
               {/* Success message when link is copied */}
               {state.error && (
-                <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-xl text-green-600 dark:text-green-300 text-sm text-center">
+                <div className='p-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-xl text-green-600 dark:text-green-300 text-sm text-center'>
                   {state.error}
                 </div>
               )}
@@ -728,10 +726,10 @@ export function AppleStyleOnboardingForm() {
   // Progress indicator component - subtle top bar
   const ProgressIndicator = () => {
     return (
-      <div className="fixed top-0 left-0 right-0 z-50">
-        <div className="h-1 bg-gray-200 dark:bg-gray-800">
+      <div className='fixed top-0 left-0 right-0 z-50'>
+        <div className='h-1 bg-gray-200 dark:bg-gray-800'>
           <div
-            className="h-full bg-black dark:bg-white transition-all duration-500 ease-in-out"
+            className='h-full bg-black dark:bg-white transition-all duration-500 ease-in-out'
             style={{
               width: `${((currentStepIndex + 1) / ONBOARDING_STEPS.length) * 100}%`,
             }}
@@ -742,32 +740,32 @@ export function AppleStyleOnboardingForm() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className='min-h-screen flex flex-col'>
       {/* Progress indicator */}
       <ProgressIndicator />
 
       {/* Skip link for accessibility */}
       <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded-md z-50"
+        href='#main-content'
+        className='sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded-md z-50'
       >
         Skip to main content
       </a>
 
       {/* Screen reader announcements */}
-      <div className="sr-only" aria-live="polite" aria-atomic="true">
+      <div className='sr-only' aria-live='polite' aria-atomic='true'>
         Step {currentStepIndex + 1} of {ONBOARDING_STEPS.length}:{' '}
         {ONBOARDING_STEPS[currentStepIndex]?.title}
       </div>
 
       {/* Main content with smooth transitions */}
       <main
-        className="flex-1 flex items-center justify-center px-4"
-        id="main-content"
-        role="main"
-        aria-labelledby="step-heading"
+        className='flex-1 flex items-center justify-center px-4'
+        id='main-content'
+        role='main'
+        aria-labelledby='step-heading'
       >
-        <div id="step-heading" className="sr-only">
+        <div id='step-heading' className='sr-only'>
           {ONBOARDING_STEPS[currentStepIndex]?.title} step content
         </div>
         <div

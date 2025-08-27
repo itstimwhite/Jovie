@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
 import Image from 'next/image';
+import { useState } from 'react';
 
 // Mock component that mimics AvatarUploader but doesn't rely on the actual implementation
 // This allows us to show different states without modifying the original component
@@ -83,7 +83,7 @@ const MockAvatarUploader = ({
   if (disabled) {
     return (
       <div className={`${className} ${sizeClass}`}>
-        <p className="text-sm text-neutral-500">
+        <p className='text-sm text-neutral-500'>
           Avatar uploads are currently disabled.
         </p>
       </div>
@@ -92,36 +92,36 @@ const MockAvatarUploader = ({
 
   return (
     <div className={`${className} ${sizeClass}`}>
-      <div className="flex items-center gap-4">
+      <div className='flex items-center gap-4'>
         {preview ? (
           <Image
             src={preview}
-            alt="Preview"
+            alt='Preview'
             width={80}
             height={80}
-            className="rounded-full object-cover"
+            className='rounded-full object-cover'
           />
         ) : (
-          <div className="w-20 h-20 rounded-full bg-neutral-200 dark:bg-neutral-800" />
+          <div className='w-20 h-20 rounded-full bg-neutral-200 dark:bg-neutral-800' />
         )}
-        <div className="flex flex-col gap-2">
+        <div className='flex flex-col gap-2'>
           <input
-            type="file"
-            accept="image/*"
+            type='file'
+            accept='image/*'
             onChange={onSelect}
-            className="block text-sm cursor-pointer"
-            aria-label="Choose profile image"
+            className='block text-sm cursor-pointer'
+            aria-label='Choose profile image'
           />
           <button
-            type="button"
+            type='button'
             onClick={onUpload}
             disabled={!file || loading}
-            className="px-3 py-1.5 rounded bg-black text-white disabled:opacity-50 dark:bg-white dark:text-black"
+            className='px-3 py-1.5 rounded bg-black text-white disabled:opacity-50 dark:bg-white dark:text-black'
           >
             {loading ? 'Uploading…' : 'Upload'}
           </button>
           {error && (
-            <p className="text-sm text-red-500">
+            <p className='text-sm text-red-500'>
               Upload failed. Please try again.
             </p>
           )}
@@ -175,7 +175,7 @@ const meta: Meta<typeof MockAvatarUploader> = {
     folder: 'avatars',
   },
   decorators: [
-    (Story) => (
+    Story => (
       <div style={{ width: '400px', padding: '1rem' }}>
         <Story />
       </div>

@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { completeOnboarding } from '@/app/onboarding/actions';
+import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { Button } from '@/components/ui/Button';
 import { type HandleValidationState } from '@/components/ui/SmartHandleInput';
-import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { APP_URL } from '@/constants/app';
-import { completeOnboarding } from '@/app/onboarding/actions';
 import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
 
 // Progressive form steps
@@ -250,7 +250,7 @@ export function MinimalistOnboardingForm() {
       )
         return;
 
-      setState((prev) => ({
+      setState(prev => ({
         ...prev,
         error: null,
         step: 'validating',
@@ -264,7 +264,7 @@ export function MinimalistOnboardingForm() {
           displayName: selectedArtist?.artistName || handle,
         });
 
-        setState((prev) => ({ ...prev, step: 'complete', progress: 100 }));
+        setState(prev => ({ ...prev, step: 'complete', progress: 100 }));
 
         // Clear session data
         sessionStorage.removeItem('selectedArtist');
@@ -278,7 +278,7 @@ export function MinimalistOnboardingForm() {
         console.error('Onboarding error:', error);
 
         if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
-          setState((prev) => ({ ...prev, step: 'complete', progress: 100 }));
+          setState(prev => ({ ...prev, step: 'complete', progress: 100 }));
           return;
         }
 
@@ -296,7 +296,7 @@ export function MinimalistOnboardingForm() {
           }
         }
 
-        setState((prev) => ({
+        setState(prev => ({
           ...prev,
           error: userMessage,
           step: 'validating',
@@ -318,7 +318,7 @@ export function MinimalistOnboardingForm() {
 
   // Retry operation
   const retryOperation = useCallback(() => {
-    setState((prev) => ({
+    setState(prev => ({
       ...prev,
       error: null,
       retryCount: prev.retryCount + 1,
@@ -365,25 +365,25 @@ export function MinimalistOnboardingForm() {
     switch (currentStepIndex) {
       case 0: // Welcome
         return (
-          <div className="space-y-8">
-            <div className="space-y-4">
+          <div className='space-y-8'>
+            <div className='space-y-4'>
               <h2
-                className="text-2xl font-medium text-black dark:text-white"
+                className='text-2xl font-medium text-black dark:text-white'
                 tabIndex={-1}
               >
                 Welcome
               </h2>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className='text-gray-600 dark:text-gray-300'>
                 Let&apos;s set up your profile in a few simple steps.
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className='space-y-4'>
               <Button
                 onClick={goToNextStep}
-                variant="plain"
-                className="w-full bg-black text-white dark:bg-white dark:text-black rounded-xl py-3 px-6"
-                size="lg"
+                variant='plain'
+                className='w-full bg-black text-white dark:bg-white dark:text-black rounded-xl py-3 px-6'
+                size='lg'
               >
                 Get Started
               </Button>
@@ -393,77 +393,77 @@ export function MinimalistOnboardingForm() {
 
       case 1: // Artist Search
         return (
-          <div className="space-y-8">
-            <div className="space-y-4">
+          <div className='space-y-8'>
+            <div className='space-y-4'>
               <h2
-                className="text-2xl font-medium text-black dark:text-white"
+                className='text-2xl font-medium text-black dark:text-white'
                 tabIndex={-1}
               >
                 Find Your Artist
               </h2>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className='text-gray-600 dark:text-gray-300'>
                 Search for your artist profile on Spotify.
               </p>
             </div>
 
-            <div className="space-y-4">
-              <div className="relative">
+            <div className='space-y-4'>
+              <div className='relative'>
                 <input
-                  type="text"
-                  placeholder="Search by artist name"
-                  className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-transparent text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-400"
-                  onChange={(e) => searchArtists(e.target.value)}
+                  type='text'
+                  placeholder='Search by artist name'
+                  className='w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-transparent text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-400'
+                  onChange={e => searchArtists(e.target.value)}
                 />
                 {isSearching && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  <div className='absolute right-3 top-1/2 -translate-y-1/2'>
                     <LoadingSpinner
-                      size="sm"
-                      className="text-gray-400 dark:text-gray-500"
+                      size='sm'
+                      className='text-gray-400 dark:text-gray-500'
                     />
                   </div>
                 )}
               </div>
 
               {searchError && (
-                <div className="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                <div className='bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4'>
+                  <p className='text-sm text-gray-700 dark:text-gray-300'>
                     {searchError}
                   </p>
                 </div>
               )}
 
               {searchResults.length > 0 && (
-                <div className="space-y-3 max-h-[300px] overflow-y-auto">
-                  {searchResults.map((artist) => (
+                <div className='space-y-3 max-h-[300px] overflow-y-auto'>
+                  {searchResults.map(artist => (
                     <div
                       key={artist.id}
-                      className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                      className='border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer'
                       onClick={() => handleArtistSelect(artist)}
                     >
-                      <div className="flex items-center space-x-3">
+                      <div className='flex items-center space-x-3'>
                         {artist.imageUrl ? (
-                          <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800">
+                          <div className='w-12 h-12 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800'>
                             <Image
                               src={artist.imageUrl}
                               alt={artist.name}
                               width={48}
                               height={48}
-                              className="w-full h-full object-cover"
+                              className='w-full h-full object-cover'
                             />
                           </div>
                         ) : (
-                          <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                            <span className="text-gray-600 dark:text-gray-300 font-medium">
+                          <div className='w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center'>
+                            <span className='text-gray-600 dark:text-gray-300 font-medium'>
                               {artist.name.charAt(0).toUpperCase()}
                             </span>
                           </div>
                         )}
                         <div>
-                          <h3 className="font-medium text-black dark:text-white">
+                          <h3 className='font-medium text-black dark:text-white'>
                             {artist.name}
                           </h3>
                           {artist.followers && (
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                            <p className='text-sm text-gray-500 dark:text-gray-400'>
                               {artist.followers.toLocaleString()} followers
                             </p>
                           )}
@@ -474,18 +474,18 @@ export function MinimalistOnboardingForm() {
                 </div>
               )}
 
-              <div className="pt-4 space-y-3">
+              <div className='pt-4 space-y-3'>
                 <Button
                   onClick={handleSkipArtist}
-                  variant="plain"
-                  className="w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl py-3 px-6 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  variant='plain'
+                  className='w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl py-3 px-6 hover:bg-gray-50 dark:hover:bg-gray-800'
                 >
                   Skip This Step
                 </Button>
                 <Button
                   onClick={goToPreviousStep}
-                  variant="plain"
-                  className="w-full text-gray-500 dark:text-gray-400 py-2"
+                  variant='plain'
+                  className='w-full text-gray-500 dark:text-gray-400 py-2'
                 >
                   Back
                 </Button>
@@ -496,94 +496,94 @@ export function MinimalistOnboardingForm() {
 
       case 2: // Handle Selection
         return (
-          <div className="space-y-8">
-            <div className="space-y-4">
+          <div className='space-y-8'>
+            <div className='space-y-4'>
               <h2
-                className="text-2xl font-medium text-black dark:text-white"
+                className='text-2xl font-medium text-black dark:text-white'
                 tabIndex={-1}
               >
                 Choose Your Handle
               </h2>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className='text-gray-600 dark:text-gray-300'>
                 Select a unique identifier for your profile URL.
               </p>
             </div>
 
-            <div className="space-y-6">
-              <div className="space-y-2">
+            <div className='space-y-6'>
+              <div className='space-y-2'>
                 <label
-                  htmlFor="handle-input"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  htmlFor='handle-input'
+                  className='block text-sm font-medium text-gray-700 dark:text-gray-300'
                 >
                   Handle
                 </label>
-                <div className="relative">
+                <div className='relative'>
                   <input
-                    id="handle-input"
-                    type="text"
+                    id='handle-input'
+                    type='text'
                     value={handle}
-                    onChange={(e) => setHandle(e.target.value)}
-                    placeholder="your-handle"
-                    className="w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-transparent text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-400 font-mono"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    autoComplete="off"
+                    onChange={e => setHandle(e.target.value)}
+                    placeholder='your-handle'
+                    className='w-full px-4 py-3 border border-gray-200 dark:border-gray-700 rounded-xl bg-transparent text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-400 font-mono'
+                    autoCapitalize='none'
+                    autoCorrect='off'
+                    autoComplete='off'
                   />
                   {handleValidation?.checking && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className='absolute right-3 top-1/2 -translate-y-1/2'>
                       <LoadingSpinner
-                        size="sm"
-                        className="text-gray-400 dark:text-gray-500"
+                        size='sm'
+                        className='text-gray-400 dark:text-gray-500'
                       />
                     </div>
                   )}
                   {handleValidation?.available &&
                     !handleValidation?.checking && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <div className='absolute right-3 top-1/2 -translate-y-1/2'>
                         <svg
-                          className="w-5 h-5 text-gray-500 dark:text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
+                          className='w-5 h-5 text-gray-500 dark:text-gray-400'
+                          fill='none'
+                          stroke='currentColor'
+                          viewBox='0 0 24 24'
+                          xmlns='http://www.w3.org/2000/svg'
                         >
                           <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
                             strokeWidth={2}
-                            d="M5 13l4 4L19 7"
+                            d='M5 13l4 4L19 7'
                           />
                         </svg>
                       </div>
                     )}
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className='text-xs text-gray-500 dark:text-gray-400'>
                   Your profile will be live at {displayDomain}/
-                  <span className="font-medium">{handle || 'your-handle'}</span>
+                  <span className='font-medium'>{handle || 'your-handle'}</span>
                 </p>
 
                 {handleValidation?.error && (
-                  <div className="mt-2 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                  <div className='mt-2 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3'>
+                    <p className='text-sm text-gray-700 dark:text-gray-300'>
                       {handleValidation.error}
                     </p>
                   </div>
                 )}
 
                 {handleValidation?.suggestions?.length > 0 && (
-                  <div className="mt-3 space-y-1">
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                  <div className='mt-3 space-y-1'>
+                    <p className='text-xs text-gray-600 dark:text-gray-400'>
                       Suggestions:
                     </p>
-                    <div className="flex flex-wrap gap-2">
+                    <div className='flex flex-wrap gap-2'>
                       {handleValidation.suggestions
                         .slice(0, 3)
-                        .map((suggestion) => (
+                        .map(suggestion => (
                           <button
                             key={suggestion}
-                            type="button"
+                            type='button'
                             onClick={() => setHandle(suggestion)}
-                            className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                            className='text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors'
                           >
                             {suggestion}
                           </button>
@@ -593,11 +593,11 @@ export function MinimalistOnboardingForm() {
                 )}
               </div>
 
-              <div className="pt-4 space-y-3">
+              <div className='pt-4 space-y-3'>
                 <Button
                   onClick={goToNextStep}
                   disabled={!canProceedToNextStep}
-                  variant="plain"
+                  variant='plain'
                   className={`w-full rounded-xl py-3 px-6 ${
                     canProceedToNextStep
                       ? 'bg-black text-white dark:bg-white dark:text-black'
@@ -608,8 +608,8 @@ export function MinimalistOnboardingForm() {
                 </Button>
                 <Button
                   onClick={goToPreviousStep}
-                  variant="plain"
-                  className="w-full text-gray-500 dark:text-gray-400 py-2"
+                  variant='plain'
+                  className='w-full text-gray-500 dark:text-gray-400 py-2'
                 >
                   Back
                 </Button>
@@ -620,36 +620,36 @@ export function MinimalistOnboardingForm() {
 
       case 3: // Confirmation
         return (
-          <div className="space-y-8">
-            <div className="space-y-4">
+          <div className='space-y-8'>
+            <div className='space-y-4'>
               <h2
-                className="text-2xl font-medium text-black dark:text-white"
+                className='text-2xl font-medium text-black dark:text-white'
                 tabIndex={-1}
               >
                 Confirm Your Profile
               </h2>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className='text-gray-600 dark:text-gray-300'>
                 Review your details before creating your account.
               </p>
             </div>
 
-            <div className="space-y-6">
+            <div className='space-y-6'>
               {/* Profile preview card */}
-              <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-6">
-                <div className="flex items-center space-x-4">
+              <div className='border border-gray-200 dark:border-gray-700 rounded-xl p-6 space-y-6'>
+                <div className='flex items-center space-x-4'>
                   {selectedArtist?.imageUrl ? (
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800">
+                    <div className='w-16 h-16 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800'>
                       <Image
                         src={selectedArtist.imageUrl}
                         alt={selectedArtist.artistName}
                         width={64}
                         height={64}
-                        className="w-full h-full object-cover"
+                        className='w-full h-full object-cover'
                       />
                     </div>
                   ) : (
-                    <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                      <span className="text-gray-600 dark:text-gray-300 font-medium text-xl">
+                    <div className='w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center'>
+                      <span className='text-gray-600 dark:text-gray-300 font-medium text-xl'>
                         {(selectedArtist?.artistName || handle)
                           .charAt(0)
                           .toUpperCase()}
@@ -657,39 +657,39 @@ export function MinimalistOnboardingForm() {
                     </div>
                   )}
                   <div>
-                    <h4 className="font-medium text-black dark:text-white text-lg">
+                    <h4 className='font-medium text-black dark:text-white text-lg'>
                       {selectedArtist?.artistName || handle}
                     </h4>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className='text-gray-600 dark:text-gray-400'>
                       {displayDomain}/{handle}
                     </p>
                   </div>
                 </div>
 
                 {/* Profile details */}
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">
+                <div className='border-t border-gray-200 dark:border-gray-700 pt-4 space-y-3'>
+                  <div className='flex justify-between text-sm'>
+                    <span className='text-gray-600 dark:text-gray-400'>
                       Handle:
                     </span>
-                    <span className="font-mono text-black dark:text-white">
+                    <span className='font-mono text-black dark:text-white'>
                       @{handle}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">
+                  <div className='flex justify-between text-sm'>
+                    <span className='text-gray-600 dark:text-gray-400'>
                       Profile URL:
                     </span>
-                    <span className="font-mono text-black dark:text-white">
+                    <span className='font-mono text-black dark:text-white'>
                       {displayDomain}/{handle}
                     </span>
                   </div>
                   {selectedArtist && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">
+                    <div className='flex justify-between text-sm'>
+                      <span className='text-gray-600 dark:text-gray-400'>
                         Spotify Artist:
                       </span>
-                      <span className="text-black dark:text-white">
+                      <span className='text-black dark:text-white'>
                         Connected
                       </span>
                     </div>
@@ -699,15 +699,15 @@ export function MinimalistOnboardingForm() {
 
               {/* Error display */}
               {state.error && (
-                <div className="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                <div className='bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4'>
+                  <div className='flex items-center justify-between'>
+                    <p className='text-sm text-gray-700 dark:text-gray-300'>
                       {state.error}
                     </p>
                     <Button
                       onClick={retryOperation}
-                      variant="plain"
-                      className="text-sm px-3 py-1.5 bg-black text-white dark:bg-white dark:text-black rounded-lg"
+                      variant='plain'
+                      className='text-sm px-3 py-1.5 bg-black text-white dark:bg-white dark:text-black rounded-lg'
                       disabled={state.retryCount >= 3}
                     >
                       {state.retryCount >= 3
@@ -719,11 +719,11 @@ export function MinimalistOnboardingForm() {
               )}
 
               {/* Final submission */}
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className='space-y-4'>
                 <Button
-                  type="submit"
+                  type='submit'
                   disabled={!canProceedToNextStep || state.isSubmitting}
-                  variant="plain"
+                  variant='plain'
                   className={`w-full rounded-xl py-3 px-6 ${
                     canProceedToNextStep && !state.isSubmitting
                       ? 'bg-black text-white dark:bg-white dark:text-black'
@@ -733,18 +733,18 @@ export function MinimalistOnboardingForm() {
                   {!state.isSubmitting ? (
                     'Create Account'
                   ) : (
-                    <div className="flex items-center justify-center space-x-2">
-                      <LoadingSpinner size="sm" className="text-current" />
+                    <div className='flex items-center justify-center space-x-2'>
+                      <LoadingSpinner size='sm' className='text-current' />
                       <span>Creating profile...</span>
                     </div>
                   )}
                 </Button>
 
                 <Button
-                  type="button"
+                  type='button'
                   onClick={goToPreviousStep}
-                  variant="plain"
-                  className="w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl py-3 px-6 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  variant='plain'
+                  className='w-full border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl py-3 px-6 hover:bg-gray-50 dark:hover:bg-gray-800'
                   disabled={state.isSubmitting}
                 >
                   Back
@@ -762,16 +762,16 @@ export function MinimalistOnboardingForm() {
   // Progress indicator component
   const ProgressIndicator = () => {
     return (
-      <div className="mb-8">
-        <div className="h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+      <div className='mb-8'>
+        <div className='h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden'>
           <div
-            className="h-full bg-black dark:bg-white transition-all duration-300 ease-in-out"
+            className='h-full bg-black dark:bg-white transition-all duration-300 ease-in-out'
             style={{
               width: `${((currentStepIndex + 1) / ONBOARDING_STEPS.length) * 100}%`,
             }}
           />
         </div>
-        <div className="flex justify-between mt-2">
+        <div className='flex justify-between mt-2'>
           {ONBOARDING_STEPS.map((step, index) => (
             <div
               key={step.id}
@@ -791,20 +791,20 @@ export function MinimalistOnboardingForm() {
 
   return (
     <div
-      className="max-w-md mx-auto space-y-6"
-      role="main"
-      aria-label="Onboarding form"
+      className='max-w-md mx-auto space-y-6'
+      role='main'
+      aria-label='Onboarding form'
     >
       {/* Skip link for accessibility */}
       <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded-md z-50"
+        href='#main-content'
+        className='sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded-md z-50'
       >
         Skip to main content
       </a>
 
       {/* Screen reader announcements */}
-      <div className="sr-only" aria-live="polite" aria-atomic="true">
+      <div className='sr-only' aria-live='polite' aria-atomic='true'>
         Step {currentStepIndex + 1} of {ONBOARDING_STEPS.length}:{' '}
         {ONBOARDING_STEPS[currentStepIndex]?.title}
       </div>
@@ -814,12 +814,12 @@ export function MinimalistOnboardingForm() {
 
       {/* Step content with smooth transitions */}
       <div
-        className="min-h-[400px]"
-        role="region"
-        aria-labelledby="step-heading"
-        id="main-content"
+        className='min-h-[400px]'
+        role='region'
+        aria-labelledby='step-heading'
+        id='main-content'
       >
-        <div id="step-heading" className="sr-only">
+        <div id='step-heading' className='sr-only'>
           {ONBOARDING_STEPS[currentStepIndex]?.title} step content
         </div>
         <div
@@ -833,27 +833,27 @@ export function MinimalistOnboardingForm() {
 
       {/* Success completion */}
       {state.step === 'complete' && (
-        <div className="text-center space-y-4 py-8">
-          <div className="w-16 h-16 bg-black dark:bg-white rounded-full flex items-center justify-center mx-auto">
+        <div className='text-center space-y-4 py-8'>
+          <div className='w-16 h-16 bg-black dark:bg-white rounded-full flex items-center justify-center mx-auto'>
             <svg
-              className="w-8 h-8 text-white dark:text-black"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
+              className='w-8 h-8 text-white dark:text-black'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+              xmlns='http://www.w3.org/2000/svg'
             >
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeLinecap='round'
+                strokeLinejoin='round'
                 strokeWidth={2}
-                d="M5 13l4 4L19 7"
+                d='M5 13l4 4L19 7'
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-medium text-black dark:text-white">
+          <h2 className='text-2xl font-medium text-black dark:text-white'>
             Profile Created
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className='text-gray-600 dark:text-gray-400'>
             Redirecting to your dashboard...
           </p>
         </div>

@@ -1,6 +1,6 @@
+import { auth } from '@clerk/nextjs/server';
 import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
 import { env, flags } from '@/lib/env';
 
 function signParams(
@@ -10,7 +10,7 @@ function signParams(
   const filtered: Record<string, string | number> = {};
   Object.keys(params)
     .sort()
-    .forEach((k) => {
+    .forEach(k => {
       const v = params[k];
       if (typeof v !== 'undefined' && v !== '' && v !== null)
         filtered[k] = v as string | number;

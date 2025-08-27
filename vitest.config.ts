@@ -1,6 +1,10 @@
-import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
+import dotenv from 'dotenv';
 import path from 'path';
+import { defineConfig } from 'vitest/config';
+
+// Load environment variables from .env.test if it exists
+dotenv.config({ path: '.env.test' });
 
 export default defineConfig({
   plugins: [react()],
@@ -24,9 +28,9 @@ export default defineConfig({
         'dist/**',
       ],
     },
-    // Test timeout
-    testTimeout: 10000,
-    hookTimeout: 10000,
+    // Test timeout - increased for database operations
+    testTimeout: 30000,
+    hookTimeout: 30000,
   },
   resolve: {
     alias: {

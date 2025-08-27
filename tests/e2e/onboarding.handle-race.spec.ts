@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Onboarding Handle Race Conditions', () => {
   test.beforeEach(async ({ page }) => {
@@ -8,7 +8,7 @@ test.describe('Onboarding Handle Race Conditions', () => {
       const handle = url.searchParams.get('handle');
 
       // Add artificial delay to simulate network latency
-      await new Promise((resolve) =>
+      await new Promise(resolve =>
         setTimeout(resolve, 100 + Math.random() * 200)
       );
 
@@ -173,7 +173,7 @@ test.describe('Onboarding Handle Race Conditions', () => {
 
       try {
         // Simulate longer network delay
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 300));
 
         const available = !['taken1', 'taken2'].includes(
           handle?.toLowerCase() || ''

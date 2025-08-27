@@ -81,80 +81,6 @@ jobs:
             exit 1
           fi
           echo "url=$url" >> $GITHUB_OUTPUT
-          # Extract deployment ID for aliasing
-          deploy_id=$(vercel ls --token ${{ secrets.VERCEL_TOKEN }} | grep $url | awk '{print $1}')
-          echo "deploy_id=$deploy_id" >> $GITHUB_OUTPUT
-
-      - name: Compute alias host (wildcard domain)
-        id: alias
-        if: ${{ vars.PREVIEW_ALIAS_DOMAIN != '' }}
-        shell: bash
-        run: |
-          # Determine branch name based on event type
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            BRANCH="${{ steps.get_pr_info.outputs.branch }}"
-            PR="${{ steps.get_pr_info.outputs.pr }}"
-          elif [ "${{ github.event_name }}" = "pull_request" ]; then
-            BRANCH="${{ github.event.pull_request.head.ref }}"
-            PR="${{ github.event.pull_request.number }}"
-          else
-            BRANCH="${GITHUB_REF_NAME}"
-            PR=""
-          fi
-
-          # slugify branch: lowercase, replace non-alnum with '-', collapse dashes, trim, limit length
-          slug=$(echo "$BRANCH" \
-            | tr '[:upper:]' '[:lower:]' \
-            | sed -E 's#[^a-z0-9]+#-#g; s#-+#-#g; s#(^-|-$)##g' \
-            | cut -c1-48)
-
-          # If PR number is available, include it in the alias
-          if [ -n "$PR" ]; then
-            host="pr-$PR-$slug.${{ vars.PREVIEW_ALIAS_DOMAIN }}"
-          else
-            host="$slug.${{ vars.PREVIEW_ALIAS_DOMAIN }}"
-          fi
-
-          echo "Computed alias host: $host"
-          echo "alias_host=$host" >> "$GITHUB_OUTPUT"
-
-      - name: Create alias for deployment
-        id: create_alias
-        if: ${{ vars.PREVIEW_ALIAS_DOMAIN != '' && steps.alias.outputs.alias_host != '' && steps.deploy.outputs.deploy_id != '' }}
-        continue-on-error: true
-        run: |
-          DEPLOY_ID="${{ steps.deploy.outputs.deploy_id }}"
-          HOST="${{ steps.alias.outputs.alias_host }}"
-          echo "Aliasing $DEPLOY_ID -> $HOST"
-          vercel alias set "$DEPLOY_ID" "$HOST" --token "$VERCEL_TOKEN"
-          echo "alias_url=https://$HOST" >> $GITHUB_OUTPUT
-
-      - name: Verify wildcard alias resolves
-        id: verify
-        if: ${{ vars.PREVIEW_ALIAS_DOMAIN != '' && steps.create_alias.outputs.alias_url != '' }}
-        shell: bash
-        continue-on-error: true
-        run: |
-          host="${{ steps.alias.outputs.alias_host }}"
-          if [ -z "$host" ]; then
-            echo "Missing alias host" >&2
-            exit 1
-          fi
-          echo "Probing wildcard alias: $host"
-          attempts=40
-          sleep_secs=15
-          for i in $(seq 1 $attempts); do
-            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 10 "https://$host/")
-            echo "Attempt $i/$attempts -> HTTP $code"
-            if [ "$code" -ge 200 ] && [ "$code" -lt 500 ]; then
-              echo "ok=true" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-            sleep $sleep_secs
-          done
-          echo "ok=false" >> "$GITHUB_OUTPUT"
-          echo "Wildcard alias did not become ready within time window" >&2
-          exit 1
 
       - name: Comment Preview URL on PR
         if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
@@ -172,18 +98,7 @@ jobs:
               pr = context.payload.pull_request.number;
             }
 
-            const alias = `${{ steps.alias.outputs.alias_host }}`;
-            const ok = `${{ steps.verify.outputs.ok }}`;
-
-            let body = `## 🚀 Vercel Preview\n\n`;
-            body += `- **Preview URL**: ${url}\n`;
-
-            if (alias) {
-              const aliasStatus = ok === 'true' ? '✅' : '⏳ (probing...)';
-              body += `- **Alias URL**: https://${alias} ${aliasStatus}\n`;
-            } else if ('${{ vars.PREVIEW_ALIAS_DOMAIN }}' === '') {
-              body += `- **Alias URL**: (not configured - set PREVIEW_ALIAS_DOMAIN)\n`;
-            }
+            const body = `### 🚀 Preview Deployment\n\n- **Preview URL**: ${url} :rocket:`;
 
             await github.rest.issues.createComment({ 
               owner: context.repo.owner, 

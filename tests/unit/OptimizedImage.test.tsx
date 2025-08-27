@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach, vi } from 'vitest';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 
 // Mock next/image
@@ -18,7 +18,7 @@ vi.mock('next/image', () => ({
       onError={onError}
       onLoad={onLoad}
       {...props}
-      data-testid="optimized-image"
+      data-testid='optimized-image'
     />
   ),
 }));
@@ -28,12 +28,12 @@ describe('OptimizedImage', () => {
 
   it('renders correctly with valid src', () => {
     render(
-      <OptimizedImage src="https://example.com/image.jpg" alt="Test image" />
+      <OptimizedImage src='https://example.com/image.jpg' alt='Test image' />
     );
 
     const images = screen.getAllByTestId('optimized-image');
     const testImage = images.find(
-      (img) => img.getAttribute('src') === 'https://example.com/image.jpg'
+      img => img.getAttribute('src') === 'https://example.com/image.jpg'
     );
     expect(testImage).toBeInTheDocument();
     expect(testImage).toHaveAttribute('src', 'https://example.com/image.jpg');
@@ -41,7 +41,7 @@ describe('OptimizedImage', () => {
   });
 
   it('shows placeholder when src is null', () => {
-    render(<OptimizedImage src={null} alt="Test image" />);
+    render(<OptimizedImage src={null} alt='Test image' />);
 
     expect(screen.queryByTestId('optimized-image')).not.toBeInTheDocument();
     // Check for placeholder content (div with SVG)
@@ -50,7 +50,7 @@ describe('OptimizedImage', () => {
   });
 
   it('shows placeholder when src is empty string', () => {
-    render(<OptimizedImage src="" alt="Test image" />);
+    render(<OptimizedImage src='' alt='Test image' />);
 
     expect(screen.queryByTestId('optimized-image')).not.toBeInTheDocument();
     // Check for placeholder content (div with SVG)
@@ -60,12 +60,12 @@ describe('OptimizedImage', () => {
 
   it('shows placeholder on image error', () => {
     render(
-      <OptimizedImage src="https://example.com/invalid.jpg" alt="Test image" />
+      <OptimizedImage src='https://example.com/invalid.jpg' alt='Test image' />
     );
 
     const images = screen.getAllByTestId('optimized-image');
     const testImage = images.find(
-      (img) => img.getAttribute('src') === 'https://example.com/invalid.jpg'
+      img => img.getAttribute('src') === 'https://example.com/invalid.jpg'
     );
     fireEvent.error(testImage!);
 
@@ -76,25 +76,25 @@ describe('OptimizedImage', () => {
 
   it('shows loading skeleton initially', () => {
     render(
-      <OptimizedImage src="https://example.com/image.jpg" alt="Test image" />
+      <OptimizedImage src='https://example.com/image.jpg' alt='Test image' />
     );
 
     // The mock renders the image directly, so we check for the image element
     const images = screen.getAllByTestId('optimized-image');
     const testImage = images.find(
-      (img) => img.getAttribute('src') === 'https://example.com/image.jpg'
+      img => img.getAttribute('src') === 'https://example.com/image.jpg'
     );
     expect(testImage).toBeInTheDocument();
   });
 
   it('hides loading skeleton when image loads', () => {
     render(
-      <OptimizedImage src="https://example.com/image.jpg" alt="Test image" />
+      <OptimizedImage src='https://example.com/image.jpg' alt='Test image' />
     );
 
     const images = screen.getAllByTestId('optimized-image');
     const testImage = images.find(
-      (img) => img.getAttribute('src') === 'https://example.com/image.jpg'
+      img => img.getAttribute('src') === 'https://example.com/image.jpg'
     );
     fireEvent.load(testImage!);
 
@@ -105,27 +105,27 @@ describe('OptimizedImage', () => {
   it('renders with different sizes', () => {
     const { rerender } = render(
       <OptimizedImage
-        src="https://example.com/image.jpg"
-        alt="Test"
-        size="sm"
+        src='https://example.com/image.jpg'
+        alt='Test'
+        size='sm'
       />
     );
     expect(screen.getAllByTestId('optimized-image').length).toBeGreaterThan(0);
 
     rerender(
       <OptimizedImage
-        src="https://example.com/image.jpg"
-        alt="Test"
-        size="md"
+        src='https://example.com/image.jpg'
+        alt='Test'
+        size='md'
       />
     );
     expect(screen.getAllByTestId('optimized-image').length).toBeGreaterThan(0);
 
     rerender(
       <OptimizedImage
-        src="https://example.com/image.jpg"
-        alt="Test"
-        size="lg"
+        src='https://example.com/image.jpg'
+        alt='Test'
+        size='lg'
       />
     );
     expect(screen.getAllByTestId('optimized-image').length).toBeGreaterThan(0);
@@ -134,18 +134,18 @@ describe('OptimizedImage', () => {
   it('renders with different shapes', () => {
     const { rerender } = render(
       <OptimizedImage
-        src="https://example.com/image.jpg"
-        alt="Test"
-        shape="square"
+        src='https://example.com/image.jpg'
+        alt='Test'
+        shape='square'
       />
     );
     expect(screen.getAllByTestId('optimized-image').length).toBeGreaterThan(0);
 
     rerender(
       <OptimizedImage
-        src="https://example.com/image.jpg"
-        alt="Test"
-        shape="circle"
+        src='https://example.com/image.jpg'
+        alt='Test'
+        shape='circle'
       />
     );
     expect(screen.getAllByTestId('optimized-image').length).toBeGreaterThan(0);
@@ -154,8 +154,8 @@ describe('OptimizedImage', () => {
   it('renders with width and height', () => {
     render(
       <OptimizedImage
-        src="https://example.com/image.jpg"
-        alt="Test image"
+        src='https://example.com/image.jpg'
+        alt='Test image'
         width={100}
         height={100}
       />
@@ -163,7 +163,7 @@ describe('OptimizedImage', () => {
 
     const images = screen.getAllByTestId('optimized-image');
     const testImage = images.find(
-      (img) => img.getAttribute('src') === 'https://example.com/image.jpg'
+      img => img.getAttribute('src') === 'https://example.com/image.jpg'
     );
     expect(testImage).toHaveAttribute('width', '100');
     expect(testImage).toHaveAttribute('height', '100');

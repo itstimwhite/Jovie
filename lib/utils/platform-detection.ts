@@ -187,7 +187,7 @@ export function normalizeUrl(url: string): string {
       'source',
     ];
 
-    paramsToRemove.forEach((param) => {
+    paramsToRemove.forEach(param => {
       parsedUrl.searchParams.delete(param);
     });
 
@@ -328,7 +328,7 @@ export function getPlatformsByCategory(): Record<string, PlatformInfo[]> {
     custom: [],
   };
 
-  Object.values(PLATFORMS).forEach((platform) => {
+  Object.values(PLATFORMS).forEach(platform => {
     categorized[platform.category].push(platform);
   });
 

@@ -80,8 +80,8 @@ export function getPlanFromPriceId(priceId: string): PlanType | null {
  */
 export function getActivePriceIds(): string[] {
   return Object.values(PRICE_MAPPINGS)
-    .filter((mapping) => mapping.isIntroductory && mapping.priceId)
-    .map((mapping) => mapping.priceId);
+    .filter(mapping => mapping.isIntroductory && mapping.priceId)
+    .map(mapping => mapping.priceId);
 }
 
 /**
@@ -97,7 +97,7 @@ export function getPriceMappingDetails(priceId: string): PriceMapping | null {
  */
 export function getAvailablePricing() {
   return Object.values(PRICE_MAPPINGS)
-    .filter((mapping) => mapping.isIntroductory && mapping.priceId)
+    .filter(mapping => mapping.isIntroductory && mapping.priceId)
     .sort((a, b) => a.amount - b.amount); // Sort by price, lowest first
 }
 
@@ -143,7 +143,7 @@ export function validateStripeConfig(): {
   ];
 
   const missingVars = requiredVars.filter(
-    (varName) => !env[varName as keyof typeof env]
+    varName => !env[varName as keyof typeof env]
   );
 
   return {

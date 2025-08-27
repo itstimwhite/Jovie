@@ -3,7 +3,7 @@
  * Tests user flows and security measures for link wrapping system
  */
 
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 // Test data
 const TEST_URLS = {
@@ -142,8 +142,8 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
 
       // In testing environment with database issues, rate limiting may be disabled
       // Check that requests either succeed or are properly rate limited
-      const rateLimitedResponse = responses.find((r) => r.status() === 429);
-      const successfulResponses = responses.filter((r) => r.ok());
+      const rateLimitedResponse = responses.find(r => r.status() === 429);
+      const successfulResponses = responses.filter(r => r.ok());
 
       // Either we get rate limited OR all requests succeed (graceful degradation)
       expect(
@@ -252,7 +252,7 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
       const interstitialResponse = await page.request.get('/out/nonexistent');
 
       // Both should have security headers
-      [normalResponse, interstitialResponse].forEach((response) => {
+      [normalResponse, interstitialResponse].forEach(response => {
         const headers = response.headers();
         expect(headers['x-robots-tag']).toBeTruthy();
         expect(headers['cache-control']).toMatch(/(no-cache|no-store)/);
@@ -287,7 +287,7 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
       ];
 
       const responses = await Promise.all(
-        userAgents.map((ua) =>
+        userAgents.map(ua =>
           page.request.get(`/go/${data.shortId}`, {
             headers: { 'User-Agent': ua },
             maxRedirects: 0,
@@ -296,7 +296,7 @@ test.describe('Anti-Cloaking Link Wrapping', () => {
       );
 
       // All should return 302 redirect (consistent response)
-      responses.forEach((response) => {
+      responses.forEach(response => {
         expect(response.status()).toBe(302);
       });
     });

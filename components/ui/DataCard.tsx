@@ -38,9 +38,9 @@ export function DataCard({
         className
       )}
     >
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center space-x-2">
-          <p className="font-medium truncate">{title}</p>
+      <div className='flex-1 min-w-0'>
+        <div className='flex items-center space-x-2'>
+          <p className='font-medium truncate'>{title}</p>
           {badge && badge.trim() !== '' && (
             <span
               className={cn(
@@ -53,16 +53,16 @@ export function DataCard({
           )}
         </div>
         {subtitle && subtitle.trim() !== '' && (
-          <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+          <p className='text-sm text-gray-500 dark:text-gray-400 truncate'>
             {subtitle}
           </p>
         )}
         {metadata && metadata.trim() !== '' && (
-          <p className="text-xs text-gray-400 dark:text-gray-500">{metadata}</p>
+          <p className='text-xs text-gray-400 dark:text-gray-500'>{metadata}</p>
         )}
         {children}
       </div>
-      {actions && <div className="flex-shrink-0 ml-4">{actions}</div>}
+      {actions && <div className='flex-shrink-0 ml-4'>{actions}</div>}
     </div>
   );
 }

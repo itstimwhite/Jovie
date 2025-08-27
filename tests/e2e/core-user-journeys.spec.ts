@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 // Core user journey tests for MVP launch readiness
 test.describe('Core User Journeys', () => {
@@ -67,7 +67,7 @@ test.describe('Core User Journeys', () => {
   test('No console errors on key pages', async ({ page }) => {
     const errors: string[] = [];
 
-    page.on('console', (msg) => {
+    page.on('console', msg => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
@@ -83,7 +83,7 @@ test.describe('Core User Journeys', () => {
 
     // Check for critical errors (ignore some expected/harmless ones)
     const criticalErrors = errors.filter(
-      (error) =>
+      error =>
         !error.includes('Failed to load resource') && // Image 404s
         !error.includes('net::ERR_FAILED') && // Network errors
         !error.includes('i.scdn.co') // Spotify image errors

@@ -42,7 +42,7 @@ export function StatusBadge({
         ${className}
       `}
     >
-      {icon && <span className="flex-shrink-0">{icon}</span>}
+      {icon && <span className='flex-shrink-0'>{icon}</span>}
       <span>{children}</span>
     </div>
   );

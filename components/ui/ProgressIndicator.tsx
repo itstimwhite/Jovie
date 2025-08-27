@@ -40,33 +40,33 @@ export function ProgressIndicator({
   return (
     <div
       className={`space-y-4 ${className}`}
-      role="progressbar"
+      role='progressbar'
       aria-valuenow={currentStep + 1}
       aria-valuemin={1}
       aria-valuemax={totalSteps}
     >
       {/* Progress bar */}
-      <div className="space-y-2">
-        <div className="flex justify-between items-center text-sm">
-          <span className="font-medium text-gray-900 dark:text-white">
+      <div className='space-y-2'>
+        <div className='flex justify-between items-center text-sm'>
+          <span className='font-medium text-gray-900 dark:text-white'>
             Step {currentStep + 1} of {totalSteps}
           </span>
           {showTimeEstimate && remainingTime > 0 && (
-            <span className="text-gray-500 dark:text-gray-400">
+            <span className='text-gray-500 dark:text-gray-400'>
               {formatTime(remainingTime)} remaining
             </span>
           )}
         </div>
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+        <div className='w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden'>
           <div
-            className="bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full transition-all duration-300 ease-out"
+            className='bg-gradient-to-r from-blue-500 to-purple-500 h-full rounded-full transition-all duration-300 ease-out'
             style={{ width: `${progressPercentage}%` }}
           />
         </div>
       </div>
 
       {/* Step indicators */}
-      <div className="flex justify-between items-center">
+      <div className='flex justify-between items-center'>
         {steps.map((step, index) => {
           const isCompleted = index < currentStep;
           const isCurrent = index === currentStep;
@@ -95,14 +95,14 @@ export function ProgressIndicator({
               >
                 {isCompleted ? (
                   <svg
-                    className="w-4 h-4 sm:w-5 sm:h-5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
+                    className='w-4 h-4 sm:w-5 sm:h-5'
+                    fill='currentColor'
+                    viewBox='0 0 20 20'
                   >
                     <path
-                      fillRule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clipRule="evenodd"
+                      fillRule='evenodd'
+                      d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                      clipRule='evenodd'
                     />
                   </svg>
                 ) : (
@@ -111,14 +111,14 @@ export function ProgressIndicator({
               </div>
 
               {/* Step title */}
-              <div className="text-center">
+              <div className='text-center'>
                 <div
                   className={`text-xs sm:text-sm font-medium ${isCurrent ? 'font-semibold' : ''} max-w-16 sm:max-w-none`}
                 >
                   {step.title}
                 </div>
                 {step.description && isCurrent && (
-                  <div className="hidden sm:block text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-20 leading-tight">
+                  <div className='hidden sm:block text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-20 leading-tight'>
                     {step.description}
                   </div>
                 )}

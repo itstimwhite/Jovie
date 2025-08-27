@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DSPButtonGroup } from './DSPButtonGroup';
 import type { AvailableDSP } from '@/lib/dsp';
+import { DSPButtonGroup } from './DSPButtonGroup';
 
 // Mock DSP data for stories
 const mockDSPs: AvailableDSP[] = [
@@ -154,11 +154,11 @@ export const Interactive: Story = {
 
 export const InMobileContext: Story = {
   render: () => (
-    <div className="max-w-sm mx-auto bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
-      <h3 className="text-lg font-semibold mb-4 text-center">Listen Now</h3>
+    <div className='max-w-sm mx-auto bg-gray-50 dark:bg-gray-900 p-6 rounded-lg'>
+      <h3 className='text-lg font-semibold mb-4 text-center'>Listen Now</h3>
       <DSPButtonGroup
         dsps={mockDSPs}
-        size="md"
+        size='md'
         showPreferenceNotice={true}
         onDSPClick={(dspKey, url) => console.log('Clicked:', dspKey, url)}
       />

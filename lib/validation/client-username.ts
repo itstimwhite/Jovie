@@ -135,7 +135,7 @@ export function generateUsernameSuggestions(
 
   // Remove duplicates and filter out invalid suggestions
   return [...new Set(suggestions)]
-    .filter((suggestion) => validateUsernameFormat(suggestion).valid)
+    .filter(suggestion => validateUsernameFormat(suggestion).valid)
     .slice(0, 5); // Limit to 5 suggestions
 }
 

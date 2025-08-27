@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 interface FormState {
   loading: boolean;
@@ -22,15 +22,15 @@ export function useFormState(): UseFormStateReturn {
   });
 
   const setLoading = useCallback((loading: boolean) => {
-    setState((prev) => ({ ...prev, loading }));
+    setState(prev => ({ ...prev, loading }));
   }, []);
 
   const setError = useCallback((error: string) => {
-    setState((prev) => ({ ...prev, error, loading: false, success: '' }));
+    setState(prev => ({ ...prev, error, loading: false, success: '' }));
   }, []);
 
   const setSuccess = useCallback((success: string) => {
-    setState((prev) => ({ ...prev, success, loading: false, error: '' }));
+    setState(prev => ({ ...prev, success, loading: false, error: '' }));
   }, []);
 
   const reset = useCallback(() => {

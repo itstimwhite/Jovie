@@ -15,12 +15,12 @@ export function IconBadge({ Icon, colorVar, className = '' }: IconBadgeProps) {
       }}
     >
       <Icon
-        className="h-[18px] w-[18px]"
+        className='h-[18px] w-[18px]'
         style={{
           color: `var(${colorVar})`,
         }}
-        role="img"
-        aria-hidden="true"
+        role='img'
+        aria-hidden='true'
       />
     </div>
   );

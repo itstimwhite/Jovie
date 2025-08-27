@@ -1,12 +1,13 @@
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
 // Mock analytics BEFORE importing the component so the real module isn't loaded
 vi.mock('@/lib/analytics', () => ({
   track: vi.fn(),
 }));
 
-import { track } from '@/lib/analytics';
 import { ProblemSolutionSection } from '@/components/home/ProblemSolutionSection';
+import { track } from '@/lib/analytics';
 
 describe('ProblemSolutionSection', () => {
   afterEach(() => {

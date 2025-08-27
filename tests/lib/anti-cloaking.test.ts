@@ -3,23 +3,23 @@
  * Validates anti-cloaking compliance and security measures
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  checkRateLimit,
   detectBot,
   getBotSafeHeaders,
-  checkRateLimit,
 } from '@/lib/utils/bot-detection';
 import {
   categorizeDomain,
-  getCrawlerSafeLabel,
   containsSensitiveKeywords,
+  getCrawlerSafeLabel,
   sanitizeForCrawlers,
 } from '@/lib/utils/domain-categorizer';
 import {
-  simpleEncryptUrl,
-  simpleDecryptUrl,
   extractDomain,
+  simpleDecryptUrl,
+  simpleEncryptUrl,
 } from '@/lib/utils/url-encryption';
 
 // Mock Supabase client
@@ -258,7 +258,7 @@ describe('URL Encryption and Security', () => {
 
 describe('Rate Limiting', () => {
   it('should implement rate limiting correctly', async () => {
-    const isLimited = await checkRateLimit('127.0.0.1', '/api/test', 5, 1);
+    const isLimited = await checkRateLimit('127.0.0.1', '/api/test');
     expect(typeof isLimited).toBe('boolean');
   });
 });
@@ -292,7 +292,7 @@ describe('Anti-Cloaking Compliance', () => {
     it('should provide generic descriptions without sensitive keywords', () => {
       const categories = ['adult', 'gambling', 'crypto', 'dating', 'lending'];
 
-      categories.forEach((category) => {
+      categories.forEach(category => {
         const description = getCategoryDescription(category);
         expect(description).not.toMatch(
           /(porn|adult|xxx|nsfw|sex|casino|gambling|bet|crypto|bitcoin)/i

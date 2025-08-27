@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { GET } from '@/app/.well-known/vercel/flags/route';
 
 describe('Vercel Flags Discovery Endpoint', () => {
@@ -74,7 +74,7 @@ describe('Vercel Flags Discovery Endpoint', () => {
       'tipPromoEnabled',
     ];
 
-    expectedFlags.forEach((flagName) => {
+    expectedFlags.forEach(flagName => {
       expect(data.flags).toHaveProperty(flagName);
     });
   });

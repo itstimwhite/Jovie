@@ -1,7 +1,7 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
-import { FlyoutItem } from '@/components/molecules/FlyoutItem';
 import { BoltIcon } from '@heroicons/react/24/outline';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
+import { FlyoutItem } from '@/components/molecules/FlyoutItem';
 import type { Feature } from '@/lib/features';
 
 const mockFeature: Feature = {

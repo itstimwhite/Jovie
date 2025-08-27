@@ -1,10 +1,36 @@
 import '../styles/globals.css';
-import { expect } from 'vitest';
+import { neon } from '@neondatabase/serverless';
 import * as matchers from '@testing-library/jest-dom/matchers';
-import { vi } from 'vitest';
-import React from 'react';
 import { cleanup } from '@testing-library/react';
-import { afterEach } from 'vitest';
+import { drizzle } from 'drizzle-orm/neon-http';
+import { migrate } from 'drizzle-orm/neon-http/migrator';
+import React from 'react';
+import { afterEach, beforeAll, expect, vi } from 'vitest';
+import * as schema from '@/lib/db/schema';
+
+// Setup test database
+if (process.env.NODE_ENV === 'test') {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (!databaseUrl) {
+    console.warn('DATABASE_URL is not set. Database tests will be skipped.');
+  } else {
+    const sql = neon(databaseUrl);
+    const db = drizzle(sql, { schema });
+
+    beforeAll(async () => {
+      try {
+        await migrate(db, { migrationsFolder: './drizzle' });
+      } catch (error) {
+        console.error('Failed to run migrations:', error);
+        throw error;
+      }
+    });
+
+    // Make db available globally for tests
+    globalThis.db = db;
+  }
+}
 
 expect.extend(matchers);
 
@@ -51,23 +77,6 @@ vi.mock('@/components/providers/FeatureFlagsProvider', () => ({
 // Mock server-only modules
 vi.mock('server-only', () => ({
   default: vi.fn(),
-}));
-
-// Mock Supabase server client
-vi.mock('@/lib/supabase-server', () => ({
-  createServerClient: vi.fn(() => ({
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          order: vi.fn(() => ({
-            limit: vi.fn(() => ({
-              then: vi.fn((callback) => callback({ data: [], error: null })),
-            })),
-          })),
-        })),
-      })),
-    })),
-  })),
 }));
 
 // Mock FeaturedArtists component to handle async component
@@ -225,7 +234,7 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,

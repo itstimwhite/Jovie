@@ -16,7 +16,7 @@ export function LogoLink({
     <Link
       href={href}
       className={`flex items-center space-x-2 ${className || ''}`}
-      aria-label="Jovie"
+      aria-label='Jovie'
     >
       <Logo size={logoSize} />
     </Link>

@@ -90,28 +90,28 @@ export function OptimisticProgress({
   const currentStep = steps[state.currentStep];
 
   return (
-    <div className="space-y-3" aria-live="polite" role="status">
+    <div className='space-y-3' aria-live='polite' role='status'>
       {/* Progress bar */}
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+      <div className='space-y-2'>
+        <div className='flex justify-between text-sm text-gray-600 dark:text-gray-400'>
           <span>{currentStep?.label || 'Processing...'}</span>
           <span>{Math.round(state.progress)}%</span>
         </div>
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+        <div className='w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden'>
           <div
-            className="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-100 ease-out"
+            className='bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-100 ease-out'
             style={{ width: `${state.progress}%` }}
-            role="progressbar"
+            role='progressbar'
             aria-valuenow={Math.round(state.progress)}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-label="Operation progress"
+            aria-label='Operation progress'
           />
         </div>
       </div>
 
       {/* Step indicators */}
-      <div className="flex justify-between">
+      <div className='flex justify-between'>
         {steps.map((step, index) => (
           <div
             key={step.key}
@@ -132,19 +132,19 @@ export function OptimisticProgress({
                     : 'bg-gray-300 dark:bg-gray-600'
               }`}
             />
-            <span className="hidden sm:inline">{step.label}</span>
+            <span className='hidden sm:inline'>{step.label}</span>
           </div>
         ))}
       </div>
 
       {/* Completion indicator */}
       {state.isComplete && (
-        <div className="flex items-center justify-center space-x-2 text-green-600 dark:text-green-400 text-sm font-medium">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <div className='flex items-center justify-center space-x-2 text-green-600 dark:text-green-400 text-sm font-medium'>
+          <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
             <path
-              fillRule="evenodd"
-              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-              clipRule="evenodd"
+              fillRule='evenodd'
+              d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+              clipRule='evenodd'
             />
           </svg>
           <span>Profile created successfully!</span>

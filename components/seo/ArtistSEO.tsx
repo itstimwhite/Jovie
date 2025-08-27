@@ -1,5 +1,5 @@
-import { Artist, SocialLink } from '@/types/db';
 import { APP_URL } from '@/constants/app';
+import { Artist, SocialLink } from '@/types/db';
 
 interface ArtistSEOProps {
   artist: Artist;
@@ -20,12 +20,12 @@ export function ArtistSEO({ artist, socialLinks }: ArtistSEOProps) {
     url: profileUrl,
     image: imageUrl,
     sameAs: socialLinks
-      .filter((link) =>
+      .filter(link =>
         ['instagram', 'twitter', 'facebook', 'youtube', 'tiktok'].includes(
           link.platform.toLowerCase()
         )
       )
-      .map((link) => link.url),
+      .map(link => link.url),
     genre: ['Music', 'Entertainment'],
     foundingLocation: {
       '@type': 'Place',
@@ -71,7 +71,7 @@ export function ArtistSEO({ artist, socialLinks }: ArtistSEOProps) {
     <>
       {/* Music Group Structured Data */}
       <script
-        type="application/ld+json"
+        type='application/ld+json'
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(musicStructuredData),
         }}
@@ -79,53 +79,53 @@ export function ArtistSEO({ artist, socialLinks }: ArtistSEOProps) {
 
       {/* Breadcrumb Structured Data */}
       <script
-        type="application/ld+json"
+        type='application/ld+json'
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(breadcrumbStructuredData),
         }}
       />
 
       {/* Additional meta tags for better SEO */}
-      <meta name="author" content={artist.name} />
-      <meta name="creator" content={artist.name} />
-      <meta name="publisher" content="Jovie" />
+      <meta name='author' content={artist.name} />
+      <meta name='creator' content={artist.name} />
+      <meta name='publisher' content='Jovie' />
       <meta
-        name="robots"
-        content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        name='robots'
+        content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
       />
 
       {/* Music-specific meta tags */}
-      <meta name="music:musician" content={artist.name} />
-      <meta name="music:album" content={artist.tagline || 'Latest Music'} />
-      <meta name="music:genre" content="Music" />
+      <meta name='music:musician' content={artist.name} />
+      <meta name='music:album' content={artist.tagline || 'Latest Music'} />
+      <meta name='music:genre' content='Music' />
 
       {/* Verification meta tag */}
-      {artist.is_verified && <meta name="music:verified" content="true" />}
+      {artist.is_verified && <meta name='music:verified' content='true' />}
 
       {/* Social media meta tags */}
-      <meta property="og:type" content="profile" />
+      <meta property='og:type' content='profile' />
       <meta
-        property="og:profile:first_name"
+        property='og:profile:first_name'
         content={artist.name?.split(' ')[0] || ''}
       />
       <meta
-        property="og:profile:last_name"
+        property='og:profile:last_name'
         content={artist.name?.split(' ').slice(1).join(' ') || ''}
       />
-      <meta property="og:profile:username" content={artist.handle} />
+      <meta property='og:profile:username' content={artist.handle} />
 
       {/* Twitter specific meta tags */}
-      <meta name="twitter:creator" content="@jovieapp" />
-      <meta name="twitter:site" content="@jovieapp" />
+      <meta name='twitter:creator' content='@jovieapp' />
+      <meta name='twitter:site' content='@jovieapp' />
 
       {/* Additional SEO meta tags */}
-      <link rel="canonical" href={profileUrl} />
-      <meta name="geo.region" content="US" />
-      <meta name="geo.placename" content="Global" />
-      <meta name="language" content="English" />
-      <meta name="revisit-after" content="7 days" />
-      <meta name="distribution" content="global" />
-      <meta name="rating" content="general" />
+      <link rel='canonical' href={profileUrl} />
+      <meta name='geo.region' content='US' />
+      <meta name='geo.placename' content='Global' />
+      <meta name='language' content='English' />
+      <meta name='revisit-after' content='7 days' />
+      <meta name='distribution' content='global' />
+      <meta name='rating' content='general' />
     </>
   );
 }

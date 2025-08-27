@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import { clsx } from 'clsx';
+import React from 'react';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 
 /**
@@ -59,7 +59,7 @@ export default function PrimaryCTA({
       : 'min-h-[48px] px-6 text-sm';
   const width = fullWidth ? 'w-full' : '';
 
-  const handleClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = e => {
     if (disabled || isLoading) {
       e.preventDefault();
       return;
@@ -102,10 +102,10 @@ export default function PrimaryCTA({
 
       {isLoading && (
         <div
-          className="absolute inset-0 flex items-center justify-center pointer-events-none"
-          aria-hidden="true"
+          className='absolute inset-0 flex items-center justify-center pointer-events-none'
+          aria-hidden='true'
         >
-          <LoadingSpinner size="sm" variant="light" />
+          <LoadingSpinner size='sm' variant='light' />
         </div>
       )}
     </button>

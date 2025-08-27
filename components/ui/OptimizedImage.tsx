@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
-import { PlaceholderImage } from './PlaceholderImage';
-import { cn } from '@/lib/utils';
+import React, { useMemo, useState } from 'react';
 import { generateSEOAltText } from '@/lib/images/seo';
 import { versionImageUrl } from '@/lib/images/versioning';
+import { cn } from '@/lib/utils';
+import { PlaceholderImage } from './PlaceholderImage';
 
 interface OptimizedImageProps {
   src?: string | null;
@@ -250,7 +250,7 @@ export const OptimizedImage = React.memo(function OptimizedImage({
 
       {/* Enhanced loading skeleton with shimmer */}
       {isLoading && (
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 animate-pulse" />
+        <div className='absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 animate-pulse' />
       )}
     </div>
   );

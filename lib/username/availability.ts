@@ -4,12 +4,10 @@
  */
 
 import 'server-only';
-import {
-  createAuthenticatedClient,
-  createAnonymousClient,
-  queryWithRetry,
-} from '@/lib/supabase/client';
-import { validateUsername, normalizeUsername } from '@/lib/validation/username';
+import { eq } from 'drizzle-orm';
+import { db } from '@/lib/db';
+import { creatorProfiles, users } from '@/lib/db/schema';
+import { normalizeUsername, validateUsername } from '@/lib/validation/username';
 
 export interface UsernameAvailabilityResult {
   available: boolean;
@@ -40,42 +38,28 @@ export async function checkUsernameAvailability(
     // Normalize username for consistent checking
     const normalizedUsername = normalizeUsername(username);
 
-    // Use anonymous client for username checking - this is public data
-    // and doesn't require authentication, works with RLS policies
-    const supabase = createAnonymousClient();
-
     // Query only for existence - don't return any profile data
     // Use case-insensitive lookup to match the unique constraint
-    const { data, error } = await queryWithRetry(
-      async () =>
-        await supabase
-          .from('creator_profiles')
-          .select('username') // Only select username to minimize data exposure
-          .eq('username', normalizedUsername) // Use normalized (lowercase) username
-          .limit(1)
-          .maybeSingle()
-    );
-
-    if (error) {
-      console.error('Database error checking username:', error);
-      return {
-        available: false,
-        error: 'Unable to check username availability. Please try again.',
-      };
-    }
+    const [existingProfile] = await db
+      .select({ username: creatorProfiles.username })
+      .from(creatorProfiles)
+      .where(
+        eq(creatorProfiles.usernameNormalized, normalizedUsername.toLowerCase())
+      )
+      .limit(1);
 
     // Username is available if no record found
-    const available = !data;
+    const available = !existingProfile;
 
     return {
       available,
       error: available ? undefined : 'Username is already taken',
     };
   } catch (error) {
-    console.error('Unexpected error checking username availability:', error);
+    console.error('Database error checking username:', error);
     return {
       available: false,
-      error: 'An unexpected error occurred. Please try again.',
+      error: 'Unable to check username availability. Please try again.',
     };
   }
 }
@@ -84,42 +68,35 @@ export async function checkUsernameAvailability(
  * Check if current user already has a profile
  * Used to prevent duplicate profile creation
  *
- * @param userId - Clerk user ID
+ * @param clerkUserId - Clerk user ID
  * @returns True if user already has a profile
  */
-export async function checkUserHasProfile(userId: string): Promise<boolean> {
+export async function checkUserHasProfile(
+  clerkUserId: string
+): Promise<boolean> {
   try {
-    // Try authenticated client first
-    const supabase = await createAuthenticatedClient();
+    // First get the user's database ID from Clerk ID
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.clerkId, clerkUserId))
+      .limit(1);
 
-    const { data, error } = await queryWithRetry(
-      async () =>
-        await supabase
-          .from('creator_profiles')
-          .select('id') // Only select id to check existence
-          .eq('user_id', userId)
-          .limit(1)
-          .maybeSingle()
-    );
-
-    if (error) {
-      console.error('Error checking user profile:', error);
-      // If JWT signature error, fall back to assuming no profile exists
-      if (error && typeof error === 'object' && 'message' in error) {
-        const errorMessage = error.message as string;
-        if (errorMessage.includes('JWSInvalidSignature')) {
-          console.warn(
-            'JWT signature invalid - assuming no profile exists to allow creation'
-          );
-          return false;
-        }
-      }
-      return false; // Assume no profile on error to allow creation attempt
+    if (!user) {
+      // User doesn't exist in our database yet
+      return false;
     }
 
-    return !!data;
+    // Check if user has any creator profiles
+    const [profile] = await db
+      .select({ id: creatorProfiles.id })
+      .from(creatorProfiles)
+      .where(eq(creatorProfiles.userId, user.id))
+      .limit(1);
+
+    return !!profile;
   } catch (error) {
-    console.error('Unexpected error checking user profile:', error);
-    return false;
+    console.error('Error checking user profile:', error);
+    return false; // Assume no profile on error to allow creation attempt
   }
 }

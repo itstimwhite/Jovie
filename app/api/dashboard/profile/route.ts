@@ -1,44 +1,61 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
-import { createServerClient } from '@/lib/supabase-server';
+import { withDbSession } from '@/lib/auth/session';
+import { updateCreatorProfile } from '@/lib/db/queries';
 
 export async function PUT(req: Request) {
-  const { userId } = await auth();
-  if (!userId)
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    return await withDbSession(async userId => {
+      const body = (await req.json().catch(() => null)) as {
+        updates?: Record<string, unknown>;
+      } | null;
 
-  const body = (await req.json().catch(() => null)) as {
-    profileId?: string;
-    updates?: Record<string, unknown>;
-  } | null;
+      const updates = body?.updates ?? {};
+      if (Object.keys(updates).length === 0) {
+        return NextResponse.json(
+          { error: 'No updates provided' },
+          { status: 400 }
+        );
+      }
 
-  const profileId = body?.profileId;
-  const updates = body?.updates ?? {};
-  if (!profileId)
-    return NextResponse.json({ error: 'Missing profileId' }, { status: 400 });
+      // Convert camelCase to snake_case if needed and filter valid fields
+      const validUpdates: Record<string, unknown> = {};
+      const allowedFields = [
+        'displayName',
+        'bio',
+        'avatarUrl',
+        'spotifyUrl',
+        'appleMusicUrl',
+        'youtubeUrl',
+        'isPublic',
+        'settings',
+        'theme',
+      ];
 
-  const supabase = createServerClient();
-  if (!supabase)
+      for (const [key, value] of Object.entries(updates)) {
+        if (allowedFields.includes(key)) {
+          validUpdates[key] = value;
+        }
+      }
+
+      const updatedProfile = await updateCreatorProfile(userId, validUpdates);
+
+      if (!updatedProfile) {
+        return NextResponse.json(
+          { error: 'Profile not found' },
+          { status: 404 }
+        );
+      }
+
+      return NextResponse.json({ profile: updatedProfile }, { status: 200 });
+    });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     return NextResponse.json(
-      { error: 'Server DB unavailable' },
+      { error: 'Failed to update profile' },
       { status: 500 }
     );
-
-  const { data, error } = await supabase
-    .from('creator_profiles')
-    .update({
-      ...updates,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', profileId)
-    .eq('user_id', userId)
-    .select('*')
-    .single();
-
-  if (error)
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  if (!data)
-    return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
-
-  return NextResponse.json({ profile: data }, { status: 200 });
+  }
 }

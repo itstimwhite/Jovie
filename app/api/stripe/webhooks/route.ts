@@ -4,14 +4,14 @@
  * Webhooks are the source of truth for billing status
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import Stripe from 'stripe';
-import { stripe } from '@/lib/stripe/client';
-import { updateUserBillingStatus } from '@/lib/stripe/customer-sync';
-import { getPlanFromPriceId } from '@/lib/stripe/config';
-import { env } from '@/lib/env';
 import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
+import { env } from '@/lib/env';
+import { stripe } from '@/lib/stripe/client';
+import { getPlanFromPriceId } from '@/lib/stripe/config';
+import { updateUserBillingStatus } from '@/lib/stripe/customer-sync';
 
 const webhookSecret = env.STRIPE_WEBHOOK_SECRET!;
 
@@ -175,9 +175,8 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
     // User is no longer pro
     const result = await updateUserBillingStatus({
-      userId,
+      clerkUserId: userId,
       isPro: false,
-      plan: null,
       stripeSubscriptionId: null,
     });
 
@@ -261,9 +260,8 @@ async function processSubscription(
     if (!isActive) {
       // Subscription is not active, downgrade user
       const result = await updateUserBillingStatus({
-        userId,
+        clerkUserId: userId,
         isPro: false,
-        plan: null,
         stripeCustomerId: subscription.customer as string,
         stripeSubscriptionId: null,
       });
@@ -292,9 +290,8 @@ async function processSubscription(
 
     // Update user's billing status
     const result = await updateUserBillingStatus({
-      userId,
+      clerkUserId: userId,
       isPro: true,
-      plan: plan,
       stripeCustomerId: subscription.customer as string,
       stripeSubscriptionId: subscription.id,
     });

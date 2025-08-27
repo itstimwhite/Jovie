@@ -1,7 +1,7 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TipSection } from './TipSection';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // Mock the ToastContainer module
 const mockShowToast = vi.fn();
@@ -38,8 +38,8 @@ describe('TipSection', () => {
 
     render(
       <TipSection
-        handle="artist123"
-        artistName="Test Artist"
+        handle='artist123'
+        artistName='Test Artist'
         onStripePayment={mockOnStripePayment}
       />
     );
@@ -67,8 +67,8 @@ describe('TipSection', () => {
 
     render(
       <TipSection
-        handle="artist123"
-        artistName="Test Artist"
+        handle='artist123'
+        artistName='Test Artist'
         onStripePayment={mockOnStripePayment}
       />
     );
@@ -94,10 +94,10 @@ describe('TipSection', () => {
   it('renders payment method selection when both Stripe and Venmo are available', () => {
     render(
       <TipSection
-        handle="artist123"
-        artistName="Test Artist"
+        handle='artist123'
+        artistName='Test Artist'
         onStripePayment={mockOnStripePayment}
-        venmoLink="https://venmo.com/user"
+        venmoLink='https://venmo.com/user'
         onVenmoPayment={mockOnVenmoPayment}
       />
     );

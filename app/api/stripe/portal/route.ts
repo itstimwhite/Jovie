@@ -3,11 +3,11 @@
  * Creates billing portal sessions for Pro users to manage their subscriptions
  */
 
-import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import { env } from '@/lib/env';
 import { createBillingPortalSession } from '@/lib/stripe/client';
 import { getUserBillingInfo } from '@/lib/stripe/customer-sync';
-import { env } from '@/lib/env';
 
 export async function POST() {
   try {

@@ -4,32 +4,32 @@ import { StatusBadge } from './StatusBadge';
 // Sample icons
 const CheckIcon = (
   <svg
-    className="w-4 h-4"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
+    className='w-4 h-4'
+    fill='none'
+    viewBox='0 0 24 24'
+    stroke='currentColor'
   >
     <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeLinecap='round'
+      strokeLinejoin='round'
       strokeWidth={2}
-      d="M5 13l4 4L19 7"
+      d='M5 13l4 4L19 7'
     />
   </svg>
 );
 
 const LightningIcon = (
   <svg
-    className="w-4 h-4"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
+    className='w-4 h-4'
+    fill='none'
+    viewBox='0 0 24 24'
+    stroke='currentColor'
   >
     <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeLinecap='round'
+      strokeLinejoin='round'
       strokeWidth={2}
-      d="M13 10V3L4 14h7v7l9-11h-7z"
+      d='M13 10V3L4 14h7v7l9-11h-7z'
     />
   </svg>
 );
@@ -128,33 +128,33 @@ export const Large: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="flex flex-wrap gap-4">
-      <StatusBadge variant="blue" icon={LightningIcon}>
+    <div className='flex flex-wrap gap-4'>
+      <StatusBadge variant='blue' icon={LightningIcon}>
         Blue Badge
       </StatusBadge>
-      <StatusBadge variant="green" icon={CheckIcon}>
+      <StatusBadge variant='green' icon={CheckIcon}>
         Green Badge
       </StatusBadge>
-      <StatusBadge variant="purple" icon={LightningIcon}>
+      <StatusBadge variant='purple' icon={LightningIcon}>
         Purple Badge
       </StatusBadge>
-      <StatusBadge variant="orange">Orange Badge</StatusBadge>
-      <StatusBadge variant="red">Red Badge</StatusBadge>
-      <StatusBadge variant="gray">Gray Badge</StatusBadge>
+      <StatusBadge variant='orange'>Orange Badge</StatusBadge>
+      <StatusBadge variant='red'>Red Badge</StatusBadge>
+      <StatusBadge variant='gray'>Gray Badge</StatusBadge>
     </div>
   ),
 };
 
 export const AllSizes: Story = {
   render: () => (
-    <div className="flex items-center gap-4">
-      <StatusBadge variant="blue" icon={CheckIcon} size="sm">
+    <div className='flex items-center gap-4'>
+      <StatusBadge variant='blue' icon={CheckIcon} size='sm'>
         Small
       </StatusBadge>
-      <StatusBadge variant="green" icon={CheckIcon} size="md">
+      <StatusBadge variant='green' icon={CheckIcon} size='md'>
         Medium
       </StatusBadge>
-      <StatusBadge variant="purple" icon={CheckIcon} size="lg">
+      <StatusBadge variant='purple' icon={CheckIcon} size='lg'>
         Large
       </StatusBadge>
     </div>
@@ -163,16 +163,16 @@ export const AllSizes: Story = {
 
 export const InContext: Story = {
   render: () => (
-    <div className="max-w-2xl p-6 bg-gray-50 dark:bg-gray-900 rounded-lg">
-      <div className="mb-6 text-center">
-        <StatusBadge variant="green" icon={CheckIcon}>
+    <div className='max-w-2xl p-6 bg-gray-50 dark:bg-gray-900 rounded-lg'>
+      <div className='mb-6 text-center'>
+        <StatusBadge variant='green' icon={CheckIcon}>
           The Solution
         </StatusBadge>
       </div>
-      <h2 className="text-3xl font-bold text-center mb-4">
+      <h2 className='text-3xl font-bold text-center mb-4'>
         Built for musicians, optimized for conversion
       </h2>
-      <p className="text-gray-600 dark:text-gray-300 text-center">
+      <p className='text-gray-600 dark:text-gray-300 text-center'>
         Every element is designed to turn fans into streams. No distractions,
         just results.
       </p>

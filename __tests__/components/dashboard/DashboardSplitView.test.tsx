@@ -1,8 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
-import { DashboardSplitView } from '@/components/dashboard/organisms/DashboardSplitView';
 import { render, screen } from '@testing-library/react';
-import { mockArtist, mockCreatorProfile } from '@/lib/test-utils/mock-data';
+import { describe, expect, it, vi } from 'vitest';
+import { DashboardSplitView } from '@/components/dashboard/organisms/DashboardSplitView';
 import { ToastProvider } from '@/components/providers/ToastProvider';
+import { mockArtist, mockCreatorProfile } from '@/lib/test-utils/mock-data';
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
@@ -129,7 +129,7 @@ describe('DashboardSplitView', () => {
     );
 
     // Wait for useEffect to run
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     // If the component successfully loads and renders, it means the database
     // query with creator_profile_id was successful (mocked to return data)
@@ -168,7 +168,7 @@ describe('DashboardSplitView', () => {
     );
 
     // Wait for component to initialize
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     // The component should categorize instagram as social and spotify as DSP
     // This is verified by checking that both managers are present

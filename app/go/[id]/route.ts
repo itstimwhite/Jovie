@@ -40,7 +40,7 @@ export async function GET(
     }
 
     // Increment click count asynchronously (don't wait)
-    incrementClickCount(shortId).catch((error) => {
+    incrementClickCount(shortId).catch(error => {
       console.error('Failed to increment click count:', error);
     });
 

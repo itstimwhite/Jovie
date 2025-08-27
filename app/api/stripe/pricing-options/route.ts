@@ -11,7 +11,7 @@ export async function GET() {
     const options = getAvailablePricing();
 
     return NextResponse.json({
-      options: options.map((option) => ({
+      options: options.map(option => ({
         priceId: option.priceId,
         amount: option.amount,
         currency: option.currency,

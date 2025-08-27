@@ -1,7 +1,11 @@
 'use client';
 
+import {
+  loadStripe,
+  type PaymentRequest,
+  type Stripe,
+} from '@stripe/stripe-js';
 import { useEffect, useState } from 'react';
-import { loadStripe, Stripe, PaymentRequest } from '@stripe/stripe-js';
 import { TipSection } from '@/components/organisms/TipSection';
 
 interface TipJarProps {

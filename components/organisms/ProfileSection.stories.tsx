@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ProfileSection } from './ProfileSection';
-import { Artist } from '@/types/db';
 import { Button } from '@/components/ui/Button';
+import { Artist } from '@/types/db';
+import { ProfileSection } from './ProfileSection';
 
 const meta: Meta<typeof ProfileSection> = {
   title: 'Organisms/ProfileSection',
@@ -67,13 +67,13 @@ export const WithActions: Story = {
   args: {
     artist: mockArtist,
     children: (
-      <div className="space-y-4 w-full">
-        <Button className="w-full" size="lg">
+      <div className='space-y-4 w-full'>
+        <Button className='w-full' size='lg'>
           Listen Now
         </Button>
-        <div className="grid grid-cols-2 gap-3">
-          <Button variant="outline">Follow</Button>
-          <Button variant="outline">Share</Button>
+        <div className='grid grid-cols-2 gap-3'>
+          <Button variant='outline'>Follow</Button>
+          <Button variant='outline'>Share</Button>
         </div>
       </div>
     ),
@@ -85,7 +85,7 @@ export const GlassVariant: Story = {
     artist: mockArtist,
     containerVariant: 'glass',
     children: (
-      <Button className="w-full" size="lg">
+      <Button className='w-full' size='lg'>
         Listen Now
       </Button>
     ),
@@ -97,7 +97,7 @@ export const SolidVariant: Story = {
     artist: mockArtist,
     containerVariant: 'solid',
     children: (
-      <Button className="w-full" size="lg">
+      <Button className='w-full' size='lg'>
         Listen Now
       </Button>
     ),
@@ -109,7 +109,7 @@ export const DotsBackground: Story = {
     artist: mockArtist,
     backgroundPattern: 'dots',
     children: (
-      <Button className="w-full" size="lg">
+      <Button className='w-full' size='lg'>
         Listen Now
       </Button>
     ),
@@ -122,7 +122,7 @@ export const GradientBackground: Story = {
     backgroundPattern: 'gradient',
     containerVariant: 'glass',
     children: (
-      <Button className="w-full" size="lg">
+      <Button className='w-full' size='lg'>
         Listen Now
       </Button>
     ),
@@ -136,7 +136,7 @@ export const NoBackground: Story = {
     showGradientBlurs: false,
     containerVariant: 'solid',
     children: (
-      <Button className="w-full" size="lg">
+      <Button className='w-full' size='lg'>
         Listen Now
       </Button>
     ),
@@ -150,7 +150,7 @@ export const SmallProfile: Story = {
     nameSize: 'sm',
     maxWidthClass: 'w-full max-w-xs',
     children: (
-      <Button className="w-full" size="sm">
+      <Button className='w-full' size='sm'>
         Follow
       </Button>
     ),
@@ -164,11 +164,11 @@ export const LargeProfile: Story = {
     nameSize: 'xl',
     maxWidthClass: 'w-full max-w-lg',
     children: (
-      <div className="space-y-6 w-full">
-        <Button className="w-full" size="lg">
+      <div className='space-y-6 w-full'>
+        <Button className='w-full' size='lg'>
           Listen Now
         </Button>
-        <div className="text-center text-gray-600 dark:text-gray-400">
+        <div className='text-center text-gray-600 dark:text-gray-400'>
           <p>Latest album: &quot;Midnights&quot; • 2022</p>
           <p>13 tracks • 44 minutes</p>
         </div>
@@ -181,25 +181,25 @@ export const CompleteProfile: Story = {
   args: {
     artist: mockArtist,
     children: (
-      <div className="space-y-6 w-full">
-        <Button className="w-full" size="lg">
+      <div className='space-y-6 w-full'>
+        <Button className='w-full' size='lg'>
           Listen Now
         </Button>
 
-        <div className="grid grid-cols-3 gap-3">
-          <Button variant="outline" size="sm">
+        <div className='grid grid-cols-3 gap-3'>
+          <Button variant='outline' size='sm'>
             Follow
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant='outline' size='sm'>
             Share
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant='outline' size='sm'>
             Tip
           </Button>
         </div>
 
-        <div className="text-center space-y-2">
-          <div className="flex justify-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+        <div className='text-center space-y-2'>
+          <div className='flex justify-center space-x-4 text-sm text-gray-600 dark:text-gray-400'>
             <span>12.4M followers</span>
             <span>•</span>
             <span>85 releases</span>

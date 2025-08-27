@@ -56,37 +56,37 @@ export const PurpleCyan: Story = {
 
 export const InHeading: Story = {
   render: () => (
-    <h1 className="text-4xl font-bold">
-      Claim your <GradientText variant="primary">handle</GradientText>
+    <h1 className='text-4xl font-bold'>
+      Claim your <GradientText variant='primary'>handle</GradientText>
     </h1>
   ),
 };
 
 export const InLargeHeading: Story = {
   render: () => (
-    <h1 className="text-6xl font-semibold">
-      Built to <GradientText variant="purple-cyan">Convert</GradientText>
+    <h1 className='text-6xl font-semibold'>
+      Built to <GradientText variant='purple-cyan'>Convert</GradientText>
     </h1>
   ),
 };
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="space-y-4 text-center">
-      <div className="text-2xl font-semibold">
-        <GradientText variant="primary">Primary Gradient</GradientText>
+    <div className='space-y-4 text-center'>
+      <div className='text-2xl font-semibold'>
+        <GradientText variant='primary'>Primary Gradient</GradientText>
       </div>
-      <div className="text-2xl font-semibold">
-        <GradientText variant="secondary">Secondary Gradient</GradientText>
+      <div className='text-2xl font-semibold'>
+        <GradientText variant='secondary'>Secondary Gradient</GradientText>
       </div>
-      <div className="text-2xl font-semibold">
-        <GradientText variant="success">Success Gradient</GradientText>
+      <div className='text-2xl font-semibold'>
+        <GradientText variant='success'>Success Gradient</GradientText>
       </div>
-      <div className="text-2xl font-semibold">
-        <GradientText variant="warning">Warning Gradient</GradientText>
+      <div className='text-2xl font-semibold'>
+        <GradientText variant='warning'>Warning Gradient</GradientText>
       </div>
-      <div className="text-2xl font-semibold">
-        <GradientText variant="purple-cyan">Purple-Cyan Gradient</GradientText>
+      <div className='text-2xl font-semibold'>
+        <GradientText variant='purple-cyan'>Purple-Cyan Gradient</GradientText>
       </div>
     </div>
   ),
@@ -94,20 +94,20 @@ export const AllVariants: Story = {
 
 export const DifferentSizes: Story = {
   render: () => (
-    <div className="space-y-4 text-center">
-      <div className="text-sm">
+    <div className='space-y-4 text-center'>
+      <div className='text-sm'>
         Small: <GradientText>handle</GradientText>
       </div>
-      <div className="text-lg">
+      <div className='text-lg'>
         Large: <GradientText>handle</GradientText>
       </div>
-      <div className="text-2xl">
+      <div className='text-2xl'>
         2XL: <GradientText>handle</GradientText>
       </div>
-      <div className="text-4xl">
+      <div className='text-4xl'>
         4XL: <GradientText>handle</GradientText>
       </div>
-      <div className="text-6xl">
+      <div className='text-6xl'>
         6XL: <GradientText>handle</GradientText>
       </div>
     </div>

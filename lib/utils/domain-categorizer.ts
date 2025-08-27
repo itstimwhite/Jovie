@@ -3,7 +3,6 @@
  * Categorizes domains and provides crawler-safe aliases
  */
 
-import { createPublicSupabaseClient } from '@/lib/supabase/server';
 import { extractDomain } from './url-encryption';
 
 export interface DomainCategory {
@@ -201,28 +200,8 @@ export async function categorizeDomain(url: string): Promise<DomainCategory> {
     };
   }
 
-  // Check database for additional sensitive domains
-  try {
-    const supabase = createPublicSupabaseClient();
-    const { data, error } = await supabase
-      .from('sensitive_domains')
-      .select('category, alias')
-      .eq('domain', domain)
-      .single();
-
-    if (error || !data) {
-      return { category: null, alias: null, kind: 'normal' };
-    }
-
-    return {
-      category: data.category,
-      alias: data.alias,
-      kind: 'sensitive',
-    };
-  } catch (error) {
-    console.error('Failed to categorize domain:', error);
-    return { category: null, alias: null, kind: 'normal' };
-  }
+  // Database lookup disabled - only use local cache
+  return { category: null, alias: null, kind: 'normal' };
 }
 
 /**
@@ -275,19 +254,12 @@ export async function addSensitiveDomain(
   category: string,
   alias: string
 ): Promise<boolean> {
-  try {
-    const supabase = createPublicSupabaseClient();
-    const { error } = await supabase.from('sensitive_domains').insert({
-      domain: domain.toLowerCase(),
-      category,
-      alias,
-    });
-
-    return !error;
-  } catch (error) {
-    console.error('Failed to add sensitive domain:', error);
-    return false;
-  }
+  // Adding sensitive domains to database is disabled
+  // Consider implementing with alternative storage if needed
+  console.log(
+    `Would add sensitive domain: ${domain} -> ${category} (${alias})`
+  );
+  return false;
 }
 
 /**
@@ -313,7 +285,7 @@ export function containsSensitiveKeywords(text: string): boolean {
   ];
 
   const lowerText = text.toLowerCase();
-  return sensitiveKeywords.some((keyword) => lowerText.includes(keyword));
+  return sensitiveKeywords.some(keyword => lowerText.includes(keyword));
 }
 
 /**

@@ -1,5 +1,7 @@
-import { createAnonymousServerClient } from '@/lib/supabase-server';
+import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { creatorProfiles } from '@/lib/db/schema';
 
 // In-memory cache for mock responses to reduce server load during testing
 // Cache expires after 10 seconds to balance performance with realistic behavior
@@ -103,16 +105,6 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Use anonymous client since handle checking doesn't require authentication
-    const supabase = createAnonymousServerClient();
-
-    if (!supabase) {
-      return NextResponse.json(
-        { available: false, error: 'Database connection failed' },
-        { status: 500 }
-      );
-    }
-
     const handleLower = handle.toLowerCase();
 
     // Add timeout to prevent hanging on database issues
@@ -120,35 +112,14 @@ export async function GET(request: Request) {
       setTimeout(() => reject(new Error('Database timeout')), 3000); // 3 second timeout
     });
 
-    const { data, error } = await Promise.race([
-      supabase
-        .from('creator_profiles')
-        .select('username')
-        .eq('username', handleLower),
+    const data = await Promise.race([
+      db
+        .select({ username: creatorProfiles.username })
+        .from(creatorProfiles)
+        .where(eq(creatorProfiles.usernameNormalized, handleLower))
+        .limit(1),
       timeoutPromise,
     ]);
-
-    if (error) {
-      console.error('Error checking handle availability:', error);
-
-      // For testing: if database schema is incomplete, provide mock availability response
-      if (
-        error.code === 'PGRST204' ||
-        error.code === '42P01' ||
-        error.code === '42703'
-      ) {
-        console.log(
-          'Database schema incomplete, providing cached mock handle availability for testing'
-        );
-
-        return createMockResponse(handleLower);
-      }
-
-      return NextResponse.json(
-        { available: false, error: 'Database error' },
-        { status: 500 }
-      );
-    }
 
     return NextResponse.json(
       { available: !data || data.length === 0 },

@@ -53,14 +53,14 @@ export const PrimaryLongText: Story = {
 
 export const BothVariants: Story = {
   render: () => (
-    <div className="flex gap-4">
-      <NavLink href="/features" variant="default">
+    <div className='flex gap-4'>
+      <NavLink href='/features' variant='default'>
         Features
       </NavLink>
-      <NavLink href="/pricing" variant="default">
+      <NavLink href='/pricing' variant='default'>
         Pricing
       </NavLink>
-      <NavLink href="/sign-up" variant="primary">
+      <NavLink href='/sign-up' variant='primary'>
         Sign Up
       </NavLink>
     </div>
@@ -69,22 +69,22 @@ export const BothVariants: Story = {
 
 export const NavigationBar: Story = {
   render: () => (
-    <nav className="bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 w-full p-4">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center space-x-1">
-          <span className="font-bold text-xl">Jovie</span>
+    <nav className='bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800 w-full p-4'>
+      <div className='max-w-7xl mx-auto flex items-center justify-between'>
+        <div className='flex items-center space-x-1'>
+          <span className='font-bold text-xl'>Jovie</span>
         </div>
-        <div className="hidden md:flex items-center space-x-6">
-          <NavLink href="/features" variant="default">
+        <div className='hidden md:flex items-center space-x-6'>
+          <NavLink href='/features' variant='default'>
             Features
           </NavLink>
-          <NavLink href="/pricing" variant="default">
+          <NavLink href='/pricing' variant='default'>
             Pricing
           </NavLink>
-          <NavLink href="/about" variant="default">
+          <NavLink href='/about' variant='default'>
             About
           </NavLink>
-          <NavLink href="/sign-up" variant="primary">
+          <NavLink href='/sign-up' variant='primary'>
             Sign Up
           </NavLink>
         </div>
@@ -98,23 +98,23 @@ export const NavigationBar: Story = {
 
 export const VerticalNavigation: Story = {
   render: () => (
-    <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
-      <h3 className="text-lg font-semibold mb-4">Navigation Menu</h3>
-      <div className="flex flex-col space-y-2">
-        <NavLink href="/dashboard" variant="default">
+    <div className='bg-gray-50 dark:bg-gray-900 p-6 rounded-lg'>
+      <h3 className='text-lg font-semibold mb-4'>Navigation Menu</h3>
+      <div className='flex flex-col space-y-2'>
+        <NavLink href='/dashboard' variant='default'>
           Dashboard
         </NavLink>
-        <NavLink href="/profile" variant="default">
+        <NavLink href='/profile' variant='default'>
           Profile
         </NavLink>
-        <NavLink href="/settings" variant="default">
+        <NavLink href='/settings' variant='default'>
           Settings
         </NavLink>
-        <NavLink href="/help" variant="default">
+        <NavLink href='/help' variant='default'>
           Help & Support
         </NavLink>
-        <div className="pt-2">
-          <NavLink href="/upgrade" variant="primary">
+        <div className='pt-2'>
+          <NavLink href='/upgrade' variant='primary'>
             Upgrade Plan
           </NavLink>
         </div>

@@ -1,188 +1,255 @@
-# Supabase CLI
+# Jovie
 
-[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=main)](https://coveralls.io/github/supabase/cli?branch=main) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
-](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
+A modern artist profile and link-in-bio platform built with Next.js, Clerk authentication, Neon PostgreSQL, and Drizzle ORM.
 
-[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
+## Architecture
 
-This repository contains all the functionality for Supabase CLI.
+Jovie uses a modern, secure stack designed for scalability and type safety:
 
-- [x] Running Supabase locally
-- [x] Managing database migrations
-- [x] Creating and deploying Supabase Functions
-- [x] Generating types directly from your database schema
-- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
+- **Frontend**: Next.js 15 with TypeScript
+- **Authentication**: Clerk for secure user management
+- **Database**: Neon PostgreSQL with connection pooling
+- **ORM**: Drizzle ORM for type-safe database operations
+- **Styling**: Tailwind CSS with custom components
+- **Testing**: Vitest + Playwright for comprehensive testing
 
-## Getting started
+## Key Features
 
-### Install the CLI
+- 🎵 Artist profile pages with customizable themes
+- 🔗 Link-in-bio functionality with click tracking
+- 💸 Integrated tipping with Stripe
+- 📊 Analytics dashboard for creators
+- 🔐 Row Level Security (RLS) for data protection
+- 📱 Mobile-optimized responsive design
+- ⚡ Server-side rendering with edge optimization
 
-Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
+## Getting Started
 
-```bash
-npm i supabase --save-dev
-```
+### Prerequisites
 
-To install the beta release channel:
+- Node.js 20.17+
+- npm 10.0.0+
+- A Neon PostgreSQL database
+- Clerk account for authentication
+- Stripe account for payments
 
-```bash
-npm i supabase@beta --save-dev
-```
+### Installation
 
-When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
+1. **Clone the repository**
 
-```
-NODE_OPTIONS=--no-experimental-fetch yarn add supabase
-```
+   ```bash
+   git clone https://github.com/itstimwhite/Jovie.git
+   cd Jovie
+   ```
 
-> **Note**
-> For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
+2. **Install dependencies**
 
-<details>
-  <summary><b>macOS</b></summary>
+   ```bash
+   npm ci
+   ```
 
-Available via [Homebrew](https://brew.sh). To install:
+3. **Set up environment variables**
+   Copy `.env.example` to `.env.local` and fill in your credentials:
 
-```sh
-brew install supabase/tap/supabase
-```
+   ```bash
+   cp .env.example .env.local
+   ```
 
-To install the beta release channel:
+4. **Run database migrations**
 
-```sh
-brew install supabase/tap/supabase-beta
-brew link --overwrite supabase-beta
-```
+   ```bash
+   npm run drizzle:migrate
+   ```
 
-To upgrade:
+5. **Start the development server**
+   ```bash
+   npm run dev
+   ```
 
-```sh
-brew upgrade supabase
-```
+## Database Migration (Supabase → Drizzle + Neon)
 
-</details>
+This project has been migrated from Supabase to a modern stack using Clerk, Neon, and Drizzle ORM.
 
-<details>
-  <summary><b>Windows</b></summary>
+### Migration Overview
 
-Available via [Scoop](https://scoop.sh). To install:
+The migration involved:
 
-```powershell
-scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
-scoop install supabase
-```
+- **Authentication**: Supabase Auth → Clerk
+- **Database**: Supabase PostgreSQL → Neon PostgreSQL
+- **ORM**: Supabase client → Drizzle ORM
+- **Security**: Supabase RLS → Custom RLS with Clerk JWT integration
 
-To upgrade:
+### Database Schema
 
-```powershell
-scoop update supabase
-```
+The application uses the following core tables:
 
-</details>
+- `users` - User account information linked to Clerk
+- `creator_profiles` - Artist/creator profile data
+- `social_links` - Social media and music platform links
+- `click_events` - Analytics and tracking data
+- `tips` - Payment and tipping records
 
-<details>
-  <summary><b>Linux</b></summary>
+### Row Level Security (RLS)
 
-Available via [Homebrew](https://brew.sh) and Linux packages.
+All tables are protected with RLS policies that:
 
-#### via Homebrew
+- Use Clerk JWT tokens for user identification
+- Allow users to only access their own data
+- Support public profile visibility settings
+- Enable anonymous click tracking for analytics
 
-To install:
+### Environment Variables
 
-```sh
-brew install supabase/tap/supabase
-```
-
-To upgrade:
-
-```sh
-brew upgrade supabase
-```
-
-#### via Linux packages
-
-Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
-
-```sh
-sudo apk add --allow-untrusted <...>.apk
-```
-
-```sh
-sudo dpkg -i <...>.deb
-```
-
-```sh
-sudo rpm -i <...>.rpm
-```
-
-```sh
-sudo pacman -U <...>.pkg.tar.zst
-```
-
-</details>
-
-<details>
-  <summary><b>Other Platforms</b></summary>
-
-You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
-
-```sh
-go install github.com/supabase/cli@latest
-```
-
-Add a symlink to the binary in `$PATH` for easier access:
-
-```sh
-ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
-```
-
-This works on other non-standard Linux distros.
-
-</details>
-
-<details>
-  <summary><b>Community Maintained Packages</b></summary>
-
-Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
-To install in your working directory:
+Create a `.env.local` file with the following variables:
 
 ```bash
-pkgx install supabase
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+
+# Neon Database
+DATABASE_URL=postgresql://...
+
+# Stripe Payments
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+
+# Optional: Analytics and monitoring
+NEXT_PUBLIC_POSTHOG_KEY=phc_...
+NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 ```
 
-Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
+## Development
 
-</details>
-
-### Run the CLI
+### Database Management
 
 ```bash
-supabase bootstrap
+# Generate migrations from schema changes
+npm run drizzle:generate
+
+# Run migrations
+npm run drizzle:migrate
+
+# Open Drizzle Studio (database GUI)
+npm run drizzle:studio
+
+# Seed the database with test data
+npm run db:seed
 ```
 
-Or using npx:
+### Testing
 
 ```bash
-npx supabase bootstrap
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run E2E tests
+npm run test:e2e
+
+# Run specific test suites
+npm run test:unit
+npm run test:integration
 ```
 
-The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
+### Code Quality
 
-## Docs
+```bash
+# Type checking
+npm run typecheck
 
-Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
+# Linting
+npm run lint
+npm run lint:fix
 
-## Breaking changes
-
-We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
-
-However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
-
-## Developing
-
-To run from source:
-
-```sh
-# Go >= 1.22
-go run . help
+# Code formatting
+npm run format
+npm run format:check
 ```
+
+## Deployment
+
+The application is deployed on Vercel with automatic previews for pull requests.
+
+### Production Deployment
+
+1. **Neon Database**: Create a production database in Neon
+2. **Clerk**: Configure production environment in Clerk dashboard
+3. **Stripe**: Set up production webhook endpoints
+4. **Vercel**: Deploy with environment variables configured
+
+### Database Migrations in Production
+
+```bash
+# Set production environment
+export GIT_BRANCH=production
+export ALLOW_PROD_MIGRATIONS=true
+
+# Run production migrations
+npm run drizzle:migrate:prod
+```
+
+## Rollback Procedures
+
+In case of issues with the new stack:
+
+### 1. Application Rollback
+
+```bash
+# Revert to previous stable commit
+git revert HEAD~1
+
+# Or rollback via Vercel dashboard
+# Go to Vercel → Deployments → Promote previous deployment
+```
+
+### 2. Database Rollback
+
+```bash
+# Rollback specific migration
+npx drizzle-kit drop --target=<previous_migration>
+
+# Or restore from Neon backup
+# Go to Neon dashboard → Backups → Restore to point-in-time
+```
+
+### 3. Feature Flag Rollback
+
+```bash
+# Disable feature flags if implemented
+# Update environment variables to disable new features
+NEXT_PUBLIC_ENABLE_NEW_AUTH=false
+```
+
+## Performance Monitoring
+
+The application includes comprehensive monitoring:
+
+### Metrics Tracked
+
+- **Database**: Query performance, connection pool usage
+- **Authentication**: Login success rates, token refresh rates
+- **API**: Response times, error rates
+- **Frontend**: Core Web Vitals, user interactions
+
+### Monitoring Tools
+
+- **Neon**: Database performance metrics
+- **Clerk**: Authentication analytics
+- **Vercel**: Edge function performance
+- **PostHog**: User behavior analytics
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feat/your-feature`
+3. Follow the conventional commit format: `feat:`, `fix:`, `chore:`
+4. Ensure all tests pass: `npm run check`
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

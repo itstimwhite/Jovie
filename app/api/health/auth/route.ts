@@ -1,6 +1,9 @@
-import { NextResponse } from 'next/server';
-import { createAuthenticatedServerClient } from '@/lib/supabase-server';
 import { auth } from '@clerk/nextjs/server';
+import { eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { getUserByClerkId } from '@/lib/db/queries';
+import { creatorProfiles } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,44 +28,34 @@ export async function GET() {
       });
     }
 
-    const supabase = await createAuthenticatedServerClient();
+    // Test that we can find the user and their profile
+    const user = await getUserByClerkId(userId);
 
-    if (!supabase) {
-      return NextResponse.json(
-        { ok: false, error: 'Database connection failed' },
-        { status: 500 }
-      );
+    if (!user) {
+      return NextResponse.json({
+        ok: true,
+        authenticated: true,
+        userId,
+        hasProfile: false,
+        message:
+          'User authenticated but not found in database (expected for new users)',
+      });
     }
 
-    // Test that we can query the current user's profile using RLS
-    const { data, error } = await supabase
-      .from('creator_profiles')
-      .select('id, username')
-      .eq('user_id', userId)
-      .maybeSingle();
-
-    if (error) {
-      // This might be OK if user doesn't have a profile yet
-      if (error.code === 'PGRST116') {
-        return NextResponse.json({
-          ok: true,
-          authenticated: true,
-          userId,
-          hasProfile: false,
-          message:
-            'User authenticated but no profile found (expected for new users)',
-        });
-      }
-      throw error;
-    }
+    // Try to find user's creator profile
+    const [profile] = await db
+      .select({ id: creatorProfiles.id, username: creatorProfiles.username })
+      .from(creatorProfiles)
+      .where(eq(creatorProfiles.userId, user.id))
+      .limit(1);
 
     return NextResponse.json({
       ok: true,
       authenticated: true,
       userId,
-      hasProfile: !!data,
-      profile: data ? { id: data.id, username: data.username } : null,
-      message: 'RLS validation successful',
+      hasProfile: !!profile,
+      profile: profile ? { id: profile.id, username: profile.username } : null,
+      message: 'Clerk + Drizzle auth validation successful',
     });
   } catch (e: unknown) {
     const error = e instanceof Error ? e : new Error('Unknown error');

@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
-  SOCIAL_DEEP_LINKS,
-  DSP_DEEP_LINKS,
   createDeepLink,
+  DSP_DEEP_LINKS,
   detectPlatform,
-  getSocialDeepLinkConfig,
   getDSPDeepLinkConfig,
+  getSocialDeepLinkConfig,
+  SOCIAL_DEEP_LINKS,
 } from '@/lib/deep-links';
 
 // Mock window and document for testing
@@ -19,7 +19,10 @@ Object.defineProperty(window, 'navigator', {
 describe('Deep Links', () => {
   beforeEach(() => {
     // Reset userAgent before each test
-    (window.navigator as any).userAgent = '';
+    Object.defineProperty(window.navigator, 'userAgent', {
+      writable: true,
+      value: '',
+    });
   });
 
   describe('Platform Detection', () => {

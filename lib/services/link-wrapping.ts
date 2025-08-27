@@ -3,18 +3,19 @@
  * Handles creation and management of wrapped links
  */
 
-import { createAnonymousClient } from '@/lib/supabase/client';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import { sql as drizzleSql, eq, lt } from 'drizzle-orm';
+import { db } from '@/lib/db';
+import { wrappedLinks } from '@/lib/db/schema';
 import {
   categorizeDomain,
   getCrawlerSafeLabel,
 } from '@/lib/utils/domain-categorizer';
 import {
-  simpleEncryptUrl,
-  simpleDecryptUrl,
+  extractDomain,
   generateShortId,
   isValidUrl,
-  extractDomain,
+  simpleDecryptUrl,
+  simpleEncryptUrl,
 } from '@/lib/utils/url-encryption';
 
 // Temporary in-memory store for tracking sensitive shortIds during testing
@@ -38,7 +39,6 @@ export interface CreateWrappedLinkOptions {
   userId?: string;
   expiresInHours?: number;
   customAlias?: string;
-  supabase?: SupabaseClient;
 }
 
 export interface LinkStats {
@@ -54,13 +54,7 @@ export interface LinkStats {
 export async function createWrappedLink(
   options: CreateWrappedLinkOptions
 ): Promise<WrappedLink | null> {
-  const {
-    url,
-    userId,
-    expiresInHours,
-    customAlias,
-    supabase: clientSupabase,
-  } = options;
+  const { url, userId, expiresInHours, customAlias } = options;
 
   if (!isValidUrl(url)) {
     throw new Error('Invalid URL provided');
@@ -69,20 +63,19 @@ export async function createWrappedLink(
   const domain = extractDomain(url);
   const category = await categorizeDomain(url);
 
+  // Generate unique short ID
+  let shortId = customAlias || generateShortId();
+  let expiresAt: Date | null = null;
+
   try {
-    const supabase = clientSupabase || createAnonymousClient();
-
-    // Generate unique short ID
-    let shortId = customAlias || generateShortId();
-
     // Ensure short ID is unique
     let attempts = 0;
     while (attempts < 5) {
-      const { data: existing } = await supabase
-        .from('wrapped_links')
-        .select('id')
-        .eq('short_id', shortId)
-        .single();
+      const [existing] = await db
+        .select({ id: wrappedLinks.id })
+        .from(wrappedLinks)
+        .where(eq(wrappedLinks.shortId, shortId))
+        .limit(1);
 
       if (!existing) break;
 
@@ -98,70 +91,73 @@ export async function createWrappedLink(
     const encryptedUrl = simpleEncryptUrl(url);
 
     // Calculate expiration
-    const expiresAt = expiresInHours
-      ? new Date(Date.now() + expiresInHours * 60 * 60 * 1000).toISOString()
+    expiresAt = expiresInHours
+      ? new Date(Date.now() + expiresInHours * 60 * 60 * 1000)
       : null;
 
     // Create wrapped link record
-    const { data, error } = await supabase
-      .from('wrapped_links')
-      .insert({
-        short_id: shortId,
-        encrypted_url: encryptedUrl,
+    const [data] = await db
+      .insert(wrappedLinks)
+      .values({
+        shortId,
+        encryptedUrl,
         kind: category.kind,
         domain,
-        category: category.category,
-        title_alias: category.alias || getCrawlerSafeLabel(domain),
-        created_by: userId || null,
-        expires_at: expiresAt,
+        category: category.category || null,
+        titleAlias: category.alias || getCrawlerSafeLabel(domain),
+        createdBy: userId || null,
+        expiresAt,
       })
-      .select()
-      .single();
+      .returning();
 
-    if (error) {
-      // If database table doesn't exist or has major schema issues, return a mock response for testing
-      if (error.code === 'PGRST204' || error.code === '42P01') {
-        console.log(
-          'Database schema incomplete, returning mock wrapped link for testing'
-        );
-
-        // Track sensitive shortIds for coordination with getWrappedLink
-        if (category.kind === 'sensitive') {
-          mockSensitiveShortIds.add(shortId);
-        }
-
-        return {
-          id: '00000000-0000-0000-0000-000000000000',
-          shortId,
-          originalUrl: url,
-          kind: category.kind,
-          domain,
-          category: category.category || undefined,
-          titleAlias: category.alias || getCrawlerSafeLabel(domain),
-          clickCount: 0,
-          createdAt: new Date().toISOString(),
-          expiresAt: expiresAt || undefined,
-        };
-      }
-
-      console.error('Failed to create wrapped link:', error);
+    if (!data) {
+      console.error('Failed to create wrapped link: no data returned');
       return null;
     }
 
     return {
       id: data.id,
-      shortId: data.short_id,
+      shortId: data.shortId,
       originalUrl: url,
-      kind: data.kind,
+      kind: data.kind as 'normal' | 'sensitive',
       domain: data.domain,
-      category: data.category,
-      titleAlias: data.title_alias,
-      clickCount: data.click_count,
-      createdAt: data.created_at,
-      expiresAt: data.expires_at,
+      category: data.category || undefined,
+      titleAlias: data.titleAlias || undefined,
+      clickCount: data.clickCount || 0,
+      createdAt: data.createdAt.toISOString(),
+      expiresAt: data.expiresAt?.toISOString() || undefined,
     };
   } catch (error) {
     console.error('Link wrapping service error:', error);
+
+    // Return mock response for testing when database is unavailable
+    if (
+      error instanceof Error &&
+      (error.message.includes('relation') || error.message.includes('table'))
+    ) {
+      console.log(
+        'Database schema incomplete, returning mock wrapped link for testing'
+      );
+
+      // Track sensitive shortIds for coordination with getWrappedLink
+      if (category.kind === 'sensitive') {
+        mockSensitiveShortIds.add(shortId);
+      }
+
+      return {
+        id: '00000000-0000-0000-0000-000000000000',
+        shortId,
+        originalUrl: url,
+        kind: category.kind,
+        domain,
+        category: category.category || undefined,
+        titleAlias: category.alias || getCrawlerSafeLabel(domain),
+        clickCount: 0,
+        createdAt: new Date().toISOString(),
+        expiresAt: expiresAt?.toISOString() || undefined,
+      };
+    }
+
     return null;
   }
 }
@@ -170,62 +166,26 @@ export async function createWrappedLink(
  * Retrieves a wrapped link by short ID
  */
 export async function getWrappedLink(
-  shortId: string,
-  supabase?: SupabaseClient
+  shortId: string
 ): Promise<WrappedLink | null> {
   try {
-    const client = supabase || createAnonymousClient();
-
     // Add timeout to prevent hanging on database issues
     const timeoutPromise = new Promise<never>((_, reject) => {
       setTimeout(() => reject(new Error('Database timeout')), 5000); // 5 second timeout
     });
 
-    const { data, error } = await Promise.race([
-      client.from('wrapped_links').select('*').eq('short_id', shortId).single(),
+    const [data] = await Promise.race([
+      db
+        .select()
+        .from(wrappedLinks)
+        .where(eq(wrappedLinks.shortId, shortId))
+        .limit(1),
       timeoutPromise,
     ]);
 
-    if (error || !data) {
-      console.log(
-        'getWrappedLink error or no data:',
-        error?.code,
-        error?.message
-      );
-      // For testing: if database schema is incomplete AND shortId looks valid, return mock data
-      if (
-        error &&
-        (error.code === 'PGRST204' ||
-          error.code === '42P01' ||
-          error.code === '42703' ||
-          error.code === 'PGRST116') &&
-        shortId.length === 12 &&
-        /^[a-zA-Z0-9]{12}$/.test(shortId)
-      ) {
-        console.log(
-          'Database schema incomplete, returning mock wrapped link for testing'
-        );
-
-        // Check if this shortId was marked as sensitive during creation
-        const isSensitive = mockSensitiveShortIds.has(shortId);
-
-        return {
-          id: '00000000-0000-0000-0000-000000000000',
-          shortId,
-          originalUrl: isSensitive
-            ? 'https://onlyfans.com/creator123'
-            : 'https://spotify.com/track/test123',
-          kind: isSensitive ? ('sensitive' as const) : ('normal' as const),
-          domain: isSensitive ? 'onlyfans.com' : 'spotify.com',
-          category: isSensitive ? 'adult' : undefined,
-          titleAlias: isSensitive ? 'Premium Content' : 'Test Link',
-          clickCount: 0,
-          createdAt: new Date().toISOString(),
-          expiresAt: undefined,
-        };
-      }
-      // For testing: if no data found and shortId looks like a generated ID (12 chars, alphanumeric), return mock data
-      if (!data && shortId.length === 12 && /^[a-zA-Z0-9]{12}$/.test(shortId)) {
+    if (!data) {
+      // For testing: if shortId looks valid, return mock data
+      if (shortId.length === 12 && /^[a-zA-Z0-9]{12}$/.test(shortId)) {
         console.log(
           'No data found for valid-looking shortId, returning mock wrapped link for testing'
         );
@@ -252,24 +212,24 @@ export async function getWrappedLink(
     }
 
     // Check if link has expired
-    if (data.expires_at && new Date(data.expires_at) < new Date()) {
+    if (data.expiresAt && new Date(data.expiresAt) < new Date()) {
       return null;
     }
 
     // Decrypt URL
-    const originalUrl = simpleDecryptUrl(data.encrypted_url);
+    const originalUrl = simpleDecryptUrl(data.encryptedUrl);
 
     return {
       id: data.id,
-      shortId: data.short_id,
+      shortId: data.shortId,
       originalUrl,
-      kind: data.kind,
+      kind: data.kind as 'normal' | 'sensitive',
       domain: data.domain,
-      category: data.category,
-      titleAlias: data.title_alias,
-      clickCount: data.click_count,
-      createdAt: data.created_at,
-      expiresAt: data.expires_at,
+      category: data.category || undefined,
+      titleAlias: data.titleAlias || undefined,
+      clickCount: data.clickCount || 0,
+      createdAt: data.createdAt.toISOString(),
+      expiresAt: data.expiresAt?.toISOString() || undefined,
     };
   } catch (error: unknown) {
     // Return mock response for testing when database is unavailable
@@ -306,23 +266,16 @@ export async function getWrappedLink(
 /**
  * Increments click count for a wrapped link
  */
-export async function incrementClickCount(
-  shortId: string,
-  supabase?: SupabaseClient
-): Promise<boolean> {
+export async function incrementClickCount(shortId: string): Promise<boolean> {
   try {
-    const client = supabase || createAnonymousClient();
-
-    const { error } = await client
-      .from('wrapped_links')
-      .update({
-        click_count: client.rpc('increment_click_count', {
-          link_short_id: shortId,
-        }),
+    await db
+      .update(wrappedLinks)
+      .set({
+        clickCount: drizzleSql`${wrappedLinks.clickCount} + 1`,
       })
-      .eq('short_id', shortId);
+      .where(eq(wrappedLinks.shortId, shortId));
 
-    return !error;
+    return true;
   } catch (error) {
     console.error('Failed to increment click count:', error);
     return false;
@@ -332,41 +285,27 @@ export async function incrementClickCount(
 /**
  * Gets link statistics for analytics
  */
-export async function getLinkStats(
-  userId?: string,
-  supabase?: SupabaseClient
-): Promise<LinkStats> {
+export async function getLinkStats(userId?: string): Promise<LinkStats> {
   try {
-    const client = supabase || createAnonymousClient();
+    const data = await db
+      .select()
+      .from(wrappedLinks)
+      .where(userId ? eq(wrappedLinks.createdBy, userId) : undefined);
 
-    let query = client.from('wrapped_links').select('*');
-
-    if (userId) {
-      query = query.eq('created_by', userId);
-    }
-
-    const { data, error } = await query;
-
-    if (error || !data) {
-      return {
-        totalClicks: 0,
-        normalLinks: 0,
-        sensitiveLinks: 0,
-        topDomains: [],
-      };
-    }
-
-    const totalClicks = data.reduce((sum, link) => sum + link.click_count, 0);
-    const normalLinks = data.filter((link) => link.kind === 'normal').length;
+    const totalClicks = data.reduce(
+      (sum, link) => sum + (link.clickCount || 0),
+      0
+    );
+    const normalLinks = data.filter(link => link.kind === 'normal').length;
     const sensitiveLinks = data.filter(
-      (link) => link.kind === 'sensitive'
+      link => link.kind === 'sensitive'
     ).length;
 
     // Calculate top domains
     const domainCounts: Record<string, number> = {};
-    data.forEach((link) => {
+    data.forEach(link => {
       domainCounts[link.domain] =
-        (domainCounts[link.domain] || 0) + link.click_count;
+        (domainCounts[link.domain] || 0) + (link.clickCount || 0);
     });
 
     const topDomains = Object.entries(domainCounts)
@@ -394,24 +333,14 @@ export async function getLinkStats(
 /**
  * Deletes expired links (cleanup function)
  */
-export async function cleanupExpiredLinks(
-  supabase?: SupabaseClient
-): Promise<number> {
+export async function cleanupExpiredLinks(): Promise<number> {
   try {
-    const client = supabase || createAnonymousClient();
+    const deleted = await db
+      .delete(wrappedLinks)
+      .where(lt(wrappedLinks.expiresAt, new Date()))
+      .returning({ id: wrappedLinks.id });
 
-    const { data, error } = await client
-      .from('wrapped_links')
-      .delete()
-      .lt('expires_at', new Date().toISOString())
-      .select('id');
-
-    if (error) {
-      console.error('Failed to cleanup expired links:', error);
-      return 0;
-    }
-
-    return data?.length || 0;
+    return deleted.length;
   } catch (error) {
     console.error('Cleanup error:', error);
     return 0;
@@ -446,22 +375,19 @@ export async function createWrappedLinksBatch(
  */
 export async function updateWrappedLink(
   shortId: string,
-  updates: Partial<Pick<WrappedLink, 'titleAlias' | 'expiresAt'>>,
-  supabase?: SupabaseClient
+  updates: Partial<Pick<WrappedLink, 'titleAlias' | 'expiresAt'>>
 ): Promise<boolean> {
   try {
-    const client = supabase || createAnonymousClient();
+    const updateData: Partial<typeof wrappedLinks.$inferInsert> = {};
+    if (updates.titleAlias) updateData.titleAlias = updates.titleAlias;
+    if (updates.expiresAt) updateData.expiresAt = new Date(updates.expiresAt);
 
-    const updateData: Record<string, unknown> = {};
-    if (updates.titleAlias) updateData.title_alias = updates.titleAlias;
-    if (updates.expiresAt) updateData.expires_at = updates.expiresAt;
+    await db
+      .update(wrappedLinks)
+      .set(updateData)
+      .where(eq(wrappedLinks.shortId, shortId));
 
-    const { error } = await client
-      .from('wrapped_links')
-      .update(updateData)
-      .eq('short_id', shortId);
-
-    return !error;
+    return true;
   } catch (error) {
     console.error('Failed to update wrapped link:', error);
     return false;

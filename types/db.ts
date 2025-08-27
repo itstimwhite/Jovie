@@ -364,3 +364,30 @@ export function convertArtistToCreatorProfile(
     theme: artist.theme,
   };
 }
+
+// New conversion utility for Drizzle schema types (camelCase)
+export function convertDrizzleCreatorProfileToArtist(
+  profile: import('@/lib/db/schema').CreatorProfile
+): Artist {
+  return {
+    id: profile.id,
+    owner_user_id: profile.userId || '',
+    handle: profile.username,
+    spotify_id: profile.spotifyId || '',
+    name: profile.displayName || profile.username,
+    image_url: profile.avatarUrl || undefined,
+    tagline: profile.bio || undefined,
+    theme: profile.theme || undefined,
+    settings: (profile.settings as { hide_branding?: boolean }) || {
+      hide_branding: false,
+    },
+    spotify_url: profile.spotifyUrl || undefined,
+    apple_music_url: profile.appleMusicUrl || undefined,
+    youtube_url: profile.youtubeUrl || undefined,
+    published: profile.isPublic ?? false,
+    is_verified: profile.isVerified ?? false,
+    is_featured: profile.isFeatured ?? false,
+    marketing_opt_out: profile.marketingOptOut ?? false,
+    created_at: profile.createdAt.toISOString(),
+  };
+}

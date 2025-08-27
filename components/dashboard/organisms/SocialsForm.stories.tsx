@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { SocialsForm } from './SocialsForm';
-import { Artist } from '@/types/db';
 import * as React from 'react';
+import { Artist } from '@/types/db';
+import { SocialsForm } from './SocialsForm';
 
 // Mock artist data for stories
 const mockArtist: Artist = {
@@ -78,8 +78,8 @@ const meta: Meta<typeof SocialsForm> = {
   },
   tags: ['autodocs'],
   decorators: [
-    (Story) => (
-      <div className="max-w-3xl mx-auto p-6 border border-gray-200 dark:border-gray-800 rounded-lg">
+    Story => (
+      <div className='max-w-3xl mx-auto p-6 border border-gray-200 dark:border-gray-800 rounded-lg'>
         <Story />
       </div>
     ),
@@ -127,7 +127,7 @@ const withFetchMock = (
 
 // Default story - empty state
 export const Default: Story = {
-  decorators: [(Story) => withFetchMock(Story, mockEmptySocialLinks)],
+  decorators: [Story => withFetchMock(Story, mockEmptySocialLinks)],
   args: {
     artist: mockArtist,
   },
@@ -135,7 +135,7 @@ export const Default: Story = {
 
 // Prefilled story - with existing social links
 export const Prefilled: Story = {
-  decorators: [(Story) => withFetchMock(Story, mockSocialLinks)],
+  decorators: [Story => withFetchMock(Story, mockSocialLinks)],
   args: {
     artist: mockArtist,
   },
@@ -143,7 +143,7 @@ export const Prefilled: Story = {
 
 // Validation error story
 export const ValidationError: Story = {
-  decorators: [(Story) => withFetchMock(Story, mockInvalidSocialLinks, true)],
+  decorators: [Story => withFetchMock(Story, mockInvalidSocialLinks, true)],
   args: {
     artist: mockArtist,
   },
@@ -155,8 +155,8 @@ export const DarkMode: Story = {
     backgrounds: { default: 'dark' },
   },
   decorators: [
-    (Story) => (
-      <div className="dark">{withFetchMock(Story, mockSocialLinks)}</div>
+    Story => (
+      <div className='dark'>{withFetchMock(Story, mockSocialLinks)}</div>
     ),
   ],
   args: {
@@ -167,7 +167,7 @@ export const DarkMode: Story = {
 // Loading state story
 export const Loading: Story = {
   decorators: [
-    (Story) => {
+    Story => {
       const originalFetch = globalThis.fetch;
       globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
         const url = typeof input === 'string' ? input : input.toString();
@@ -196,7 +196,7 @@ export const Loading: Story = {
 // Success message story
 export const SuccessMessage: Story = {
   decorators: [
-    (Story) => {
+    Story => {
       const originalUseState = React.useState;
 
       const originalFetch = globalThis.fetch;
@@ -224,7 +224,7 @@ export const SuccessMessage: Story = {
 
       // Mock useState to show success message
       let callCount = 0;
-      // @ts-ignore - we're intentionally mocking this
+      // @ts-expect-error - we're intentionally mocking this
       React.useState = (initialState: unknown) => {
         callCount++;
         if (callCount === 1) return [false, () => {}]; // loading
@@ -238,7 +238,7 @@ export const SuccessMessage: Story = {
       const result = <Story />;
 
       // Restore the original implementations after rendering
-      // @ts-ignore - we're intentionally restoring this
+      // @ts-expect-error - we're intentionally restoring this
       React.useState = originalUseState;
       globalThis.fetch = originalFetch!;
 

@@ -1,14 +1,15 @@
-import type { Metadata } from 'next';
-import React from 'react';
-import { Inter } from 'next/font/google';
-import { ClientProviders } from '@/components/providers/ClientProviders';
-import { VercelToolbar } from '@vercel/toolbar/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import { VercelToolbar } from '@vercel/toolbar/next';
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import React from 'react';
+import { ClientProviders } from '@/components/providers/ClientProviders';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
 import '@/styles/globals.css';
-import { CookieBannerSection } from '@/components/organisms/CookieBannerSection';
 import { headers } from 'next/headers';
+import { CookieBannerSection } from '@/components/organisms/CookieBannerSection';
+
 // Import performance monitoring
 // import { initWebVitals } from '@/lib/monitoring/web-vitals'; // Currently unused
 
@@ -122,35 +123,35 @@ export default async function RootLayout({
   const showCookieBanner = headersList.get('x-show-cookie-banner') === '1';
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang='en' suppressHydrationWarning>
       <head>
         {/* Favicon and Icons */}
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/site.webmanifest" />
+        <link rel='icon' href='/favicon.svg' type='image/svg+xml' />
+        <link rel='icon' href='/favicon.ico' type='image/x-icon' />
+        <link rel='apple-touch-icon' href='/apple-touch-icon.png' />
+        <link rel='manifest' href='/site.webmanifest' />
 
         {/* DNS Prefetch for critical external resources */}
-        <link rel="dns-prefetch" href="https://i.scdn.co" />
-        <link rel="dns-prefetch" href="https://api.spotify.com" />
-        <link rel="dns-prefetch" href="https://images.unsplash.com" />
-        <link rel="preconnect" href="https://i.scdn.co" crossOrigin="" />
+        <link rel='dns-prefetch' href='https://i.scdn.co' />
+        <link rel='dns-prefetch' href='https://api.spotify.com' />
+        <link rel='dns-prefetch' href='https://images.unsplash.com' />
+        <link rel='preconnect' href='https://i.scdn.co' crossOrigin='' />
         <link
-          rel="preconnect"
-          href="https://images.unsplash.com"
-          crossOrigin=""
+          rel='preconnect'
+          href='https://images.unsplash.com'
+          crossOrigin=''
         />
 
         {/* Vercel Page Speed Insights */}
         <script
           defer
           data-domain={analyticsDomain}
-          src="https://vitals.vercel-insights.com/v1/vitals.js"
+          src='https://vitals.vercel-insights.com/v1/vitals.js'
         />
 
         {/* Structured Data for Organization */}
         <script
-          type="application/ld+json"
+          type='application/ld+json'
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               '@context': 'https://schema.org',
@@ -177,21 +178,6 @@ export default async function RootLayout({
         {shouldInjectToolbar && (
           <>
             <VercelToolbar />
-            {/* Performance Dashboard - only shown in development */}
-            {process.env.NODE_ENV === 'development' && (
-              <div suppressHydrationWarning>
-                {/* Dynamic import to avoid SSR issues */}
-                {typeof window !== 'undefined' && (
-                  <React.Suspense fallback={null}>
-                    {/* @ts-ignore - Dynamic import */}
-                    {React.createElement(
-                      require('@/components/monitoring/PerformanceDashboard')
-                        .PerformanceDashboard
-                    )}
-                  </React.Suspense>
-                )}
-              </div>
-            )}
           </>
         )}
       </body>

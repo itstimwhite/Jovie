@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ProfileForm } from './ProfileForm';
 import { Artist } from '@/types/db';
+import { ProfileForm } from './ProfileForm';
 
 // Mock artist data for stories
 const mockArtist: Artist = {

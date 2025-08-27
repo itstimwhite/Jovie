@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
 import { setupClerkTestingToken } from '@clerk/testing/playwright';
+import { expect, test } from '@playwright/test';
 import { signInUser } from '../helpers/clerk-auth';
 
 /**
@@ -68,7 +68,9 @@ test.describe('Golden Path - Complete User Journey', () => {
     await expect(page.locator('text=Dashboard')).toBeVisible();
 
     // STEP 4: Navigate to profile (if user has one)
-    const profileLink = page.locator('text="View Profile"').or(page.locator('text="Public Profile"'));
+    const profileLink = page
+      .locator('text="View Profile"')
+      .or(page.locator('text="Public Profile"'));
     if (await profileLink.isVisible()) {
       await profileLink.click();
 

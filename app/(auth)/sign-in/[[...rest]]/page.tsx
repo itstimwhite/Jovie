@@ -18,7 +18,7 @@ export default function SignInPage() {
     (artistId ? `/dashboard?artistId=${artistId}` : '/dashboard');
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-[#0D0E12] transition-colors">
+    <div className='flex min-h-screen items-center justify-center bg-white dark:bg-[#0D0E12] transition-colors'>
       <SignIn
         redirectUrl={destination}
         afterSignInUrl={destination}

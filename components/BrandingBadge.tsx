@@ -23,5 +23,5 @@ export default function BrandingBadge() {
     return null;
   }
 
-  return <div className="text-xs opacity-60">Made with Jovie</div>;
+  return <div className='text-xs opacity-60'>Made with Jovie</div>;
 }

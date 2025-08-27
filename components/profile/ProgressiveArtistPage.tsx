@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { StaticArtistPage } from '@/components/profile/StaticArtistPage';
 import { Artist, LegacySocialLink } from '@/types/db';
-import dynamic from 'next/dynamic';
 
 // Lazy load the animated version
 const AnimatedArtistPage = dynamic(
   () =>
-    import('@/components/profile/AnimatedArtistPage').then((mod) => ({
+    import('@/components/profile/AnimatedArtistPage').then(mod => ({
       default: mod.AnimatedArtistPage,
     })),
   {
@@ -35,8 +35,8 @@ export function ProgressiveArtistPage(props: ProgressiveArtistPageProps) {
   useEffect(() => {
     const base = `/${props.artist.handle}`;
     ['profile', 'listen', 'tip']
-      .filter((m) => m !== props.mode)
-      .forEach((mode) => {
+      .filter(m => m !== props.mode)
+      .forEach(mode => {
         const searchUrl = mode === 'profile' ? base : `${base}?mode=${mode}`;
         router.prefetch(searchUrl);
         router.prefetch(`${base}/${mode}`);

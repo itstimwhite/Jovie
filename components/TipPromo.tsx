@@ -8,20 +8,20 @@ export default function TipPromo() {
     <CTASection
       title={
         <>
-          Tip, <span className="text-indigo-400">instantly.</span>
+          Tip, <span className='text-indigo-400'>instantly.</span>
         </>
       }
       description={
         <>
           Fans tap once, you get paid. No sign-ups, no fees,{' '}
-          <br className="hidden sm:inline" />
+          <br className='hidden sm:inline' />
           just pure support—directly in Venmo.
         </>
       }
-      buttonText="See it live"
-      buttonHref="/tim/tip"
-      variant="secondary"
-      className="py-20"
+      buttonText='See it live'
+      buttonHref='/tim/tip'
+      variant='secondary'
+      className='py-20'
     />
   );
 }

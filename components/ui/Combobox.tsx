@@ -1,22 +1,22 @@
 'use client';
 
 import * as Headless from '@headlessui/react';
-import clsx from 'clsx';
-import React, {
-  forwardRef,
-  useState,
-  useMemo,
-  useCallback,
-  useId,
-  useRef,
-  useEffect,
-  KeyboardEvent,
-} from 'react';
-import Image from 'next/image';
 import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
 } from '@heroicons/react/20/solid';
+import { clsx } from 'clsx';
+import Image from 'next/image';
+import React, {
+  forwardRef,
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 
 interface ComboboxOption {
@@ -79,7 +79,7 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
 
       const lowerQuery = query.toLowerCase();
       return options
-        .filter((option) => option.name.toLowerCase().includes(lowerQuery))
+        .filter(option => option.name.toLowerCase().includes(lowerQuery))
         .slice(0, maxDisplayedOptions);
     }, [options, query, maxDisplayedOptions]);
 
@@ -124,13 +124,13 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
         switch (e.key) {
           case 'ArrowDown':
             e.preventDefault();
-            setActiveIndex((prev) =>
+            setActiveIndex(prev =>
               prev < filteredOptions.length - 1 ? prev + 1 : 0
             );
             break;
           case 'ArrowUp':
             e.preventDefault();
-            setActiveIndex((prev) =>
+            setActiveIndex(prev =>
               prev > 0 ? prev - 1 : filteredOptions.length - 1
             );
             break;
@@ -205,12 +205,12 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
     return (
       <div className={clsx('relative w-full', className)} ref={ref}>
         {/* Hidden label for screen readers */}
-        <label htmlFor={inputId} className="sr-only">
+        <label htmlFor={inputId} className='sr-only'>
           {label}
         </label>
 
         {/* Status announcer for screen readers */}
-        <div aria-live="polite" aria-atomic="true" className="sr-only">
+        <div aria-live='polite' aria-atomic='true' className='sr-only'>
           {value ? `Selected: ${value.name}` : ''}
         </div>
 
@@ -246,7 +246,7 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                   )}
                 >
                   {/* Input section */}
-                  <div className="relative flex-1">
+                  <div className='relative flex-1'>
                     <Headless.Combobox.Input
                       ref={inputRef}
                       id={inputId}
@@ -275,13 +275,11 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                         disabled && 'cursor-not-allowed'
                       )}
                       placeholder={placeholder}
-                      onChange={(event) =>
-                        handleInputChange(event.target.value)
-                      }
+                      onChange={event => handleInputChange(event.target.value)}
                       onKeyDown={handleKeyDown}
                       displayValue={displayValue}
                       disabled={disabled}
-                      autoComplete="off"
+                      autoComplete='off'
                     />
 
                     {/* Dropdown button */}
@@ -295,14 +293,14 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                       aria-label={open ? 'Close dropdown' : 'Open dropdown'}
                     >
                       {isLoading ? (
-                        <LoadingSpinner size="sm" className="text-white/50" />
+                        <LoadingSpinner size='sm' className='text-white/50' />
                       ) : (
                         <ChevronDownIcon
                           className={clsx(
                             'h-4 w-4 text-white/50 transition-transform',
                             open && 'rotate-180'
                           )}
-                          aria-hidden="true"
+                          aria-hidden='true'
                         />
                       )}
                     </Headless.Combobox.Button>
@@ -311,15 +309,15 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                   {/* Separator line */}
                   {showCta && (
                     <div
-                      className="hidden sm:block w-px bg-white/10"
-                      aria-hidden="true"
+                      className='hidden sm:block w-px bg-white/10'
+                      aria-hidden='true'
                     />
                   )}
 
                   {/* CTA Button */}
                   {showCta && (
                     <button
-                      type="button"
+                      type='button'
                       onClick={handleSubmit}
                       disabled={disabled || !isValidSelection}
                       className={clsx(
@@ -341,8 +339,8 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                       aria-label={`${ctaText} for ${value?.name || 'selected artist'}`}
                     >
                       <MagnifyingGlassIcon
-                        className="h-4 w-4 mr-2"
-                        aria-hidden="true"
+                        className='h-4 w-4 mr-2'
+                        aria-hidden='true'
                       />
                       {ctaText}
                     </button>
@@ -353,8 +351,8 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                 {error && (
                   <p
                     id={errorId}
-                    className="mt-2 text-sm text-red-400"
-                    role="alert"
+                    className='mt-2 text-sm text-red-400'
+                    role='alert'
                   >
                     {error}
                   </p>
@@ -373,29 +371,29 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                 >
                   {isLoading && query.length > 0 ? (
                     <div
-                      className="px-4 py-3 text-sm text-gray-500"
-                      role="status"
+                      className='px-4 py-3 text-sm text-gray-500'
+                      role='status'
                     >
-                      <div className="flex items-center space-x-2">
-                        <LoadingSpinner size="sm" className="text-gray-500" />
+                      <div className='flex items-center space-x-2'>
+                        <LoadingSpinner size='sm' className='text-gray-500' />
                         <span>Searching artists...</span>
                       </div>
                     </div>
                   ) : showNoResults ? (
                     <div
-                      className="px-4 py-4 text-sm text-gray-500"
-                      role="status"
+                      className='px-4 py-4 text-sm text-gray-500'
+                      role='status'
                     >
-                      <p className="mb-2">
+                      <p className='mb-2'>
                         No artists found for &quot;{query}&quot;
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className='text-xs text-gray-400'>
                         Can&apos;t find your artist?{' '}
                         <a
-                          href="https://artists.spotify.com"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-indigo-600 hover:text-indigo-500 underline"
+                          href='https://artists.spotify.com'
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          className='text-indigo-600 hover:text-indigo-500 underline'
                         >
                           Verify your Spotify artist profile
                         </a>
@@ -420,23 +418,23 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                       >
                         {({ active, selected }) => (
                           <div
-                            className="flex items-center space-x-3"
-                            role="option"
+                            className='flex items-center space-x-3'
+                            role='option'
                             aria-selected={selected}
                           >
                             {option.imageUrl ? (
                               <Image
                                 src={option.imageUrl}
-                                alt=""
+                                alt=''
                                 width={32}
                                 height={32}
-                                className="h-8 w-8 rounded-full object-cover flex-shrink-0"
-                                aria-hidden="true"
+                                className='h-8 w-8 rounded-full object-cover flex-shrink-0'
+                                aria-hidden='true'
                               />
                             ) : (
                               <div
-                                className="h-8 w-8 rounded-full bg-gray-200 flex-shrink-0"
-                                aria-hidden="true"
+                                className='h-8 w-8 rounded-full bg-gray-200 flex-shrink-0'
+                                aria-hidden='true'
                               />
                             )}
                             <span
@@ -455,18 +453,18 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                                   'absolute inset-y-0 right-0 flex items-center pr-4',
                                   active ? 'text-white' : 'text-indigo-600'
                                 )}
-                                aria-hidden="true"
+                                aria-hidden='true'
                               >
                                 <svg
-                                  className="h-4 w-4"
-                                  fill="currentColor"
-                                  viewBox="0 0 20 20"
-                                  aria-hidden="true"
+                                  className='h-4 w-4'
+                                  fill='currentColor'
+                                  viewBox='0 0 20 20'
+                                  aria-hidden='true'
                                 >
                                   <path
-                                    fillRule="evenodd"
-                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                    clipRule="evenodd"
+                                    fillRule='evenodd'
+                                    d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                                    clipRule='evenodd'
                                   />
                                 </svg>
                               </span>

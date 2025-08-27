@@ -3,7 +3,7 @@
  * Tests loading speed, avatar visibility, social links, and performance metrics
  */
 
-import { test, expect } from './setup';
+import { expect, test } from './setup';
 
 test.describe('Public Profile Performance', () => {
   test.describe('Tim Profile Rendering', () => {
@@ -246,8 +246,8 @@ test.describe('Public Profile Performance', () => {
   test.describe('Performance Edge Cases', () => {
     test('handles slow network conditions gracefully', async ({ page }) => {
       // Simulate slow network
-      await page.route('**/*', async (route) => {
-        await new Promise((resolve) => setTimeout(resolve, 100)); // Add 100ms delay
+      await page.route('**/*', async route => {
+        await new Promise(resolve => setTimeout(resolve, 100)); // Add 100ms delay
         route.continue();
       });
 

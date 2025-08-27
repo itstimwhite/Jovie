@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
 import { setupClerkTestingToken } from '@clerk/testing/playwright';
+import { expect, test } from '@playwright/test';
 
 /**
  * E2E Test: Handle Taken Prevents Submission

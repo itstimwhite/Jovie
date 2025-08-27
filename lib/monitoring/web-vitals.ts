@@ -1,6 +1,6 @@
 'use client';
 
-import { onCLS, onFCP, onINP, onLCP, onTTFB, type Metric } from 'web-vitals';
+import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 import { track } from '@/lib/analytics';
 
 // Define the metric handler type
@@ -111,7 +111,7 @@ export function trackPerformanceExperiment(
   experiment: string,
   variant: string
 ) {
-  initWebVitals((metric) => {
+  initWebVitals(metric => {
     sendToAnalytics({
       ...metric,
       // Add experiment context to the metric

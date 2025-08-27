@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ListenSection } from './ListenSection';
 import type { AvailableDSP } from '@/lib/dsp';
+import { ListenSection } from './ListenSection';
 
 // Mock DSP data for stories
 const mockDSPs: AvailableDSP[] = [
@@ -159,18 +159,18 @@ export const MinimalConfiguration: Story = {
 
 export const MobileArtistPage: Story = {
   render: () => (
-    <div className="max-w-sm mx-auto bg-gradient-to-b from-purple-900 to-black text-white p-6 rounded-lg">
-      <div className="text-center mb-6">
-        <div className="w-32 h-32 mx-auto bg-gradient-to-br from-pink-400 to-purple-600 rounded-full mb-4"></div>
-        <h1 className="text-2xl font-bold mb-2">Ariana Grande</h1>
-        <p className="text-purple-200">Pop Artist</p>
+    <div className='max-w-sm mx-auto bg-gradient-to-b from-purple-900 to-black text-white p-6 rounded-lg'>
+      <div className='text-center mb-6'>
+        <div className='w-32 h-32 mx-auto bg-gradient-to-br from-pink-400 to-purple-600 rounded-full mb-4'></div>
+        <h1 className='text-2xl font-bold mb-2'>Ariana Grande</h1>
+        <p className='text-purple-200'>Pop Artist</p>
       </div>
       <ListenSection
-        handle="arianagrande"
+        handle='arianagrande'
         dsps={mockDSPs}
-        size="md"
+        size='md'
         showPreferenceNotice={true}
-        className="mt-6"
+        className='mt-6'
       />
     </div>
   ),

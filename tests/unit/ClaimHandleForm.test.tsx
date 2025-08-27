@@ -1,8 +1,8 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useAuth } from '@clerk/nextjs';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { ClaimHandleForm } from '@/components/home/ClaimHandleForm';
-import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { APP_URL } from '@/constants/app';
 
 // Mock dependencies
@@ -66,10 +66,10 @@ describe('ClaimHandleForm', () => {
 
   test('tap-to-copy functionality with proper keyboard support', async () => {
     // Mock successful handle check
-    (global.fetch as any).mockResolvedValueOnce({
+    vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ available: true }),
-    });
+    } as any);
 
     // Mock clipboard API only if not already defined
     const originalClipboard = navigator.clipboard;
@@ -141,10 +141,10 @@ describe('ClaimHandleForm', () => {
 
   test('validation messages update aria attributes correctly', async () => {
     // Mock handle taken response
-    (global.fetch as any).mockResolvedValueOnce({
+    vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ available: false }),
-    });
+    } as any);
 
     render(<ClaimHandleForm />);
 

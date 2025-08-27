@@ -3,7 +3,7 @@
  * Tests response times, database performance, and user experience metrics
  */
 
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Onboarding Performance', () => {
   test('handle validation responds quickly', async ({ page }) => {
@@ -36,7 +36,7 @@ test.describe('Onboarding Performance', () => {
     const totalTime = endTime - startTime;
 
     // All requests should succeed
-    responses.forEach((response) => {
+    responses.forEach(response => {
       expect(response.ok()).toBeTruthy();
     });
 

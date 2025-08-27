@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 
 // Import the individual atomic components to test them directly
 import { LogoLink } from '@/components/atoms/LogoLink';
@@ -19,7 +19,7 @@ describe('Atomic Design Structure', () => {
     });
 
     it('NavLink component works correctly', () => {
-      render(<NavLink href="/test">Test Link</NavLink>);
+      render(<NavLink href='/test'>Test Link</NavLink>);
 
       const link = screen.getByRole('link', { name: 'Test Link' });
       expect(link).toHaveAttribute('href', '/test');
@@ -47,7 +47,7 @@ describe('Atomic Design Structure', () => {
     it('components follow atomic design structure', () => {
       // Test that atoms can be composed into molecules
       render(
-        <div className="flex items-center space-x-4">
+        <div className='flex items-center space-x-4'>
           <LogoLink />
           <AuthActions />
         </div>

@@ -82,11 +82,11 @@ export const MinimalCard: Story = {
 
 export const InContainer: Story = {
   render: () => (
-    <div className="p-6 bg-white/60 dark:bg-white/5 backdrop-blur-md rounded-xl border border-gray-200/30 dark:border-white/10">
+    <div className='p-6 bg-white/60 dark:bg-white/5 backdrop-blur-md rounded-xl border border-gray-200/30 dark:border-white/10'>
       <QRCodeCard
-        data="https://jovie.fm/taylorswift"
-        title="View Artist Profile"
-        description="Scan to view on mobile for the best experience"
+        data='https://jovie.fm/taylorswift'
+        title='View Artist Profile'
+        description='Scan to view on mobile for the best experience'
         qrSize={160}
       />
     </div>
@@ -95,10 +95,10 @@ export const InContainer: Story = {
 
 export const DesktopOverlay: Story = {
   render: () => (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-center rounded-xl p-4 ring-1 ring-black/10 dark:ring-white/10 shadow-xl bg-white/85 dark:bg-gray-900/80 backdrop-blur-md">
+    <div className='fixed bottom-4 right-4 z-50 flex flex-col items-center rounded-xl p-4 ring-1 ring-black/10 dark:ring-white/10 shadow-xl bg-white/85 dark:bg-gray-900/80 backdrop-blur-md'>
       <QRCodeCard
-        data="https://jovie.fm/oliviarodrigo"
-        title="View on Mobile"
+        data='https://jovie.fm/oliviarodrigo'
+        title='View on Mobile'
         qrSize={120}
       />
     </div>

@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { type DetectedLink, getPlatform } from '@/lib/utils/platform-detection';
 import { DSPLinkManager } from './DSPLinkManager';
-import { getPlatform } from '@/lib/utils/platform-detection';
-import type { DetectedLink } from '@/lib/utils/platform-detection';
 
 // Define LinkItem interface (matching DSPLinkManager component)
 interface LinkItem extends DetectedLink {
@@ -80,8 +79,8 @@ const meta: Meta<typeof DSPLinkManager> = {
     },
   },
   decorators: [
-    (Story) => (
-      <div className="p-6 max-w-2xl mx-auto bg-white dark:bg-gray-900 rounded-xl">
+    Story => (
+      <div className='p-6 max-w-2xl mx-auto bg-white dark:bg-gray-900 rounded-xl'>
         <Story />
       </div>
     ),

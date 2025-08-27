@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach, vi } from 'vitest';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Select } from '@/components/ui/Select';
 
 const mockOptions = [
@@ -20,7 +20,7 @@ describe('Select', () => {
   });
 
   it('renders with custom placeholder', () => {
-    render(<Select options={mockOptions} placeholder="Choose an option" />);
+    render(<Select options={mockOptions} placeholder='Choose an option' />);
 
     const select = screen.getByRole('combobox');
     expect(select).toBeInTheDocument();
@@ -30,14 +30,14 @@ describe('Select', () => {
   });
 
   it('renders with label', () => {
-    render(<Select options={mockOptions} label="Select Option" />);
+    render(<Select options={mockOptions} label='Select Option' />);
 
     expect(screen.getByText('Select Option')).toBeInTheDocument();
     expect(screen.getByRole('combobox')).toBeInTheDocument();
   });
 
   it('renders with required indicator', () => {
-    render(<Select options={mockOptions} label="Select Option" required />);
+    render(<Select options={mockOptions} label='Select Option' required />);
 
     const label = screen.getByText('Select Option');
     expect(label).toBeInTheDocument();
@@ -45,7 +45,7 @@ describe('Select', () => {
   });
 
   it('renders with error message', () => {
-    render(<Select options={mockOptions} error="This field is required" />);
+    render(<Select options={mockOptions} error='This field is required' />);
 
     expect(screen.getByText('This field is required')).toBeInTheDocument();
     expect(screen.getByText('This field is required')).toHaveClass(
@@ -69,7 +69,7 @@ describe('Select', () => {
 
     // Check if the disabled option has the disabled attribute
     const disabledOption = Array.from(options).find(
-      (option) => option.textContent === 'Option 3'
+      option => option.textContent === 'Option 3'
     );
     expect(disabledOption).toHaveAttribute('disabled');
   });
@@ -93,7 +93,7 @@ describe('Select', () => {
   });
 
   it('applies custom className', () => {
-    render(<Select options={mockOptions} className="custom-select" />);
+    render(<Select options={mockOptions} className='custom-select' />);
 
     const select = screen.getByRole('combobox');
     expect(select).toHaveClass('custom-select');
@@ -107,7 +107,7 @@ describe('Select', () => {
   });
 
   it('renders with error styling when error is provided', () => {
-    render(<Select options={mockOptions} error="Error message" />);
+    render(<Select options={mockOptions} error='Error message' />);
 
     const select = screen.getByRole('combobox');
     expect(select).toHaveClass('border-red-500');

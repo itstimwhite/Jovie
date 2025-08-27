@@ -1,18 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
-import { CTAButton } from '@/components/atoms/CTAButton';
+import { AnimatePresence, motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
-import { Artist, LegacySocialLink } from '@/types/db';
 import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+import { CTAButton } from '@/components/atoms/CTAButton';
+import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
+import { Artist, LegacySocialLink } from '@/types/db';
 
 // Lazily load heavy profile sub-components to keep initial bundle lean
 const AnimatedListenInterface = dynamic(
   () =>
-    import('@/components/profile/AnimatedListenInterface').then((mod) => ({
+    import('@/components/profile/AnimatedListenInterface').then(mod => ({
       default: mod.AnimatedListenInterface,
     })),
   { ssr: false }
@@ -44,7 +44,7 @@ function renderContent(
   switch (mode) {
     case 'listen':
       return (
-        <div className="flex justify-center">
+        <div className='flex justify-center'>
           <AnimatedListenInterface artist={artist} handle={artist.handle} />
         </div>
       );
@@ -52,7 +52,7 @@ function renderContent(
     case 'tip':
       // Extract Venmo link from social links
       const venmoLink =
-        socialLinks.find((l) => l.platform === 'venmo')?.url || null;
+        socialLinks.find(l => l.platform === 'venmo')?.url || null;
       const extractVenmoUsername = (url: string | null): string | null => {
         if (!url) return null;
         try {
@@ -82,18 +82,18 @@ function renderContent(
             prefersReducedMotion ? { duration: 0 } : { duration: 0.6 }
           }
         >
-          <div className="space-y-4">
+          <div className='space-y-4'>
             {venmoLink ? (
               <VenmoTipSelector
                 venmoLink={venmoLink}
                 venmoUsername={venmoUsername ?? undefined}
                 amounts={AMOUNTS}
-                className="w-full max-w-sm"
+                className='w-full max-w-sm'
               />
             ) : (
-              <div className="text-center">
-                <div className="bg-white/60 dark:bg-white/5 backdrop-blur-lg border border-gray-200/30 dark:border-white/10 rounded-2xl p-8 shadow-xl shadow-black/5">
-                  <p className="text-gray-600 dark:text-gray-400">
+              <div className='text-center'>
+                <div className='bg-white/60 dark:bg-white/5 backdrop-blur-lg border border-gray-200/30 dark:border-white/10 rounded-2xl p-8 shadow-xl shadow-black/5'>
+                  <p className='text-gray-600 dark:text-gray-400'>
                     Venmo tipping is not available for this artist yet.
                   </p>
                 </div>
@@ -114,12 +114,12 @@ function renderContent(
             prefersReducedMotion ? { duration: 0 } : { duration: 0.6 }
           }
         >
-          <div className="space-y-4">
+          <div className='space-y-4'>
             <CTAButton
               href={`/${artist.handle}?mode=listen`}
-              variant="primary"
-              size="lg"
-              className="w-full"
+              variant='primary'
+              size='lg'
+              className='w-full'
               isLoading={isNavigating}
               onClick={() => setIsNavigating(true)}
             >
@@ -175,7 +175,7 @@ export function AnimatedArtistPage({
   };
 
   return (
-    <div className="w-full">
+    <div className='w-full'>
       <ArtistPageShell
         artist={artist}
         socialLinks={socialLinks}
@@ -185,21 +185,21 @@ export function AnimatedArtistPage({
       >
         {/* Content pane with AnimatePresence for mode transitions */}
         <div
-          className="content-pane"
+          className='content-pane'
           style={{
             contain: 'layout paint',
             willChange: 'transform',
             minHeight: '150px', // Reserve space for content to prevent layout shifts
           }}
         >
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode='wait'>
             <motion.div
               key={mode} // Keep key only on the content that should change
               variants={prefersReducedMotion ? {} : pageVariants}
               initial={prefersReducedMotion ? { opacity: 1 } : 'initial'}
               animate={prefersReducedMotion ? { opacity: 1 } : 'animate'}
               exit={prefersReducedMotion ? { opacity: 0 } : 'exit'}
-              className="w-full"
+              className='w-full'
             >
               {renderContent(
                 mode,

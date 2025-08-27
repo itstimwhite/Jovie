@@ -1,58 +1,58 @@
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 
 // Mock the entire FeaturedArtists module since it's a server component
 vi.mock('@/components/home/FeaturedArtists', () => ({
   FeaturedArtists: () => {
     const MockFeaturedCreatorsSection = () => (
-      <section aria-label="Featured creators" data-testid="featured-creators">
-        <div className="container mx-auto px-4">
+      <section aria-label='Featured creators' data-testid='featured-creators'>
+        <div className='container mx-auto px-4'>
           <h2>Featured Creators</h2>
-          <div className="hidden md:block">
-            <ul className="flex items-center gap-10 overflow-x-auto scroll-smooth pb-4">
+          <div className='hidden md:block'>
+            <ul className='flex items-center gap-10 overflow-x-auto scroll-smooth pb-4'>
               <li>
                 {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-                <a href="/ladygaga">
-                  <div data-testid="creator-image" />
+                <a href='/ladygaga'>
+                  <div data-testid='creator-image' />
                   <span>Lady Gaga</span>
                 </a>
               </li>
               <li>
                 {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-                <a href="/taylorswift">
-                  <div data-testid="creator-image" />
+                <a href='/taylorswift'>
+                  <div data-testid='creator-image' />
                   <span>Taylor Swift</span>
                 </a>
               </li>
               <li>
                 {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-                <a href="/dualipa">
-                  <div data-testid="creator-image" />
+                <a href='/dualipa'>
+                  <div data-testid='creator-image' />
                   <span>Dua Lipa</span>
                 </a>
               </li>
             </ul>
           </div>
-          <div className="md:hidden overflow-x-auto scroll-smooth">
-            <ul className="flex items-center gap-6">
+          <div className='md:hidden overflow-x-auto scroll-smooth'>
+            <ul className='flex items-center gap-6'>
               <li>
                 {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-                <a href="/ladygaga">
-                  <div data-testid="creator-image" />
+                <a href='/ladygaga'>
+                  <div data-testid='creator-image' />
                   <span>Lady Gaga</span>
                 </a>
               </li>
               <li>
                 {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-                <a href="/taylorswift">
-                  <div data-testid="creator-image" />
+                <a href='/taylorswift'>
+                  <div data-testid='creator-image' />
                   <span>Taylor Swift</span>
                 </a>
               </li>
               <li>
                 {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-                <a href="/dualipa">
-                  <div data-testid="creator-image" />
+                <a href='/dualipa'>
+                  <div data-testid='creator-image' />
                   <span>Dua Lipa</span>
                 </a>
               </li>
@@ -91,13 +91,13 @@ describe('FeaturedCreators Component', () => {
     const links = screen.getAllByRole('link');
 
     const ladyGagaLinks = links.filter(
-      (link) => link.getAttribute('href') === '/ladygaga'
+      link => link.getAttribute('href') === '/ladygaga'
     );
     const taylorSwiftLinks = links.filter(
-      (link) => link.getAttribute('href') === '/taylorswift'
+      link => link.getAttribute('href') === '/taylorswift'
     );
     const dualipaLinks = links.filter(
-      (link) => link.getAttribute('href') === '/dualipa'
+      link => link.getAttribute('href') === '/dualipa'
     );
 
     expect(ladyGagaLinks.length).toBeGreaterThan(0);

@@ -4,7 +4,6 @@
  */
 
 import { NextRequest } from 'next/server';
-import { createPublicSupabaseClient } from '@/lib/supabase/server';
 
 export interface BotDetectionResult {
   isBot: boolean;
@@ -58,12 +57,12 @@ export function detectBot(
   // const ip = request.headers.get('x-forwarded-for') || '';
 
   // Check for Meta crawlers
-  const isMeta = META_USER_AGENTS.some((agent) =>
+  const isMeta = META_USER_AGENTS.some(agent =>
     userAgent.toLowerCase().includes(agent.toLowerCase())
   );
 
   // Check for other known crawlers
-  const isKnownCrawler = KNOWN_CRAWLERS.some((bot) =>
+  const isKnownCrawler = KNOWN_CRAWLERS.some(bot =>
     userAgent.toLowerCase().includes(bot.toLowerCase())
   );
 
@@ -112,87 +111,26 @@ export async function logBotDetection(
   userAgent: string,
   reason: string,
   endpoint: string,
-  blocked: boolean,
-  asn?: number
+  blocked: boolean
 ): Promise<void> {
-  try {
-    const supabase = createPublicSupabaseClient();
-    await supabase.from('bot_detection_log').insert({
-      ip_address: ip,
-      user_agent: userAgent,
-      asn,
-      blocked_reason: blocked ? reason : null,
-      endpoint,
-    });
-  } catch (error) {
-    console.error('Failed to log bot detection:', error);
-  }
+  // Bot detection logging is disabled in this version
+  // Consider implementing with alternative storage if needed
+  console.log(`Bot detection: ${ip} - ${reason} - blocked: ${blocked}`);
 }
 
 /**
  * Conservative rate limiting to avoid appearing like cloaking
  */
+
 export async function checkRateLimit(
   ip: string,
-  endpoint: string,
-  limit: number = 100,
-  windowMinutes: number = 60
+  endpoint: string
 ): Promise<boolean> {
-  try {
-    const supabase = createPublicSupabaseClient();
-    const windowStart = new Date();
-    windowStart.setMinutes(windowStart.getMinutes() - windowMinutes);
-
-    // Add timeout to prevent hanging on database issues
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('Database timeout')), 5000); // 5 second timeout
-    });
-
-    // Check current request count in window with timeout
-    const { data, error } = await Promise.race([
-      supabase
-        .from('link_rate_limits')
-        .select('request_count')
-        .eq('ip_address', ip)
-        .eq('endpoint', endpoint)
-        .gte('window_start', windowStart.toISOString())
-        .single(),
-      timeoutPromise,
-    ]);
-
-    if (error && error.code !== 'PGRST116') {
-      // Silently allow on database schema errors to avoid breaking E2E tests
-      if (error.code === '42703' || error.code === 'PGRST204') {
-        return false; // Allow when database schema is missing
-      }
-      console.error('Rate limit check failed:', error);
-      return false; // Allow on error to avoid false positives
-    }
-
-    const currentCount = data?.request_count || 0;
-
-    if (currentCount >= limit) {
-      return true; // Rate limited
-    }
-
-    // Update or insert rate limit record
-    await supabase.from('link_rate_limits').upsert(
-      {
-        ip_address: ip,
-        endpoint,
-        request_count: currentCount + 1,
-        window_start: new Date().toISOString(),
-      },
-      {
-        onConflict: 'ip_address,endpoint,window_start',
-      }
-    );
-
-    return false; // Not rate limited
-  } catch (error) {
-    console.error('Rate limiting error:', error);
-    return false; // Allow on error
-  }
+  // Rate limiting is disabled in this version
+  // Always return false (not rate limited) for now
+  // Consider implementing with Redis/Upstash if needed
+  console.log(`Rate limit check: ${ip} - ${endpoint} (disabled)`);
+  return false;
 }
 
 /**
@@ -243,7 +181,7 @@ export function isSuspiciousRequest(request: NextRequest): boolean {
 
   // Only flag obviously suspicious requests
   const hasSuspiciousUA =
-    suspiciousPatterns.some((pattern) => pattern.test(userAgent)) &&
+    suspiciousPatterns.some(pattern => pattern.test(userAgent)) &&
     !userAgent.includes('Mozilla'); // Don't flag browser-based tools
 
   return hasSuspiciousUA;

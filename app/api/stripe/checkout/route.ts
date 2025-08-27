@@ -3,12 +3,12 @@
  * Creates checkout sessions for subscription purchases
  */
 
-import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { createCheckoutSession } from '@/lib/stripe/client';
-import { ensureStripeCustomer } from '@/lib/stripe/customer-sync';
-import { getActivePriceIds, getPriceMappingDetails } from '@/lib/stripe/config';
+import { NextRequest, NextResponse } from 'next/server';
 import { env } from '@/lib/env';
+import { createCheckoutSession } from '@/lib/stripe/client';
+import { getActivePriceIds, getPriceMappingDetails } from '@/lib/stripe/config';
+import { ensureStripeCustomer } from '@/lib/stripe/customer-sync';
 
 export async function POST(request: NextRequest) {
   try {

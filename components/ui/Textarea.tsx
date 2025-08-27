@@ -1,5 +1,5 @@
 import * as Headless from '@headlessui/react';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React, { forwardRef } from 'react';
 
 // Legacy interface for backward compatibility
@@ -27,7 +27,7 @@ export const Textarea = forwardRef(function Textarea(
 ) {
   const textareaElement = (
     <span
-      data-slot="control"
+      data-slot='control'
       className={clsx([
         className,
         // Basic layout
@@ -75,15 +75,15 @@ export const Textarea = forwardRef(function Textarea(
   // If we have label or error, wrap in a container
   if (label || error) {
     return (
-      <div className="space-y-2">
+      <div className='space-y-2'>
         {label && (
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <label className='text-sm font-medium text-gray-700 dark:text-gray-300'>
             {label}
           </label>
         )}
         {textareaElement}
         {error && (
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p className='text-sm text-red-600 dark:text-red-400'>{error}</p>
         )}
       </div>
     );

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('ProfileLinkCard E2E Tests', () => {
   test.beforeEach(async ({ page, context }) => {
@@ -107,7 +107,7 @@ test.describe('ProfileLinkCard E2E Tests', () => {
 
     // Listen for console errors
     const consoleErrors: string[] = [];
-    page.on('console', (msg) => {
+    page.on('console', msg => {
       if (msg.type() === 'error') {
         consoleErrors.push(msg.text());
       }
@@ -123,7 +123,7 @@ test.describe('ProfileLinkCard E2E Tests', () => {
     // Should have logged an error
     await page.waitForTimeout(1000); // Give time for error to be logged
     expect(
-      consoleErrors.some((error) => error.includes('Failed to copy'))
+      consoleErrors.some(error => error.includes('Failed to copy'))
     ).toBeTruthy();
   });
 

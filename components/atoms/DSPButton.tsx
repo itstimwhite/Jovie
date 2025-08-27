@@ -69,10 +69,10 @@ export function DSPButton({
       }}
       aria-label={`Open in ${name} app if installed, otherwise opens in web browser`}
     >
-      <span className="inline-flex items-center gap-2">
+      <span className='inline-flex items-center gap-2'>
         <span
           dangerouslySetInnerHTML={{ __html: logoSvg }}
-          className="flex-shrink-0"
+          className='flex-shrink-0'
         />
         <span>Open in {name}</span>
       </span>

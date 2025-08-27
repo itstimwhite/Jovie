@@ -17,14 +17,14 @@ export function QRCodeCard({
 }: QRCodeCardProps) {
   return (
     <div className={`text-center space-y-4 ${className}`}>
-      <QRCode data={data} size={qrSize} label={title} className="mx-auto" />
+      <QRCode data={data} size={qrSize} label={title} className='mx-auto' />
       {title && (
-        <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+        <h3 className='text-sm font-medium text-gray-900 dark:text-white'>
           {title}
         </h3>
       )}
       {description && (
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className='text-sm text-gray-600 dark:text-gray-400'>
           {description}
         </p>
       )}

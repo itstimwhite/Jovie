@@ -25,8 +25,8 @@ export function TipSelector({
   };
 
   return (
-    <div className={`space-y-4 ${className}`} data-test="tip-selector">
-      <div className="grid grid-cols-3 gap-3">
+    <div className={`space-y-4 ${className}`} data-test='tip-selector'>
+      <div className='grid grid-cols-3 gap-3'>
         {amounts.map((amount, idx) => (
           <AmountSelector
             key={amount}
@@ -37,14 +37,14 @@ export function TipSelector({
         ))}
       </div>
 
-      <hr className="mt-3 pt-3 border-t border-black/5 dark:border-white/10" />
+      <hr className='mt-3 pt-3 border-t border-black/5 dark:border-white/10' />
 
       <Button
         onClick={handleContinue}
-        className="w-full !bg-black !text-white hover:!bg-gray-800 dark:!bg-white dark:!text-black dark:hover:!bg-gray-100"
-        size="lg"
+        className='w-full !bg-black !text-white hover:!bg-gray-800 dark:!bg-white dark:!text-black dark:hover:!bg-gray-100'
+        size='lg'
         disabled={isLoading}
-        variant="plain"
+        variant='plain'
       >
         {isLoading ? 'Processing...' : 'Continue'}
       </Button>

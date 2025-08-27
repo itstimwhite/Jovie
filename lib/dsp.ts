@@ -1,5 +1,5 @@
-import { Artist, Release } from '@/types/db';
 import { buildSpotifyArtistUrl } from '@/lib/spotify';
+import { Artist, Release } from '@/types/db';
 
 export interface DSPConfig {
   name: string;
@@ -77,12 +77,12 @@ export function getAvailableDSPs(
 
   // Check for release-specific URLs if releases are provided
   if (releases) {
-    const spotifyRelease = releases.find((r) => r.dsp === 'spotify');
-    const appleRelease = releases.find((r) => r.dsp === 'apple_music');
-    const youtubeRelease = releases.find((r) => r.dsp === 'youtube');
+    const spotifyRelease = releases.find(r => r.dsp === 'spotify');
+    const appleRelease = releases.find(r => r.dsp === 'apple_music');
+    const youtubeRelease = releases.find(r => r.dsp === 'youtube');
 
     // Override with release URLs if available
-    if (spotifyRelease && !dsps.find((d) => d.key === 'spotify')) {
+    if (spotifyRelease && !dsps.find(d => d.key === 'spotify')) {
       dsps.push({
         key: 'spotify',
         name: 'Spotify',
@@ -90,7 +90,7 @@ export function getAvailableDSPs(
         config: DSP_CONFIGS.spotify,
       });
     }
-    if (appleRelease && !dsps.find((d) => d.key === 'apple_music')) {
+    if (appleRelease && !dsps.find(d => d.key === 'apple_music')) {
       dsps.push({
         key: 'apple_music',
         name: 'Apple Music',
@@ -98,7 +98,7 @@ export function getAvailableDSPs(
         config: DSP_CONFIGS.apple_music,
       });
     }
-    if (youtubeRelease && !dsps.find((d) => d.key === 'youtube')) {
+    if (youtubeRelease && !dsps.find(d => d.key === 'youtube')) {
       dsps.push({
         key: 'youtube',
         name: 'YouTube',

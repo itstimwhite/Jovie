@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 
@@ -8,8 +8,8 @@ describe('FormField', () => {
 
   it('renders correctly with label', () => {
     render(
-      <FormField label="Email">
-        <Input placeholder="Enter email" />
+      <FormField label='Email'>
+        <Input placeholder='Enter email' />
       </FormField>
     );
 
@@ -20,7 +20,7 @@ describe('FormField', () => {
   it('renders without label', () => {
     render(
       <FormField>
-        <Input placeholder="Enter text" />
+        <Input placeholder='Enter text' />
       </FormField>
     );
 
@@ -30,8 +30,8 @@ describe('FormField', () => {
 
   it('renders with required indicator', () => {
     render(
-      <FormField label="Email" required>
-        <Input placeholder="Enter email" />
+      <FormField label='Email' required>
+        <Input placeholder='Enter email' />
       </FormField>
     );
 
@@ -42,8 +42,8 @@ describe('FormField', () => {
 
   it('renders with error message', () => {
     render(
-      <FormField label="Email" error="This field is required">
-        <Input placeholder="Enter email" />
+      <FormField label='Email' error='This field is required'>
+        <Input placeholder='Enter email' />
       </FormField>
     );
 
@@ -55,8 +55,8 @@ describe('FormField', () => {
 
   it('renders with custom className', () => {
     render(
-      <FormField label="Email" className="custom-field">
-        <Input placeholder="Enter email" />
+      <FormField label='Email' className='custom-field'>
+        <Input placeholder='Enter email' />
       </FormField>
     );
 
@@ -66,8 +66,8 @@ describe('FormField', () => {
 
   it('renders children correctly', () => {
     render(
-      <FormField label="Test">
-        <div data-testid="custom-child">Custom content</div>
+      <FormField label='Test'>
+        <div data-testid='custom-child'>Custom content</div>
       </FormField>
     );
 
@@ -77,9 +77,9 @@ describe('FormField', () => {
 
   it('handles multiple children', () => {
     render(
-      <FormField label="Multiple">
-        <Input placeholder="First input" />
-        <Input placeholder="Second input" />
+      <FormField label='Multiple'>
+        <Input placeholder='First input' />
+        <Input placeholder='Second input' />
       </FormField>
     );
 
@@ -89,8 +89,8 @@ describe('FormField', () => {
 
   it('applies proper spacing classes', () => {
     render(
-      <FormField label="Test">
-        <Input placeholder="Test input" />
+      <FormField label='Test'>
+        <Input placeholder='Test input' />
       </FormField>
     );
 

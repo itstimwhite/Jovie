@@ -1,7 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createServerClient } from '@/lib/supabase-server';
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,20 +38,20 @@ export async function POST(req: NextRequest) {
 
     if (event.type === 'payment_intent.succeeded') {
       const pi = event.data.object as Stripe.PaymentIntent;
-      const supabase = await createServerClient();
-      if (supabase) {
-        const charge = (
-          pi as Stripe.PaymentIntent & { charges?: { data: Stripe.Charge[] } }
-        ).charges?.data?.[0];
-        await supabase.from('tips').insert({
-          artist_id: pi.metadata.handle,
-          amount_cents: pi.amount_received,
-          currency: pi.currency?.toUpperCase(),
-          payment_intent: pi.id,
-          contact_email: charge?.billing_details?.email,
-          contact_phone: charge?.billing_details?.phone,
-        });
-      }
+      const charge = (
+        pi as Stripe.PaymentIntent & { charges?: { data: Stripe.Charge[] } }
+      ).charges?.data?.[0];
+
+      // TODO: Create tips table in Drizzle schema and insert tip record
+      // For now, log the successful tip
+      console.log('Tip received:', {
+        artist_id: pi.metadata.handle,
+        amount_cents: pi.amount_received,
+        currency: pi.currency?.toUpperCase(),
+        payment_intent: pi.id,
+        contact_email: charge?.billing_details?.email,
+        contact_phone: charge?.billing_details?.phone,
+      });
     }
 
     return NextResponse.json({ received: true });

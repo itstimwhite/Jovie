@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { DashboardSplitView } from './DashboardSplitView';
 import { Artist, CreatorProfile } from '@/types/db';
+import { DashboardSplitView } from './DashboardSplitView';
 
 // Mock data for the stories
 const mockArtist: Artist = {
@@ -75,8 +75,8 @@ const meta = {
     },
   },
   decorators: [
-    (Story) => (
-      <div className="p-6 max-w-7xl mx-auto">
+    Story => (
+      <div className='p-6 max-w-7xl mx-auto'>
         <Story />
       </div>
     ),
@@ -91,7 +91,7 @@ export const Default: Story = {
   args: {
     artist: mockArtist,
     creatorProfile: mockCreatorProfile,
-    onArtistUpdate: (updatedArtist) =>
+    onArtistUpdate: updatedArtist =>
       console.log('Artist updated:', updatedArtist),
     disabled: false,
   },
@@ -114,8 +114,8 @@ export const DarkMode: Story = {
     backgrounds: { default: 'dark' },
   },
   decorators: [
-    (Story) => (
-      <div className="p-6 max-w-7xl mx-auto dark bg-gray-900 min-h-screen">
+    Story => (
+      <div className='p-6 max-w-7xl mx-auto dark bg-gray-900 min-h-screen'>
         <Story />
       </div>
     ),

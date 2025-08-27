@@ -1,24 +1,24 @@
-import { describe, it, expect, afterEach, vi } from 'vitest';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Input } from '@/components/ui/Input';
 
 describe('Input', () => {
   afterEach(cleanup);
 
   it('renders correctly with default props', () => {
-    render(<Input placeholder="Enter text" />);
+    render(<Input placeholder='Enter text' />);
     const input = screen.getByPlaceholderText('Enter text');
     expect(input).toBeInTheDocument();
   });
 
   it('renders with label', () => {
-    render(<Input label="Email" placeholder="Enter email" />);
+    render(<Input label='Email' placeholder='Enter email' />);
     expect(screen.getByText('Email')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Enter email')).toBeInTheDocument();
   });
 
   it('renders with error message', () => {
-    render(<Input error="This field is required" placeholder="Enter text" />);
+    render(<Input error='This field is required' placeholder='Enter text' />);
     expect(screen.getByText('This field is required')).toBeInTheDocument();
     expect(screen.getByText('This field is required')).toHaveClass(
       'text-red-600'
@@ -27,7 +27,7 @@ describe('Input', () => {
 
   it('handles value changes', () => {
     const handleChange = vi.fn();
-    render(<Input onChange={handleChange} placeholder="Enter text" />);
+    render(<Input onChange={handleChange} placeholder='Enter text' />);
 
     const input = screen.getByPlaceholderText('Enter text');
     fireEvent.change(input, { target: { value: 'test value' } });
@@ -36,42 +36,42 @@ describe('Input', () => {
   });
 
   it('renders with different types', () => {
-    const { rerender } = render(<Input type="email" placeholder="Email" />);
+    const { rerender } = render(<Input type='email' placeholder='Email' />);
     expect(screen.getByPlaceholderText('Email')).toBeInTheDocument();
 
-    rerender(<Input type="password" placeholder="Password" />);
+    rerender(<Input type='password' placeholder='Password' />);
     expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
 
-    rerender(<Input type="number" placeholder="Number" />);
+    rerender(<Input type='number' placeholder='Number' />);
     expect(screen.getByPlaceholderText('Number')).toBeInTheDocument();
   });
 
   it('can be disabled', () => {
-    render(<Input disabled placeholder="Disabled input" />);
+    render(<Input disabled placeholder='Disabled input' />);
     const input = screen.getByPlaceholderText('Disabled input');
     expect(input).toBeDisabled();
   });
 
   it('renders with required attribute', () => {
-    render(<Input required placeholder="Required input" />);
+    render(<Input required placeholder='Required input' />);
     const input = screen.getByPlaceholderText('Required input');
     expect(input).toHaveAttribute('required');
   });
 
   it('forwards ref correctly', () => {
     const ref = vi.fn();
-    render(<Input ref={ref} placeholder="Ref input" />);
+    render(<Input ref={ref} placeholder='Ref input' />);
     expect(ref).toHaveBeenCalled();
   });
 
   it('renders with different sizes', () => {
-    const { rerender } = render(<Input placeholder="Small" />);
+    const { rerender } = render(<Input placeholder='Small' />);
     expect(screen.getByPlaceholderText('Small')).toBeInTheDocument();
 
-    rerender(<Input placeholder="Medium" />);
+    rerender(<Input placeholder='Medium' />);
     expect(screen.getByPlaceholderText('Medium')).toBeInTheDocument();
 
-    rerender(<Input placeholder="Large" />);
+    rerender(<Input placeholder='Large' />);
     expect(screen.getByPlaceholderText('Large')).toBeInTheDocument();
   });
 
@@ -83,7 +83,7 @@ describe('Input', () => {
       <Input
         onFocus={handleFocus}
         onBlur={handleBlur}
-        placeholder="Test input"
+        placeholder='Test input'
       />
     );
 

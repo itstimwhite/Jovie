@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Featured Creators on Homepage', () => {
   test('featured creators section loads and displays creators', async ({
@@ -88,7 +88,7 @@ test.describe('Featured Creators on Homepage', () => {
   test('featured creators load without console errors', async ({ page }) => {
     const errors: string[] = [];
 
-    page.on('console', (msg) => {
+    page.on('console', msg => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
@@ -101,7 +101,7 @@ test.describe('Featured Creators on Homepage', () => {
 
     // Check for critical errors (ignore harmless ones)
     const criticalErrors = errors.filter(
-      (error) =>
+      error =>
         !error.includes('Failed to load resource') && // Image 404s
         !error.includes('net::ERR_FAILED') && // Network errors
         !error.includes('i.scdn.co') && // Spotify image errors

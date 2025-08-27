@@ -1,9 +1,9 @@
+import Link from 'next/link';
 import React from 'react';
 import { ArtistPageShell } from '@/components/profile/ArtistPageShell';
 import { StaticListenInterface } from '@/components/profile/StaticListenInterface';
 import VenmoTipSelector from '@/components/profile/VenmoTipSelector';
 import { Artist, LegacySocialLink } from '@/types/db';
-import Link from 'next/link';
 
 interface StaticArtistPageProps {
   mode: string;
@@ -22,7 +22,7 @@ function renderContent(
   switch (mode) {
     case 'listen':
       return (
-        <div className="flex justify-center">
+        <div className='flex justify-center'>
           <StaticListenInterface artist={artist} handle={artist.handle} />
         </div>
       );
@@ -30,7 +30,7 @@ function renderContent(
     case 'tip':
       // Extract Venmo link from social links
       const venmoLink =
-        socialLinks.find((l) => l.platform === 'venmo')?.url || null;
+        socialLinks.find(l => l.platform === 'venmo')?.url || null;
       const extractVenmoUsername = (url: string | null): string | null => {
         if (!url) return null;
         try {
@@ -51,7 +51,7 @@ function renderContent(
       const AMOUNTS = [3, 5, 7];
 
       return (
-        <div className="space-y-4">
+        <div className='space-y-4'>
           {venmoLink ? (
             <VenmoTipSelector
               venmoLink={venmoLink}
@@ -59,9 +59,9 @@ function renderContent(
               amounts={AMOUNTS}
             />
           ) : (
-            <div className="text-center">
-              <div className="bg-white/60 dark:bg-white/5 backdrop-blur-lg border border-gray-200/30 dark:border-white/10 rounded-2xl p-8 shadow-xl shadow-black/5">
-                <p className="text-gray-600 dark:text-gray-400">
+            <div className='text-center'>
+              <div className='bg-white/60 dark:bg-white/5 backdrop-blur-lg border border-gray-200/30 dark:border-white/10 rounded-2xl p-8 shadow-xl shadow-black/5'>
+                <p className='text-gray-600 dark:text-gray-400'>
                   Venmo tipping is not available for this artist yet.
                 </p>
               </div>
@@ -72,11 +72,11 @@ function renderContent(
 
     default: // 'profile' mode
       return (
-        <div className="space-y-4">
+        <div className='space-y-4'>
           <Link
             href={`/${artist.handle}?mode=listen`}
             prefetch
-            className="inline-flex items-center justify-center w-full px-8 py-4 text-lg font-semibold text-white bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100 rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:ring-offset-2"
+            className='inline-flex items-center justify-center w-full px-8 py-4 text-lg font-semibold text-white bg-black hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-100 rounded-xl transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:ring-offset-2'
           >
             🎵 Listen Now
           </Link>
@@ -95,7 +95,7 @@ export function StaticArtistPage({
   showBackButton,
 }: StaticArtistPageProps) {
   return (
-    <div className="w-full">
+    <div className='w-full'>
       <ArtistPageShell
         artist={artist}
         socialLinks={socialLinks}

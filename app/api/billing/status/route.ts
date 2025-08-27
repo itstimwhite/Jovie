@@ -3,8 +3,8 @@
  * Returns the current user's billing information
  */
 
-import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 import { getUserBillingInfo } from '@/lib/stripe/customer-sync';
 
 export async function GET() {
@@ -21,18 +21,16 @@ export async function GET() {
       // User not found in database - they might need onboarding
       return NextResponse.json({
         isPro: false,
-        plan: null,
         stripeCustomerId: null,
         stripeSubscriptionId: null,
       });
     }
 
-    const { isPro, plan, stripeCustomerId, stripeSubscriptionId } =
+    const { isPro, stripeCustomerId, stripeSubscriptionId } =
       billingResult.data;
 
     return NextResponse.json({
       isPro,
-      plan,
       stripeCustomerId,
       stripeSubscriptionId,
     });

@@ -1,10 +1,10 @@
 'use client';
 
-import React, { forwardRef, useState, useEffect } from 'react';
+import { CheckIcon } from '@heroicons/react/24/solid';
+import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
-import { motion, AnimatePresence } from 'framer-motion';
-import { CheckIcon } from '@heroicons/react/24/solid';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { Spinner } from '@/components/ui/Spinner';
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
 
@@ -178,28 +178,28 @@ export const CTAButton = forwardRef<
 
     // Render button content based on state
     const renderContent = () => (
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode='wait' initial={false}>
         {isSuccess && showSuccess ? (
           <motion.div
-            key="success"
-            className="absolute inset-0 flex items-center justify-center"
-            initial="hidden"
-            animate="visible"
-            exit="exit"
+            key='success'
+            className='absolute inset-0 flex items-center justify-center'
+            initial='hidden'
+            animate='visible'
+            exit='exit'
             variants={shouldReduceMotion ? {} : successVariants}
           >
             <CheckIcon
               className={`${iconSize[size]} text-current`}
-              aria-hidden="true"
+              aria-hidden='true'
             />
           </motion.div>
         ) : isLoading ? (
           <motion.div
-            key="loading"
-            className="absolute inset-0 flex items-center justify-center"
-            initial="hidden"
-            animate="visible"
-            exit="exit"
+            key='loading'
+            className='absolute inset-0 flex items-center justify-center'
+            initial='hidden'
+            animate='visible'
+            exit='exit'
             variants={shouldReduceMotion ? {} : contentVariants}
           >
             <Spinner
@@ -219,14 +219,14 @@ export const CTAButton = forwardRef<
           </motion.div>
         ) : (
           <motion.div
-            key="content"
-            className="flex items-center justify-center"
-            initial="hidden"
-            animate="visible"
-            exit="exit"
+            key='content'
+            className='flex items-center justify-center'
+            initial='hidden'
+            animate='visible'
+            exit='exit'
             variants={shouldReduceMotion ? {} : contentVariants}
           >
-            {icon && <span className="flex-shrink-0">{icon}</span>}
+            {icon && <span className='flex-shrink-0'>{icon}</span>}
             <span>{children}</span>
           </motion.div>
         )}
@@ -260,8 +260,8 @@ export const CTAButton = forwardRef<
           <a
             ref={ref as React.Ref<HTMLAnchorElement>}
             href={href}
-            target="_blank"
-            rel="noopener noreferrer"
+            target='_blank'
+            rel='noopener noreferrer'
             aria-disabled={disabled ? 'true' : undefined}
             {...commonProps}
             {...props}

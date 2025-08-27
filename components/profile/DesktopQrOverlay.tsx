@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { XMarkIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
+import { DevicePhoneMobileIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import { QRCode } from '@/components/atoms/QRCode';
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
 
@@ -102,7 +102,7 @@ export function DesktopQrOverlay({ handle }: DesktopQrOverlayProps) {
     <>
       {show && (
         <motion.div
-          key="qr"
+          key='qr'
           initial={
             prefersReducedMotion
               ? { opacity: 1 }
@@ -118,22 +118,22 @@ export function DesktopQrOverlay({ handle }: DesktopQrOverlayProps) {
               ? { duration: 0 }
               : { duration: 0.2, ease: 'easeOut' }
           }
-          className="group fixed bottom-4 right-4 z-50 flex flex-col items-center rounded-xl p-4 ring-1 ring-black/10 dark:ring-white/10 shadow-xl bg-white/85 dark:bg-gray-900/80 backdrop-blur-md overflow-hidden"
+          className='group fixed bottom-4 right-4 z-50 flex flex-col items-center rounded-xl p-4 ring-1 ring-black/10 dark:ring-white/10 shadow-xl bg-white/85 dark:bg-gray-900/80 backdrop-blur-md overflow-hidden'
         >
-          <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-            <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_0%,rgba(255,255,255,0.35),transparent_60%)]" />
+          <div className='pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100'>
+            <div className='absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_0%,rgba(255,255,255,0.35),transparent_60%)]' />
           </div>
           <button
             onClick={close}
-            aria-label="Close"
-            className="absolute top-1 right-1 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+            aria-label='Close'
+            className='absolute top-1 right-1 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
           >
-            <XMarkIcon className="h-4 w-4" />
+            <XMarkIcon className='h-4 w-4' />
           </button>
           {url && (
-            <QRCode data={url} size={120} label="Scan to view on mobile" />
+            <QRCode data={url} size={120} label='Scan to view on mobile' />
           )}
-          <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+          <p className='mt-2 text-xs text-gray-600 dark:text-gray-400'>
             View on mobile
           </p>
         </motion.div>
@@ -141,7 +141,7 @@ export function DesktopQrOverlay({ handle }: DesktopQrOverlayProps) {
 
       {!show && dismissed && (
         <motion.button
-          key="reopen"
+          key='reopen'
           initial={
             prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 12 }
           }
@@ -152,11 +152,11 @@ export function DesktopQrOverlay({ handle }: DesktopQrOverlayProps) {
               : { duration: 0.2, ease: 'easeOut' }
           }
           onClick={reopen}
-          aria-label="View on mobile"
-          className="group fixed bottom-4 right-4 z-50 p-2 rounded-full bg-white/90 dark:bg-gray-900/80 backdrop-blur-md ring-1 ring-black/10 dark:ring-white/10 shadow-md hover:shadow-lg transition"
+          aria-label='View on mobile'
+          className='group fixed bottom-4 right-4 z-50 p-2 rounded-full bg-white/90 dark:bg-gray-900/80 backdrop-blur-md ring-1 ring-black/10 dark:ring-white/10 shadow-md hover:shadow-lg transition'
         >
-          <span className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[radial-gradient(80%_60%_at_50%_0%,rgba(255,255,255,0.35),transparent_60%)]" />
-          <DevicePhoneMobileIcon className="relative h-5 w-5 text-gray-700 dark:text-gray-300" />
+          <span className='pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100 bg-[radial-gradient(80%_60%_at_50%_0%,rgba(255,255,255,0.35),transparent_60%)]' />
+          <DevicePhoneMobileIcon className='relative h-5 w-5 text-gray-700 dark:text-gray-300' />
         </motion.button>
       )}
     </>

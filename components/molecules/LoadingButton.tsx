@@ -29,7 +29,7 @@ export function LoadingButton({
   return (
     <Button disabled={disabled || isLoading} variant={variant} {...props}>
       {/* Cross-fade label/spinner without layout shift */}
-      <div className="relative flex min-h-[1.5rem] items-center justify-center">
+      <div className='relative flex min-h-[1.5rem] items-center justify-center'>
         <span
           className={`transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
         >
@@ -38,7 +38,7 @@ export function LoadingButton({
         <span
           className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${isLoading ? 'opacity-100' : 'opacity-0'}`}
         >
-          <span className="inline-flex items-center gap-2">
+          <span className='inline-flex items-center gap-2'>
             <LoadingSpinner
               size={spinnerSize}
               variant={effectiveSpinnerVariant}

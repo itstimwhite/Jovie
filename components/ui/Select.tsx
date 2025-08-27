@@ -41,8 +41,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         )}
         {...props}
       >
-        <option value="">{placeholder}</option>
-        {options.map((option) => (
+        <option value=''>{placeholder}</option>
+        {options.map(option => (
           <option
             key={option.value}
             value={option.value}
@@ -56,16 +56,16 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
 
     if (label || error) {
       return (
-        <div className="space-y-2">
+        <div className='space-y-2'>
           {label && (
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className='text-sm font-medium text-gray-700 dark:text-gray-300'>
               {label}
-              {required && <span className="text-red-500 ml-1">*</span>}
+              {required && <span className='text-red-500 ml-1'>*</span>}
             </label>
           )}
           {selectElement}
           {error && (
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <p className='text-sm text-red-600 dark:text-red-400'>{error}</p>
           )}
         </div>
       );

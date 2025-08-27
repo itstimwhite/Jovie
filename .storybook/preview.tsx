@@ -32,7 +32,7 @@ const preview: Preview = {
   },
   tags: ['autodocs'],
   decorators: [
-    (Story) => (
+    Story => (
       <ToastProvider>
         <Story />
       </ToastProvider>

@@ -1,12 +1,12 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import { NavLink } from '@/components/atoms/NavLink';
 
 describe('NavLink', () => {
   afterEach(cleanup);
 
   it('renders with default variant', () => {
-    render(<NavLink href="/test">Test Link</NavLink>);
+    render(<NavLink href='/test'>Test Link</NavLink>);
 
     const link = screen.getByRole('link', { name: 'Test Link' });
     expect(link).toHaveAttribute('href', '/test');
@@ -15,7 +15,7 @@ describe('NavLink', () => {
 
   it('renders with primary variant', () => {
     render(
-      <NavLink href="/test" variant="primary">
+      <NavLink href='/test' variant='primary'>
         Test Link
       </NavLink>
     );
@@ -27,7 +27,7 @@ describe('NavLink', () => {
 
   it('applies custom className', () => {
     render(
-      <NavLink href="/test" className="custom-class">
+      <NavLink href='/test' className='custom-class'>
         Test Link
       </NavLink>
     );
@@ -37,7 +37,7 @@ describe('NavLink', () => {
   });
 
   it('renders children correctly', () => {
-    render(<NavLink href="/test">Custom Content</NavLink>);
+    render(<NavLink href='/test'>Custom Content</NavLink>);
 
     expect(screen.getByText('Custom Content')).toBeInTheDocument();
   });
