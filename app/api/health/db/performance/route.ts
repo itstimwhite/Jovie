@@ -11,8 +11,8 @@ import {
   getRateLimitStatus,
 } from '@/lib/utils/rate-limit';
 
-export const runtime = HEALTH_CHECK_CONFIG.runtime;
-export const dynamic = HEALTH_CHECK_CONFIG.dynamic;
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 interface PerformanceHealthResponse {
   service: 'db-performance';
