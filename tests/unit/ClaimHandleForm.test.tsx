@@ -28,10 +28,10 @@ describe('ClaimHandleForm', () => {
     mockUseRouter.mockReturnValue({
       push: mockPush,
       prefetch: mockPrefetch,
-    });
+    } as any);
     mockUseAuth.mockReturnValue({
       isSignedIn: false,
-    });
+    } as any);
   });
 
   afterEach(() => {

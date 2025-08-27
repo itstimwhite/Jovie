@@ -98,7 +98,7 @@ export function ThemeToggle() {
       variant='ghost'
       size='sm'
       onClick={cycleTheme}
-      className='h-8 w-8 px-0'
+      className='h-8 w-8 p-0 flex items-center justify-center'
       title={`Current: ${theme === 'system' ? `auto (${resolvedTheme})` : theme}. Click to switch to ${getNextTheme()}`}
     >
       <span className='sr-only'>
