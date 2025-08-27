@@ -5,8 +5,11 @@ import { useAuth } from '@clerk/nextjs';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { useAuthenticatedSupabase } from '@/lib/supabase';
-import { Artist, convertCreatorProfileToArtist } from '@/types/db';
+import {
+  Artist,
+  CreatorProfile,
+  convertCreatorProfileToArtist,
+} from '@/types/db';
 import Image from 'next/image';
 import AvatarUploader from '@/components/dashboard/molecules/AvatarUploader';
 import { ErrorSummary } from '@/components/ui/ErrorSummary';
@@ -18,7 +21,6 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
-  const { getAuthenticatedClient } = useAuthenticatedSupabase();
   const { has } = useAuth();
   const formRef = useRef<HTMLFormElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -78,44 +80,38 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
     setSuccess(false);
 
     try {
-      // Get authenticated Supabase client using native integration
-      const supabase = getAuthenticatedClient();
+      const res = await fetch('/api/dashboard/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profileId: artist.id,
+          updates: {
+            display_name: formData.name,
+            bio: formData.tagline,
+            avatar_url: formData.image_url || null,
+          },
+        }),
+      });
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        throw new Error(err?.error ?? 'Failed to update profile');
+      }
+      const json: { profile: unknown } = await res.json();
+      const updatedArtist = convertCreatorProfileToArtist(
+        json.profile as CreatorProfile
+      );
+      onUpdate(updatedArtist);
+      setSuccess(true);
 
-      if (!supabase) {
-        setError('Database connection failed. Please try again later.');
-        return;
+      // Announce success to screen readers
+      const successMessage = document.getElementById('success-message');
+      if (successMessage) {
+        successMessage.textContent = 'Profile updated successfully!';
       }
 
-      const { data, error } = await supabase
-        .from('creator_profiles')
-        .update({
-          display_name: formData.name,
-          bio: formData.tagline,
-          avatar_url: formData.image_url || null,
-          // Note: settings field doesn't exist in creator_profiles schema
-          // hide_branding could be added later if needed
-        })
-        .eq('id', artist.id)
-        .select('*')
-        .single();
-
-      if (error) {
-        console.error('Error updating profile:', error);
-        setError('Failed to update profile');
-      } else {
-        // Convert CreatorProfile back to Artist format for the callback
-        const updatedArtist = convertCreatorProfileToArtist(data);
-        onUpdate(updatedArtist);
-        setSuccess(true);
-
-        // Announce success to screen readers
-        const successMessage = document.getElementById('success-message');
-        if (successMessage) {
-          successMessage.textContent = 'Profile updated successfully!';
-        }
-
-        setTimeout(() => setSuccess(false), 3000);
-      }
+      setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
       console.error('Error:', error);
       setError('Failed to update profile');
