@@ -17,9 +17,13 @@ import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import { execSync } from 'child_process';
 import path from 'path';
 import { existsSync, readFileSync } from 'fs';
+import * as readline from 'readline';
 
 // Load environment variables
 config();
+
+// Neon URL pattern for cleaning database URLs
+const NEON_URL_PATTERN = /(postgres)(|ql)(\+neon)(.*)/;
 
 // ANSI color codes for terminal output
 const colors = {
@@ -36,16 +40,23 @@ const colors = {
 // Helper functions for colored output
 const log = {
   info: (msg: string) => console.log(`${colors.blue}ℹ${colors.reset} ${msg}`),
-  success: (msg: string) => console.log(`${colors.green}✓${colors.reset} ${msg}`),
-  warning: (msg: string) => console.log(`${colors.yellow}⚠${colors.reset} ${msg}`),
+  success: (msg: string) =>
+    console.log(`${colors.green}✓${colors.reset} ${msg}`),
+  warning: (msg: string) =>
+    console.log(`${colors.yellow}⚠${colors.reset} ${msg}`),
   error: (msg: string) => console.error(`${colors.red}✗${colors.reset} ${msg}`),
-  section: (msg: string) => console.log(`\n${colors.bright}${colors.cyan}═══ ${msg} ═══${colors.reset}\n`),
+  section: (msg: string) =>
+    console.log(
+      `\n${colors.bright}${colors.cyan}═══ ${msg} ═══${colors.reset}\n`
+    ),
 };
 
 // Get current git branch
 function getCurrentBranch(): string {
   try {
-    const branch = execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim();
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', {
+      encoding: 'utf8',
+    }).trim();
     return branch;
   } catch {
     return 'unknown';
@@ -112,7 +123,7 @@ function checkMigrationsExist(): boolean {
 // Production safety check
 async function confirmProductionMigration(): Promise<boolean> {
   const env = getEnvironment();
-  
+
   if (env !== 'production') {
     return true;
   }
@@ -131,13 +142,17 @@ async function confirmProductionMigration(): Promise<boolean> {
 
   // Check for ALLOW_PROD_MIGRATIONS flag (CI/CD usage)
   if (process.env.ALLOW_PROD_MIGRATIONS === 'true') {
-    log.info('ALLOW_PROD_MIGRATIONS flag detected, proceeding with production migration');
+    log.info(
+      'ALLOW_PROD_MIGRATIONS flag detected, proceeding with production migration'
+    );
     return true;
   }
 
   // In CI environment, fail if flag not set
   if (process.env.CI === 'true') {
-    log.error('Production migrations blocked in CI. Set ALLOW_PROD_MIGRATIONS=true to proceed.');
+    log.error(
+      'Production migrations blocked in CI. Set ALLOW_PROD_MIGRATIONS=true to proceed.'
+    );
     return false;
   }
 
@@ -149,15 +164,20 @@ async function confirmProductionMigration(): Promise<boolean> {
     });
 
     return new Promise((resolve) => {
-      rl.question('Type "MIGRATE PRODUCTION" to confirm: ', (answer: string) => {
-        rl.close();
-        resolve(answer === 'MIGRATE PRODUCTION');
-      });
+      rl.question(
+        'Type "MIGRATE PRODUCTION" to confirm: ',
+        (answer: string) => {
+          rl.close();
+          resolve(answer === 'MIGRATE PRODUCTION');
+        }
+      );
     });
   }
 
   // Non-interactive environment without flag
-  log.error('Cannot run production migrations in non-interactive mode without ALLOW_PROD_MIGRATIONS=true');
+  log.error(
+    'Cannot run production migrations in non-interactive mode without ALLOW_PROD_MIGRATIONS=true'
+  );
   return false;
 }
 
@@ -169,14 +189,14 @@ async function runMigrations() {
   const { isValid, errors } = validateEnvironment();
   if (!isValid) {
     log.error('Environment validation failed:');
-    errors.forEach(err => log.error(`  - ${err}`));
+    errors.forEach((err) => log.error(`  - ${err}`));
     process.exit(1);
   }
 
   // Get environment info
   const env = getEnvironment();
   const branch = process.env.GIT_BRANCH || getCurrentBranch();
-  
+
   log.info(`Environment: ${colors.bright}${env}${colors.reset}`);
   log.info(`Branch: ${colors.bright}${branch}${colors.reset}`);
   log.info(`Database: ${colors.bright}[REDACTED]${colors.reset}`);
@@ -184,7 +204,9 @@ async function runMigrations() {
   // Check if migrations exist
   if (!checkMigrationsExist()) {
     log.warning('No migrations found in drizzle/migrations directory');
-    log.info('Run "npm run drizzle:generate" to generate migrations from schema');
+    log.info(
+      'Run "npm run drizzle:generate" to generate migrations from schema'
+    );
     process.exit(0);
   }
 
@@ -200,17 +222,20 @@ async function runMigrations() {
 
   try {
     log.info('Connecting to database...');
-    
+
     // Clean the URL for Neon (remove the +neon part if present)
-    const databaseUrl = process.env.DATABASE_URL!.replace(NEON_URL_PATTERN, 'postgres$1://');
-    
+    const databaseUrl = process.env.DATABASE_URL!.replace(
+      NEON_URL_PATTERN,
+      'postgres$1://'
+    );
+
     sql = postgres(databaseUrl, {
       max: 1,
       onnotice: () => {}, // Suppress notices
     });
 
     db = drizzle(sql);
-    
+
     log.success('Database connection established');
   } catch (error) {
     log.error(`Failed to connect to database: ${error}`);
@@ -220,13 +245,13 @@ async function runMigrations() {
   // Run migrations
   try {
     log.info('Running migrations...');
-    
+
     const start = Date.now();
-    await migrate(db, { 
+    await migrate(db, {
       migrationsFolder: './drizzle/migrations',
     });
     const duration = ((Date.now() - start) / 1000).toFixed(2);
-    
+
     log.success(`Migrations completed successfully in ${duration}s`);
   } catch (error) {
     log.error(`Migration failed: ${error}`);
