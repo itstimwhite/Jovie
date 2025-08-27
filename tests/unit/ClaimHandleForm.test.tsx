@@ -69,7 +69,7 @@ describe('ClaimHandleForm', () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ available: true }),
-    });
+    } as any);
 
     // Mock clipboard API only if not already defined
     const originalClipboard = navigator.clipboard;
@@ -144,7 +144,7 @@ describe('ClaimHandleForm', () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ available: false }),
-    });
+    } as any);
 
     render(<ClaimHandleForm />);
 

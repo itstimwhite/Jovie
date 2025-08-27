@@ -98,4 +98,11 @@ module.exports = [
       'import/no-cycle': 'off',
     },
   },
+  // Allow any types in test files for complex mocks
+  {
+    files: ['**/*.test.ts', '**/*.test.tsx'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
 ];
