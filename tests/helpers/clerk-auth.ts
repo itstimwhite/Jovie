@@ -5,7 +5,10 @@ import { setupClerkTestingToken } from '@clerk/testing/playwright';
  * Custom error types for better test debugging
  */
 export class ClerkTestError extends Error {
-  constructor(message: string, public code: string) {
+  constructor(
+    message: string,
+    public code: string
+  ) {
     super(message);
     this.name = 'ClerkTestError';
   }
@@ -123,7 +126,10 @@ export async function setupAuthenticatedTest(page: Page) {
     console.warn(
       '⚠ Skipping authenticated test - no test user credentials configured'
     );
-    throw new ClerkTestError('Test user credentials not configured', 'MISSING_CREDENTIALS');
+    throw new ClerkTestError(
+      'Test user credentials not configured',
+      'MISSING_CREDENTIALS'
+    );
   }
 
   await signInUser(page);

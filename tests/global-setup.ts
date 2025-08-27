@@ -12,10 +12,16 @@ async function globalSetup() {
   }
 
   // Set up Clerk testing token if we have real Clerk keys and test user credentials
-  const SENSITIVE_PATTERNS = ['dummy', 'mock', '1234567890', 'test-key', 'placeholder'];
+  const SENSITIVE_PATTERNS = [
+    'dummy',
+    'mock',
+    '1234567890',
+    'test-key',
+    'placeholder',
+  ];
   const hasRealClerkKeys =
     process.env.CLERK_SECRET_KEY &&
-    !SENSITIVE_PATTERNS.some(pattern =>
+    !SENSITIVE_PATTERNS.some((pattern) =>
       process.env.CLERK_SECRET_KEY!.toLowerCase().includes(pattern)
     );
 
@@ -34,7 +40,10 @@ async function globalSetup() {
       console.warn('⚠ Failed to set up Clerk testing token');
       // Only log error details in development, not the actual error which may contain sensitive info
       if (process.env.NODE_ENV === 'development') {
-        console.warn('Error details:', error instanceof Error ? error.message : String(error));
+        console.warn(
+          'Error details:',
+          error instanceof Error ? error.message : String(error)
+        );
       }
       console.log('  Tests will run without Clerk authentication');
     }

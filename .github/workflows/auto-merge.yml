@@ -26,13 +26,13 @@ jobs:
   auto-merge:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    
+
     # Only run for preview branch PRs
     if: >
       (github.event.pull_request.base.ref == 'preview' || 
        (github.event.workflow_run.head_branch != 'preview' && 
         github.event.workflow_run.head_branch != 'production'))
-    
+
     steps:
       - name: Get PR details
         id: get_pr
@@ -40,7 +40,7 @@ jobs:
         with:
           script: |
             let pr;
-            
+
             if (github.event_name === 'pull_request_target') {
               pr = github.event.pull_request;
             } else if (github.event_name === 'workflow_run') {
@@ -63,17 +63,17 @@ jobs:
               });
               pr = prs.data.find(p => p.head.sha === context.payload.check_suite.head_sha);
             }
-            
+
             if (!pr) {
               core.info('No PR found for this event');
               return { skip: true };
             }
-            
+
             if (pr.base.ref !== 'preview') {
               core.info('PR is not targeting preview branch, skipping');
               return { skip: true };
             }
-            
+
             core.info(`Found PR #${pr.number}: ${pr.title}`);
             return {
               skip: false,
@@ -96,43 +96,43 @@ jobs:
           script: |
             const pr = JSON.parse('${{ steps.get_pr.outputs.result }}');
             const labels = new Set(pr.labels);
-            
+
             // Skip conditions
             const skipReasons = [];
-            
+
             if (pr.draft) {
               skipReasons.push('PR is draft');
             }
-            
+
             if (labels.has('blocked')) {
               skipReasons.push('blocked label');
             }
-            
+
             if (labels.has('human-review')) {
               skipReasons.push('human-review label');
             }
-            
+
             if (labels.has('no-auto-merge')) {
               skipReasons.push('no-auto-merge label');
             }
-            
+
             if (labels.has('claude:needs-fixes')) {
               skipReasons.push('claude:needs-fixes label');
             }
-            
+
             if (labels.has('needs-human')) {
               skipReasons.push('needs-human label');
             }
-            
+
             if (skipReasons.length > 0) {
               core.info(`Skipping auto-merge: ${skipReasons.join(', ')}`);
               return { should_merge: false, reason: skipReasons.join(', ') };
             }
-            
+
             // Determine PR type and eligibility
             let prType = 'regular';
             let eligible = false;
-            
+
             if (pr.author === 'dependabot[bot]') {
               prType = 'dependabot';
               // For dependabot, check if it's patch/minor or security update
@@ -145,7 +145,7 @@ jobs:
               // For regular PRs, only auto-merge if they have specific labels or conditions
               eligible = labels.has('auto-merge') || labels.has('dependencies');
             }
-            
+
             core.info(`PR type: ${prType}, eligible: ${eligible}`);
             return { 
               should_merge: eligible, 
@@ -166,21 +166,21 @@ jobs:
         run: |
           update_type="${{ steps.validate_dependabot.outputs.update-type }}"
           dependency_type="${{ steps.validate_dependabot.outputs.dependency-type }}"
-          
+
           # Allow security updates
           if [[ "$dependency_type" == "direct:security" ]]; then
             echo "allowed=true" >> $GITHUB_OUTPUT
             echo "reason=Security update" >> $GITHUB_OUTPUT
             exit 0
           fi
-          
+
           # Allow patch and minor updates
           if [[ "$update_type" =~ ^version-update:semver-(patch|minor)$ ]]; then
             echo "allowed=true" >> $GITHUB_OUTPUT
             echo "reason=Safe ${update_type#version-update:semver-} update" >> $GITHUB_OUTPUT
             exit 0
           fi
-          
+
           echo "allowed=false" >> $GITHUB_OUTPUT
           echo "reason=Major version update requires human review" >> $GITHUB_OUTPUT
 
@@ -195,7 +195,7 @@ jobs:
           check-regexp: (?i)(pr.policy|typecheck|lint|build|unit.tests|e2e.tests)
           allowed-conclusions: success,skipped
           timeout-minutes: 30
-          
+
       - name: Check if branch needs updating
         id: check_branch_status
         if: steps.wait_for_ci.outputs.status == 'success'
@@ -203,7 +203,7 @@ jobs:
         with:
           script: |
             const pr = JSON.parse('${{ steps.get_pr.outputs.result }}');
-            
+
             try {
               // Get PR details to check mergeable state
               const { data: prData } = await github.rest.pulls.get({
@@ -234,7 +234,7 @@ jobs:
         with:
           script: |
             const pr = JSON.parse('${{ steps.get_pr.outputs.result }}');
-            
+
             try {
               core.info(`Updating branch for PR #${pr.number}`);
               
@@ -262,7 +262,7 @@ jobs:
         with:
           script: |
             const pr = JSON.parse('${{ steps.get_pr.outputs.result }}');
-            
+
             if (pr.draft) {
               try {
                 await github.graphql(
@@ -284,7 +284,7 @@ jobs:
                 return { marked_ready: false, error: error.message };
               }
             }
-            
+
             return { marked_ready: false, reason: 'PR already ready' };
 
       - name: Enable auto-merge
@@ -294,13 +294,13 @@ jobs:
         with:
           script: |
             const pr = JSON.parse('${{ steps.get_pr.outputs.result }}');
-            
+
             // If auto-merge is already enabled, skip
             if (pr.auto_merge) {
               core.info(`Auto-merge already enabled for PR #${pr.number}`);
               return { enabled: false, reason: 'Already enabled' };
             }
-            
+
             try {
               // Get current PR node_id
               const { data: prData } = await github.rest.pulls.get({
@@ -341,9 +341,9 @@ jobs:
             const shouldMerge = '${{ steps.should_merge.outputs.should_merge }}';
             const waitStatus = '${{ steps.wait_for_ci.outputs.status }}';
             const autoMergeEnabled = '${{ steps.enable_automerge.outputs.enabled }}';
-            
+
             let summary = `## Auto-merge Summary for PR #${pr.number}\n\n`;
-            
+
             if (shouldMerge !== 'true') {
               const reason = JSON.parse('${{ steps.should_merge.outputs.result || "{}" }}').reason || 'Unknown';
               summary += `❌ **Skipped**: ${reason}\n`;
@@ -354,8 +354,8 @@ jobs:
             } else {
               summary += `⚠️ **Partial**: CI passed but auto-merge could not be enabled\n`;
             }
-            
+
             summary += `\n**PR Type**: ${JSON.parse('${{ steps.should_merge.outputs.result || "{}" }}').pr_type || 'unknown'}`;
             summary += `\n**Labels**: ${pr.labels.join(', ') || 'none'}`;
-            
+
             core.info(summary);
