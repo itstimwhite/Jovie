@@ -104,7 +104,7 @@ describe('Environment Validation', () => {
         const result = validateDatabaseEnvironment();
 
         expect(result.valid).toBe(false);
-        expect(result.error).toContain('Invalid DATABASE_URL format');
+        expect(result.error).toContain('Invalid URL format');
       } finally {
         if (originalUrl) {
           process.env.DATABASE_URL = originalUrl;
