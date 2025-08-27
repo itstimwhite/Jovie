@@ -126,9 +126,9 @@ describe('Integration Health Diagnostics', () => {
         process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
 
       if (isTestEnvironment) {
-        // Test environment - integrations may be disabled for security
-        // This is expected and should not cause test failures
-        expect(hasAnyIntegration).toBe(false);
+        // Test environment - integrations may be available for testing
+        // We should have at least one integration available (typically Clerk)
+        expect(hasAnyIntegration).toBe(true);
       } else {
         // Non-test environment - expect at least one integration
         expect(hasAnyIntegration).toBe(true);
