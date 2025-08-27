@@ -7,18 +7,8 @@ import { ClientProviders } from '@/components/providers/ClientProviders';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
 import '@/styles/globals.css';
-import dynamicImport from 'next/dynamic';
 import { headers } from 'next/headers';
 import { CookieBannerSection } from '@/components/organisms/CookieBannerSection';
-
-// Dynamic import for performance dashboard (development only)
-const DynamicPerformanceDashboard = dynamicImport(
-  () =>
-    import('@/components/monitoring/PerformanceDashboard').then(mod => ({
-      default: mod.PerformanceDashboard,
-    })),
-  { ssr: false }
-);
 
 // Import performance monitoring
 // import { initWebVitals } from '@/lib/monitoring/web-vitals'; // Currently unused
@@ -188,17 +178,6 @@ export default async function RootLayout({
         {shouldInjectToolbar && (
           <>
             <VercelToolbar />
-            {/* Performance Dashboard - only shown in development */}
-            {process.env.NODE_ENV === 'development' && (
-              <div suppressHydrationWarning>
-                {/* Dynamic import to avoid SSR issues */}
-                {typeof window !== 'undefined' && (
-                  <React.Suspense fallback={null}>
-                    <DynamicPerformanceDashboard />
-                  </React.Suspense>
-                )}
-              </div>
-            )}
           </>
         )}
       </body>
