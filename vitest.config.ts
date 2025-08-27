@@ -1,6 +1,10 @@
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig } from 'vitest/config';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env.test if it exists
+dotenv.config({ path: '.env.test' });
 
 export default defineConfig({
   plugins: [react()],
@@ -8,6 +12,8 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
     exclude: ['tests/e2e/**', 'tests/performance/**', 'node_modules/**'],
+    // Global test timeout (in milliseconds) - increased for database operations
+    testTimeout: 30000,
     // Use forks pool to prevent JS heap OOM in worker threads
     pool: 'forks',
     // Coverage optimization
@@ -24,9 +30,9 @@ export default defineConfig({
         'dist/**',
       ],
     },
-    // Test timeout
-    testTimeout: 10000,
-    hookTimeout: 10000,
+    // Test timeout - increased for database operations
+    testTimeout: 30000,
+    hookTimeout: 30000,
   },
   resolve: {
     alias: {

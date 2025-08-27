@@ -1,8 +1,36 @@
 import '../styles/globals.css';
+import { neon } from '@neondatabase/serverless';
 import * as matchers from '@testing-library/jest-dom/matchers';
 import { cleanup } from '@testing-library/react';
+import { drizzle } from 'drizzle-orm/neon-http';
+import { migrate } from 'drizzle-orm/neon-http/migrator';
 import React from 'react';
-import { afterEach, expect, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, expect, vi } from 'vitest';
+import * as schema from '@/lib/db/schema';
+
+// Setup test database
+if (process.env.NODE_ENV === 'test') {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (!databaseUrl) {
+    console.warn('DATABASE_URL is not set. Database tests will be skipped.');
+  } else {
+    const sql = neon(databaseUrl);
+    const db = drizzle(sql, { schema });
+
+    beforeAll(async () => {
+      try {
+        await migrate(db, { migrationsFolder: './drizzle' });
+      } catch (error) {
+        console.error('Failed to run migrations:', error);
+        throw error;
+      }
+    });
+
+    // Make db available globally for tests
+    globalThis.db = db;
+  }
+}
 
 expect.extend(matchers);
 

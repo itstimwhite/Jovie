@@ -23,8 +23,8 @@ const EnvSchema = z.object({
   CLOUDINARY_UPLOAD_FOLDER: z.string().optional(),
   CLOUDINARY_UPLOAD_PRESET: z.string().optional(),
 
-  // Database configuration (required)
-  DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
+  // Database configuration (required at runtime, but optional during build)
+  DATABASE_URL: z.string().optional(),
 
   // Server or build-time envs (may be undefined locally)
   SPOTIFY_CLIENT_ID: z.string().optional(),

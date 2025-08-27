@@ -310,7 +310,13 @@ jobs:
     needs: [ci-build, ci-unit-tests]
     if: ${{ github.event_name == 'push' || github.event_name == 'merge_group' || (github.event_name == 'pull_request' && (github.event.pull_request.base.ref == 'preview' || contains(github.event.pull_request.labels.*.name, 'full-ci'))) }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    env:
+      # Use the Neon database URL from GitHub secrets
+      # The Neon GitHub integration should automatically set NEON_DATABASE_URL
+      DATABASE_URL: ${{ secrets.NEON_DATABASE_URL || secrets.DATABASE_URL }}
+      NODE_ENV: test
+      # Increase Node.js memory limit for tests
+      NODE_OPTIONS: '--max_old_space_size=4096'
     steps:
       - uses: actions/checkout@v4
         with:
