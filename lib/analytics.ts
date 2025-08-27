@@ -1,6 +1,6 @@
 'use client';
 
-import posthog from 'posthog-js';
+import { posthog } from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { ANALYTICS } from '@/constants/app';
 import { env as publicEnv } from '@/lib/env';
@@ -62,7 +62,7 @@ if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
       posthog.register({ env: getEnvTag() });
     } catch (e) {
       // noop – avoid breaking the app if analytics fails to init
-      // eslint-disable-next-line no-console
+
       console.warn('PostHog init failed:', e);
     }
   }, 0); // Execute on next tick to not block initial paint

@@ -1,12 +1,10 @@
 import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import { drizzle, type NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import { env } from '@/lib/env';
 import { sql as drizzleSql } from 'drizzle-orm';
 import * as schema from './schema';
-import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
 
 declare global {
-  // eslint-disable-next-line no-var -- only var works here
   var db: NeonHttpDatabase<typeof schema> | undefined;
 }
 

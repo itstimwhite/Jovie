@@ -112,7 +112,6 @@ export async function logBotDetection(
   reason: string,
   endpoint: string,
   blocked: boolean
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 ): Promise<void> {
   // Bot detection logging is disabled in this version
   // Consider implementing with alternative storage if needed
@@ -122,7 +121,7 @@ export async function logBotDetection(
 /**
  * Conservative rate limiting to avoid appearing like cloaking
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 export async function checkRateLimit(
   ip: string,
   endpoint: string

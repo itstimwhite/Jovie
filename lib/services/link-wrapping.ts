@@ -5,7 +5,7 @@
 
 import { db } from '@/lib/db';
 import { wrappedLinks } from '@/lib/db/schema';
-import { eq, lt, sql } from 'drizzle-orm';
+import { eq, lt, sql as drizzleSql } from 'drizzle-orm';
 import {
   categorizeDomain,
   getCrawlerSafeLabel,
@@ -271,7 +271,7 @@ export async function incrementClickCount(shortId: string): Promise<boolean> {
     await db
       .update(wrappedLinks)
       .set({
-        clickCount: sql`${wrappedLinks.clickCount} + 1`,
+        clickCount: drizzleSql`${wrappedLinks.clickCount} + 1`,
       })
       .where(eq(wrappedLinks.shortId, shortId));
 

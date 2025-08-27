@@ -1,4 +1,4 @@
-import { and, gte, sql, count, eq } from 'drizzle-orm';
+import { and, gte, sql as drizzleSql, count, eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { clickEvents } from '@/lib/db/schema';
 
@@ -80,7 +80,7 @@ export async function getAnalyticsData(
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   const clicksByDay = await db
     .select({
-      date: sql<string>`DATE(${clickEvents.createdAt})`,
+      date: drizzleSql<string>`DATE(${clickEvents.createdAt})`,
       count: count(),
     })
     .from(clickEvents)
@@ -90,8 +90,8 @@ export async function getAnalyticsData(
         gte(clickEvents.createdAt, thirtyDaysAgo)
       )
     )
-    .groupBy(sql`DATE(${clickEvents.createdAt})`)
-    .orderBy(sql`DATE(${clickEvents.createdAt})`);
+    .groupBy(drizzleSql`DATE(${clickEvents.createdAt})`)
+    .orderBy(drizzleSql`DATE(${clickEvents.createdAt})`);
 
   // Get top links
   const topLinks = await db
@@ -103,7 +103,7 @@ export async function getAnalyticsData(
     .from(clickEvents)
     .where(eq(clickEvents.creatorProfileId, creatorProfileId))
     .groupBy(clickEvents.linkId, clickEvents.linkType)
-    .orderBy(sql`count DESC`)
+    .orderBy(drizzleSql`count DESC`)
     .limit(5);
 
   return {

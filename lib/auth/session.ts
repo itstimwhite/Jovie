@@ -2,7 +2,7 @@
 
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
-import { sql } from 'drizzle-orm';
+import { sql as drizzleSql } from 'drizzle-orm';
 
 /**
  * Sets up the database session for the authenticated user
@@ -16,7 +16,7 @@ export async function setupDbSession() {
   }
 
   // Set the session variable for RLS
-  await db.execute(sql`SET LOCAL app.clerk_user_id = ${userId}`);
+  await db.execute(drizzleSql`SET LOCAL app.clerk_user_id = ${userId}`);
 
   return { userId };
 }

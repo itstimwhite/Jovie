@@ -3,7 +3,6 @@
  * Tracks query performance, connection pool usage, and database health
  */
 
-// eslint-disable-next-line import/no-internal-modules
 import { db } from '@/lib/db';
 import { sql as drizzleSql } from 'drizzle-orm';
 
