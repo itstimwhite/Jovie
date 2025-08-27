@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase-server';
+import { db } from '@/lib/db';
+import { creatorProfiles } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 import { ArtistTheme } from '@/components/profile/ArtistThemeProvider';
 
 export async function POST(request: NextRequest) {
@@ -23,36 +25,28 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const supabase = await createServerClient();
-
-      if (!supabase) {
-        return NextResponse.json(
-          { error: 'Database connection failed' },
-          { status: 500 }
-        );
-      }
-
       // Update the creator profile's theme preference
-      const { error } = await supabase
-        .from('creator_profiles')
-        .update({
+      const result = await db
+        .update(creatorProfiles)
+        .set({
           theme: { mode: theme },
+          updatedAt: new Date(),
         })
-        .eq('id', artistId);
+        .where(eq(creatorProfiles.id, artistId))
+        .returning();
 
-      if (error) {
-        console.error('Error updating artist theme:', error);
+      if (result.length === 0) {
         return NextResponse.json(
-          { error: 'Failed to update theme' },
-          { status: 500 }
+          { error: 'Profile not found' },
+          { status: 404 }
         );
       }
 
       return NextResponse.json({ success: true });
     } catch (dbError) {
-      console.error('Database connection error:', dbError);
+      console.error('Database error:', dbError);
       return NextResponse.json(
-        { error: 'Database connection failed' },
+        { error: 'Failed to update theme' },
         { status: 500 }
       );
     }

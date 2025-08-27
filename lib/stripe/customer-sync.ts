@@ -5,7 +5,10 @@
 
 import 'server-only';
 import { auth } from '@clerk/nextjs/server';
-import { createServerClient } from '@/lib/supabase-server';
+import { db } from '@/lib/db';
+import { users } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
+import { withDbSession } from '@/lib/auth/session';
 import { getOrCreateCustomer } from './client';
 
 /**
@@ -24,50 +27,51 @@ export async function ensureStripeCustomer(): Promise<{
       return { success: false, error: 'User not authenticated' };
     }
 
-    // Get user details from our database
-    const supabase = createServerClient();
-    if (!supabase) {
-      return { success: false, error: 'Database connection failed' };
-    }
+    return await withDbSession(async (clerkUserId) => {
+      // Get user details from our database
+      const [userData] = await db
+        .select({
+          id: users.id,
+          email: users.email,
+          stripeCustomerId: users.stripeCustomerId,
+        })
+        .from(users)
+        .where(eq(users.clerkId, clerkUserId))
+        .limit(1);
 
-    const { data: userData, error: userError } = await supabase
-      .from('app_users')
-      .select('id, email, stripe_customer_id')
-      .eq('id', userId)
-      .single();
+      if (!userData) {
+        return { success: false, error: 'User not found in database' };
+      }
 
-    if (userError || !userData) {
-      return { success: false, error: 'User not found in database' };
-    }
+      // If we already have a Stripe customer ID, return it
+      if (userData.stripeCustomerId) {
+        return { success: true, customerId: userData.stripeCustomerId };
+      }
 
-    // If we already have a Stripe customer ID, return it
-    if (userData.stripe_customer_id) {
-      return { success: true, customerId: userData.stripe_customer_id };
-    }
+      // Create a new Stripe customer
+      const customer = await getOrCreateCustomer(clerkUserId, userData.email);
 
-    // Create a new Stripe customer
-    const customer = await getOrCreateCustomer(userId, userData.email);
+      // Update our database with the new customer ID
+      try {
+        await db
+          .update(users)
+          .set({
+            stripeCustomerId: customer.id,
+            billingUpdatedAt: new Date(),
+          })
+          .where(eq(users.clerkId, clerkUserId));
+      } catch (updateError) {
+        console.error(
+          'Failed to update user with Stripe customer ID:',
+          updateError
+        );
+        // Customer was created in Stripe but we couldn't save the ID
+        // This is recoverable - we can find the customer later by metadata
+        return { success: true, customerId: customer.id };
+      }
 
-    // Update our database with the new customer ID
-    const { error: updateError } = await supabase
-      .from('app_users')
-      .update({
-        stripe_customer_id: customer.id,
-        billing_updated_at: new Date().toISOString(),
-      })
-      .eq('id', userId);
-
-    if (updateError) {
-      console.error(
-        'Failed to update user with Stripe customer ID:',
-        updateError
-      );
-      // Customer was created in Stripe but we couldn't save the ID
-      // This is recoverable - we can find the customer later by metadata
       return { success: true, customerId: customer.id };
-    }
-
-    return { success: true, customerId: customer.id };
+    });
   } catch (error) {
     console.error('Error ensuring Stripe customer:', error);
     return { success: false, error: 'Failed to create or retrieve customer' };
@@ -83,7 +87,6 @@ export async function getUserBillingInfo(): Promise<{
     userId: string;
     email: string;
     isPro: boolean;
-    plan: string | null;
     stripeCustomerId: string | null;
     stripeSubscriptionId: string | null;
   };
@@ -95,34 +98,34 @@ export async function getUserBillingInfo(): Promise<{
       return { success: false, error: 'User not authenticated' };
     }
 
-    const supabase = createServerClient();
-    if (!supabase) {
-      return { success: false, error: 'Database connection failed' };
-    }
+    return await withDbSession(async (clerkUserId) => {
+      const [userData] = await db
+        .select({
+          id: users.id,
+          email: users.email,
+          isPro: users.isPro,
+          stripeCustomerId: users.stripeCustomerId,
+          stripeSubscriptionId: users.stripeSubscriptionId,
+        })
+        .from(users)
+        .where(eq(users.clerkId, clerkUserId))
+        .limit(1);
 
-    const { data: userData, error: userError } = await supabase
-      .from('app_users')
-      .select(
-        'id, email, is_pro, plan, stripe_customer_id, stripe_subscription_id'
-      )
-      .eq('id', userId)
-      .single();
+      if (!userData) {
+        return { success: false, error: 'User not found' };
+      }
 
-    if (userError || !userData) {
-      return { success: false, error: 'User not found' };
-    }
-
-    return {
-      success: true,
-      data: {
-        userId: userData.id,
-        email: userData.email,
-        isPro: userData.is_pro,
-        plan: userData.plan,
-        stripeCustomerId: userData.stripe_customer_id,
-        stripeSubscriptionId: userData.stripe_subscription_id,
-      },
-    };
+      return {
+        success: true,
+        data: {
+          userId: userData.id,
+          email: userData.email || '',
+          isPro: userData.isPro || false,
+          stripeCustomerId: userData.stripeCustomerId,
+          stripeSubscriptionId: userData.stripeSubscriptionId,
+        },
+      };
+    });
   } catch (error) {
     console.error('Error getting user billing info:', error);
     return { success: false, error: 'Failed to retrieve billing information' };
@@ -134,47 +137,34 @@ export async function getUserBillingInfo(): Promise<{
  * Called from webhooks when subscription status changes
  */
 export async function updateUserBillingStatus({
-  userId,
+  clerkUserId,
   isPro,
-  plan,
   stripeCustomerId,
   stripeSubscriptionId,
 }: {
-  userId: string;
+  clerkUserId: string;
   isPro: boolean;
-  plan: string | null;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string | null;
 }): Promise<{ success: boolean; error?: string }> {
   try {
-    const supabase = createServerClient();
-    if (!supabase) {
-      return { success: false, error: 'Database connection failed' };
-    }
-
-    const updateData: Record<string, unknown> = {
-      is_pro: isPro,
-      plan: plan,
-      billing_updated_at: new Date().toISOString(),
+    const updateData: Partial<typeof users.$inferInsert> = {
+      isPro: isPro,
+      billingUpdatedAt: new Date(),
     };
 
     if (stripeCustomerId) {
-      updateData.stripe_customer_id = stripeCustomerId;
+      updateData.stripeCustomerId = stripeCustomerId;
     }
 
     if (stripeSubscriptionId !== undefined) {
-      updateData.stripe_subscription_id = stripeSubscriptionId;
+      updateData.stripeSubscriptionId = stripeSubscriptionId;
     }
 
-    const { error } = await supabase
-      .from('app_users')
-      .update(updateData)
-      .eq('id', userId);
-
-    if (error) {
-      console.error('Failed to update user billing status:', error);
-      return { success: false, error: 'Database update failed' };
-    }
+    await db
+      .update(users)
+      .set(updateData)
+      .where(eq(users.clerkId, clerkUserId));
 
     return { success: true };
   } catch (error) {
@@ -190,12 +180,4 @@ export async function updateUserBillingStatus({
 export async function userHasProFeatures(): Promise<boolean> {
   const billing = await getUserBillingInfo();
   return billing.success && billing.data?.isPro === true;
-}
-
-/**
- * Check if the current user has advanced features (full pro plan)
- */
-export async function userHasAdvancedFeatures(): Promise<boolean> {
-  const billing = await getUserBillingInfo();
-  return billing.success && billing.data?.plan === 'pro';
 }

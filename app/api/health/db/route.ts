@@ -1,19 +1,16 @@
 import { NextResponse } from 'next/server';
-import type { PostgrestError } from '@supabase/supabase-js';
 import { env } from '@/lib/env';
 import { logger } from '@/lib/utils/logger';
+import { db } from '@/lib/db';
+import { creatorProfiles } from '@/lib/db/schema';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 interface HealthDetails {
-  urlOk: boolean;
-  keyOk: boolean;
+  databaseUrlOk: boolean;
   count?: number | null;
   error?: string;
-  errorCode?: string;
-  errorDetails?: string | null;
-  errorHint?: string | null;
 }
 
 interface HealthResponse {
@@ -25,21 +22,16 @@ interface HealthResponse {
 }
 
 export async function GET() {
-  const urlOk = Boolean(env.NEXT_PUBLIC_SUPABASE_URL);
-  const keyOk = Boolean(
-    env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-      env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
-
+  const databaseUrlOk = Boolean(env.DATABASE_URL);
   const now = new Date().toISOString();
 
-  if (!urlOk || !keyOk) {
+  if (!databaseUrlOk) {
     const body: HealthResponse = {
       service: 'db',
       status: 'error',
       ok: false,
       timestamp: now,
-      details: { urlOk, keyOk, error: 'Supabase configuration missing' },
+      details: { databaseUrlOk, error: 'DATABASE_URL not configured' },
     };
     logger.warn(
       'DB healthcheck failed: configuration missing',
@@ -54,40 +46,17 @@ export async function GET() {
     });
   }
 
-  // Use URL as configured - no need for conversion since it's already localhost
-  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL!;
-
-  // Use Supabase client instead of direct fetch to avoid Node.js fetch issues
   let count = null;
   let error = null;
 
   try {
-    const { createClient } = await import('@supabase/supabase-js');
-
-    // Use the correct key based on what's available
-    const apiKey =
-      env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-      env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    const supabase = createClient(supabaseUrl, apiKey!);
-
-    const { data, error: supabaseError } = await supabase
-      .from('creator_profiles')
-      .select('id')
-      .limit(1);
-
-    if (supabaseError) throw supabaseError;
-
-    count = data?.length || 0;
+    // Test database connection with a simple query
+    const profiles = await db.select().from(creatorProfiles).limit(1);
+    count = profiles.length;
   } catch (fetchError: unknown) {
     const err =
       fetchError instanceof Error ? fetchError : new Error('Unknown error');
-    error = {
-      message: err.message,
-      code: (err as Error & { code?: string })?.code || '',
-      details: (err as Error & { details?: string })?.details || null,
-      hint: (err as Error & { hint?: string })?.hint || 'Database query failed',
-    };
+    error = err.message;
   }
 
   const ok = !error;
@@ -98,34 +67,16 @@ export async function GET() {
     ok,
     timestamp: now,
     details: {
-      urlOk,
-      keyOk,
+      databaseUrlOk,
       count: count ?? null,
-      ...(error
-        ? {
-            error: (error as PostgrestError).message,
-            errorCode: (error as PostgrestError).code,
-            errorDetails: (error as PostgrestError).details ?? null,
-            errorHint: (error as PostgrestError).hint ?? null,
-          }
-        : {}),
+      ...(error ? { error } : {}),
     },
   };
 
   if (ok) {
     logger.info('DB healthcheck ok', { count }, 'health/db');
   } else {
-    const e = error as PostgrestError | null;
-    logger.error(
-      'DB healthcheck error',
-      {
-        message: e?.message ?? null,
-        code: e?.code ?? null,
-        details: e?.details ?? null,
-        hint: e?.hint ?? null,
-      },
-      'health/db'
-    );
+    logger.error('DB healthcheck error', { error }, 'health/db');
   }
 
   return NextResponse.json(body, {

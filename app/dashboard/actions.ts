@@ -1,9 +1,12 @@
 'use server';
 
 import { auth } from '@clerk/nextjs/server';
-import { createServerClient } from '@/lib/supabase-server';
-import { CreatorProfile } from '@/types/db';
+import { db } from '@/lib/db';
+import { users, creatorProfiles } from '@/lib/db/schema';
+import { eq, asc } from 'drizzle-orm';
+import { withDbSession } from '@/lib/auth/session';
 import { unstable_noStore as noStore } from 'next/cache';
+import type { CreatorProfile } from '@/lib/db/schema';
 
 export interface DashboardData {
   user: { id: string } | null;
@@ -27,22 +30,17 @@ export async function getDashboardData(): Promise<DashboardData> {
     };
   }
 
-  const supabase = createServerClient();
-  if (!supabase) {
-    throw new Error('Failed to create Supabase client');
-  }
+  return await withDbSession(async (clerkUserId) => {
+    try {
+      // First check if user exists in users table
+      const [userData] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.clerkId, clerkUserId))
+        .limit(1);
 
-  try {
-    // First check if user exists in app_users table
-    const { data: userData, error: userError } = await supabase
-      .from('app_users')
-      .select('id')
-      .eq('id', userId)
-      .maybeSingle();
-
-    if (userError) {
-      // If it's a permission error, the user likely needs to be created
-      if (userError.code === 'PGRST301' || userError.code === '42501') {
+      if (!userData?.id) {
+        // No user row yet → send to onboarding to create user/artist
         return {
           user: null,
           creatorProfiles: [],
@@ -50,30 +48,16 @@ export async function getDashboardData(): Promise<DashboardData> {
           needsOnboarding: true,
         };
       }
-      throw userError;
-    }
 
-    if (!userData?.id) {
-      // No user row yet → send to onboarding to create user/artist
-      return {
-        user: null,
-        creatorProfiles: [],
-        selectedProfile: null,
-        needsOnboarding: true,
-      };
-    }
+      // Now that we know user exists, get creator profiles
+      const creatorData = await db
+        .select()
+        .from(creatorProfiles)
+        .where(eq(creatorProfiles.userId, userData.id))
+        .orderBy(asc(creatorProfiles.createdAt));
 
-    // Now that we know user exists, get creator profiles
-    const { data: creatorData, error: creatorError } = await supabase
-      .from('creator_profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: true });
-
-    if (creatorError) {
-      console.error('Error fetching creator profiles:', creatorError);
-      // If it's a permission error, treat as no profiles
-      if (creatorError.code === 'PGRST301' || creatorError.code === '42501') {
+      if (!creatorData || creatorData.length === 0) {
+        // No creator profiles yet → onboarding
         return {
           user: userData,
           creatorProfiles: [],
@@ -81,39 +65,34 @@ export async function getDashboardData(): Promise<DashboardData> {
           needsOnboarding: true,
         };
       }
-      throw creatorError;
-    }
 
-    if (!creatorData || creatorData.length === 0) {
-      // No creator profiles yet → onboarding
+      // Return data with first profile selected by default
       return {
         user: userData,
+        creatorProfiles: creatorData,
+        selectedProfile: creatorData[0],
+        needsOnboarding: false,
+      };
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      // On error, treat as needs onboarding to be safe
+      return {
+        user: null,
         creatorProfiles: [],
         selectedProfile: null,
         needsOnboarding: true,
       };
     }
-
-    // Return data with first profile selected by default
-    return {
-      user: userData,
-      creatorProfiles: creatorData,
-      selectedProfile: creatorData[0],
-      needsOnboarding: false,
-    };
-  } catch (error) {
-    console.error('Error fetching dashboard data:', error);
-    throw error;
-  }
+  });
 }
 
 export async function updateCreatorProfile(
   profileId: string,
   updates: Partial<{
-    marketing_opt_out: boolean;
-    display_name: string;
+    marketingOptOut: boolean;
+    displayName: string;
     bio: string;
-    avatar_url: string;
+    avatarUrl: string;
     // Add other updatable fields as needed
   }>
 ): Promise<CreatorProfile> {
@@ -126,35 +105,37 @@ export async function updateCreatorProfile(
     throw new Error('Unauthorized');
   }
 
-  const supabase = createServerClient();
-  if (!supabase) {
-    throw new Error('Failed to create Supabase client');
-  }
+  return await withDbSession(async (clerkUserId) => {
+    try {
+      // First get the user's database ID
+      const [user] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.clerkId, clerkUserId))
+        .limit(1);
 
-  try {
-    // Update the creator profile
-    const { data, error } = await supabase
-      .from('creator_profiles')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', profileId)
-      .eq('user_id', userId) // Ensure user can only update their own profile
-      .select('*')
-      .single();
+      if (!user) {
+        throw new Error('User not found');
+      }
 
-    if (error) {
+      // Update the creator profile
+      const [updatedProfile] = await db
+        .update(creatorProfiles)
+        .set({
+          ...updates,
+          updatedAt: new Date(),
+        })
+        .where(eq(creatorProfiles.id, profileId))
+        .returning();
+
+      if (!updatedProfile) {
+        throw new Error('Profile not found or not updated');
+      }
+
+      return updatedProfile;
+    } catch (error) {
+      console.error('Error updating creator profile:', error);
       throw error;
     }
-
-    if (!data) {
-      throw new Error('Profile not found or not updated');
-    }
-
-    return data as CreatorProfile;
-  } catch (error) {
-    console.error('Error updating creator profile:', error);
-    throw error;
-  }
+  });
 }

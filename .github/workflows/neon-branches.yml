@@ -1,0 +1,80 @@
+name: Neon DB Branch Management
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  setup:
+    name: Setup
+    outputs:
+      branch: ${{ steps.branch_name.outputs.current_branch }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get branch name
+        id: branch_name
+        uses: tj-actions/branch-names@v8
+
+  create_neon_branch:
+    name: Create Neon Branch
+    outputs:
+      db_url: ${{ steps.create_neon_branch_encode.outputs.db_url }}
+      db_url_with_pooler: ${{ steps.create_neon_branch_encode.outputs.db_url_with_pooler }}
+    needs: setup
+    if: |
+      github.event_name == 'pull_request' && (
+      github.event.action == 'synchronize' ||
+      github.event.action == 'opened' ||
+      github.event.action == 'reopened')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Neon Branch
+        id: create_neon_branch
+        uses: neondatabase/create-branch-action@v5
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch_name: pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+
+      - name: Encode Neon connection string
+        id: create_neon_branch_encode
+        run: |
+          # Use jq to parse and encode the outputs
+          echo "db_url=${{ steps.create_neon_branch.outputs.db_url }}" | base64 -w0 | {
+            read -r db_url_encoded
+            echo "db_url=$db_url_encoded" >> $GITHUB_OUTPUT
+          }
+          echo "db_url_with_pooler=${{ steps.create_neon_branch.outputs.db_url_with_pooler }}" | base64 -w0 | {
+            read -r db_url_with_pooler_encoded
+            echo "db_url_with_pooler=$db_url_with_pooler_encoded" >> $GITHUB_OUTPUT
+          }
+
+      - name: Run Database Migrations
+        run: |
+          # Decode the database URL
+          DB_URL=$(echo "${{ steps.create_neon_branch_encode.outputs.db_url }}" | base64 -d)
+          echo "Running migrations..."
+          DATABASE_URL="$DB_URL" npm run drizzle:migrate
+
+  delete_neon_branch:
+    name: Delete Neon Branch
+    needs: setup
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete Neon Branch
+        uses: neondatabase/delete-branch-action@v3
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch: pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+          api_key: ${{ secrets.NEON_API_KEY }}

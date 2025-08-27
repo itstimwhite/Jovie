@@ -53,23 +53,6 @@ vi.mock('server-only', () => ({
   default: vi.fn(),
 }));
 
-// Mock Supabase server client
-vi.mock('@/lib/supabase-server', () => ({
-  createServerClient: vi.fn(() => ({
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          order: vi.fn(() => ({
-            limit: vi.fn(() => ({
-              then: vi.fn((callback) => callback({ data: [], error: null })),
-            })),
-          })),
-        })),
-      })),
-    })),
-  })),
-}));
-
 // Mock FeaturedArtists component to handle async component
 vi.mock('@/components/home/FeaturedArtists', () => ({
   FeaturedArtists: () =>

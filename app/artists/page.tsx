@@ -1,4 +1,6 @@
-import { createServerClient } from '@/lib/supabase-server';
+import { db } from '@/lib/db';
+import { creatorProfiles } from '@/lib/db/schema';
+import { eq, asc } from 'drizzle-orm';
 import { Container } from '@/components/site/Container';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import Link from 'next/link';
@@ -8,29 +10,32 @@ import { ChevronRightIcon } from '@heroicons/react/24/outline';
 export const revalidate = 3600; // Revalidate every hour
 
 export default async function ArtistsPage() {
-  const supabase = await createServerClient();
+  let profiles: Array<{
+    id: string;
+    username: string;
+    displayName: string | null;
+    avatarUrl: string | null;
+    bio: string | null;
+  }> = [];
+  let error = false;
 
-  if (!supabase) {
-    return (
-      <div className="min-h-screen bg-[#0D0E12]">
-        <Container className="py-16">
-          <div className="text-center">
-            <h1 className="text-2xl font-semibold text-white">
-              Database connection failed
-            </h1>
-            <p className="mt-4 text-white/70">Please try again later.</p>
-          </div>
-        </Container>
-      </div>
-    );
+  try {
+    // Fetch all public creator profiles
+    profiles = await db
+      .select({
+        id: creatorProfiles.id,
+        username: creatorProfiles.username,
+        displayName: creatorProfiles.displayName,
+        avatarUrl: creatorProfiles.avatarUrl,
+        bio: creatorProfiles.bio,
+      })
+      .from(creatorProfiles)
+      .where(eq(creatorProfiles.isPublic, true))
+      .orderBy(asc(creatorProfiles.displayName));
+  } catch (err) {
+    console.error('Error loading profiles:', err);
+    error = true;
   }
-
-  // Fetch all public creator profiles
-  const { data: profiles, error } = await supabase
-    .from('creator_profiles')
-    .select('id, username, display_name, avatar_url, bio')
-    .eq('is_public', true)
-    .order('display_name');
 
   if (error) {
     return (
@@ -71,8 +76,8 @@ export default async function ArtistsPage() {
               >
                 <div className="mx-auto mb-4 h-24 w-24">
                   <OptimizedImage
-                    src={profile.avatar_url}
-                    alt={`${profile.display_name} - Creator Profile`}
+                    src={profile.avatarUrl}
+                    alt={`${profile.displayName} - Creator Profile`}
                     size="xl"
                     shape="circle"
                     className="mx-auto"
@@ -80,7 +85,7 @@ export default async function ArtistsPage() {
                 </div>
 
                 <h3 className="text-lg font-semibold text-white group-hover:text-blue-400 transition-colors">
-                  {profile.display_name}
+                  {profile.displayName}
                 </h3>
 
                 {profile.bio && (

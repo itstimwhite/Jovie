@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createAuthenticatedServerClient } from '@/lib/supabase-server';
 import { detectPlatformFromUA } from '@/lib/utils';
-import { getServerFeatureFlags } from '@/lib/feature-flags';
 import { LinkType } from '@/types/db';
+import { db } from '@/lib/db';
+import { creatorProfiles, clickEvents, socialLinks } from '@/lib/db/schema';
+import { eq, sql } from 'drizzle-orm';
 
 // API routes should be dynamic
 export const dynamic = 'force-dynamic';
@@ -29,82 +30,58 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createAuthenticatedServerClient();
+    const userAgent = request.headers.get('user-agent');
+    const platformDetected = detectPlatformFromUA(userAgent || undefined);
+    const ipAddress =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      null;
 
-    if (!supabase) {
+    // Find the creator profile
+    const [profile] = await db
+      .select({ id: creatorProfiles.id })
+      .from(creatorProfiles)
+      .where(eq(creatorProfiles.usernameNormalized, handle.toLowerCase()))
+      .limit(1);
+
+    if (!profile) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    }
+
+    // Record the click event
+    const [clickEvent] = await db
+      .insert(clickEvents)
+      .values({
+        creatorProfileId: profile.id,
+        linkType: linkType as 'listen' | 'social' | 'tip' | 'other', // Cast to enum type
+        linkId: linkId || null,
+        ipAddress: ipAddress,
+        userAgent: userAgent,
+        deviceType: platformDetected,
+        metadata: { target },
+      })
+      .returning({ id: clickEvents.id });
+
+    if (!clickEvent) {
+      console.error('Failed to insert click event');
       return NextResponse.json(
-        { error: 'Database connection failed' },
+        { error: 'Failed to log click event' },
         { status: 500 }
       );
     }
 
-    const userAgent = request.headers.get('user-agent');
-    const platformDetected = detectPlatformFromUA(userAgent || undefined);
-
-    const flags = await getServerFeatureFlags();
-
-    if (flags.featureClickAnalyticsRpc) {
-      // Use SECURITY DEFINER RPC to safely log click events for anonymous users
-      const { data: clickId, error: rpcError } = await supabase.rpc(
-        'log_click_event',
-        {
-          handle,
-          link_type: linkType,
-          target,
-          ua: userAgent,
-          platform: platformDetected,
-          link_id: linkId ?? null,
-        }
-      );
-
-      if (rpcError) {
-        console.error('Error logging click event via RPC:', rpcError);
-        return NextResponse.json(
-          { error: 'Failed to log click event' },
-          { status: 500 }
-        );
-      }
-
-      return NextResponse.json({ success: true, id: clickId ?? null });
-    }
-
-    // Fallback (flag OFF): previous direct insert semantics
-    const { data: profile, error: profileError } = await supabase
-      .from('creator_profiles')
-      .select('id')
-      .eq('username', handle.toLowerCase())
-      .single();
-
-    if (profileError || !profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
-    }
-
-    const { error: clickError } = await supabase.from('click_events').insert({
-      creator_id: profile.id,
-      link_type: linkType,
-      target,
-      ua: userAgent,
-      platform_detected: platformDetected,
-    });
-
-    if (clickError) {
-      console.error('Error inserting click event (fallback):', clickError);
-    }
-
+    // Increment social link click count if applicable
     if (linkType === 'social' && linkId) {
-      const { error: updateError } = await supabase.rpc('increment_clicks', {
-        link_id: linkId,
-      });
-
-      if (updateError) {
-        console.error(
-          'Error updating social link clicks (fallback):',
-          updateError
-        );
-      }
+      await db
+        .update(socialLinks)
+        .set({
+          clicks: sql`${socialLinks.clicks} + 1`,
+          updatedAt: new Date(),
+        })
+        .where(eq(socialLinks.id, linkId));
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, id: clickEvent.id });
   } catch (error) {
     console.error('Track API error:', error);
     return NextResponse.json(

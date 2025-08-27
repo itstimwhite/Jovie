@@ -1,84 +1,46 @@
-import { createPublicSupabaseClient } from '@/lib/supabase/server';
+import { db } from '@/lib/db';
+import { creatorProfiles } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
 import {
   FeaturedCreatorsSection,
   type FeaturedCreator,
 } from '@/components/organisms/FeaturedArtistsSection';
 
-interface DBCreatorProfile {
-  id: string;
-  username: string;
-  display_name: string | null;
-  avatar_url?: string | null;
-  creator_type: string;
-}
-
-// Use centralized server helper for public data access
-
 async function getFeaturedCreators(): Promise<FeaturedCreator[]> {
   try {
-    const supabase = createPublicSupabaseClient();
-
     // Add timeout to prevent hanging on database issues
     const timeoutPromise = new Promise<never>((_, reject) => {
       setTimeout(() => reject(new Error('Database timeout')), 3000);
     });
 
-    const { data, error } = await Promise.race([
-      supabase
-        .from('creator_profiles')
-        .select('id, username, display_name, avatar_url, creator_type')
-        .eq('is_public', true)
-        .eq('is_featured', true)
-        .eq('marketing_opt_out', false) // Only include creators who haven't opted out
-        .order('display_name')
+    const data = await Promise.race([
+      db
+        .select({
+          id: creatorProfiles.id,
+          username: creatorProfiles.username,
+          displayName: creatorProfiles.displayName,
+          avatarUrl: creatorProfiles.avatarUrl,
+          creatorType: creatorProfiles.creatorType,
+        })
+        .from(creatorProfiles)
+        .where(
+          and(
+            eq(creatorProfiles.isPublic, true),
+            eq(creatorProfiles.isFeatured, true),
+            eq(creatorProfiles.marketingOptOut, false)
+          )
+        )
+        .orderBy(creatorProfiles.displayName)
         .limit(12),
       timeoutPromise,
     ]);
 
-    if (error) {
-      console.error('Error fetching featured creators:', error);
-
-      // For testing: if database schema is incomplete, provide mock featured artists
-      if (
-        error.code === 'PGRST204' ||
-        error.code === '42P01' ||
-        error.code === '42703'
-      ) {
-        console.log(
-          'Database schema incomplete, providing mock featured creators for testing'
-        );
-
-        return [
-          {
-            id: '1',
-            handle: 'ladygaga',
-            name: 'Lady Gaga',
-            src: '/android-chrome-192x192.png',
-          },
-          {
-            id: '2',
-            handle: 'taylorswift',
-            name: 'Taylor Swift',
-            src: '/android-chrome-192x192.png',
-          },
-          {
-            id: '3',
-            handle: 'dualipa',
-            name: 'Dua Lipa',
-            src: '/android-chrome-192x192.png',
-          },
-        ];
-      }
-
-      return [];
-    }
-
-    const mappedCreators = (data as DBCreatorProfile[]).map((a) => ({
+    const mappedCreators = data.map((a) => ({
       id: a.id,
       handle: a.username,
-      name: a.display_name || a.username,
+      name: a.displayName || a.username,
       // Provide fallback avatar or use the existing one
-      src: a.avatar_url || '/android-chrome-192x192.png', // Fallback to app icon
+      src: a.avatarUrl || '/android-chrome-192x192.png', // Fallback to app icon
     }));
 
     // If no data was returned, provide mock data for testing

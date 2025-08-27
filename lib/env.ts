@@ -3,73 +3,47 @@ import { z } from 'zod';
 // Centralized environment validation and access
 // Use this module instead of reading process.env throughout the app.
 
-const EnvSchema = z
-  .object({
-    // Public client-side envs
-    NEXT_PUBLIC_SUPABASE_URL: z
-      .string()
-      .url({ message: 'Invalid NEXT_PUBLIC_SUPABASE_URL' }),
-    // Prefer publishable key; allow legacy anon key as fallback
-    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: z.string().optional(),
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z
-      .string()
-      .min(1, 'Missing NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY'),
-    NEXT_PUBLIC_APP_URL: z.string().url().default('https://jov.ie'),
-    NEXT_PUBLIC_SEGMENT_WRITE_KEY: z.string().optional(),
-    NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
-    NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
+const EnvSchema = z.object({
+  // Public client-side envs
+  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z
+    .string()
+    .min(1, 'Missing NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY'),
+  NEXT_PUBLIC_APP_URL: z.string().url().default('https://jov.ie'),
+  NEXT_PUBLIC_SEGMENT_WRITE_KEY: z.string().optional(),
+  NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
+  NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
 
-    // Stripe public keys
-    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
+  // Stripe public keys
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
 
-    // Cloudinary configuration
-    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string().optional(),
-    CLOUDINARY_API_KEY: z.string().optional(),
-    CLOUDINARY_API_SECRET: z.string().optional(),
-    CLOUDINARY_UPLOAD_FOLDER: z.string().optional(),
-    CLOUDINARY_UPLOAD_PRESET: z.string().optional(),
+  // Cloudinary configuration
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
+  CLOUDINARY_UPLOAD_FOLDER: z.string().optional(),
+  CLOUDINARY_UPLOAD_PRESET: z.string().optional(),
 
-    // Database configuration
-    DATABASE_URL: z.string().optional(),
+  // Database configuration (required)
+  DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
 
-    // Server or build-time envs (may be undefined locally)
-    SPOTIFY_CLIENT_ID: z.string().optional(),
-    SPOTIFY_CLIENT_SECRET: z.string().optional(),
+  // Server or build-time envs (may be undefined locally)
+  SPOTIFY_CLIENT_ID: z.string().optional(),
+  SPOTIFY_CLIENT_SECRET: z.string().optional(),
 
-    // Stripe server-side configuration
-    STRIPE_SECRET_KEY: z.string().optional(),
-    STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  // Stripe server-side configuration
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
 
-    // Stripe price IDs for introductory pricing
-    STRIPE_PRICE_INTRO_MONTHLY: z.string().optional(),
-    STRIPE_PRICE_INTRO_YEARLY: z.string().optional(),
+  // Stripe price IDs for introductory pricing
+  STRIPE_PRICE_INTRO_MONTHLY: z.string().optional(),
+  STRIPE_PRICE_INTRO_YEARLY: z.string().optional(),
 
-    // Stripe price IDs for standard pricing (inactive)
-    STRIPE_PRICE_STANDARD_MONTHLY: z.string().optional(),
-    STRIPE_PRICE_STANDARD_YEARLY: z.string().optional(),
-  })
-  .superRefine((val, ctx) => {
-    // Require at least one Supabase client key
-    if (
-      !val.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY &&
-      !val.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message:
-          'Set NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY (preferred) or NEXT_PUBLIC_SUPABASE_ANON_KEY',
-        path: ['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY'],
-      });
-    }
-  });
-
+  // Stripe price IDs for standard pricing (inactive)
+  STRIPE_PRICE_STANDARD_MONTHLY: z.string().optional(),
+  STRIPE_PRICE_STANDARD_YEARLY: z.string().optional(),
+});
 // Safe-parse to avoid hard crashes in production; surface clear errors in dev.
 const rawEnv = {
-  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY:
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY,
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
     process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL ?? 'https://jov.ie',
@@ -106,15 +80,6 @@ if (!parsed.success && process.env.NODE_ENV === 'development') {
 
 // Export a normalized env object. Optional values may be undefined.
 export const env = {
-  NEXT_PUBLIC_SUPABASE_URL: parsed.success
-    ? parsed.data.NEXT_PUBLIC_SUPABASE_URL
-    : process.env.NEXT_PUBLIC_SUPABASE_URL,
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: parsed.success
-    ? parsed.data.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
-    : process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY,
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: parsed.success
-    ? parsed.data.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: parsed.success
     ? parsed.data.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
     : process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,

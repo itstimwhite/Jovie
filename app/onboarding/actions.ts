@@ -2,11 +2,10 @@
 
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-import { headers } from 'next/headers';
-import {
-  createAuthenticatedClient,
-  queryWithRetry,
-} from '@/lib/supabase/client';
+import { db } from '@/lib/db';
+import { users, creatorProfiles } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
+import { withDbSession } from '@/lib/auth/session';
 import { validateUsername, normalizeUsername } from '@/lib/validation/username';
 import {
   checkUsernameAvailability,
@@ -55,59 +54,16 @@ export async function completeOnboarding({
     }
 
     // Step 3: Rate limiting check
-    const headersList = await headers();
-    const forwarded = headersList.get('x-forwarded-for');
-    const clientIP = forwarded ? forwarded.split(',')[0] : null;
+    // TODO: Implement rate limiting with Drizzle/Upstash instead of RPC
+    // For now, we'll skip rate limiting since we're migrating away from Supabase RPC
+    // const headersList = await headers();
+    // const forwarded = headersList.get('x-forwarded-for');
+    // const clientIP = forwarded ? forwarded.split(',')[0] : null;
 
-    let supabase;
-    try {
-      supabase = await createAuthenticatedClient();
-    } catch (clientError) {
-      console.error('❌ Failed to create Supabase client:', clientError);
-      throw new Error(
-        'Failed to initialize database connection: ' +
-          (clientError instanceof Error
-            ? clientError.message
-            : String(clientError))
-      );
-    }
-
-    // Check rate limits - handle JWT errors gracefully
-    const { data: rateLimitResult, error: rateLimitError } = await supabase.rpc(
-      'check_onboarding_rate_limit',
-      {
-        user_id_param: userId,
-        ip_address_param: clientIP,
-      }
+    // Skip rate limiting for now during migration
+    console.log(
+      'Rate limiting temporarily disabled during Supabase to Drizzle migration'
     );
-
-    if (rateLimitError) {
-      console.error('Rate limit check failed:', rateLimitError);
-      // If JWT signature error, skip rate limiting for now
-      const errorMessage = rateLimitError.message || '';
-      if (
-        typeof errorMessage === 'string' &&
-        (errorMessage.includes('JWSInvalidSignature') ||
-          errorMessage.includes('JWT') ||
-          errorMessage.includes('PGRST301'))
-      ) {
-        console.warn(
-          'JWT validation failed - this indicates a Clerk-Supabase integration issue'
-        );
-        console.warn('Error details:', errorMessage);
-        // Continue with onboarding but log the issue
-      } else {
-        // For other errors, we might want to be more restrictive
-        // but for now, let's continue with onboarding
-      }
-    } else if (rateLimitResult && !rateLimitResult.allowed) {
-      const error = createOnboardingError(
-        OnboardingErrorCode.RATE_LIMITED,
-        `Too many attempts. Try again later.`,
-        `Reset at: ${rateLimitResult.reset_at}`
-      );
-      throw new Error(error.message);
-    }
 
     // Step 4-6: Parallel operations for performance optimization
     const normalizedUsername = normalizeUsername(username);
@@ -142,50 +98,53 @@ export async function completeOnboarding({
     // Step 7: Prepare user data for database operations
     const userEmail = user?.emailAddresses?.[0]?.emailAddress;
 
-    // Step 8: Create records using database transaction simulation
-    // First create app_users record
-    const { error: userError } = await queryWithRetry(
-      async () =>
-        await supabase.from('app_users').upsert({
-          id: userId,
-          email: userEmail ?? null,
-        })
-    );
+    // Step 8: Create records using Drizzle transaction
+    await withDbSession(async (clerkUserId) => {
+      try {
+        await db.transaction(async (tx) => {
+          // First create user record
+          await tx
+            .insert(users)
+            .values({
+              clerkId: clerkUserId,
+              email: userEmail ?? null,
+            })
+            .onConflictDoUpdate({
+              target: users.clerkId,
+              set: {
+                email: userEmail ?? null,
+                updatedAt: new Date(),
+              },
+            });
 
-    if (userError) {
-      const mappedError = mapDatabaseError(userError);
-      console.error('Error creating user record:', userError);
-      console.error('Raw error details:', JSON.stringify(userError, null, 2));
-      console.error('Mapped error:', mappedError);
-      throw new Error(mappedError.message);
-    }
+          // Get the user ID
+          const [user] = await tx
+            .select({ id: users.id })
+            .from(users)
+            .where(eq(users.clerkId, clerkUserId))
+            .limit(1);
 
-    // Then create creator profile
-    const { error: profileError } = await queryWithRetry(
-      async () =>
-        await supabase.from('creator_profiles').insert({
-          user_id: userId,
-          creator_type: 'artist',
-          username: normalizedUsername,
-          display_name: displayName?.trim() || normalizedUsername,
-          is_public: true,
-          onboarding_completed_at: new Date().toISOString(),
-        })
-    );
+          if (!user) {
+            throw new Error('Failed to create or retrieve user');
+          }
 
-    if (profileError) {
-      const mappedError = mapDatabaseError(profileError);
-      console.error('Error creating profile:', profileError);
-      console.error(
-        'Raw profile error details:',
-        JSON.stringify(profileError, null, 2)
-      );
-      console.error('Mapped profile error:', mappedError);
-
-      // If profile creation fails, we should clean up the app_users record
-      // But since we're using RLS, the user can only see their own data anyway
-      throw new Error(mappedError.message);
-    }
+          // Then create creator profile
+          await tx.insert(creatorProfiles).values({
+            userId: user.id,
+            creatorType: 'artist',
+            username: normalizedUsername,
+            usernameNormalized: normalizedUsername.toLowerCase(),
+            displayName: displayName?.trim() || normalizedUsername,
+            isPublic: true,
+            onboardingCompletedAt: new Date(),
+          });
+        });
+      } catch (error) {
+        console.error('Error creating user and profile:', error);
+        const mappedError = mapDatabaseError(error);
+        throw new Error(mappedError.message);
+      }
+    });
 
     // Success - redirect to dashboard
     redirect('/dashboard');
