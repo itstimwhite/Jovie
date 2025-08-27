@@ -10,13 +10,13 @@
  * - Handles environment variable validation
  */
 
+import { execSync } from 'child_process';
 import { config } from 'dotenv';
 import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
-import { execSync } from 'child_process';
-import path from 'path';
 import { existsSync, readFileSync } from 'fs';
+import path from 'path';
+import postgres from 'postgres';
 import * as readline from 'readline';
 
 // Load environment variables
@@ -163,7 +163,7 @@ async function confirmProductionMigration(): Promise<boolean> {
       output: process.stdout,
     });
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       rl.question(
         'Type "MIGRATE PRODUCTION" to confirm: ',
         (answer: string) => {
@@ -189,7 +189,7 @@ async function runMigrations() {
   const { isValid, errors } = validateEnvironment();
   if (!isValid) {
     log.error('Environment validation failed:');
-    errors.forEach((err) => log.error(`  - ${err}`));
+    errors.forEach(err => log.error(`  - ${err}`));
     process.exit(1);
   }
 
@@ -271,7 +271,7 @@ async function runMigrations() {
 
 // Run migrations if this is the main module
 if (require.main === module) {
-  runMigrations().catch((error) => {
+  runMigrations().catch(error => {
     log.error(`Unexpected error: ${error}`);
     process.exit(1);
   });

@@ -1,4 +1,4 @@
-import { test, expect } from './setup';
+import { expect, test } from './setup';
 
 test.describe('Artist Profile Pages', () => {
   test.describe('Valid Artist Profile', () => {

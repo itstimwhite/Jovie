@@ -1,19 +1,19 @@
 'use client';
 
-import { useState, useRef, useMemo } from 'react';
 import { useAuth } from '@clerk/nextjs';
+import Image from 'next/image';
+import { useMemo, useRef, useState } from 'react';
+import AvatarUploader from '@/components/dashboard/molecules/AvatarUploader';
+import { Button } from '@/components/ui/Button';
+import { ErrorSummary } from '@/components/ui/ErrorSummary';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
+import { flags } from '@/lib/env';
 import {
   Artist,
   CreatorProfile,
   convertCreatorProfileToArtist,
 } from '@/types/db';
-import Image from 'next/image';
-import AvatarUploader from '@/components/dashboard/molecules/AvatarUploader';
-import { ErrorSummary } from '@/components/ui/ErrorSummary';
-import { flags } from '@/lib/env';
 
 interface ProfileFormProps {
   artist: Artist;
@@ -141,21 +141,21 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
     <form
       ref={formRef}
       onSubmit={handleSubmit}
-      className="space-y-4"
+      className='space-y-4'
       noValidate
     >
       {/* Screen reader announcements */}
       <div
-        className="sr-only"
-        aria-live="assertive"
-        aria-atomic="true"
-        id="success-message"
+        className='sr-only'
+        aria-live='assertive'
+        aria-atomic='true'
+        id='success-message'
       ></div>
 
       {/* Error summary for screen readers */}
       <ErrorSummary
         errors={formErrors}
-        onFocusField={(fieldName) => {
+        onFocusField={fieldName => {
           if (fieldName === 'name' && nameInputRef.current) {
             nameInputRef.current.focus();
           }
@@ -165,31 +165,31 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
       {/* Avatar uploader (feature-flagged) */}
       {flags.feature_image_cdn_cloudinary && (
         <FormField
-          label="Profile Image"
-          helpText="Upload a profile picture to personalize your profile"
+          label='Profile Image'
+          helpText='Upload a profile picture to personalize your profile'
         >
-          <div className="flex items-center gap-4">
+          <div className='flex items-center gap-4'>
             {formData.image_url ? (
               <Image
                 src={formData.image_url}
-                alt="Current avatar"
+                alt='Current avatar'
                 width={64}
                 height={64}
-                className="rounded-full object-cover"
+                className='rounded-full object-cover'
               />
             ) : (
               <div
-                className="w-16 h-16 rounded-full bg-neutral-200 dark:bg-neutral-800"
-                aria-label="No profile image"
+                className='w-16 h-16 rounded-full bg-neutral-200 dark:bg-neutral-800'
+                aria-label='No profile image'
               />
             )}
-            <div className="flex-1">
+            <div className='flex-1'>
               <AvatarUploader
-                onUploaded={(res) => {
+                onUploaded={res => {
                   // For now, persist the secure_url into avatar_url
-                  setFormData((f) => ({ ...f, image_url: res.secure_url }));
+                  setFormData(f => ({ ...f, image_url: res.secure_url }));
                 }}
-                folder="avatars"
+                folder='avatars'
               />
             </div>
           </div>
@@ -197,22 +197,22 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
       )}
 
       <FormField
-        label="Artist Name"
+        label='Artist Name'
         error={formSubmitted ? validationErrors.name : undefined}
-        helpText="Your name as it will appear on your profile"
-        id="artist-name"
+        helpText='Your name as it will appear on your profile'
+        id='artist-name'
         required
       >
         <Input
           ref={nameInputRef}
-          type="text"
+          type='text'
           value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          placeholder="Your Artist Name"
+          onChange={e => setFormData({ ...formData, name: e.target.value })}
+          placeholder='Your Artist Name'
           required
-          autoCapitalize="words"
-          autoCorrect="on"
-          autoComplete="name"
+          autoCapitalize='words'
+          autoCorrect='on'
+          autoComplete='name'
           validationState={
             formSubmitted && validationErrors.name ? 'invalid' : null
           }
@@ -220,21 +220,19 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
       </FormField>
 
       <FormField
-        label="Tagline"
+        label='Tagline'
         error={formSubmitted ? validationErrors.tagline : undefined}
-        helpText="A brief description that appears under your name (max 160 characters)"
-        id="artist-tagline"
+        helpText='A brief description that appears under your name (max 160 characters)'
+        id='artist-tagline'
       >
         <Input
-          type="text"
+          type='text'
           value={formData.tagline}
-          onChange={(e) =>
-            setFormData({ ...formData, tagline: e.target.value })
-          }
-          placeholder="Share your story, music journey, or what inspires you..."
-          autoCapitalize="sentences"
-          autoCorrect="on"
-          autoComplete="off"
+          onChange={e => setFormData({ ...formData, tagline: e.target.value })}
+          placeholder='Share your story, music journey, or what inspires you...'
+          autoCapitalize='sentences'
+          autoCorrect='on'
+          autoComplete='off'
           validationState={
             formSubmitted && validationErrors.tagline ? 'invalid' : null
           }
@@ -244,21 +242,21 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
       {/* Branding Toggle - only show if user has the feature */}
       {hasRemoveBrandingFeature && (
         <FormField
-          label="Branding"
-          helpText="Control whether Jovie branding appears on your profile"
-          id="branding-toggle"
+          label='Branding'
+          helpText='Control whether Jovie branding appears on your profile'
+          id='branding-toggle'
         >
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className='flex items-center justify-between'>
+            <div className='flex flex-col'>
+              <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
                 Show Jovie branding
               </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className='text-xs text-gray-500 dark:text-gray-400'>
                 Display Jovie branding on your profile
               </span>
             </div>
             <button
-              type="button"
+              type='button'
               onClick={() =>
                 setFormData({
                   ...formData,
@@ -282,7 +280,7 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
                 className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                   formData.hide_branding ? 'translate-x-1' : 'translate-x-6'
                 }`}
-                aria-hidden="true"
+                aria-hidden='true'
               />
             </button>
           </div>
@@ -290,17 +288,17 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
       )}
 
       <Button
-        type="submit"
+        type='submit'
         disabled={loading}
-        variant="primary"
-        className="w-full"
+        variant='primary'
+        className='w-full'
         aria-busy={loading}
       >
         {loading ? (
-          <div className="flex items-center justify-center space-x-2">
+          <div className='flex items-center justify-center space-x-2'>
             <span
-              className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"
-              aria-hidden="true"
+              className='animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full'
+              aria-hidden='true'
             ></span>
             <span>Updating...</span>
           </div>
@@ -311,11 +309,11 @@ export function ProfileForm({ artist, onUpdate }: ProfileFormProps) {
 
       {success && (
         <div
-          className="bg-green-500/10 border border-green-500/20 rounded-lg p-3"
-          role="status"
-          aria-live="polite"
+          className='bg-green-500/10 border border-green-500/20 rounded-lg p-3'
+          role='status'
+          aria-live='polite'
         >
-          <p className="text-sm text-green-600 dark:text-green-400">
+          <p className='text-sm text-green-600 dark:text-green-400'>
             Profile updated successfully!
           </p>
         </div>

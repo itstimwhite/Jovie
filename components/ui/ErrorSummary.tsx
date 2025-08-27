@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 interface ErrorSummaryProps {
@@ -42,28 +42,28 @@ export function ErrorSummary({
         className
       )}
       tabIndex={-1}
-      role="alert"
-      aria-labelledby="error-summary-title"
+      role='alert'
+      aria-labelledby='error-summary-title'
     >
       <h2
-        id="error-summary-title"
-        className="text-lg font-semibold text-red-800 dark:text-red-200 mb-2"
+        id='error-summary-title'
+        className='text-lg font-semibold text-red-800 dark:text-red-200 mb-2'
       >
         {title}
       </h2>
 
-      <div className="text-red-700 dark:text-red-300">
-        <p className="mb-2">
+      <div className='text-red-700 dark:text-red-300'>
+        <p className='mb-2'>
           Please fix the following{' '}
           {errorCount === 1 ? 'error' : `${errorCount} errors`}:
         </p>
-        <ul className="list-disc pl-5 space-y-1">
+        <ul className='list-disc pl-5 space-y-1'>
           {Object.entries(errors).map(([fieldName, errorMessage]) => (
             <li key={fieldName}>
               {onFocusField ? (
                 <button
-                  type="button"
-                  className="underline focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
+                  type='button'
+                  className='underline focus:outline-none focus:ring-2 focus:ring-red-500 rounded'
                   onClick={() => onFocusField(fieldName)}
                 >
                   {errorMessage}

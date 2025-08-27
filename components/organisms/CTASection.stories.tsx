@@ -97,20 +97,20 @@ export const CustomClassName: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="flex flex-col gap-8">
+    <div className='flex flex-col gap-8'>
       <CTASection
-        title="Primary Variant"
-        description="This is the primary variant of the CTA section, typically used on light backgrounds."
-        buttonText="Primary Action"
-        buttonHref="/action"
-        variant="primary"
+        title='Primary Variant'
+        description='This is the primary variant of the CTA section, typically used on light backgrounds.'
+        buttonText='Primary Action'
+        buttonHref='/action'
+        variant='primary'
       />
       <CTASection
-        title="Secondary Variant"
-        description="This is the secondary variant of the CTA section, typically used for higher contrast."
-        buttonText="Secondary Action"
-        buttonHref="/action"
-        variant="secondary"
+        title='Secondary Variant'
+        description='This is the secondary variant of the CTA section, typically used for higher contrast.'
+        buttonText='Secondary Action'
+        buttonHref='/action'
+        variant='secondary'
       />
     </div>
   ),

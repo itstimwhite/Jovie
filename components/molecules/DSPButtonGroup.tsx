@@ -33,7 +33,7 @@ export function DSPButtonGroup({
   if (!dsps || !dsps.length) {
     return (
       <div className={`text-center py-8 ${className}`}>
-        <p className="text-gray-500 text-sm">
+        <p className='text-gray-500 text-sm'>
           No streaming platforms available
         </p>
       </div>
@@ -42,7 +42,7 @@ export function DSPButtonGroup({
 
   return (
     <div className={`space-y-3 ${className}`}>
-      {dsps.map((dsp) => (
+      {dsps.map(dsp => (
         <DSPButton
           key={dsp.key}
           name={dsp.name}
@@ -57,7 +57,7 @@ export function DSPButtonGroup({
         />
       ))}
       {showPreferenceNotice && (
-        <p className="text-xs text-gray-500 text-center">
+        <p className='text-xs text-gray-500 text-center'>
           {preferenceNoticeText}
         </p>
       )}

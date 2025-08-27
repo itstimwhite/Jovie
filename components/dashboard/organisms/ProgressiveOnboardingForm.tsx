@@ -1,26 +1,26 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useUser, useSession } from '@clerk/nextjs';
+import { useSession, useUser } from '@clerk/nextjs';
 import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { completeOnboarding } from '@/app/onboarding/actions';
+import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
+import { ArtistCard } from '@/components/ui/ArtistCard';
 import { Button } from '@/components/ui/Button';
+import { ErrorSummary } from '@/components/ui/ErrorSummary';
+import { OptimisticProgress } from '@/components/ui/OptimisticProgress';
 import { ProgressIndicator } from '@/components/ui/ProgressIndicator';
 import {
-  SmartHandleInput,
   type HandleValidationState,
+  SmartHandleInput,
 } from '@/components/ui/SmartHandleInput';
-import { ArtistCard } from '@/components/ui/ArtistCard';
-import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
-import { OptimisticProgress } from '@/components/ui/OptimisticProgress';
-import { ErrorSummary } from '@/components/ui/ErrorSummary';
 import { APP_URL } from '@/constants/app';
-import { completeOnboarding } from '@/app/onboarding/actions';
-import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
 import {
   getUserFriendlyMessage,
   OnboardingErrorCode,
 } from '@/lib/errors/onboarding';
+import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
 
 // Progressive form steps
 interface OnboardingStep {
@@ -287,7 +287,7 @@ export function ProgressiveOnboardingForm() {
       )
         return;
 
-      setState((prev) => ({
+      setState(prev => ({
         ...prev,
         error: null,
         step: 'validating',
@@ -301,7 +301,7 @@ export function ProgressiveOnboardingForm() {
           displayName: selectedArtist?.artistName || handle,
         });
 
-        setState((prev) => ({ ...prev, step: 'complete', progress: 100 }));
+        setState(prev => ({ ...prev, step: 'complete', progress: 100 }));
 
         // Clear session data
         sessionStorage.removeItem('selectedArtist');
@@ -320,7 +320,7 @@ export function ProgressiveOnboardingForm() {
         console.error('Onboarding error:', error);
 
         if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
-          setState((prev) => ({ ...prev, step: 'complete', progress: 100 }));
+          setState(prev => ({ ...prev, step: 'complete', progress: 100 }));
           return;
         }
 
@@ -368,7 +368,7 @@ export function ProgressiveOnboardingForm() {
           }
         }
 
-        setState((prev) => ({
+        setState(prev => ({
           ...prev,
           error: userMessage,
           step: shouldRetry ? 'validating' : 'checking-handle', // Go back to handle step for username issues
@@ -461,25 +461,25 @@ export function ProgressiveOnboardingForm() {
     switch (currentStepIndex) {
       case 0: // Welcome step
         return (
-          <div className="text-center space-y-6">
-            <div className="space-y-2">
+          <div className='text-center space-y-6'>
+            <div className='space-y-2'>
               <h2
-                className="text-2xl font-semibold text-gray-900 dark:text-white"
+                className='text-2xl font-semibold text-gray-900 dark:text-white'
                 tabIndex={-1}
               >
                 Welcome to Jovie! 🎵
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className='text-gray-600 dark:text-gray-400'>
                 Let&apos;s create your artist profile in just a few simple
                 steps.
               </p>
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 space-y-2">
-              <h3 className="font-medium text-blue-900 dark:text-blue-100">
+            <div className='bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 space-y-2'>
+              <h3 className='font-medium text-blue-900 dark:text-blue-100'>
                 What you&apos;ll get:
               </h3>
-              <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+              <ul className='text-sm text-blue-800 dark:text-blue-200 space-y-1'>
                 <li>• Your own jovie.link/yourname URL</li>
                 <li>• Professional artist profile page</li>
                 <li>• Direct fan engagement tools</li>
@@ -489,9 +489,9 @@ export function ProgressiveOnboardingForm() {
 
             <Button
               onClick={goToNextStep}
-              variant="primary"
-              className="w-full min-h-[48px]" // Mobile-first touch target
-              size="lg"
+              variant='primary'
+              className='w-full min-h-[48px]' // Mobile-first touch target
+              size='lg'
             >
               Get Started
             </Button>
@@ -500,26 +500,26 @@ export function ProgressiveOnboardingForm() {
 
       case 1: // Artist selection step
         return (
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
+          <div className='space-y-6'>
+            <div className='text-center space-y-2'>
               <h2
-                className="text-2xl font-semibold text-gray-900 dark:text-white"
+                className='text-2xl font-semibold text-gray-900 dark:text-white'
                 tabIndex={-1}
               >
                 Find Your Artist Profile
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className='text-gray-600 dark:text-gray-400'>
                 Search for your artist profile on Spotify to connect your music.
               </p>
             </div>
 
             {/* Artist search */}
-            <div className="space-y-4">
-              <div className="relative">
+            <div className='space-y-4'>
+              <div className='relative'>
                 <input
-                  type="text"
-                  placeholder="Search for your artist name..."
-                  onChange={(e) => {
+                  type='text'
+                  placeholder='Search for your artist name...'
+                  onChange={e => {
                     const value = e.target.value;
                     if (value.trim()) {
                       searchArtists(value);
@@ -527,21 +527,21 @@ export function ProgressiveOnboardingForm() {
                       clearResults();
                     }
                   }}
-                  className="w-full px-4 py-3 pl-12 text-base bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className='w-full px-4 py-3 pl-12 text-base bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                   autoFocus
                 />
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
                   <svg
-                    className="h-5 w-5 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                    className='h-5 w-5 text-gray-400'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'
                   >
                     <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
                       strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
                     />
                   </svg>
                 </div>
@@ -549,20 +549,20 @@ export function ProgressiveOnboardingForm() {
 
               {/* Search results */}
               {isSearching && (
-                <div className="flex items-center justify-center py-8">
-                  <LoadingSpinner size="md" />
+                <div className='flex items-center justify-center py-8'>
+                  <LoadingSpinner size='md' />
                 </div>
               )}
 
               {searchError && (
-                <div className="text-center py-4 text-red-600 dark:text-red-400">
+                <div className='text-center py-4 text-red-600 dark:text-red-400'>
                   {searchError}
                 </div>
               )}
 
               {searchResults.length > 0 && (
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {searchResults.slice(0, 5).map((artist) => (
+                <div className='space-y-3 max-h-96 overflow-y-auto'>
+                  {searchResults.slice(0, 5).map(artist => (
                     <ArtistCard
                       key={artist.id}
                       id={artist.id}
@@ -580,18 +580,18 @@ export function ProgressiveOnboardingForm() {
             </div>
 
             {/* Navigation */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between">
+            <div className='flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between'>
               <Button
                 onClick={goToPreviousStep}
-                variant="secondary"
-                className="w-full sm:flex-1 sm:mr-2 min-h-[48px]" // Mobile-first touch target
+                variant='secondary'
+                className='w-full sm:flex-1 sm:mr-2 min-h-[48px]' // Mobile-first touch target
               >
                 Back
               </Button>
               <Button
                 onClick={handleSkipArtist}
-                variant="outline"
-                className="w-full sm:flex-1 sm:ml-2 min-h-[48px]" // Mobile-first touch target
+                variant='outline'
+                className='w-full sm:flex-1 sm:ml-2 min-h-[48px]' // Mobile-first touch target
               >
                 Skip for Now
               </Button>
@@ -601,15 +601,15 @@ export function ProgressiveOnboardingForm() {
 
       case 2: // Handle selection step
         return (
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
+          <div className='space-y-6'>
+            <div className='text-center space-y-2'>
               <h2
-                className="text-2xl font-semibold text-gray-900 dark:text-white"
+                className='text-2xl font-semibold text-gray-900 dark:text-white'
                 tabIndex={-1}
               >
                 Choose Your Handle
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className='text-gray-600 dark:text-gray-400'>
                 This will be your unique jovie.link URL that fans use to find
                 you.
               </p>
@@ -617,24 +617,24 @@ export function ProgressiveOnboardingForm() {
 
             {/* Selected artist display */}
             {selectedArtist && (
-              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                <div className="flex items-center space-x-3">
+              <div className='bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4'>
+                <div className='flex items-center space-x-3'>
                   {selectedArtist.imageUrl && (
-                    <div className="w-12 h-12 rounded-full overflow-hidden">
+                    <div className='w-12 h-12 rounded-full overflow-hidden'>
                       <Image
                         src={selectedArtist.imageUrl}
                         alt={selectedArtist.artistName}
                         width={48}
                         height={48}
-                        className="w-full h-full object-cover"
+                        className='w-full h-full object-cover'
                       />
                     </div>
                   )}
                   <div>
-                    <h3 className="font-medium text-green-900 dark:text-green-100">
+                    <h3 className='font-medium text-green-900 dark:text-green-100'>
                       {selectedArtist.artistName}
                     </h3>
-                    <p className="text-sm text-green-700 dark:text-green-300">
+                    <p className='text-sm text-green-700 dark:text-green-300'>
                       Connected Spotify Artist
                     </p>
                   </div>
@@ -648,25 +648,25 @@ export function ProgressiveOnboardingForm() {
               onChange={setHandle}
               onValidationChange={handleValidationChange}
               prefix={`${displayDomain}/`}
-              placeholder="yourname"
+              placeholder='yourname'
               artistName={selectedArtist?.artistName}
               showAvailability={true}
               formatHints={true}
             />
 
             {/* Navigation */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between">
+            <div className='flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between'>
               <Button
                 onClick={goToPreviousStep}
-                variant="secondary"
-                className="w-full sm:flex-1 sm:mr-2 min-h-[48px]" // Mobile-first touch target
+                variant='secondary'
+                className='w-full sm:flex-1 sm:mr-2 min-h-[48px]' // Mobile-first touch target
               >
                 Back
               </Button>
               <Button
                 onClick={goToNextStep}
-                variant="primary"
-                className="w-full sm:flex-1 sm:ml-2 min-h-[48px]" // Mobile-first touch target
+                variant='primary'
+                className='w-full sm:flex-1 sm:ml-2 min-h-[48px]' // Mobile-first touch target
                 disabled={!canProceedToNextStep}
               >
                 Continue
@@ -677,79 +677,79 @@ export function ProgressiveOnboardingForm() {
 
       case 3: // Confirmation step
         return (
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
+          <div className='space-y-6'>
+            <div className='text-center space-y-2'>
               <h2
-                className="text-2xl font-semibold text-gray-900 dark:text-white"
+                className='text-2xl font-semibold text-gray-900 dark:text-white'
                 tabIndex={-1}
               >
                 Almost Done! 🎉
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className='text-gray-600 dark:text-gray-400'>
                 Review your profile details and create your account.
               </p>
             </div>
 
             {/* Profile preview */}
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-4">
+            <div className='bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800'>
+              <h3 className='font-semibold text-gray-900 dark:text-white mb-4'>
                 Your Profile Preview
               </h3>
 
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 space-y-4">
+              <div className='bg-white dark:bg-gray-800 rounded-lg p-4 space-y-4'>
                 {/* Profile header */}
-                <div className="flex items-center space-x-4">
+                <div className='flex items-center space-x-4'>
                   {selectedArtist?.imageUrl ? (
-                    <div className="w-16 h-16 rounded-full overflow-hidden">
+                    <div className='w-16 h-16 rounded-full overflow-hidden'>
                       <Image
                         src={selectedArtist.imageUrl}
                         alt={selectedArtist.artistName}
                         width={64}
                         height={64}
-                        className="w-full h-full object-cover"
+                        className='w-full h-full object-cover'
                       />
                     </div>
                   ) : (
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl">
+                    <div className='w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl'>
                       {(selectedArtist?.artistName || handle)
                         .charAt(0)
                         .toUpperCase()}
                     </div>
                   )}
                   <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white text-lg">
+                    <h4 className='font-semibold text-gray-900 dark:text-white text-lg'>
                       {selectedArtist?.artistName || handle}
                     </h4>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className='text-gray-600 dark:text-gray-400'>
                       {displayDomain}/{handle}
                     </p>
                   </div>
                 </div>
 
                 {/* Profile details */}
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">
+                <div className='border-t border-gray-200 dark:border-gray-700 pt-4 space-y-2'>
+                  <div className='flex justify-between text-sm'>
+                    <span className='text-gray-600 dark:text-gray-400'>
                       Handle:
                     </span>
-                    <span className="font-mono text-gray-900 dark:text-white">
+                    <span className='font-mono text-gray-900 dark:text-white'>
                       @{handle}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600 dark:text-gray-400">
+                  <div className='flex justify-between text-sm'>
+                    <span className='text-gray-600 dark:text-gray-400'>
                       Profile URL:
                     </span>
-                    <span className="font-mono text-blue-600 dark:text-blue-400">
+                    <span className='font-mono text-blue-600 dark:text-blue-400'>
                       {displayDomain}/{handle}
                     </span>
                   </div>
                   {selectedArtist && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600 dark:text-gray-400">
+                    <div className='flex justify-between text-sm'>
+                      <span className='text-gray-600 dark:text-gray-400'>
                         Spotify Artist:
                       </span>
-                      <span className="text-gray-900 dark:text-white">
+                      <span className='text-gray-900 dark:text-white'>
                         Connected
                       </span>
                     </div>
@@ -759,29 +759,29 @@ export function ProgressiveOnboardingForm() {
             </div>
 
             {/* Final submission */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className='space-y-4'>
               <Button
-                type="submit"
+                type='submit'
                 disabled={!canProceedToNextStep || state.isSubmitting}
-                variant="primary"
-                className="w-full min-h-[48px]" // Mobile-first touch target
-                size="lg"
+                variant='primary'
+                className='w-full min-h-[48px]' // Mobile-first touch target
+                size='lg'
               >
                 {!state.isSubmitting ? (
                   'Create My Profile'
                 ) : (
-                  <div className="flex items-center justify-center space-x-2">
-                    <LoadingSpinner size="sm" />
+                  <div className='flex items-center justify-center space-x-2'>
+                    <LoadingSpinner size='sm' />
                     <span>Creating profile...</span>
                   </div>
                 )}
               </Button>
 
               <Button
-                type="button"
+                type='button'
                 onClick={goToPreviousStep}
-                variant="secondary"
-                className="w-full min-h-[48px]" // Mobile-first touch target
+                variant='secondary'
+                className='w-full min-h-[48px]' // Mobile-first touch target
                 disabled={state.isSubmitting}
               >
                 Back to Edit Handle
@@ -825,17 +825,17 @@ export function ProgressiveOnboardingForm() {
   ]);
 
   return (
-    <div className="space-y-6" role="main" aria-label="Onboarding form">
+    <div className='space-y-6' role='main' aria-label='Onboarding form'>
       {/* Skip link for accessibility */}
       <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50"
+        href='#main-content'
+        className='sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50'
       >
         Skip to main content
       </a>
 
       {/* Screen reader announcements */}
-      <div className="sr-only" aria-live="polite" aria-atomic="true">
+      <div className='sr-only' aria-live='polite' aria-atomic='true'>
         Step {currentStepIndex + 1} of {ONBOARDING_STEPS.length}:{' '}
         {ONBOARDING_STEPS[currentStepIndex]?.title}
       </div>
@@ -861,16 +861,16 @@ export function ProgressiveOnboardingForm() {
 
       {/* Error display - only show session expiry errors here, others in ErrorSummary */}
       {state.error && state.error.includes('session') && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 transition-all duration-200">
-          <div className="flex items-center justify-between">
-            <p className="text-red-800 dark:text-red-200 text-sm" role="alert">
+        <div className='bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 transition-all duration-200'>
+          <div className='flex items-center justify-between'>
+            <p className='text-red-800 dark:text-red-200 text-sm' role='alert'>
               {state.error}
             </p>
             <Button
               onClick={() => router.push('/sign-in')}
-              variant="primary"
-              size="sm"
-              aria-label="Go to sign in"
+              variant='primary'
+              size='sm'
+              aria-label='Go to sign in'
             >
               Sign In
             </Button>
@@ -880,10 +880,10 @@ export function ProgressiveOnboardingForm() {
 
       {/* Screen reader announcements */}
       <div
-        className="sr-only"
-        aria-live="assertive"
-        aria-atomic="true"
-        id="step-announcement"
+        className='sr-only'
+        aria-live='assertive'
+        aria-atomic='true'
+        id='step-announcement'
       >
         {isTransitioning
           ? `Moving to ${ONBOARDING_STEPS[currentStepIndex]?.title} step`
@@ -894,7 +894,7 @@ export function ProgressiveOnboardingForm() {
 
       {/* Error summary for screen readers - exclude session errors shown above */}
       {Object.keys(formErrors || {}).filter(
-        (errorKey) => !(formErrors[errorKey] || '').includes('session')
+        errorKey => !(formErrors[errorKey] || '').includes('session')
       ).length > 0 && (
         <ErrorSummary
           errors={Object.fromEntries(
@@ -902,8 +902,8 @@ export function ProgressiveOnboardingForm() {
               ([, value]) => !(value || '').includes('session')
             )
           )}
-          title="Please fix the following errors before continuing"
-          onFocusField={(fieldName) => {
+          title='Please fix the following errors before continuing'
+          onFocusField={fieldName => {
             const element = document.getElementById(fieldName);
             if (element) {
               element.focus();
@@ -914,13 +914,13 @@ export function ProgressiveOnboardingForm() {
 
       {/* Step content with smooth transitions */}
       <div
-        className="min-h-[400px] flex items-start"
-        role="region"
-        aria-labelledby="step-heading"
-        id="main-content"
+        className='min-h-[400px] flex items-start'
+        role='region'
+        aria-labelledby='step-heading'
+        id='main-content'
       >
-        <div className="w-full">
-          <div id="step-heading" className="sr-only">
+        <div className='w-full'>
+          <div id='step-heading' className='sr-only'>
             {ONBOARDING_STEPS[currentStepIndex]?.title} step content
           </div>
           <div
@@ -935,24 +935,24 @@ export function ProgressiveOnboardingForm() {
 
       {/* Success completion */}
       {state.step === 'complete' && (
-        <div className="text-center space-y-4 py-8">
-          <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto">
+        <div className='text-center space-y-4 py-8'>
+          <div className='w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto'>
             <svg
-              className="w-8 h-8 text-white"
-              fill="currentColor"
-              viewBox="0 0 20 20"
+              className='w-8 h-8 text-white'
+              fill='currentColor'
+              viewBox='0 0 20 20'
             >
               <path
-                fillRule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clipRule="evenodd"
+                fillRule='evenodd'
+                d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                clipRule='evenodd'
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+          <h2 className='text-2xl font-semibold text-gray-900 dark:text-white'>
             Profile Created Successfully!
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className='text-gray-600 dark:text-gray-400'>
             Redirecting you to your dashboard...
           </p>
         </div>

@@ -1,11 +1,11 @@
 'use server';
 
 import { auth } from '@clerk/nextjs/server';
-import { db } from '@/lib/db';
-import { users, creatorProfiles, type CreatorProfile } from '@/lib/db/schema';
-import { eq, asc } from 'drizzle-orm';
-import { withDbSession } from '@/lib/auth/session';
+import { asc, eq } from 'drizzle-orm';
 import { unstable_noStore as noStore } from 'next/cache';
+import { withDbSession } from '@/lib/auth/session';
+import { db } from '@/lib/db';
+import { type CreatorProfile, creatorProfiles, users } from '@/lib/db/schema';
 
 export interface DashboardData {
   user: { id: string } | null;
@@ -29,7 +29,7 @@ export async function getDashboardData(): Promise<DashboardData> {
     };
   }
 
-  return await withDbSession(async (clerkUserId) => {
+  return await withDbSession(async clerkUserId => {
     try {
       // First check if user exists in users table
       const [userData] = await db
@@ -104,7 +104,7 @@ export async function updateCreatorProfile(
     throw new Error('Unauthorized');
   }
 
-  return await withDbSession(async (clerkUserId) => {
+  return await withDbSession(async clerkUserId => {
     try {
       // First get the user's database ID
       const [user] = await db

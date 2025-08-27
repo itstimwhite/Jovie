@@ -5,10 +5,10 @@
 
 import 'server-only';
 import { auth } from '@clerk/nextjs/server';
-import { db } from '@/lib/db';
-import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { withDbSession } from '@/lib/auth/session';
+import { db } from '@/lib/db';
+import { users } from '@/lib/db/schema';
 import { getOrCreateCustomer } from './client';
 
 /**
@@ -27,7 +27,7 @@ export async function ensureStripeCustomer(): Promise<{
       return { success: false, error: 'User not authenticated' };
     }
 
-    return await withDbSession(async (clerkUserId) => {
+    return await withDbSession(async clerkUserId => {
       // Get user details from our database
       const [userData] = await db
         .select({
@@ -101,7 +101,7 @@ export async function getUserBillingInfo(): Promise<{
       return { success: false, error: 'User not authenticated' };
     }
 
-    return await withDbSession(async (clerkUserId) => {
+    return await withDbSession(async clerkUserId => {
       const [userData] = await db
         .select({
           id: users.id,

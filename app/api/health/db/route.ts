@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { env } from '@/lib/env';
-import { logger } from '@/lib/utils/logger';
 import { db } from '@/lib/db';
 import { creatorProfiles } from '@/lib/db/schema';
+import { env } from '@/lib/env';
+import { logger } from '@/lib/utils/logger';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

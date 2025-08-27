@@ -25,7 +25,7 @@ const config: StorybookConfig = {
     reactDocgen: 'react-docgen-typescript',
     reactDocgenTypescriptOptions: {
       shouldExtractLiteralValuesFromEnum: true,
-      propFilter: (prop) =>
+      propFilter: prop =>
         prop.parent ? !/node_modules/.test(prop.parent.fileName) : true,
       compilerOptions: {
         allowSyntheticDefaultImports: true,
@@ -36,7 +36,7 @@ const config: StorybookConfig = {
   core: {
     disableTelemetry: true,
   },
-  viteFinal: async (config) => {
+  viteFinal: async config => {
     // Handle Node.js modules for browser compatibility
     config.define = {
       ...config.define,

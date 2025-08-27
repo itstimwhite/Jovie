@@ -1,8 +1,8 @@
+import { eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
+import { ArtistTheme } from '@/components/profile/ArtistThemeProvider';
 import { db } from '@/lib/db';
 import { creatorProfiles } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
-import { ArtistTheme } from '@/components/profile/ArtistThemeProvider';
 
 export async function POST(request: NextRequest) {
   try {

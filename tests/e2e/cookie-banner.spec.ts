@@ -1,4 +1,4 @@
-import { test, expect } from './setup';
+import { expect, test } from './setup';
 
 test.describe('Cookie banner', () => {
   test('shows based on country', async ({ page }) => {

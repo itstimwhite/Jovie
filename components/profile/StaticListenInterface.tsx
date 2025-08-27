@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Artist } from '@/types/db';
-import { getAvailableDSPs, AvailableDSP } from '@/lib/dsp';
+import React, { useEffect, useState } from 'react';
 // Lazy import deep links to avoid loading heavy code upfront
 import { LISTEN_COOKIE } from '@/constants/app';
+import { AvailableDSP, getAvailableDSPs } from '@/lib/dsp';
+import { Artist } from '@/types/db';
 
 interface StaticListenInterfaceProps {
   artist: Artist;
@@ -52,7 +52,7 @@ export const StaticListenInterface = React.memo(function StaticListenInterface({
   // Preload DSP domains for faster opens
   useEffect(() => {
     const preloadDomains = ['open.spotify.com', 'music.apple.com'];
-    preloadDomains.forEach((domain) => {
+    preloadDomains.forEach(domain => {
       const link = document.createElement('link');
       link.rel = 'dns-prefetch';
       link.href = `https://${domain}`;
@@ -140,10 +140,10 @@ export const StaticListenInterface = React.memo(function StaticListenInterface({
   };
 
   return (
-    <div className="w-full max-w-sm">
+    <div className='w-full max-w-sm'>
       {/* DSP Buttons */}
-      <div className="space-y-3">
-        {availableDSPs.map((dsp) => (
+      <div className='space-y-3'>
+        {availableDSPs.map(dsp => (
           <button
             key={dsp.key}
             onClick={() => handleDSPClick(dsp)}
@@ -163,7 +163,7 @@ export const StaticListenInterface = React.memo(function StaticListenInterface({
             aria-label={`Open in ${dsp.name} app if installed, otherwise opens in web browser`}
           >
             <div
-              className="flex-shrink-0"
+              className='flex-shrink-0'
               dangerouslySetInnerHTML={{ __html: dsp.config.logoSvg }}
             />
             <span>
@@ -174,8 +174,8 @@ export const StaticListenInterface = React.memo(function StaticListenInterface({
       </div>
 
       {/* Help text */}
-      <div className="mt-6 text-center">
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+      <div className='mt-6 text-center'>
+        <p className='text-xs text-gray-500 dark:text-gray-400'>
           If you have the app installed, it will open automatically
         </p>
       </div>

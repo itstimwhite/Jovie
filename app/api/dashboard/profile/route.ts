@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { updateCreatorProfile } from '@/lib/db/queries';
 import { withDbSession } from '@/lib/auth/session';
+import { updateCreatorProfile } from '@/lib/db/queries';
 
 export async function PUT(req: Request) {
   try {
-    return await withDbSession(async (userId) => {
+    return await withDbSession(async userId => {
       const body = (await req.json().catch(() => null)) as {
         updates?: Record<string, unknown>;
       } | null;

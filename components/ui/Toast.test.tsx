@@ -1,13 +1,13 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { vi, describe, it, expect } from 'vitest';
+import React from 'react';
+import { describe, expect, it, vi } from 'vitest';
 import { Toast } from './Toast';
 
 describe('Toast Component', () => {
   it('renders with default props', () => {
     const onCloseMock = vi.fn();
     render(
-      <Toast id="test-toast" message="Test message" onClose={onCloseMock} />
+      <Toast id='test-toast' message='Test message' onClose={onCloseMock} />
     );
 
     expect(screen.getByText('Test message')).toBeInTheDocument();
@@ -16,16 +16,16 @@ describe('Toast Component', () => {
 
   it('renders with different types', () => {
     const { rerender } = render(
-      <Toast id="test-toast" message="Success message" type="success" />
+      <Toast id='test-toast' message='Success message' type='success' />
     );
     expect(screen.getByRole('status')).toHaveClass('bg-green-600');
 
     rerender(
-      <Toast id="test-toast" message="Warning message" type="warning" />
+      <Toast id='test-toast' message='Warning message' type='warning' />
     );
     expect(screen.getByRole('status')).toHaveClass('bg-amber-500');
 
-    rerender(<Toast id="test-toast" message="Error message" type="error" />);
+    rerender(<Toast id='test-toast' message='Error message' type='error' />);
     expect(screen.getByRole('status')).toHaveClass('bg-red-600');
   });
 
@@ -34,8 +34,8 @@ describe('Toast Component', () => {
 
     render(
       <Toast
-        id="test-toast"
-        message="Action message"
+        id='test-toast'
+        message='Action message'
         action={{
           label: 'Undo',
           onClick: actionMock,
@@ -57,8 +57,8 @@ describe('Toast Component', () => {
 
     render(
       <Toast
-        id="test-toast"
-        message="Auto close message"
+        id='test-toast'
+        message='Auto close message'
         duration={100}
         onClose={onCloseMock}
       />
@@ -87,8 +87,8 @@ describe('Toast Component', () => {
 
     render(
       <Toast
-        id="test-toast"
-        message="No auto close"
+        id='test-toast'
+        message='No auto close'
         duration={0}
         onClose={onCloseMock}
       />

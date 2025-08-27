@@ -1,21 +1,21 @@
 'use server';
 
 import { auth, currentUser } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
-import { db } from '@/lib/db';
-import { users, creatorProfiles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { redirect } from 'next/navigation';
 import { withDbSession } from '@/lib/auth/session';
-import { validateUsername, normalizeUsername } from '@/lib/validation/username';
+import { db } from '@/lib/db';
+import { creatorProfiles, users } from '@/lib/db/schema';
 import {
-  checkUsernameAvailability,
-  checkUserHasProfile,
-} from '@/lib/username/availability';
-import {
-  OnboardingErrorCode,
   createOnboardingError,
   mapDatabaseError,
+  OnboardingErrorCode,
 } from '@/lib/errors/onboarding';
+import {
+  checkUserHasProfile,
+  checkUsernameAvailability,
+} from '@/lib/username/availability';
+import { normalizeUsername, validateUsername } from '@/lib/validation/username';
 
 export async function completeOnboarding({
   username,
@@ -99,9 +99,9 @@ export async function completeOnboarding({
     const userEmail = user?.emailAddresses?.[0]?.emailAddress;
 
     // Step 8: Create records using Drizzle transaction
-    await withDbSession(async (clerkUserId) => {
+    await withDbSession(async clerkUserId => {
       try {
-        await db.transaction(async (tx) => {
+        await db.transaction(async tx => {
           // First create user record
           await tx
             .insert(users)

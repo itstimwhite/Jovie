@@ -15,7 +15,7 @@ export function AmountSelector({
 }: AmountSelectorProps) {
   return (
     <button
-      type="button"
+      type='button'
       onClick={onClick}
       aria-pressed={isSelected}
       className={cn(

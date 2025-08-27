@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { getUserByClerkId } from '@/lib/db/queries';
-import { db } from '@/lib/db';
-import { creatorProfiles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { getUserByClerkId } from '@/lib/db/queries';
+import { creatorProfiles } from '@/lib/db/schema';
 
 export const dynamic = 'force-dynamic';
 

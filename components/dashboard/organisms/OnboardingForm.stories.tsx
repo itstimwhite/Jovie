@@ -34,8 +34,8 @@ const meta: Meta<typeof OnboardingForm> = {
   },
   tags: ['autodocs'],
   decorators: [
-    (Story) => (
-      <div className="max-w-md w-full p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+    Story => (
+      <div className='max-w-md w-full p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm'>
         <Story />
       </div>
     ),
@@ -116,10 +116,10 @@ export const SubmittingState: Story = {
   },
   render: () => {
     return (
-      <div className="max-w-md w-full">
+      <div className='max-w-md w-full'>
         <OnboardingForm />
-        <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+        <div className='mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg'>
+          <p className='text-sm text-yellow-800 dark:text-yellow-200'>
             Note: This story simulates the submitting state. In the actual
             component, this state is triggered by form submission.
           </p>

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { getFeatureFlags, type FeatureFlags } from '@/lib/feature-flags';
+import { useEffect, useState } from 'react';
+import { type FeatureFlags, getFeatureFlags } from '@/lib/feature-flags';
 
 export function useFeatureFlags(): FeatureFlags {
   const [flags, setFlags] = useState<FeatureFlags>({

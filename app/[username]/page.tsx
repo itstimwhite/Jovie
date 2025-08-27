@@ -1,15 +1,15 @@
 import { notFound } from 'next/navigation';
 import { cache, Suspense } from 'react';
-import { getCreatorProfileWithLinks } from '@/lib/db/queries';
-import { ProgressiveArtistPage } from '@/components/profile/ProgressiveArtistPage';
 import { DesktopQrOverlay } from '@/components/profile/DesktopQrOverlay';
 import { ProfileSkeleton } from '@/components/profile/ProfileSkeleton';
+import { ProgressiveArtistPage } from '@/components/profile/ProgressiveArtistPage';
+import { PAGE_SUBTITLES } from '@/constants/app';
+import { getCreatorProfileWithLinks } from '@/lib/db/queries';
 import {
-  LegacySocialLink,
   CreatorProfile,
   convertCreatorProfileToArtist,
+  LegacySocialLink,
 } from '@/types/db';
-import { PAGE_SUBTITLES } from '@/constants/app';
 
 // Use centralized server helper for public data access
 
@@ -76,7 +76,7 @@ const getSocialLinks = cache(
       }
 
       // Convert Drizzle social links to legacy format
-      return profile.socialLinks.map((link) => ({
+      return profile.socialLinks.map(link => ({
         id: link.id,
         artist_id: profile.id,
         platform: link.platform.toLowerCase(),
@@ -131,7 +131,7 @@ export default async function ArtistPage({ params, searchParams }: Props) {
   };
 
   // Show tip button when not in tip mode and artist has venmo
-  const hasVenmoLink = socialLinks.some((link) => link.platform === 'venmo');
+  const hasVenmoLink = socialLinks.some(link => link.platform === 'venmo');
   const showTipButton = mode !== 'tip' && hasVenmoLink;
   const showBackButton = mode !== 'profile';
 

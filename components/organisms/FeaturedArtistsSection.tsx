@@ -24,26 +24,26 @@ export function FeaturedCreatorsSection({
 }: FeaturedCreatorsSectionProps) {
   return (
     <section
-      aria-label="Featured creators"
+      aria-label='Featured creators'
       className={`relative py-12 md:py-16 ${className}`}
-      data-testid="featured-creators"
+      data-testid='featured-creators'
     >
-      <div className="container mx-auto px-4">
-        <SectionHeading level={2} className="mb-12">
+      <div className='container mx-auto px-4'>
+        <SectionHeading level={2} className='mb-12'>
           {title}
         </SectionHeading>
 
         {/* Desktop: horizontal scroll */}
-        <div className="hidden md:block">
-          <ul className="flex items-center gap-8 overflow-x-auto scroll-smooth pb-4">
-            {creators.map((creator) => (
-              <li key={creator.id} className="shrink-0">
+        <div className='hidden md:block'>
+          <ul className='flex items-center gap-8 overflow-x-auto scroll-smooth pb-4'>
+            {creators.map(creator => (
+              <li key={creator.id} className='shrink-0'>
                 <ArtistCard
                   handle={creator.handle}
                   name={creator.name}
                   src={creator.src}
                   alt={creator.alt}
-                  size="md"
+                  size='md'
                 />
               </li>
             ))}
@@ -51,16 +51,16 @@ export function FeaturedCreatorsSection({
         </div>
 
         {/* Mobile: swipe */}
-        <div className="md:hidden">
-          <ul className="flex items-center gap-4 overflow-x-auto scroll-smooth px-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {creators.map((creator) => (
-              <li key={creator.id} className="shrink-0 first:ml-2 last:mr-2">
+        <div className='md:hidden'>
+          <ul className='flex items-center gap-4 overflow-x-auto scroll-smooth px-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden'>
+            {creators.map(creator => (
+              <li key={creator.id} className='shrink-0 first:ml-2 last:mr-2'>
                 <ArtistCard
                   handle={creator.handle}
                   name={creator.name}
                   src={creator.src}
                   alt={creator.alt}
-                  size="sm"
+                  size='sm'
                 />
               </li>
             ))}

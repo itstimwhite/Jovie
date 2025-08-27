@@ -1,19 +1,19 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
-import { DataCard } from '@/components/ui/DataCard';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import { Button } from '@/components/ui/Button';
+import { DataCard } from '@/components/ui/DataCard';
 
 describe('DataCard', () => {
   afterEach(cleanup);
 
   it('renders correctly with title', () => {
-    render(<DataCard title="Test Card" />);
+    render(<DataCard title='Test Card' />);
 
     expect(screen.getByText('Test Card')).toBeInTheDocument();
   });
 
   it('renders with subtitle', () => {
-    render(<DataCard title="Test Card" subtitle="Subtitle text" />);
+    render(<DataCard title='Test Card' subtitle='Subtitle text' />);
 
     expect(screen.getByText('Test Card')).toBeInTheDocument();
     expect(screen.getByText('Subtitle text')).toBeInTheDocument();
@@ -22,9 +22,9 @@ describe('DataCard', () => {
   it('renders with metadata', () => {
     render(
       <DataCard
-        title="Test Card"
-        subtitle="Subtitle text"
-        metadata="Additional info"
+        title='Test Card'
+        subtitle='Subtitle text'
+        metadata='Additional info'
       />
     );
 
@@ -34,7 +34,7 @@ describe('DataCard', () => {
   });
 
   it('renders with badge', () => {
-    render(<DataCard title="Test Card" badge="New" />);
+    render(<DataCard title='Test Card' badge='New' />);
 
     expect(screen.getByText('Test Card')).toBeInTheDocument();
     expect(screen.getByText('New')).toBeInTheDocument();
@@ -42,27 +42,27 @@ describe('DataCard', () => {
 
   it('renders with different badge variants', () => {
     const { rerender } = render(
-      <DataCard title="Test Card" badge="Success" badgeVariant="success" />
+      <DataCard title='Test Card' badge='Success' badgeVariant='success' />
     );
 
     expect(screen.getByText('Success')).toHaveClass('bg-green-100');
 
     rerender(
-      <DataCard title="Test Card" badge="Warning" badgeVariant="warning" />
+      <DataCard title='Test Card' badge='Warning' badgeVariant='warning' />
     );
     expect(screen.getByText('Warning')).toHaveClass('bg-yellow-100');
 
-    rerender(<DataCard title="Test Card" badge="Error" badgeVariant="error" />);
+    rerender(<DataCard title='Test Card' badge='Error' badgeVariant='error' />);
     expect(screen.getByText('Error')).toHaveClass('bg-red-100');
 
     rerender(
-      <DataCard title="Test Card" badge="Default" badgeVariant="default" />
+      <DataCard title='Test Card' badge='Default' badgeVariant='default' />
     );
     expect(screen.getByText('Default')).toHaveClass('bg-gray-100');
   });
 
   it('renders with actions', () => {
-    render(<DataCard title="Test Card" actions={<Button>Action</Button>} />);
+    render(<DataCard title='Test Card' actions={<Button>Action</Button>} />);
 
     expect(screen.getByText('Test Card')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Action' })).toBeInTheDocument();
@@ -70,8 +70,8 @@ describe('DataCard', () => {
 
   it('renders with children', () => {
     render(
-      <DataCard title="Test Card">
-        <div data-testid="custom-content">Custom content</div>
+      <DataCard title='Test Card'>
+        <div data-testid='custom-content'>Custom content</div>
       </DataCard>
     );
 
@@ -81,7 +81,7 @@ describe('DataCard', () => {
   });
 
   it('applies custom className', () => {
-    render(<DataCard title="Test Card" className="custom-card" />);
+    render(<DataCard title='Test Card' className='custom-card' />);
 
     const card = screen
       .getByText('Test Card')
@@ -90,7 +90,7 @@ describe('DataCard', () => {
   });
 
   it('renders with proper layout classes', () => {
-    render(<DataCard title="Test Card" />);
+    render(<DataCard title='Test Card' />);
 
     const card = screen
       .getByText('Test Card')
@@ -99,7 +99,7 @@ describe('DataCard', () => {
   });
 
   it('renders with dark mode classes', () => {
-    render(<DataCard title="Test Card" />);
+    render(<DataCard title='Test Card' />);
 
     const card = screen
       .getByText('Test Card')
@@ -119,14 +119,14 @@ describe('DataCard', () => {
   it('handles long subtitles with truncation', () => {
     const longSubtitle =
       'This is a very long subtitle that should be truncated when it exceeds the available space';
-    render(<DataCard title="Test Card" subtitle={longSubtitle} />);
+    render(<DataCard title='Test Card' subtitle={longSubtitle} />);
 
     const subtitleElement = screen.getByText(longSubtitle);
     expect(subtitleElement).toHaveClass('truncate');
   });
 
   it('renders without actions when not provided', () => {
-    render(<DataCard title="Test Card" />);
+    render(<DataCard title='Test Card' />);
 
     const card = screen.getByText('Test Card').closest('div');
     const actionsContainer = card?.querySelector('.flex-shrink-0');
@@ -134,7 +134,7 @@ describe('DataCard', () => {
   });
 
   it('renders with proper badge styling', () => {
-    render(<DataCard title="Test Card" badge="Test Badge" />);
+    render(<DataCard title='Test Card' badge='Test Badge' />);
 
     const badge = screen.getByText('Test Badge');
     expect(badge).toHaveClass(
@@ -147,7 +147,7 @@ describe('DataCard', () => {
   });
 
   it('handles empty strings gracefully', () => {
-    render(<DataCard title="Test Card" subtitle="" metadata="" badge="" />);
+    render(<DataCard title='Test Card' subtitle='' metadata='' badge='' />);
 
     expect(screen.getByText('Test Card')).toBeInTheDocument();
     // Empty strings should not be rendered as text content
@@ -157,7 +157,7 @@ describe('DataCard', () => {
   });
 
   it('renders with proper spacing for metadata', () => {
-    render(<DataCard title="Test Card" metadata="Metadata text" />);
+    render(<DataCard title='Test Card' metadata='Metadata text' />);
 
     const metadataElement = screen.getByText('Metadata text');
     expect(metadataElement).toHaveClass('text-xs', 'text-gray-400');

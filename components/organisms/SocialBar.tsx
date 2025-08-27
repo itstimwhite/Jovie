@@ -12,7 +12,7 @@ export function SocialBar({ handle, artistName, socialLinks }: SocialBarProps) {
     <div
       className={`flex flex-wrap justify-center gap-3 ${socialLinks.length === 0 ? 'hidden' : ''}`}
     >
-      {socialLinks.map((link) => (
+      {socialLinks.map(link => (
         <SocialLink
           key={link.id}
           link={link}

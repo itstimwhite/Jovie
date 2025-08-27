@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import { FormStatus } from '@/components/ui/FormStatus';
 
 describe('FormStatus', () => {
@@ -18,7 +18,7 @@ describe('FormStatus', () => {
   });
 
   it('renders error message', () => {
-    render(<FormStatus error="Something went wrong" />);
+    render(<FormStatus error='Something went wrong' />);
 
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
     expect(screen.getByText('Something went wrong')).toHaveClass(
@@ -27,7 +27,7 @@ describe('FormStatus', () => {
   });
 
   it('renders success message', () => {
-    render(<FormStatus success="Operation completed successfully" />);
+    render(<FormStatus success='Operation completed successfully' />);
 
     expect(
       screen.getByText('Operation completed successfully')
@@ -39,7 +39,7 @@ describe('FormStatus', () => {
 
   it('renders all states together', () => {
     render(
-      <FormStatus loading error="Error message" success="Success message" />
+      <FormStatus loading error='Error message' success='Success message' />
     );
 
     expect(screen.getByText('Processing...')).toBeInTheDocument();
@@ -48,7 +48,7 @@ describe('FormStatus', () => {
   });
 
   it('applies custom className', () => {
-    render(<FormStatus loading className="custom-status" />);
+    render(<FormStatus loading className='custom-status' />);
 
     const statusContainer = screen
       .getByText('Processing...')
@@ -74,19 +74,19 @@ describe('FormStatus', () => {
   });
 
   it('handles empty error message', () => {
-    render(<FormStatus error="" />);
+    render(<FormStatus error='' />);
     // Should not render error text when error is empty
     expect(screen.queryByText('error=""')).not.toBeInTheDocument();
   });
 
   it('handles empty success message', () => {
-    render(<FormStatus success="" />);
+    render(<FormStatus success='' />);
     // Should not render success text when success is empty
     expect(screen.queryByText('success=""')).not.toBeInTheDocument();
   });
 
   it('renders with dark mode classes', () => {
-    render(<FormStatus error="Error" success="Success" />);
+    render(<FormStatus error='Error' success='Success' />);
 
     const errorElement = screen.getByText('Error');
     const successElement = screen.getByText('Success');

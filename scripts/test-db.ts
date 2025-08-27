@@ -1,7 +1,7 @@
-import { db, withDb } from '@/lib/db';
-import { users, creatorProfiles, socialLinks } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
+import { db, withDb } from '@/lib/db';
+import { creatorProfiles, socialLinks, users } from '@/lib/db/schema';
 
 async function testDbConnection() {
   // Test connection
@@ -91,7 +91,7 @@ async function createTestUser() {
 async function queryTestUser(userId: string) {
   console.log('Querying test user...');
 
-  const { data, error } = await withDb(async (db) => {
+  const { data, error } = await withDb(async db => {
     return await db.query.users.findFirst({
       where: (users, { eq }) => eq(users.id, userId),
       with: {

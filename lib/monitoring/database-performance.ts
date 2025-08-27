@@ -3,8 +3,8 @@
  * Tracks query performance, connection pool usage, and database health
  */
 
-import { db } from '@/lib/db';
 import { sql as drizzleSql } from 'drizzle-orm';
+import { db } from '@/lib/db';
 
 export interface QueryPerformanceMetrics {
   query: string;
@@ -107,9 +107,7 @@ class DatabasePerformanceMonitor {
     errors: QueryPerformanceMetrics[];
   } {
     const cutoff = new Date(Date.now() - timeWindowMinutes * 60 * 1000);
-    const recentMetrics = this.queryMetrics.filter(
-      (m) => m.timestamp >= cutoff
-    );
+    const recentMetrics = this.queryMetrics.filter(m => m.timestamp >= cutoff);
 
     if (recentMetrics.length === 0) {
       return {
@@ -121,9 +119,9 @@ class DatabasePerformanceMonitor {
       };
     }
 
-    const successful = recentMetrics.filter((m) => m.success);
-    const errors = recentMetrics.filter((m) => !m.success);
-    const slowQueries = recentMetrics.filter((m) => m.duration > 500);
+    const successful = recentMetrics.filter(m => m.success);
+    const errors = recentMetrics.filter(m => !m.success);
+    const slowQueries = recentMetrics.filter(m => m.duration > 500);
 
     const averageResponseTime =
       successful.reduce((sum, m) => sum + m.duration, 0) / successful.length;
@@ -251,7 +249,7 @@ class DatabasePerformanceMonitor {
    */
   getSlowestQueries(limit = 10): QueryPerformanceMetrics[] {
     return this.queryMetrics
-      .filter((m) => m.success)
+      .filter(m => m.success)
       .sort((a, b) => b.duration - a.duration)
       .slice(0, limit);
   }
@@ -266,7 +264,7 @@ class DatabasePerformanceMonitor {
   }> {
     const cutoff = new Date(Date.now() - timeWindowMinutes * 60 * 1000);
     const recentMetrics = this.queryMetrics.filter(
-      (m) => m.timestamp >= cutoff && m.success
+      m => m.timestamp >= cutoff && m.success
     );
 
     const queryGroups = recentMetrics.reduce(

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { searchSpotifyArtists } from '@/lib/spotify';
 
 interface SearchResult {
@@ -38,7 +38,7 @@ export function useArtistSearch(): UseArtistSearchReturn {
     try {
       const spotifyArtists = await searchSpotifyArtists(query, 10);
 
-      const results: SearchResult[] = spotifyArtists.map((artist) => ({
+      const results: SearchResult[] = spotifyArtists.map(artist => ({
         id: artist.id,
         name: artist.name,
         imageUrl: artist.images?.[0]?.url,

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Metric } from 'web-vitals';
 
 interface PerformanceMetric {
@@ -30,7 +30,7 @@ export function PerformanceDashboard({
         rating: 'good' | 'needs-improvement' | 'poor';
       };
 
-      setMetrics((prev) => ({
+      setMetrics(prev => ({
         ...prev,
         [metric.name]: {
           name: metric.name,
@@ -109,28 +109,28 @@ export function PerformanceDashboard({
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+    <div className='fixed bottom-4 right-4 z-50'>
+      <div className='bg-white rounded-lg shadow-lg overflow-hidden'>
         <div
-          className="px-4 py-2 bg-indigo-600 text-white cursor-pointer flex justify-between items-center"
+          className='px-4 py-2 bg-indigo-600 text-white cursor-pointer flex justify-between items-center'
           onClick={() => setExpanded(!expanded)}
         >
-          <h3 className="text-sm font-medium">Performance Metrics</h3>
+          <h3 className='text-sm font-medium'>Performance Metrics</h3>
           <span>{expanded ? '▼' : '▲'}</span>
         </div>
 
         {expanded && (
-          <div className="p-4">
+          <div className='p-4'>
             {Object.keys(metrics).length === 0 ? (
-              <p className="text-sm text-gray-500">Collecting metrics...</p>
+              <p className='text-sm text-gray-500'>Collecting metrics...</p>
             ) : (
-              <div className="space-y-2">
-                {Object.values(metrics).map((metric) => (
+              <div className='space-y-2'>
+                {Object.values(metrics).map(metric => (
                   <div
                     key={metric.name}
-                    className="flex items-center justify-between"
+                    className='flex items-center justify-between'
                   >
-                    <span className="text-sm font-medium">
+                    <span className='text-sm font-medium'>
                       {getMetricDisplayName(metric.name)}:
                     </span>
                     <span

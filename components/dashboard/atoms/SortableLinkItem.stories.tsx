@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/react';
 import { DndContext } from '@dnd-kit/core';
 import { SortableContext } from '@dnd-kit/sortable';
-import { SortableLinkItem } from './SortableLinkItem';
+import type { Meta, StoryObj } from '@storybook/react';
 import {
-  detectPlatform,
   type DetectedLink,
+  detectPlatform,
 } from '@/lib/utils/platform-detection';
+import { SortableLinkItem } from './SortableLinkItem';
 
 interface LinkItem extends DetectedLink {
   id: string;

@@ -1,4 +1,4 @@
-import { danger, warn, fail } from 'danger';
+import { danger, fail, warn } from 'danger';
 
 // Fail if PR is too large (> 500 LOC)
 const linesOfCode = danger.github.pr.additions + danger.github.pr.deletions;
@@ -10,10 +10,10 @@ if (linesOfCode > 500) {
 
 // Warn if app or key component directories are touched but no tests added
 const hasAppOrComponentChanges = danger.git.modified_files.some(
-  (file) => file.includes('/app/') || file.includes('/components/')
+  file => file.includes('/app/') || file.includes('/components/')
 );
 const hasTestChanges = danger.git.modified_files.some(
-  (file) => file.includes('.spec.ts') || file.includes('.test.ts')
+  file => file.includes('.spec.ts') || file.includes('.test.ts')
 );
 
 if (hasAppOrComponentChanges && !hasTestChanges) {
@@ -34,10 +34,10 @@ if (largeFiles.length > 0) {
 // Check for conventional commits
 const conventionalCommitRegex =
   /^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert)(\(.+\))?: .+/;
-const commitMessages = danger.git.commits.map((commit) => commit.message);
+const commitMessages = danger.git.commits.map(commit => commit.message);
 
 const nonConventionalCommits = commitMessages.filter(
-  (msg) => !conventionalCommitRegex.test(msg)
+  msg => !conventionalCommitRegex.test(msg)
 );
 if (nonConventionalCommits.length > 0) {
   warn(

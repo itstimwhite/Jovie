@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach, vi } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SocialBar } from '@/components/organisms/SocialBar';
 import type { LegacySocialLink } from '@/types/db';
 
@@ -34,8 +34,8 @@ describe('SocialBar', () => {
   it('renders social icons with cursor pointer styling', () => {
     render(
       <SocialBar
-        handle="test-artist"
-        artistName="Test Artist"
+        handle='test-artist'
+        artistName='Test Artist'
         socialLinks={mockSocialLinks}
       />
     );
@@ -43,7 +43,7 @@ describe('SocialBar', () => {
     const socialLinksElements = screen.getAllByRole('link');
     expect(socialLinksElements).toHaveLength(2);
 
-    socialLinksElements.forEach((link) => {
+    socialLinksElements.forEach(link => {
       expect(link).toHaveClass('cursor-pointer');
     });
   });
@@ -51,8 +51,8 @@ describe('SocialBar', () => {
   it('hides container when no social links provided', () => {
     const { container } = render(
       <SocialBar
-        handle="test-artist"
-        artistName="Test Artist"
+        handle='test-artist'
+        artistName='Test Artist'
         socialLinks={[]}
       />
     );
@@ -64,8 +64,8 @@ describe('SocialBar', () => {
   it('applies proper accessibility attributes', () => {
     render(
       <SocialBar
-        handle="test-artist"
-        artistName="Test Artist"
+        handle='test-artist'
+        artistName='Test Artist'
         socialLinks={mockSocialLinks}
       />
     );

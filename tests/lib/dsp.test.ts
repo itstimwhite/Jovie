@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { getAvailableDSPs, DSP_CONFIGS } from '@/lib/dsp';
+import { describe, expect, it } from 'vitest';
+import { DSP_CONFIGS, getAvailableDSPs } from '@/lib/dsp';
 import { Artist } from '@/types/db';
 
 describe('DSP Utils', () => {
@@ -24,7 +24,7 @@ describe('DSP Utils', () => {
       const result = getAvailableDSPs(mockArtist);
 
       expect(result).toHaveLength(3);
-      expect(result.map((d) => d.key)).toEqual([
+      expect(result.map(d => d.key)).toEqual([
         'spotify',
         'apple_music',
         'youtube',

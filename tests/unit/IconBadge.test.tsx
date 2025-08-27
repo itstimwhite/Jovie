@@ -1,13 +1,13 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
-import { IconBadge } from '@/components/atoms/IconBadge';
 import { BoltIcon } from '@heroicons/react/24/outline';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
+import { IconBadge } from '@/components/atoms/IconBadge';
 
 describe('IconBadge', () => {
   afterEach(cleanup);
 
   it('renders icon with correct styling', () => {
-    render(<IconBadge Icon={BoltIcon} colorVar="--accent-speed" />);
+    render(<IconBadge Icon={BoltIcon} colorVar='--accent-speed' />);
 
     const iconContainer = screen.getByRole('img', {
       hidden: true,
@@ -19,8 +19,8 @@ describe('IconBadge', () => {
     render(
       <IconBadge
         Icon={BoltIcon}
-        colorVar="--accent-speed"
-        className="custom-class"
+        colorVar='--accent-speed'
+        className='custom-class'
       />
     );
 

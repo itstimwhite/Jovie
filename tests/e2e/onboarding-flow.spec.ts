@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Onboarding Flow', () => {
   test.beforeEach(async ({ page }) => {
@@ -56,14 +56,14 @@ test.describe('Onboarding Flow', () => {
   test('handle check API handles race conditions', async ({ page }) => {
     // Fire multiple rapid requests to test race condition handling
     const handles = ['race1', 'race2', 'race3', 'race4', 'race5'];
-    const promises = handles.map((handle) =>
+    const promises = handles.map(handle =>
       page.request.get(`/api/handle/check?handle=${handle}`)
     );
 
     const responses = await Promise.all(promises);
 
     // All requests should complete successfully
-    responses.forEach((response) => {
+    responses.forEach(response => {
       expect(response.ok()).toBeTruthy();
     });
   });
@@ -76,7 +76,7 @@ test.describe('Onboarding Flow', () => {
 
     // Should not have JavaScript errors
     const errors: string[] = [];
-    page.on('console', (msg) => {
+    page.on('console', msg => {
       if (msg.type() === 'error') {
         errors.push(msg.text());
       }
@@ -86,7 +86,7 @@ test.describe('Onboarding Flow', () => {
 
     // Filter out expected authentication redirects
     const criticalErrors = errors.filter(
-      (error) =>
+      error =>
         !error.includes('NEXT_REDIRECT') &&
         !error.includes('auth') &&
         !error.includes('sign-in')

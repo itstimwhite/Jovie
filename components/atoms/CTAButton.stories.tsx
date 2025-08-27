@@ -1,6 +1,6 @@
+import { ArrowRightIcon } from '@heroicons/react/24/solid';
 import type { Meta, StoryObj } from '@storybook/react';
 import { CTAButton } from './CTAButton';
-import { ArrowRightIcon } from '@heroicons/react/24/solid';
 
 const meta: Meta<typeof CTAButton> = {
   title: 'Atoms/CTAButton',
@@ -155,7 +155,7 @@ export const WithIcon: Story = {
   args: {
     ...Default.args,
     children: 'Get Started',
-    icon: <ArrowRightIcon className="h-5 w-5" />,
+    icon: <ArrowRightIcon className='h-5 w-5' />,
   },
 };
 
@@ -180,48 +180,48 @@ export const ReducedMotion: Story = {
 // State transitions
 export const StateTransitions: Story = {
   render: () => (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-3 gap-4">
-        <CTAButton href="/dashboard" variant="primary" size="md">
+    <div className='flex flex-col gap-4'>
+      <div className='grid grid-cols-3 gap-4'>
+        <CTAButton href='/dashboard' variant='primary' size='md'>
           Idle
         </CTAButton>
-        <CTAButton href="/dashboard" variant="primary" size="md" isLoading>
+        <CTAButton href='/dashboard' variant='primary' size='md' isLoading>
           Loading
         </CTAButton>
-        <CTAButton href="/dashboard" variant="primary" size="md" isSuccess>
+        <CTAButton href='/dashboard' variant='primary' size='md' isSuccess>
           Success
         </CTAButton>
       </div>
-      <div className="grid grid-cols-3 gap-4">
-        <CTAButton href="/dashboard" variant="secondary" size="md">
+      <div className='grid grid-cols-3 gap-4'>
+        <CTAButton href='/dashboard' variant='secondary' size='md'>
           Idle
         </CTAButton>
-        <CTAButton href="/dashboard" variant="secondary" size="md" isLoading>
+        <CTAButton href='/dashboard' variant='secondary' size='md' isLoading>
           Loading
         </CTAButton>
-        <CTAButton href="/dashboard" variant="secondary" size="md" isSuccess>
+        <CTAButton href='/dashboard' variant='secondary' size='md' isSuccess>
           Success
         </CTAButton>
       </div>
-      <div className="grid grid-cols-3 gap-4">
-        <CTAButton href="/dashboard" variant="outline" size="md">
+      <div className='grid grid-cols-3 gap-4'>
+        <CTAButton href='/dashboard' variant='outline' size='md'>
           Idle
         </CTAButton>
-        <CTAButton href="/dashboard" variant="outline" size="md" isLoading>
+        <CTAButton href='/dashboard' variant='outline' size='md' isLoading>
           Loading
         </CTAButton>
-        <CTAButton href="/dashboard" variant="outline" size="md" isSuccess>
+        <CTAButton href='/dashboard' variant='outline' size='md' isSuccess>
           Success
         </CTAButton>
       </div>
-      <div className="grid grid-cols-3 gap-4">
-        <CTAButton href="/dashboard" variant="white" size="md">
+      <div className='grid grid-cols-3 gap-4'>
+        <CTAButton href='/dashboard' variant='white' size='md'>
           Idle
         </CTAButton>
-        <CTAButton href="/dashboard" variant="white" size="md" isLoading>
+        <CTAButton href='/dashboard' variant='white' size='md' isLoading>
           Loading
         </CTAButton>
-        <CTAButton href="/dashboard" variant="white" size="md" isSuccess>
+        <CTAButton href='/dashboard' variant='white' size='md' isSuccess>
           Success
         </CTAButton>
       </div>
@@ -232,14 +232,14 @@ export const StateTransitions: Story = {
 // All sizes
 export const AllSizes: Story = {
   render: () => (
-    <div className="flex flex-col gap-4">
-      <CTAButton href="/dashboard" variant="primary" size="sm">
+    <div className='flex flex-col gap-4'>
+      <CTAButton href='/dashboard' variant='primary' size='sm'>
         Small Button
       </CTAButton>
-      <CTAButton href="/dashboard" variant="primary" size="md">
+      <CTAButton href='/dashboard' variant='primary' size='md'>
         Medium Button
       </CTAButton>
-      <CTAButton href="/dashboard" variant="primary" size="lg">
+      <CTAButton href='/dashboard' variant='primary' size='lg'>
         Large Button
       </CTAButton>
     </div>
@@ -249,17 +249,17 @@ export const AllSizes: Story = {
 // All variants
 export const AllVariants: Story = {
   render: () => (
-    <div className="flex flex-col gap-4">
-      <CTAButton href="/dashboard" variant="primary" size="md">
+    <div className='flex flex-col gap-4'>
+      <CTAButton href='/dashboard' variant='primary' size='md'>
         Primary Button
       </CTAButton>
-      <CTAButton href="/dashboard" variant="secondary" size="md">
+      <CTAButton href='/dashboard' variant='secondary' size='md'>
         Secondary Button
       </CTAButton>
-      <CTAButton href="/dashboard" variant="outline" size="md">
+      <CTAButton href='/dashboard' variant='outline' size='md'>
         Outline Button
       </CTAButton>
-      <CTAButton href="/dashboard" variant="white" size="md">
+      <CTAButton href='/dashboard' variant='white' size='md'>
         White Button
       </CTAButton>
     </div>
@@ -269,34 +269,34 @@ export const AllVariants: Story = {
 // Theme comparison (light/dark)
 export const ThemeComparison: Story = {
   render: () => (
-    <div className="grid grid-cols-2 gap-8">
-      <div className="flex flex-col gap-4 p-6 bg-white rounded-lg">
-        <h3 className="text-lg font-semibold mb-2">Light Theme</h3>
-        <CTAButton href="/dashboard" variant="primary" size="md">
+    <div className='grid grid-cols-2 gap-8'>
+      <div className='flex flex-col gap-4 p-6 bg-white rounded-lg'>
+        <h3 className='text-lg font-semibold mb-2'>Light Theme</h3>
+        <CTAButton href='/dashboard' variant='primary' size='md'>
           Primary
         </CTAButton>
-        <CTAButton href="/dashboard" variant="secondary" size="md">
+        <CTAButton href='/dashboard' variant='secondary' size='md'>
           Secondary
         </CTAButton>
-        <CTAButton href="/dashboard" variant="outline" size="md">
+        <CTAButton href='/dashboard' variant='outline' size='md'>
           Outline
         </CTAButton>
-        <CTAButton href="/dashboard" variant="white" size="md">
+        <CTAButton href='/dashboard' variant='white' size='md'>
           White
         </CTAButton>
       </div>
-      <div className="flex flex-col gap-4 p-6 bg-gray-900 rounded-lg">
-        <h3 className="text-lg font-semibold mb-2 text-white">Dark Theme</h3>
-        <CTAButton href="/dashboard" variant="primary" size="md">
+      <div className='flex flex-col gap-4 p-6 bg-gray-900 rounded-lg'>
+        <h3 className='text-lg font-semibold mb-2 text-white'>Dark Theme</h3>
+        <CTAButton href='/dashboard' variant='primary' size='md'>
           Primary
         </CTAButton>
-        <CTAButton href="/dashboard" variant="secondary" size="md">
+        <CTAButton href='/dashboard' variant='secondary' size='md'>
           Secondary
         </CTAButton>
-        <CTAButton href="/dashboard" variant="outline" size="md">
+        <CTAButton href='/dashboard' variant='outline' size='md'>
           Outline
         </CTAButton>
-        <CTAButton href="/dashboard" variant="white" size="md">
+        <CTAButton href='/dashboard' variant='white' size='md'>
           White
         </CTAButton>
       </div>
@@ -317,31 +317,31 @@ export const WithOnClick: Story = {
 // Accessibility examples
 export const AccessibilityExamples: Story = {
   render: () => (
-    <div className="flex flex-col gap-6">
+    <div className='flex flex-col gap-6'>
       <div>
-        <h3 className="text-lg font-semibold mb-2">With aria-label</h3>
+        <h3 className='text-lg font-semibold mb-2'>With aria-label</h3>
         <CTAButton
-          href="/dashboard"
-          variant="primary"
-          size="md"
-          ariaLabel="Navigate to dashboard"
+          href='/dashboard'
+          variant='primary'
+          size='md'
+          ariaLabel='Navigate to dashboard'
         >
           Dashboard
         </CTAButton>
       </div>
       <div>
-        <h3 className="text-lg font-semibold mb-2">
+        <h3 className='text-lg font-semibold mb-2'>
           Loading state with aria-busy
         </h3>
-        <CTAButton href="/dashboard" variant="primary" size="md" isLoading>
+        <CTAButton href='/dashboard' variant='primary' size='md' isLoading>
           Loading Example
         </CTAButton>
       </div>
       <div>
-        <h3 className="text-lg font-semibold mb-2">
+        <h3 className='text-lg font-semibold mb-2'>
           Disabled state with aria-disabled
         </h3>
-        <CTAButton href="/dashboard" variant="primary" size="md" disabled>
+        <CTAButton href='/dashboard' variant='primary' size='md' disabled>
           Disabled Example
         </CTAButton>
       </div>

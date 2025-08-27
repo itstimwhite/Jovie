@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
-import { AnimatedArtistPage } from './AnimatedArtistPage';
 import { Artist, LegacySocialLink } from '@/types/db';
+import { AnimatedArtistPage } from './AnimatedArtistPage';
 
 const meta: Meta<typeof AnimatedArtistPage> = {
   title: 'Profile/AnimatedArtistPage',
@@ -108,7 +108,7 @@ export const TipModeWithoutVenmo: Story = {
   args: {
     mode: 'tip',
     artist: mockArtist,
-    socialLinks: mockSocialLinks.filter((link) => link.platform !== 'venmo'),
+    socialLinks: mockSocialLinks.filter(link => link.platform !== 'venmo'),
     subtitle: 'The Eras Tour • Live from London',
     showTipButton: false,
     showBackButton: true,
@@ -198,7 +198,7 @@ export const InteractiveDemo: Story = {
 
     return (
       <div>
-        <div className="fixed top-4 left-4 z-50 flex gap-2">
+        <div className='fixed top-4 left-4 z-50 flex gap-2'>
           <button
             onClick={() => setMode('profile')}
             className={`px-3 py-1 rounded text-sm ${
@@ -235,7 +235,7 @@ export const InteractiveDemo: Story = {
           mode={mode}
           artist={mockArtist}
           socialLinks={mockSocialLinks}
-          subtitle="Interactive Demo Mode"
+          subtitle='Interactive Demo Mode'
           showTipButton={mode === 'profile'}
           showBackButton={mode !== 'profile'}
         />

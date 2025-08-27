@@ -24,26 +24,26 @@ export function ArtistCarousel({ artists }: ArtistCarouselProps) {
   }
 
   return (
-    <section className="relative w-full bg-linear-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950 dark:via-purple-950 dark:to-pink-950 py-16">
+    <section className='relative w-full bg-linear-to-r from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950 dark:via-purple-950 dark:to-pink-950 py-16'>
       {/* Full-width horizontal scroll container */}
-      <div className="relative overflow-x-auto overflow-y-hidden">
+      <div className='relative overflow-x-auto overflow-y-hidden'>
         {/* Artist images row */}
-        <div className="flex space-x-6 px-4 sm:px-6 lg:px-8 py-8 min-w-max">
-          {artists.map((artist) => (
+        <div className='flex space-x-6 px-4 sm:px-6 lg:px-8 py-8 min-w-max'>
+          {artists.map(artist => (
             <Link
               key={artist.id}
               href={`/${artist.handle}`}
               className={`group shrink-0 ${prefersReducedMotion ? '' : 'transition-transform duration-300 hover:scale-110'}`}
             >
-              <div className="relative">
+              <div className='relative'>
                 {/* Artist image */}
-                <div className="h-24 w-24 sm:h-32 sm:w-32">
+                <div className='h-24 w-24 sm:h-32 sm:w-32'>
                   <OptimizedImage
                     src={artist.image_url}
                     alt={`${artist.name} - Music Artist`}
-                    size="2xl"
-                    shape="circle"
-                    className="w-full h-full object-cover"
+                    size='2xl'
+                    shape='circle'
+                    className='w-full h-full object-cover'
                   />
                 </div>
 
@@ -55,7 +55,7 @@ export function ArtistCarousel({ artists }: ArtistCarouselProps) {
                       : 'opacity-0 group-hover:opacity-100 transition-opacity duration-300'
                   }`}
                 >
-                  <span className="text-white text-xs sm:text-sm font-medium text-center px-2">
+                  <span className='text-white text-xs sm:text-sm font-medium text-center px-2'>
                     {artist.name}
                   </span>
                 </div>

@@ -1,4 +1,4 @@
-import React, { useId, cloneElement, isValidElement } from 'react';
+import React, { cloneElement, isValidElement, useId } from 'react';
 import { cn } from '@/lib/utils';
 
 interface FormFieldProps {
@@ -35,7 +35,7 @@ export function FormField({
   };
 
   // Clone the child element to add accessibility attributes
-  const childrenWithProps = React.Children.map(children, (child) => {
+  const childrenWithProps = React.Children.map(children, child => {
     if (isValidElement(child)) {
       return cloneElement(child, {
         id,
@@ -52,20 +52,20 @@ export function FormField({
       {label && (
         <label
           htmlFor={id}
-          className="text-sm font-medium text-gray-700 dark:text-gray-300"
+          className='text-sm font-medium text-gray-700 dark:text-gray-300'
         >
           {label}
           {required && (
-            <span className="text-red-500 ml-1" aria-hidden="true">
+            <span className='text-red-500 ml-1' aria-hidden='true'>
               *
             </span>
           )}
-          {required && <span className="sr-only">(required)</span>}
+          {required && <span className='sr-only'>(required)</span>}
         </label>
       )}
 
       {helpText && (
-        <p id={helpTextId} className="text-xs text-gray-500 dark:text-gray-400">
+        <p id={helpTextId} className='text-xs text-gray-500 dark:text-gray-400'>
           {helpText}
         </p>
       )}
@@ -75,9 +75,9 @@ export function FormField({
       {error && (
         <p
           id={errorId}
-          className="text-sm text-red-600 dark:text-red-400"
-          role="alert"
-          aria-live="polite"
+          className='text-sm text-red-600 dark:text-red-400'
+          role='alert'
+          aria-live='polite'
         >
           {error}
         </p>

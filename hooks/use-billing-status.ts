@@ -2,7 +2,7 @@
  * Hook to get user's billing status on the client side
  */
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface BillingStatus {
   isPro: boolean;

@@ -1,6 +1,7 @@
 // node >=20, ESM, no build step
-import fs from 'node:fs';
+
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import { Octokit } from 'octokit';
 
 // Config
@@ -195,7 +196,7 @@ for (const t of tasks) {
   // Ensure Copilot assigned for open work
   if (!shouldClose) {
     const alreadyAssigned = (found.assignees || []).some(
-      (a) => a.login === copilotAssignee
+      a => a.login === copilotAssignee
     );
     if (!alreadyAssigned) await assignCopilot(found.number);
   }

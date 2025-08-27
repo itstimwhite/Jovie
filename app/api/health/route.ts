@@ -1,10 +1,10 @@
 export const runtime = 'nodejs';
 
+import { count, eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
-import { env } from '@/lib/env';
 import { db } from '@/lib/db';
 import { creatorProfiles } from '@/lib/db/schema';
-import { eq, count } from 'drizzle-orm';
+import { env } from '@/lib/env';
 
 export async function GET() {
   const summary: Record<string, unknown> = {

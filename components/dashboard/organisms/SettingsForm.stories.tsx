@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { SettingsForm } from './SettingsForm';
 import { Artist } from '@/types/db';
+import { SettingsForm } from './SettingsForm';
 
 // Create a mock artist for our stories
 const mockArtist: Artist = {
@@ -50,8 +50,8 @@ const meta: Meta<typeof SettingsForm> = {
   },
   tags: ['autodocs'],
   decorators: [
-    (Story) => (
-      <div className="max-w-3xl mx-auto">
+    Story => (
+      <div className='max-w-3xl mx-auto'>
         <Story />
       </div>
     ),
@@ -75,7 +75,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     artist: mockArtist,
-    onUpdate: (updatedArtist) => console.log('Artist updated:', updatedArtist),
+    onUpdate: updatedArtist => console.log('Artist updated:', updatedArtist),
   },
   parameters: {
     mockData: [
@@ -100,7 +100,7 @@ export const MarketingOptedOut: Story = {
       ...mockArtist,
       marketing_opt_out: true,
     },
-    onUpdate: (updatedArtist) => console.log('Artist updated:', updatedArtist),
+    onUpdate: updatedArtist => console.log('Artist updated:', updatedArtist),
   },
   parameters: {
     mockData: [
@@ -122,7 +122,7 @@ export const MarketingOptedOut: Story = {
 export const Loading: Story = {
   args: {
     artist: mockArtist,
-    onUpdate: (updatedArtist) => console.log('Artist updated:', updatedArtist),
+    onUpdate: updatedArtist => console.log('Artist updated:', updatedArtist),
   },
   parameters: {
     mockData: [
@@ -153,7 +153,7 @@ export const Loading: Story = {
 export const SuccessMessage: Story = {
   args: {
     artist: mockArtist,
-    onUpdate: (updatedArtist) => console.log('Artist updated:', updatedArtist),
+    onUpdate: updatedArtist => console.log('Artist updated:', updatedArtist),
   },
   parameters: {
     mockData: [
@@ -185,7 +185,7 @@ export const SuccessMessage: Story = {
 export const DarkTheme: Story = {
   args: {
     artist: mockArtist,
-    onUpdate: (updatedArtist) => console.log('Artist updated:', updatedArtist),
+    onUpdate: updatedArtist => console.log('Artist updated:', updatedArtist),
   },
   parameters: {
     backgrounds: { default: 'dark' },
@@ -203,8 +203,8 @@ export const DarkTheme: Story = {
     ],
   },
   decorators: [
-    (Story) => (
-      <div className="dark max-w-3xl mx-auto">
+    Story => (
+      <div className='dark max-w-3xl mx-auto'>
         <Story />
       </div>
     ),
@@ -215,7 +215,7 @@ export const DarkTheme: Story = {
 export const MobileView: Story = {
   args: {
     artist: mockArtist,
-    onUpdate: (updatedArtist) => console.log('Artist updated:', updatedArtist),
+    onUpdate: updatedArtist => console.log('Artist updated:', updatedArtist),
   },
   parameters: {
     viewport: {

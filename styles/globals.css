@@ -1,7 +1,7 @@
-@import 'tailwindcss';
-@import '@fontsource/inter/400.css';
-@import '@fontsource/inter/700.css';
-@import './theme.css';
+@import "tailwindcss";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/700.css";
+@import "./theme.css";
 
 @plugin '@tailwindcss/typography';
 
@@ -9,14 +9,14 @@
 
 @layer base {
   :root {
-    --font-inter: 'Inter';
+    --font-inter: "Inter";
   }
 }
 
 @theme {
   --font-sans:
-    var(--font-inter), -apple-system, BlinkMacSystemFont, 'SF Pro Text',
-    'SF Pro Display', 'Segoe UI', Roboto, Arial, sans-serif;
+    var(--font-inter), -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "SF Pro Display", "Segoe UI", Roboto, Arial, sans-serif;
 
   --color-gray-50: #f9fafb;
   --color-gray-100: #f3f4f6;
@@ -132,8 +132,8 @@
   body {
     @apply bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-50;
     font-feature-settings:
-      'rlig' 1,
-      'calt' 1;
+      "rlig" 1,
+      "calt" 1;
   }
 
   h1,

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('CTAButton Component', () => {
   test('should render correctly and handle state changes', async ({ page }) => {

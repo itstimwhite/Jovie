@@ -1,7 +1,7 @@
 import { neon } from '@neondatabase/serverless';
+import { sql as drizzleSql } from 'drizzle-orm';
 import { drizzle, type NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import { env } from '@/lib/env';
-import { sql as drizzleSql } from 'drizzle-orm';
 import * as schema from './schema';
 
 declare global {
@@ -35,10 +35,9 @@ if (process.env.NODE_ENV === 'production') {
 // Export the database instance
 export { db };
 
+export type { InferModel } from 'drizzle-orm';
 // Re-export schema and types
 export * from './schema';
-
-export type { InferModel } from 'drizzle-orm';
 
 /**
  * Helper to safely execute database operations with error handling

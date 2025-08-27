@@ -1,13 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
-import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
-import { FormField } from '@/components/ui/FormField';
+import { Button } from '@/components/ui/Button';
 import { ErrorSummary } from '@/components/ui/ErrorSummary';
+import { FormField } from '@/components/ui/FormField';
+import { Input } from '@/components/ui/Input';
 import { APP_URL } from '@/constants/app';
 
 export function ClaimHandleForm() {
@@ -182,8 +182,8 @@ export function ClaimHandleForm() {
     if (showChecking) {
       return (
         <LoadingSpinner
-          size="sm"
-          className="text-zinc-500 dark:text-zinc-400"
+          size='sm'
+          className='text-zinc-500 dark:text-zinc-400'
         />
       );
     }
@@ -191,15 +191,15 @@ export function ClaimHandleForm() {
     if (available === true && !handleError) {
       return (
         <svg
-          className="h-4 w-4 text-green-600"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden="true"
+          className='h-4 w-4 text-green-600'
+          viewBox='0 0 20 20'
+          fill='currentColor'
+          aria-hidden='true'
         >
           <path
-            fillRule="evenodd"
-            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 10-1.214-.882l-3.2 4.4-1.63-1.63a.75.75 0 10-1.06 1.06l2.25 2.25a.75.75 0 001.145-.089l3.71-5.109z"
-            clipRule="evenodd"
+            fillRule='evenodd'
+            d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 10-1.214-.882l-3.2 4.4-1.63-1.63a.75.75 0 10-1.06 1.06l2.25 2.25a.75.75 0 001.145-.089l3.71-5.109z'
+            clipRule='evenodd'
           />
         </svg>
       );
@@ -207,15 +207,15 @@ export function ClaimHandleForm() {
     if (unavailable) {
       return (
         <svg
-          className="h-4 w-4 text-red-600"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden="true"
+          className='h-4 w-4 text-red-600'
+          viewBox='0 0 20 20'
+          fill='currentColor'
+          aria-hidden='true'
         >
           <path
-            fillRule="evenodd"
-            d="M10 18a8 8 0 100-16 8 8 0 000 16zM7.75 7.75a.75.75 0 011.06 0L10 8.94l1.19-1.19a.75.75 0 111.06 1.06L11.06 10l1.19 1.19a.75.75 0 11-1.06 1.06L10 11.06l-1.19 1.19a.75.75 0 11-1.06-1.06L8.94 10 7.75 8.81a.75.75 0 010-1.06z"
-            clipRule="evenodd"
+            fillRule='evenodd'
+            d='M10 18a8 8 0 100-16 8 8 0 000 16zM7.75 7.75a.75.75 0 011.06 0L10 8.94l1.19-1.19a.75.75 0 111.06 1.06L11.06 10l1.19 1.19a.75.75 0 11-1.06 1.06L10 11.06l-1.19 1.19a.75.75 0 11-1.06-1.06L8.94 10 7.75 8.81a.75.75 0 010-1.06z'
+            clipRule='evenodd'
           />
         </svg>
       );
@@ -247,19 +247,19 @@ export function ClaimHandleForm() {
   };
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} className="space-y-4" noValidate>
+    <form ref={formRef} onSubmit={onSubmit} className='space-y-4' noValidate>
       {/* Screen reader announcements */}
       <div
-        className="sr-only"
-        aria-live="assertive"
-        aria-atomic="true"
-        id="loading-announcement"
+        className='sr-only'
+        aria-live='assertive'
+        aria-atomic='true'
+        id='loading-announcement'
       ></div>
 
       {/* Error summary for screen readers */}
       <ErrorSummary
         errors={formErrors}
-        onFocusField={(fieldName) => {
+        onFocusField={fieldName => {
           if (fieldName === 'handle' && inputRef.current) {
             inputRef.current.focus();
           }
@@ -267,21 +267,21 @@ export function ClaimHandleForm() {
       />
 
       <FormField
-        label="Choose your handle"
+        label='Choose your handle'
         error={formSubmitted ? helperText : undefined}
-        helpText="Your unique identifier for your profile URL"
-        id="handle-input"
+        helpText='Your unique identifier for your profile URL'
+        id='handle-input'
         required
       >
         <Input
           ref={inputRef}
-          type="text"
+          type='text'
           value={handle}
-          onChange={(e) => setHandle(e.target.value.toLowerCase())}
-          placeholder="your-handle"
+          onChange={e => setHandle(e.target.value.toLowerCase())}
+          placeholder='your-handle'
           required
-          autoCapitalize="none"
-          autoCorrect="off"
+          autoCapitalize='none'
+          autoCorrect='off'
           validationState={
             !handle
               ? null
@@ -294,28 +294,28 @@ export function ClaimHandleForm() {
                     : null
           }
           className={`${isShaking ? 'jv-shake' : ''} ${available === true ? 'jv-available' : ''} transition-all duration-150 hover:shadow-lg focus-within:shadow-lg`}
-          inputClassName="text-[16px] leading-6 tracking-tight font-medium placeholder:text-zinc-400 dark:placeholder:text-zinc-500 pr-36 sm:pr-40 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+          inputClassName='text-[16px] leading-6 tracking-tight font-medium placeholder:text-zinc-400 dark:placeholder:text-zinc-500 pr-36 sm:pr-40 min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1'
           statusIcon={<StatusIcon />}
           trailing={
-            <div className="flex items-center gap-2">
+            <div className='flex items-center gap-2'>
               {/* Fixed-size CTA button with cross-fade animation */}
               <Button
-                type="submit"
-                variant="primary"
+                type='submit'
+                variant='primary'
                 color={btnColor}
-                size="sm"
-                className="min-w-[136px] w-[136px] h-[36px] justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95"
+                size='sm'
+                className='min-w-[136px] w-[136px] h-[36px] justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105 active:scale-95'
                 disabled={btnDisabled || !handle}
               >
-                <span className="inline-flex items-center justify-center gap-2 transition-opacity duration-250">
+                <span className='inline-flex items-center justify-center gap-2 transition-opacity duration-250'>
                   {showChecking ? (
                     <>
-                      <LoadingSpinner size="sm" className="text-white" />
+                      <LoadingSpinner size='sm' className='text-white' />
                       <span>Checking…</span>
                     </>
                   ) : navigating ? (
                     <>
-                      <LoadingSpinner size="sm" className="text-white" />
+                      <LoadingSpinner size='sm' className='text-white' />
                       <span>Setting things up…</span>
                     </>
                   ) : (
@@ -329,9 +329,9 @@ export function ClaimHandleForm() {
       </FormField>
 
       {/* Compact URL preview under input */}
-      <div className="min-h-[1.25rem]" id="handle-preview-text">
+      <div className='min-h-[1.25rem]' id='handle-preview-text'>
         {handle ? (
-          <div className="flex items-center justify-between text-xs">
+          <div className='flex items-center justify-between text-xs'>
             <p
               onClick={available ? onCopyPreview : undefined}
               className={`${previewTone} select-none transition-colors duration-200 ${
@@ -346,7 +346,7 @@ export function ClaimHandleForm() {
               tabIndex={available ? 0 : undefined}
               onKeyDown={
                 available
-                  ? (e) => {
+                  ? e => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         onCopyPreview();
@@ -360,10 +360,10 @@ export function ClaimHandleForm() {
                   : undefined
               }
             >
-              <span className="text-gray-400 dark:text-gray-500">
+              <span className='text-gray-400 dark:text-gray-500'>
                 {displayDomain}/
               </span>
-              <span className="font-semibold text-current">{handle}</span>
+              <span className='font-semibold text-current'>{handle}</span>
             </p>
             {available && (
               <span
@@ -376,15 +376,15 @@ export function ClaimHandleForm() {
                 {copied ? (
                   <>
                     <svg
-                      className="w-3 h-3"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      aria-hidden="true"
+                      className='w-3 h-3'
+                      fill='currentColor'
+                      viewBox='0 0 20 20'
+                      aria-hidden='true'
                     >
                       <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
+                        fillRule='evenodd'
+                        d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                        clipRule='evenodd'
                       />
                     </svg>
                     Copied!
@@ -392,15 +392,15 @@ export function ClaimHandleForm() {
                 ) : (
                   <>
                     <svg
-                      className="w-3 h-3"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      aria-hidden="true"
+                      className='w-3 h-3'
+                      fill='currentColor'
+                      viewBox='0 0 20 20'
+                      aria-hidden='true'
                     >
                       <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
+                        fillRule='evenodd'
+                        d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                        clipRule='evenodd'
                       />
                     </svg>
                     Available
@@ -410,11 +410,11 @@ export function ClaimHandleForm() {
             )}
           </div>
         ) : (
-          <p className="text-xs text-gray-400 dark:text-gray-500">
-            <span className="text-gray-400 dark:text-gray-500">
+          <p className='text-xs text-gray-400 dark:text-gray-500'>
+            <span className='text-gray-400 dark:text-gray-500'>
               {displayDomain}/
             </span>
-            <span className="text-gray-400 dark:text-gray-500">
+            <span className='text-gray-400 dark:text-gray-500'>
               your-handle
             </span>
           </p>

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { CookieBannerSection } from '@/components/organisms/CookieBannerSection';
-import { vi, describe, it, expect } from 'vitest';
 
 vi.mock('@/lib/cookies/consent', () => ({
   saveConsent: vi.fn(),

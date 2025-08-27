@@ -63,7 +63,7 @@ export const Toast: React.FC<ToastProps> = ({
 
   return (
     <div
-      role="status"
+      role='status'
       aria-live={type === 'error' ? 'assertive' : 'polite'}
       className={cn(
         'px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50',
@@ -74,7 +74,7 @@ export const Toast: React.FC<ToastProps> = ({
         className
       )}
     >
-      <span className="text-sm">{message}</span>
+      <span className='text-sm'>{message}</span>
       {action && (
         <button
           onClick={handleActionClick}

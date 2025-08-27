@@ -39,17 +39,17 @@ export const ArtistAvatar = React.memo(function ArtistAvatar({
       alt={alt}
       width={width}
       height={height}
-      aspectRatio="square"
-      objectFit="cover"
-      objectPosition="center"
+      aspectRatio='square'
+      objectFit='cover'
+      objectPosition='center'
       priority={priority}
       quality={85}
-      placeholder="blur"
+      placeholder='blur'
       sizes={`(max-width: 768px) ${width}px, ${width}px`}
       className={`${sizeClass} ring-1 ring-black/10 dark:ring-white/15 shadow-lg group-hover:ring-white/25 ${className}`}
-      shape="circle"
+      shape='circle'
       artistName={name}
-      imageType="avatar"
+      imageType='avatar'
       enableVersioning={true}
     />
   );

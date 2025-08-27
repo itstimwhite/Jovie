@@ -21,7 +21,7 @@ async function main() {
   );
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error('[db-seed] Fatal error:', err);
   process.exit(1);
 });

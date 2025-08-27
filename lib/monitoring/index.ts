@@ -1,14 +1,4 @@
 // Export all monitoring utilities
-export * from './web-vitals';
-export * from './performance';
-export * from './database';
-export * from './user-journey';
-export * from './regression';
-export * from './alerts';
-
-// Export API and middleware monitoring with aliases to avoid conflicts
-export { withPerformanceMonitoring as withApiPerformanceMonitoring } from './api';
-export { withPerformanceMonitoring as withMiddlewarePerformanceMonitoring } from './middleware';
 
 // Re-export types with aliases to avoid conflicts
 export type { Metric as WebVitalsMetric } from 'web-vitals';
@@ -16,6 +6,15 @@ export type {
   AlertRule as MonitoringAlertRule,
   AlertSeverity as MonitoringAlertSeverity,
 } from './alerts';
+export * from './alerts';
+// Export API and middleware monitoring with aliases to avoid conflicts
+export { withPerformanceMonitoring as withApiPerformanceMonitoring } from './api';
+export * from './database';
+export { withPerformanceMonitoring as withMiddlewarePerformanceMonitoring } from './middleware';
+export * from './performance';
+export * from './regression';
+export * from './user-journey';
+export * from './web-vitals';
 
 // Export a convenience function to initialize all monitoring
 export async function initAllMonitoring() {

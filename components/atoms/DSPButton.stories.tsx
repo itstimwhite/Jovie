@@ -95,17 +95,17 @@ export const Disabled: Story = {
 
 export const AllSizes: Story = {
   render: () => (
-    <div className="flex flex-col gap-4 w-full max-w-md">
-      <DSPButton {...spotifyConfig} size="sm" />
-      <DSPButton {...appleMusicConfig} size="md" />
-      <DSPButton {...youtubeConfig} size="lg" />
+    <div className='flex flex-col gap-4 w-full max-w-md'>
+      <DSPButton {...spotifyConfig} size='sm' />
+      <DSPButton {...appleMusicConfig} size='md' />
+      <DSPButton {...youtubeConfig} size='lg' />
     </div>
   ),
 };
 
 export const AllPlatforms: Story = {
   render: () => (
-    <div className="flex flex-col gap-3 w-full max-w-md">
+    <div className='flex flex-col gap-3 w-full max-w-md'>
       <DSPButton {...spotifyConfig} />
       <DSPButton {...appleMusicConfig} />
       <DSPButton {...youtubeConfig} />
@@ -124,7 +124,7 @@ export const Interactive: Story = {
 
 export const DisabledStates: Story = {
   render: () => (
-    <div className="flex flex-col gap-3 w-full max-w-md">
+    <div className='flex flex-col gap-3 w-full max-w-md'>
       <DSPButton {...spotifyConfig} disabled />
       <DSPButton {...appleMusicConfig} disabled />
       <DSPButton {...youtubeConfig} disabled />

@@ -1,5 +1,5 @@
-import { chromium } from '@playwright/test';
 import { clerkSetup } from '@clerk/testing/playwright';
+import { chromium } from '@playwright/test';
 import { config } from 'dotenv';
 
 // Load environment variables from .env.development.local
@@ -21,7 +21,7 @@ async function globalSetup() {
   ];
   const hasRealClerkKeys =
     process.env.CLERK_SECRET_KEY &&
-    !SENSITIVE_PATTERNS.some((pattern) =>
+    !SENSITIVE_PATTERNS.some(pattern =>
       process.env.CLERK_SECRET_KEY!.toLowerCase().includes(pattern)
     );
 

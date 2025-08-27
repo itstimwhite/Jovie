@@ -35,7 +35,7 @@ const mockSession = {
   lastActiveAt: new Date(),
   expireAt: new Date(Date.now() + 3600000), // 1 hour from now
   user: mockUser,
-  getToken: (options) => {
+  getToken: options => {
     if (options?.template) {
       return Promise.resolve('sb-mock-jwt-token-12345');
     }
@@ -57,7 +57,7 @@ export const useUser = () => ({
 export const useAuth = () => ({
   userId: 'user_mock123',
   sessionId: 'sess_mock123',
-  getToken: (options) => {
+  getToken: options => {
     if (options?.template) {
       return Promise.resolve('sb-mock-jwt-token-12345');
     }
@@ -91,49 +91,49 @@ export const useOrganizationList = () => ({
 
 // Mock components
 export const SignInButton = ({ children, ...props }) => (
-  <button type="button" {...props} data-testid="mock-sign-in-button">
+  <button type='button' {...props} data-testid='mock-sign-in-button'>
     {children || 'Sign In'}
   </button>
 );
 
 export const SignUpButton = ({ children, ...props }) => (
-  <button type="button" {...props} data-testid="mock-sign-up-button">
+  <button type='button' {...props} data-testid='mock-sign-up-button'>
     {children || 'Sign Up'}
   </button>
 );
 
 export const SignOutButton = ({ children, ...props }) => (
-  <button type="button" {...props} data-testid="mock-sign-out-button">
+  <button type='button' {...props} data-testid='mock-sign-out-button'>
     {children || 'Sign Out'}
   </button>
 );
 
 export const UserButton = ({ ...props }) => (
-  <div {...props} data-testid="mock-user-button">
+  <div {...props} data-testid='mock-user-button'>
     <img
       src={mockUser.profileImageUrl}
-      alt="User avatar"
+      alt='User avatar'
       style={{ width: 32, height: 32, borderRadius: '50%' }}
     />
   </div>
 );
 
 export const SignIn = ({ ...props }) => (
-  <div {...props} data-testid="mock-sign-in-component">
+  <div {...props} data-testid='mock-sign-in-component'>
     <h2>Sign In Component (Mock)</h2>
     <p>This is a mocked Clerk SignIn component for Storybook.</p>
   </div>
 );
 
 export const SignUp = ({ ...props }) => (
-  <div {...props} data-testid="mock-sign-up-component">
+  <div {...props} data-testid='mock-sign-up-component'>
     <h2>Sign Up Component (Mock)</h2>
     <p>This is a mocked Clerk SignUp component for Storybook.</p>
   </div>
 );
 
 export const UserProfile = ({ ...props }) => (
-  <div {...props} data-testid="mock-user-profile-component">
+  <div {...props} data-testid='mock-user-profile-component'>
     <h2>User Profile Component (Mock)</h2>
     <p>This is a mocked Clerk UserProfile component for Storybook.</p>
   </div>

@@ -1,6 +1,6 @@
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { CTAButton } from '@/components/atoms/CTAButton';
 
 // Mock the next/link component
@@ -35,7 +35,7 @@ vi.mock('next-themes', () => ({
 
 describe('CTAButton', () => {
   it('renders correctly with default props', () => {
-    render(<CTAButton href="/test">Click me</CTAButton>);
+    render(<CTAButton href='/test'>Click me</CTAButton>);
 
     const button = screen.getByRole('link', { name: /click me/i });
     expect(button).toBeInTheDocument();
@@ -52,25 +52,25 @@ describe('CTAButton', () => {
 
   it('applies different variants correctly', () => {
     const { rerender } = render(
-      <CTAButton variant="primary">Primary</CTAButton>
+      <CTAButton variant='primary'>Primary</CTAButton>
     );
     expect(screen.getByRole('button')).toHaveClass('bg-neutral-900');
 
-    rerender(<CTAButton variant="secondary">Secondary</CTAButton>);
+    rerender(<CTAButton variant='secondary'>Secondary</CTAButton>);
     expect(screen.getByRole('button')).toHaveClass('bg-indigo-600');
 
-    rerender(<CTAButton variant="outline">Outline</CTAButton>);
+    rerender(<CTAButton variant='outline'>Outline</CTAButton>);
     expect(screen.getByRole('button')).toHaveClass('border');
   });
 
   it('applies different sizes correctly', () => {
-    const { rerender } = render(<CTAButton size="sm">Small</CTAButton>);
+    const { rerender } = render(<CTAButton size='sm'>Small</CTAButton>);
     expect(screen.getByRole('button')).toHaveClass('text-sm');
 
-    rerender(<CTAButton size="md">Medium</CTAButton>);
+    rerender(<CTAButton size='md'>Medium</CTAButton>);
     expect(screen.getByRole('button')).toHaveClass('text-base');
 
-    rerender(<CTAButton size="lg">Large</CTAButton>);
+    rerender(<CTAButton size='lg'>Large</CTAButton>);
     expect(screen.getByRole('button')).toHaveClass('text-lg');
   });
 
@@ -131,7 +131,7 @@ describe('CTAButton', () => {
 
   it('renders with an icon correctly', () => {
     render(
-      <CTAButton icon={<span data-testid="test-icon" />}>With Icon</CTAButton>
+      <CTAButton icon={<span data-testid='test-icon' />}>With Icon</CTAButton>
     );
 
     expect(screen.getByTestId('test-icon')).toBeInTheDocument();
@@ -140,7 +140,7 @@ describe('CTAButton', () => {
 
   it('renders as an external link when external prop is true', () => {
     render(
-      <CTAButton href="https://example.com" external>
+      <CTAButton href='https://example.com' external>
         External Link
       </CTAButton>
     );
@@ -151,13 +151,13 @@ describe('CTAButton', () => {
   });
 
   it('applies custom className correctly', () => {
-    render(<CTAButton className="custom-class">Custom Class</CTAButton>);
+    render(<CTAButton className='custom-class'>Custom Class</CTAButton>);
 
     expect(screen.getByRole('button')).toHaveClass('custom-class');
   });
 
   it('applies aria-label correctly', () => {
-    render(<CTAButton ariaLabel="Custom Label">Button</CTAButton>);
+    render(<CTAButton ariaLabel='Custom Label'>Button</CTAButton>);
 
     expect(screen.getByRole('button')).toHaveAttribute(
       'aria-label',

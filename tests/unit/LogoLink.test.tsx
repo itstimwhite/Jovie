@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import { LogoLink } from '@/components/atoms/LogoLink';
 
 describe('LogoLink', () => {
@@ -13,21 +13,21 @@ describe('LogoLink', () => {
   });
 
   it('renders with custom href', () => {
-    render(<LogoLink href="/custom" />);
+    render(<LogoLink href='/custom' />);
 
     const link = screen.getByRole('link');
     expect(link).toHaveAttribute('href', '/custom');
   });
 
   it('renders with custom className', () => {
-    render(<LogoLink className="custom-class" />);
+    render(<LogoLink className='custom-class' />);
 
     const link = screen.getByRole('link');
     expect(link).toHaveClass('custom-class');
   });
 
   it('renders logo with specified size', () => {
-    render(<LogoLink logoSize="lg" />);
+    render(<LogoLink logoSize='lg' />);
 
     const svg = screen.getByRole('link').querySelector('svg');
     expect(svg).toHaveClass('h-12');

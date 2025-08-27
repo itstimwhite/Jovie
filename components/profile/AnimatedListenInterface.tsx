@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { Artist } from '@/types/db';
-import { getAvailableDSPs, AvailableDSP } from '@/lib/dsp';
-import { getDSPDeepLinkConfig, openDeepLink } from '@/lib/deep-links';
+import React, { useEffect, useState } from 'react';
 import { LISTEN_COOKIE } from '@/constants/app';
+import { getDSPDeepLinkConfig, openDeepLink } from '@/lib/deep-links';
+import { AvailableDSP, getAvailableDSPs } from '@/lib/dsp';
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
+import { Artist } from '@/types/db';
 
 interface AnimatedListenInterfaceProps {
   artist: Artist;
@@ -163,21 +163,21 @@ export function AnimatedListenInterface({
   };
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode='wait'>
       <motion.div
-        key="listen-interface"
+        key='listen-interface'
         variants={prefersReducedMotion ? {} : containerVariants}
         initial={prefersReducedMotion ? { opacity: 1 } : 'hidden'}
         animate={prefersReducedMotion ? { opacity: 1 } : 'visible'}
         exit={prefersReducedMotion ? { opacity: 0 } : 'exit'}
-        className="w-full max-w-sm"
+        className='w-full max-w-sm'
       >
         {/* DSP Buttons */}
         <motion.div
           variants={prefersReducedMotion ? {} : itemVariants}
-          className="space-y-3"
+          className='space-y-3'
         >
-          {availableDSPs.map((dsp) => (
+          {availableDSPs.map(dsp => (
             <motion.button
               key={dsp.key}
               onClick={() => handleDSPClick(dsp)}
@@ -200,7 +200,7 @@ export function AnimatedListenInterface({
                       transition: { duration: 0.1 },
                     }
               }
-              className="w-full group relative overflow-hidden rounded-xl p-4 font-semibold text-base transition-all duration-300 ease-out shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white/50 disabled:cursor-not-allowed"
+              className='w-full group relative overflow-hidden rounded-xl p-4 font-semibold text-base transition-all duration-300 ease-out shadow-lg hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white/50 disabled:cursor-not-allowed'
               style={{
                 backgroundColor: dsp.config.color,
                 color: dsp.config.textColor,
@@ -209,7 +209,7 @@ export function AnimatedListenInterface({
             >
               {/* Shimmer effect overlay */}
               <motion.div
-                className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                className='absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent'
                 animate={
                   prefersReducedMotion
                     ? { opacity: selectedDSP === dsp.key ? 0.2 : 0 }
@@ -227,14 +227,14 @@ export function AnimatedListenInterface({
 
               {/* Button content */}
               <motion.span
-                className="relative flex items-center justify-center gap-3"
+                className='relative flex items-center justify-center gap-3'
                 animate={{
                   scale: selectedDSP === dsp.key ? 1.05 : 1,
                 }}
                 transition={{ duration: 0.2 }}
               >
                 <motion.span
-                  className="flex items-center"
+                  className='flex items-center'
                   dangerouslySetInnerHTML={{ __html: dsp.config.logoSvg }}
                   animate={
                     prefersReducedMotion
@@ -267,7 +267,7 @@ export function AnimatedListenInterface({
                         ? { opacity: 1, scale: 1 }
                         : { opacity: 1, scale: 1 }
                     }
-                    className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"
+                    className='w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin'
                   />
                 )}
               </motion.span>
@@ -278,7 +278,7 @@ export function AnimatedListenInterface({
         {/* Footer note */}
         <motion.p
           variants={prefersReducedMotion ? {} : itemVariants}
-          className="text-xs text-gray-500 dark:text-gray-400 text-center mt-6"
+          className='text-xs text-gray-500 dark:text-gray-400 text-center mt-6'
         >
           Tap to open in the app or your browser
         </motion.p>

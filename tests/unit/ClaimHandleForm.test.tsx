@@ -1,8 +1,8 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useAuth } from '@clerk/nextjs';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/navigation';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { ClaimHandleForm } from '@/components/home/ClaimHandleForm';
-import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { APP_URL } from '@/constants/app';
 
 // Mock dependencies

@@ -5,11 +5,11 @@
 
 export const runtime = 'nodejs';
 
-import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createWrappedLink } from '@/lib/services/link-wrapping';
+import { checkRateLimit, detectBot } from '@/lib/utils/bot-detection';
 import { isValidUrl } from '@/lib/utils/url-encryption';
-import { detectBot, checkRateLimit } from '@/lib/utils/bot-detection';
 
 interface RequestBody {
   url: string;

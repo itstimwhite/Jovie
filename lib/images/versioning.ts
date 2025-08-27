@@ -49,7 +49,7 @@ export function versionImageUrl(url: string, version?: string): string {
 
     // Check if domain should skip versioning
     if (
-      skipVersioningDomains.some((domain) => urlObj.hostname.includes(domain))
+      skipVersioningDomains.some(domain => urlObj.hostname.includes(domain))
     ) {
       return url;
     }
@@ -60,7 +60,7 @@ export function versionImageUrl(url: string, version?: string): string {
   } catch {
     // If URL parsing fails, append as query param manually
     // But only if it's not a skip domain
-    if (skipVersioningDomains.some((domain) => url.includes(domain))) {
+    if (skipVersioningDomains.some(domain => url.includes(domain))) {
       return url;
     }
 
@@ -81,7 +81,7 @@ export function generateVersionedSrcSet(
   if (!baseUrl) return '';
 
   return sizes
-    .map((size) => {
+    .map(size => {
       const url = transformImageUrl(baseUrl, { width: size });
       const versionedUrl = versionImageUrl(url, version);
       return `${versionedUrl} ${size}w`;
@@ -141,7 +141,7 @@ function transformCloudinaryUrl(
 ): string {
   try {
     const urlParts = url.split('/');
-    const uploadIndex = urlParts.findIndex((part) => part === 'upload');
+    const uploadIndex = urlParts.findIndex(part => part === 'upload');
 
     if (uploadIndex === -1) return url;
 
@@ -291,8 +291,8 @@ export function lazyLoadImage(
   } = {}
 ): () => void {
   const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
+    entries => {
+      entries.forEach(entry => {
         if (entry.isIntersecting) {
           const img = entry.target as HTMLImageElement;
           img.src = src;

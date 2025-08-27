@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 // Smoke tests for profile pages to ensure basic functionality works
 test.describe('Profile smoke tests', () => {
@@ -238,7 +238,7 @@ test.describe('Profile feature smoke tests', () => {
 
     // Check for dark mode classes or styles
     const htmlElement = page.locator('html');
-    const hasDarkClass = await htmlElement.evaluate((el) => {
+    const hasDarkClass = await htmlElement.evaluate(el => {
       return (
         el.classList.contains('dark') ||
         document.documentElement.classList.contains('dark')

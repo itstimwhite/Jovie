@@ -36,9 +36,9 @@ async function seedTimUser() {
     // Split SQL into individual statements
     const statements = sql
       .split(';')
-      .map((stmt) => stmt.trim())
+      .map(stmt => stmt.trim())
       .filter(
-        (stmt) =>
+        stmt =>
           stmt.length > 0 && !stmt.startsWith('--') && !stmt.includes('SELECT')
       );
 
@@ -99,7 +99,7 @@ async function seedTimUser() {
 if (require.main === module) {
   seedTimUser()
     .then(() => process.exit(0))
-    .catch((error) => {
+    .catch(error => {
       console.error('❌ Seeding failed:', error.message);
       process.exit(1);
     });

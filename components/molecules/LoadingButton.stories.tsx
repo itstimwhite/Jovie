@@ -1,5 +1,5 @@
-import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
+import React from 'react';
 import { LoadingButton } from './LoadingButton';
 
 const meta: Meta<typeof LoadingButton> = {
@@ -129,7 +129,7 @@ export const InteractiveDemo: Story = {
 
     return (
       <div onClick={handleClick}>
-        <LoadingButton isLoading={isLoading} loadingText="Processing...">
+        <LoadingButton isLoading={isLoading} loadingText='Processing...'>
           {isLoading ? 'Processing...' : 'Click to test'}
         </LoadingButton>
       </div>

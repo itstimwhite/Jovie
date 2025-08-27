@@ -81,26 +81,26 @@ export const Large: Story = {
 
 export const AllVariants: Story = {
   render: () => (
-    <div className="flex flex-wrap gap-2">
-      <Badge variant="primary">Primary</Badge>
-      <Badge variant="secondary">Secondary</Badge>
-      <Badge variant="success">Success</Badge>
-      <Badge variant="warning">Warning</Badge>
-      <Badge variant="error">Error</Badge>
+    <div className='flex flex-wrap gap-2'>
+      <Badge variant='primary'>Primary</Badge>
+      <Badge variant='secondary'>Secondary</Badge>
+      <Badge variant='success'>Success</Badge>
+      <Badge variant='warning'>Warning</Badge>
+      <Badge variant='error'>Error</Badge>
     </div>
   ),
 };
 
 export const AllSizes: Story = {
   render: () => (
-    <div className="flex flex-wrap gap-2 items-center">
-      <Badge variant="primary" size="sm">
+    <div className='flex flex-wrap gap-2 items-center'>
+      <Badge variant='primary' size='sm'>
         Small
       </Badge>
-      <Badge variant="primary" size="md">
+      <Badge variant='primary' size='md'>
         Medium
       </Badge>
-      <Badge variant="primary" size="lg">
+      <Badge variant='primary' size='lg'>
         Large
       </Badge>
     </div>
@@ -109,33 +109,33 @@ export const AllSizes: Story = {
 
 export const WithNumbers: Story = {
   render: () => (
-    <div className="flex flex-wrap gap-2">
-      <Badge variant="primary">1</Badge>
-      <Badge variant="success">42</Badge>
-      <Badge variant="warning">99+</Badge>
-      <Badge variant="error">New</Badge>
+    <div className='flex flex-wrap gap-2'>
+      <Badge variant='primary'>1</Badge>
+      <Badge variant='success'>42</Badge>
+      <Badge variant='warning'>99+</Badge>
+      <Badge variant='error'>New</Badge>
     </div>
   ),
 };
 
 export const StatusBadges: Story = {
   render: () => (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2">
+    <div className='flex flex-col gap-4'>
+      <div className='flex items-center gap-2'>
         <span>Account Status:</span>
-        <Badge variant="success">Active</Badge>
+        <Badge variant='success'>Active</Badge>
       </div>
-      <div className="flex items-center gap-2">
+      <div className='flex items-center gap-2'>
         <span>Plan:</span>
-        <Badge variant="primary">Pro</Badge>
+        <Badge variant='primary'>Pro</Badge>
       </div>
-      <div className="flex items-center gap-2">
+      <div className='flex items-center gap-2'>
         <span>Payment:</span>
-        <Badge variant="warning">Pending</Badge>
+        <Badge variant='warning'>Pending</Badge>
       </div>
-      <div className="flex items-center gap-2">
+      <div className='flex items-center gap-2'>
         <span>Issues:</span>
-        <Badge variant="error">Critical</Badge>
+        <Badge variant='error'>Critical</Badge>
       </div>
     </div>
   ),

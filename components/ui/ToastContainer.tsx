@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Toast, ToastProps } from './Toast';
 
 export interface ToastOptions extends Omit<ToastProps, 'id' | 'onClose'> {
@@ -33,7 +33,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastProps[]>([]);
 
   const hideToast = useCallback((id: string) => {
-    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
+    setToasts(prevToasts => prevToasts.filter(toast => toast.id !== id));
   }, []);
 
   const showToast = useCallback(
@@ -42,7 +42,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
         options.id ||
         `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
-      setToasts((prevToasts) => [
+      setToasts(prevToasts => [
         ...prevToasts,
         {
           ...options,
@@ -70,8 +70,8 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   return (
     <ToastContext.Provider value={{ showToast, hideToast, clearToasts }}>
       {children}
-      <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-50">
-        {toasts.map((toast) => (
+      <div className='fixed bottom-4 right-4 flex flex-col gap-2 z-50'>
+        {toasts.map(toast => (
           <Toast key={toast.id} {...toast} />
         ))}
       </div>

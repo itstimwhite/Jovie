@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { useTheme } from 'next-themes';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Spinner } from '@/components/ui/Spinner';
 
 // Mock next-themes
@@ -34,14 +34,14 @@ describe('Spinner', () => {
   });
 
   it('applies correct size classes', () => {
-    render(<Spinner size="sm" />);
+    render(<Spinner size='sm' />);
 
     const spinner = screen.getByRole('status');
     expect(spinner).toHaveClass('h-4', 'w-4');
   });
 
   it('applies custom className', () => {
-    render(<Spinner className="custom-class" />);
+    render(<Spinner className='custom-class' />);
 
     const spinner = screen.getByRole('status');
     expect(spinner).toHaveClass('custom-class');

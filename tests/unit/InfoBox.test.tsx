@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import { InfoBox } from '@/components/ui/InfoBox';
 
 describe('InfoBox', () => {
@@ -17,7 +17,7 @@ describe('InfoBox', () => {
 
   it('renders with title', () => {
     render(
-      <InfoBox title="Information">
+      <InfoBox title='Information'>
         <p>Test content</p>
       </InfoBox>
     );
@@ -28,7 +28,7 @@ describe('InfoBox', () => {
 
   it('renders with different variants', () => {
     const { rerender } = render(
-      <InfoBox title="Info" variant="info">
+      <InfoBox title='Info' variant='info'>
         <p>Info content</p>
       </InfoBox>
     );
@@ -37,21 +37,21 @@ describe('InfoBox', () => {
     expect(container).toHaveClass('bg-blue-50');
 
     rerender(
-      <InfoBox title="Warning" variant="warning">
+      <InfoBox title='Warning' variant='warning'>
         <p>Warning content</p>
       </InfoBox>
     );
     expect(container).toHaveClass('bg-yellow-50');
 
     rerender(
-      <InfoBox title="Success" variant="success">
+      <InfoBox title='Success' variant='success'>
         <p>Success content</p>
       </InfoBox>
     );
     expect(container).toHaveClass('bg-green-50');
 
     rerender(
-      <InfoBox title="Error" variant="error">
+      <InfoBox title='Error' variant='error'>
         <p>Error content</p>
       </InfoBox>
     );
@@ -60,7 +60,7 @@ describe('InfoBox', () => {
 
   it('renders with proper title styling for each variant', () => {
     const { rerender } = render(
-      <InfoBox title="Info" variant="info">
+      <InfoBox title='Info' variant='info'>
         <p>Content</p>
       </InfoBox>
     );
@@ -69,21 +69,21 @@ describe('InfoBox', () => {
     expect(title).toHaveClass('text-blue-900');
 
     rerender(
-      <InfoBox title="Warning" variant="warning">
+      <InfoBox title='Warning' variant='warning'>
         <p>Content</p>
       </InfoBox>
     );
     expect(title).toHaveClass('text-yellow-900');
 
     rerender(
-      <InfoBox title="Success" variant="success">
+      <InfoBox title='Success' variant='success'>
         <p>Content</p>
       </InfoBox>
     );
     expect(title).toHaveClass('text-green-900');
 
     rerender(
-      <InfoBox title="Error" variant="error">
+      <InfoBox title='Error' variant='error'>
         <p>Content</p>
       </InfoBox>
     );
@@ -92,7 +92,7 @@ describe('InfoBox', () => {
 
   it('renders with proper content styling for each variant', () => {
     const { rerender } = render(
-      <InfoBox variant="info">
+      <InfoBox variant='info'>
         <p>Content</p>
       </InfoBox>
     );
@@ -101,21 +101,21 @@ describe('InfoBox', () => {
     expect(content).toHaveClass('text-blue-800');
 
     rerender(
-      <InfoBox variant="warning">
+      <InfoBox variant='warning'>
         <p>Content</p>
       </InfoBox>
     );
     expect(content).toHaveClass('text-yellow-800');
 
     rerender(
-      <InfoBox variant="success">
+      <InfoBox variant='success'>
         <p>Content</p>
       </InfoBox>
     );
     expect(content).toHaveClass('text-green-800');
 
     rerender(
-      <InfoBox variant="error">
+      <InfoBox variant='error'>
         <p>Content</p>
       </InfoBox>
     );
@@ -124,7 +124,7 @@ describe('InfoBox', () => {
 
   it('applies custom className', () => {
     render(
-      <InfoBox title="Test" className="custom-info">
+      <InfoBox title='Test' className='custom-info'>
         <p>Content</p>
       </InfoBox>
     );
@@ -135,7 +135,7 @@ describe('InfoBox', () => {
 
   it('renders with proper default styling classes', () => {
     render(
-      <InfoBox title="Test">
+      <InfoBox title='Test'>
         <p>Content</p>
       </InfoBox>
     );
@@ -146,7 +146,7 @@ describe('InfoBox', () => {
 
   it('renders with dark mode classes', () => {
     render(
-      <InfoBox title="Test" variant="info">
+      <InfoBox title='Test' variant='info'>
         <p>Content</p>
       </InfoBox>
     );
@@ -171,7 +171,7 @@ describe('InfoBox', () => {
 
   it('renders title as h3 element', () => {
     render(
-      <InfoBox title="Test Title">
+      <InfoBox title='Test Title'>
         <p>Content</p>
       </InfoBox>
     );
@@ -193,7 +193,7 @@ describe('InfoBox', () => {
 
   it('handles complex children content', () => {
     render(
-      <InfoBox title="Complex Content">
+      <InfoBox title='Complex Content'>
         <ul>
           <li>Item 1</li>
           <li>Item 2</li>
@@ -208,7 +208,7 @@ describe('InfoBox', () => {
 
   it('renders with proper spacing for title', () => {
     render(
-      <InfoBox title="Test Title">
+      <InfoBox title='Test Title'>
         <p>Content</p>
       </InfoBox>
     );
@@ -218,14 +218,14 @@ describe('InfoBox', () => {
   });
 
   it('handles empty children gracefully', () => {
-    render(<InfoBox title="Test">{null}</InfoBox>);
+    render(<InfoBox title='Test'>{null}</InfoBox>);
 
     expect(screen.getByText('Test')).toBeInTheDocument();
   });
 
   it('renders with proper border styling for each variant', () => {
     const { rerender } = render(
-      <InfoBox title="Info" variant="info">
+      <InfoBox title='Info' variant='info'>
         <p>Content</p>
       </InfoBox>
     );
@@ -234,21 +234,21 @@ describe('InfoBox', () => {
     expect(container).toHaveClass('border-blue-200');
 
     rerender(
-      <InfoBox title="Warning" variant="warning">
+      <InfoBox title='Warning' variant='warning'>
         <p>Content</p>
       </InfoBox>
     );
     expect(container).toHaveClass('border-yellow-200');
 
     rerender(
-      <InfoBox title="Success" variant="success">
+      <InfoBox title='Success' variant='success'>
         <p>Content</p>
       </InfoBox>
     );
     expect(container).toHaveClass('border-green-200');
 
     rerender(
-      <InfoBox title="Error" variant="error">
+      <InfoBox title='Error' variant='error'>
         <p>Content</p>
       </InfoBox>
     );

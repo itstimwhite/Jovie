@@ -1,8 +1,8 @@
-import { describe, it, expect, afterEach, vi } from 'vitest';
-import { render, screen, cleanup, fireEvent } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Button } from '@/components/ui/Button';
 import { Form } from '@/components/ui/Form';
 import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
 
 describe('Form', () => {
   afterEach(cleanup);
@@ -10,7 +10,7 @@ describe('Form', () => {
   it('renders children correctly', () => {
     render(
       <Form>
-        <Input placeholder="Test input" />
+        <Input placeholder='Test input' />
         <Button>Submit</Button>
       </Form>
     );
@@ -23,8 +23,8 @@ describe('Form', () => {
     const handleSubmit = vi.fn();
     render(
       <Form onSubmit={handleSubmit}>
-        <Input placeholder="Test input" />
-        <Button type="submit">Submit</Button>
+        <Input placeholder='Test input' />
+        <Button type='submit'>Submit</Button>
       </Form>
     );
 
@@ -35,13 +35,13 @@ describe('Form', () => {
   });
 
   it('prevents default form submission when onSubmit is provided', () => {
-    const handleSubmit = vi.fn((e) => {
+    const handleSubmit = vi.fn(e => {
       e.preventDefault();
     });
 
     render(
       <Form onSubmit={handleSubmit}>
-        <Button type="submit">Submit</Button>
+        <Button type='submit'>Submit</Button>
       </Form>
     );
 
@@ -54,7 +54,7 @@ describe('Form', () => {
   it('renders with loading state', () => {
     render(
       <Form loading>
-        <Input placeholder="Test input" />
+        <Input placeholder='Test input' />
       </Form>
     );
 
@@ -63,8 +63,8 @@ describe('Form', () => {
 
   it('renders with error message', () => {
     render(
-      <Form error="Form submission failed">
-        <Input placeholder="Test input" />
+      <Form error='Form submission failed'>
+        <Input placeholder='Test input' />
       </Form>
     );
 
@@ -73,8 +73,8 @@ describe('Form', () => {
 
   it('renders with success message', () => {
     render(
-      <Form success="Form submitted successfully">
-        <Input placeholder="Test input" />
+      <Form success='Form submitted successfully'>
+        <Input placeholder='Test input' />
       </Form>
     );
 
@@ -83,8 +83,8 @@ describe('Form', () => {
 
   it('renders with all status states', () => {
     render(
-      <Form loading error="Error message" success="Success message">
-        <Input placeholder="Test input" />
+      <Form loading error='Error message' success='Success message'>
+        <Input placeholder='Test input' />
       </Form>
     );
 
@@ -95,8 +95,8 @@ describe('Form', () => {
 
   it('applies custom className', () => {
     render(
-      <Form className="custom-form">
-        <Input placeholder="Test input" />
+      <Form className='custom-form'>
+        <Input placeholder='Test input' />
       </Form>
     );
 
@@ -107,7 +107,7 @@ describe('Form', () => {
   it('applies default spacing classes', () => {
     render(
       <Form>
-        <Input placeholder="Test input" />
+        <Input placeholder='Test input' />
       </Form>
     );
 
@@ -117,8 +117,8 @@ describe('Form', () => {
 
   it('forwards form attributes', () => {
     render(
-      <Form method="post" action="/submit">
-        <Input placeholder="Test input" />
+      <Form method='post' action='/submit'>
+        <Input placeholder='Test input' />
       </Form>
     );
 
@@ -130,7 +130,7 @@ describe('Form', () => {
   it('handles form without onSubmit', () => {
     render(
       <Form>
-        <Button type="submit">Submit</Button>
+        <Button type='submit'>Submit</Button>
       </Form>
     );
 
@@ -140,8 +140,8 @@ describe('Form', () => {
 
   it('renders FormStatus component when status props are provided', () => {
     render(
-      <Form loading error="Error" success="Success">
-        <Input placeholder="Test input" />
+      <Form loading error='Error' success='Success'>
+        <Input placeholder='Test input' />
       </Form>
     );
 

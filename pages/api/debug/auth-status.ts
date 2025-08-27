@@ -1,5 +1,5 @@
-import { NextApiRequest, NextApiResponse } from 'next';
 import { getAuth } from '@clerk/nextjs/server';
+import { NextApiRequest, NextApiResponse } from 'next';
 
 /**
  * Development-only API endpoint to debug authentication status

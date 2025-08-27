@@ -3,8 +3,8 @@
  * Returns the current user's billing information
  */
 
-import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 import { getUserBillingInfo } from '@/lib/stripe/customer-sync';
 
 export async function GET() {

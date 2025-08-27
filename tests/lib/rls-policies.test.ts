@@ -3,7 +3,7 @@
  * Tests the database RLS policies for proper user isolation
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 describe('Row Level Security Policies', () => {
   const mockClerkUserId = 'user_test123';

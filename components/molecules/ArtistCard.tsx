@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
+import Link from 'next/link';
 import { ArtistAvatar } from '@/components/atoms/ArtistAvatar';
 
 export interface ArtistCardProps {
@@ -70,16 +70,16 @@ export function ArtistCard({
         href={`/${handle}`}
         aria-label={`View ${name}'s profile`}
         title={name}
-        className="group block cursor-pointer"
+        className='group block cursor-pointer'
       >
-        <div className="text-center">
+        <div className='text-center'>
           <motion.div {...avatarAnimationProps}>
             <ArtistAvatar
               src={src}
               alt={alt ?? name}
               name={name}
               size={size}
-              className="mx-auto"
+              className='mx-auto'
             />
           </motion.div>
           {showName && (

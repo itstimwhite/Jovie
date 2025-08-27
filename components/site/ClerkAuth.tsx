@@ -16,7 +16,7 @@ export default function ClerkAuth() {
     <>
       <SignedOut>
         <SignInButton>Sign In</SignInButton>
-        <SignUpButton forceRedirectUrl="/sign-up">Sign Up</SignUpButton>
+        <SignUpButton forceRedirectUrl='/sign-up'>Sign Up</SignUpButton>
       </SignedOut>
       <SignedIn>
         <UserButton />

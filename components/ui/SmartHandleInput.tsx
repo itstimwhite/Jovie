@@ -1,20 +1,20 @@
 'use client';
 
 import React, {
-  useState,
-  useEffect,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
-import { Input } from './Input';
-import { LoadingSpinner } from '../atoms/LoadingSpinner';
 import {
-  validateUsernameFormat,
-  generateUsernameSuggestions,
-  debounce,
   type ClientValidationResult,
+  debounce,
+  generateUsernameSuggestions,
+  validateUsernameFormat,
 } from '@/lib/validation/client-username';
+import { LoadingSpinner } from '../atoms/LoadingSpinner';
+import { Input } from './Input';
 
 interface SmartHandleInputProps {
   value: string;
@@ -97,7 +97,7 @@ export function SmartHandleInput({
           const { available } = lastValidatedRef.current;
           let cachedValidation: HandleValidationState;
 
-          setHandleValidation((prev) => {
+          setHandleValidation(prev => {
             cachedValidation = {
               ...prev,
               available,
@@ -126,7 +126,7 @@ export function SmartHandleInput({
         const checkingTimeout = setTimeout(() => {
           let checkingValidation: HandleValidationState;
 
-          setHandleValidation((prev) => {
+          setHandleValidation(prev => {
             checkingValidation = {
               ...prev,
               checking: true,
@@ -171,7 +171,7 @@ export function SmartHandleInput({
           const available = !!result.available;
           let finalValidation: HandleValidationState;
 
-          setHandleValidation((prev) => {
+          setHandleValidation(prev => {
             finalValidation = {
               ...prev,
               available,
@@ -194,7 +194,7 @@ export function SmartHandleInput({
             // Handle timeout specifically
             let timeoutValidation: HandleValidationState;
 
-            setHandleValidation((prev) => {
+            setHandleValidation(prev => {
               timeoutValidation = {
                 ...prev,
                 available: false,
@@ -225,7 +225,7 @@ export function SmartHandleInput({
 
           let errorValidation: HandleValidationState;
 
-          setHandleValidation((prev) => {
+          setHandleValidation(prev => {
             errorValidation = {
               ...prev,
               available: false,
@@ -251,7 +251,7 @@ export function SmartHandleInput({
     let newValidation: HandleValidationState;
 
     // Update client validation state immediately using functional update to avoid dependency on handleValidation
-    setHandleValidation((prevValidation) => {
+    setHandleValidation(prevValidation => {
       newValidation = {
         ...prevValidation,
         clientValid: clientValidation.valid,
@@ -284,7 +284,7 @@ export function SmartHandleInput({
 
   const getValidationIcon = () => {
     if (handleValidation.checking) {
-      return <LoadingSpinner size="sm" />;
+      return <LoadingSpinner size='sm' />;
     }
     if (
       handleValidation.available &&
@@ -292,16 +292,16 @@ export function SmartHandleInput({
       clientValidation.valid
     ) {
       return (
-        <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+        <div className='w-4 h-4 bg-green-500 rounded-full flex items-center justify-center'>
           <svg
-            className="w-2.5 h-2.5 text-white"
-            fill="currentColor"
-            viewBox="0 0 20 20"
+            className='w-2.5 h-2.5 text-white'
+            fill='currentColor'
+            viewBox='0 0 20 20'
           >
             <path
-              fillRule="evenodd"
-              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-              clipRule="evenodd"
+              fillRule='evenodd'
+              d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+              clipRule='evenodd'
             />
           </svg>
         </div>
@@ -309,16 +309,16 @@ export function SmartHandleInput({
     }
     if (handleValidation.error || !clientValidation.valid) {
       return (
-        <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+        <div className='w-4 h-4 bg-red-500 rounded-full flex items-center justify-center'>
           <svg
-            className="w-2.5 h-2.5 text-white"
-            fill="currentColor"
-            viewBox="0 0 20 20"
+            className='w-2.5 h-2.5 text-white'
+            fill='currentColor'
+            viewBox='0 0 20 20'
           >
             <path
-              fillRule="evenodd"
-              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-              clipRule="evenodd"
+              fillRule='evenodd'
+              d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+              clipRule='evenodd'
             />
           </svg>
         </div>
@@ -348,18 +348,18 @@ export function SmartHandleInput({
   return (
     <div className={`space-y-2 ${className}`}>
       {/* Input with prefix and validation icon */}
-      <div className="relative">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm font-mono z-10">
+      <div className='relative'>
+        <div className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm font-mono z-10'>
           {prefix}
         </div>
         <Input
-          type="text"
+          type='text'
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={e => onChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
-          className="font-mono pl-20"
-          inputClassName="font-mono"
+          className='font-mono pl-20'
+          inputClassName='font-mono'
           validationState={
             !value
               ? null
@@ -372,23 +372,23 @@ export function SmartHandleInput({
                     : null
           }
           statusIcon={showAvailability ? getValidationIcon() : undefined}
-          aria-describedby="handle-status handle-preview"
-          aria-label="Enter your desired handle"
-          autoCapitalize="none"
-          autoCorrect="off"
-          autoComplete="off"
-          inputMode="text"
-          id="handle-input"
+          aria-describedby='handle-status handle-preview'
+          aria-label='Enter your desired handle'
+          autoCapitalize='none'
+          autoCorrect='off'
+          autoComplete='off'
+          inputMode='text'
+          id='handle-input'
         />
       </div>
 
       {/* Live preview */}
       <div
-        className="text-xs text-gray-500 dark:text-gray-400"
-        id="handle-preview"
+        className='text-xs text-gray-500 dark:text-gray-400'
+        id='handle-preview'
       >
         Your profile will be live at{' '}
-        <span className="font-mono text-gray-700 dark:text-gray-300">
+        <span className='font-mono text-gray-700 dark:text-gray-300'>
           {prefix}
           {value || placeholder}
         </span>
@@ -403,9 +403,9 @@ export function SmartHandleInput({
               : 'text-red-600 dark:text-red-400 opacity-100'
             : 'opacity-0'
         }`}
-        id="handle-status"
-        role="status"
-        aria-live="polite"
+        id='handle-status'
+        role='status'
+        aria-live='polite'
       >
         {statusMessage || '\u00A0'}{' '}
         {/* Non-breaking space to maintain height */}
@@ -413,17 +413,17 @@ export function SmartHandleInput({
 
       {/* Username suggestions */}
       {formatHints && handleValidation.suggestions.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-xs text-gray-600 dark:text-gray-400">
+        <div className='space-y-2'>
+          <p className='text-xs text-gray-600 dark:text-gray-400'>
             Try these instead:
           </p>
-          <div className="flex flex-wrap gap-2">
-            {handleValidation.suggestions.slice(0, 3).map((suggestion) => (
+          <div className='flex flex-wrap gap-2'>
+            {handleValidation.suggestions.slice(0, 3).map(suggestion => (
               <button
                 key={suggestion}
-                type="button"
+                type='button'
                 onClick={() => onChange(suggestion)}
-                className="text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors duration-150 font-mono"
+                className='text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors duration-150 font-mono'
                 disabled={disabled}
               >
                 @{suggestion}
@@ -435,9 +435,9 @@ export function SmartHandleInput({
 
       {/* Format hints */}
       {formatHints && !value && (
-        <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+        <div className='text-xs text-gray-500 dark:text-gray-400 space-y-1'>
           <p>Great handles are:</p>
-          <ul className="list-disc list-inside space-y-0.5 ml-2">
+          <ul className='list-disc list-inside space-y-0.5 ml-2'>
             <li>Short and memorable (3-15 characters)</li>
             <li>Easy to type and share</li>
             <li>Consistent with your brand</li>

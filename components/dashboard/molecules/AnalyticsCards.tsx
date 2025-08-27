@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AnalyticsCard } from '../atoms/AnalyticsCard';
 
 interface AnalyticsData {
@@ -70,9 +70,9 @@ export function AnalyticsCards() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {cards.map((card) => (
-          <AnalyticsCard key={card.id} title="Loading..." value="..." />
+      <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4'>
+        {cards.map(card => (
+          <AnalyticsCard key={card.id} title='Loading...' value='...' />
         ))}
       </div>
     );
@@ -80,15 +80,15 @@ export function AnalyticsCards() {
 
   if (error) {
     return (
-      <div className="text-center text-red-600">
+      <div className='text-center text-red-600'>
         <p>{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-      {cards.map((card) => (
+    <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4'>
+      {cards.map(card => (
         <AnalyticsCard
           key={card.id}
           title={card.title}

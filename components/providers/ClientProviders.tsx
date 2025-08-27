@@ -1,15 +1,16 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
 import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from 'next-themes';
+import React, { useEffect, useState } from 'react';
 import { Analytics } from '@/components/Analytics';
-import { FeatureFlagsProvider } from './FeatureFlagsProvider';
-import { ToastProvider } from './ToastProvider';
-import { FeatureFlags } from '@/lib/feature-flags';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { env } from '@/lib/env';
+import { FeatureFlags } from '@/lib/feature-flags';
 import { logger } from '@/lib/utils/logger';
+import { FeatureFlagsProvider } from './FeatureFlagsProvider';
+import { ToastProvider } from './ToastProvider';
+
 // import { Toolbar } from '@vercel/toolbar/next';
 
 interface ClientProvidersProps {
@@ -32,12 +33,12 @@ function ClerkWrapper({ children }: { children: React.ReactNode }) {
     }
 
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">
+      <div className='flex items-center justify-center min-h-screen'>
+        <div className='text-center'>
+          <h1 className='text-2xl font-bold text-red-600 mb-4'>
             Configuration Error
           </h1>
-          <p className="text-gray-600">
+          <p className='text-gray-600'>
             Clerk publishable key is not configured.
           </p>
         </div>
@@ -47,7 +48,7 @@ function ClerkWrapper({ children }: { children: React.ReactNode }) {
 
   return (
     <ClerkProvider
-      clerkJSVersion="latest"
+      clerkJSVersion='latest'
       publishableKey={publishableKey}
       appearance={{
         baseTheme: undefined,
@@ -113,10 +114,10 @@ export function ClientProviders({
   // Show loading state during hydration
   if (!isClient || isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <LoadingSpinner size="lg" showDebounce />
-          <p className="mt-2 text-gray-600">Loading...</p>
+      <div className='flex items-center justify-center min-h-screen'>
+        <div className='text-center'>
+          <LoadingSpinner size='lg' showDebounce />
+          <p className='mt-2 text-gray-600'>Loading...</p>
         </div>
       </div>
     );
@@ -126,11 +127,11 @@ export function ClientProviders({
     <ClerkWrapper>
       <FeatureFlagsProvider initialFlags={initialFeatureFlags}>
         <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
+          attribute='class'
+          defaultTheme='system'
           enableSystem={true}
           disableTransitionOnChange
-          storageKey="jovie-theme"
+          storageKey='jovie-theme'
         >
           <ToastProvider>
             {children}

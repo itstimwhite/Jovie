@@ -3,19 +3,19 @@
  * Handles creation and management of wrapped links
  */
 
+import { sql as drizzleSql, eq, lt } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { wrappedLinks } from '@/lib/db/schema';
-import { eq, lt, sql as drizzleSql } from 'drizzle-orm';
 import {
   categorizeDomain,
   getCrawlerSafeLabel,
 } from '@/lib/utils/domain-categorizer';
 import {
-  simpleEncryptUrl,
-  simpleDecryptUrl,
+  extractDomain,
   generateShortId,
   isValidUrl,
-  extractDomain,
+  simpleDecryptUrl,
+  simpleEncryptUrl,
 } from '@/lib/utils/url-encryption';
 
 // Temporary in-memory store for tracking sensitive shortIds during testing
@@ -296,14 +296,14 @@ export async function getLinkStats(userId?: string): Promise<LinkStats> {
       (sum, link) => sum + (link.clickCount || 0),
       0
     );
-    const normalLinks = data.filter((link) => link.kind === 'normal').length;
+    const normalLinks = data.filter(link => link.kind === 'normal').length;
     const sensitiveLinks = data.filter(
-      (link) => link.kind === 'sensitive'
+      link => link.kind === 'sensitive'
     ).length;
 
     // Calculate top domains
     const domainCounts: Record<string, number> = {};
-    data.forEach((link) => {
+    data.forEach(link => {
       domainCounts[link.domain] =
         (domainCounts[link.domain] || 0) + (link.clickCount || 0);
     });

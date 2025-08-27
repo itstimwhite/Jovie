@@ -60,8 +60,8 @@ export const Interactive: Story = {
     const amounts = [3, 5, 10];
 
     return (
-      <div className="grid grid-cols-3 gap-3 w-64">
-        {amounts.map((amount) => (
+      <div className='grid grid-cols-3 gap-3 w-64'>
+        {amounts.map(amount => (
           <AmountSelector
             key={amount}
             amount={amount}

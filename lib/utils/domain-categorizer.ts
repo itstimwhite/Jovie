@@ -285,7 +285,7 @@ export function containsSensitiveKeywords(text: string): boolean {
   ];
 
   const lowerText = text.toLowerCase();
-  return sensitiveKeywords.some((keyword) => lowerText.includes(keyword));
+  return sensitiveKeywords.some(keyword => lowerText.includes(keyword));
 }
 
 /**

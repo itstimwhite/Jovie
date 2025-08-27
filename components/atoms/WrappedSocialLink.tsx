@@ -5,14 +5,14 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { SocialIcon } from './SocialIcon';
+import { useEffect, useState } from 'react';
 import {
   getCrawlerSafeLabel,
   isSensitiveDomain,
 } from '@/lib/utils/domain-categorizer';
 import { extractDomain } from '@/lib/utils/url-encryption';
+import { SocialIcon } from './SocialIcon';
 
 interface WrappedSocialLinkProps {
   href: string;
@@ -118,7 +118,7 @@ export function WrappedSocialLink({
         aria-label={ariaLabel || `${crawlerSafeLabel} link`}
       >
         {children || (
-          <div className="flex items-center gap-2">
+          <div className='flex items-center gap-2'>
             <SocialIcon platform={platform} size={20} />
             <span>{crawlerSafeLabel}</span>
           </div>
@@ -137,11 +137,11 @@ export function WrappedSocialLink({
       data-link-kind={wrappedData.kind}
     >
       {children || (
-        <div className="flex items-center gap-2">
+        <div className='flex items-center gap-2'>
           <SocialIcon platform={platform} size={20} />
           <span>{wrappedData.alias}</span>
           {wrappedData.kind === 'sensitive' && (
-            <span className="text-xs bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded">
+            <span className='text-xs bg-yellow-100 text-yellow-800 px-1.5 py-0.5 rounded'>
               Verification Required
             </span>
           )}
@@ -201,8 +201,8 @@ export function LegacySocialLink({
   return (
     <Link
       href={href}
-      target="_blank"
-      rel="noreferrer noopener ugc nofollow"
+      target='_blank'
+      rel='noreferrer noopener ugc nofollow'
       className={className}
       aria-label={`${crawlerSafeLabel} link`}
     >

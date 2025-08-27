@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
 import { setupClerkTestingToken } from '@clerk/testing/playwright';
+import { expect, test } from '@playwright/test';
 
 /**
  * E2E Test: Dashboard Access Control for Foreign Profiles

@@ -84,7 +84,7 @@ async function findCorrectSpotifyIds() {
       });
 
       // Small delay to avoid rate limiting
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
   } catch (error) {
     console.error('❌ Script failed:', error);

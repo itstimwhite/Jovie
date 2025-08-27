@@ -34,12 +34,12 @@ async function verifyArtists() {
 
     // Check for missing data
     const artistsWithMissingData = artists.filter(
-      (artist) => !artist.spotify_id || !artist.image_url || !artist.tagline
+      artist => !artist.spotify_id || !artist.image_url || !artist.tagline
     );
 
     if (artistsWithMissingData.length > 0) {
       console.log('⚠️  Artists with missing data:');
-      artistsWithMissingData.forEach((artist) => {
+      artistsWithMissingData.forEach(artist => {
         console.log(`   - ${artist.name}:`);
         if (!artist.spotify_id) console.log('     Missing Spotify ID');
         if (!artist.image_url) console.log('     Missing image URL');

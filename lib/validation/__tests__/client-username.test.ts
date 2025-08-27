@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  validateUsernameFormat,
-  generateUsernameSuggestions,
   debounce,
+  generateUsernameSuggestions,
+  validateUsernameFormat,
 } from '../client-username';
 
 describe('validateUsernameFormat', () => {
@@ -121,7 +121,7 @@ describe('generateUsernameSuggestions', () => {
 
   it('should filter out invalid suggestions', () => {
     const suggestions = generateUsernameSuggestions('a'); // Too short base
-    suggestions.forEach((suggestion) => {
+    suggestions.forEach(suggestion => {
       expect(validateUsernameFormat(suggestion).valid).toBe(true);
     });
   });

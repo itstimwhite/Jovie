@@ -75,7 +75,7 @@ async function updateFeaturedArtists() {
     }
 
     console.log('[update-featured] Successfully updated featured artists:');
-    updatedArtists?.forEach((artist) => {
+    updatedArtists?.forEach(artist => {
       console.log(`  ✓ ${artist.display_name} (@${artist.username})`);
     });
 
@@ -95,7 +95,7 @@ async function updateFeaturedArtists() {
     console.log(
       `\n[update-featured] Total featured artists: ${featuredArtists?.length || 0}`
     );
-    featuredArtists?.forEach((artist) => {
+    featuredArtists?.forEach(artist => {
       console.log(`  - ${artist.display_name} (@${artist.username})`);
     });
 

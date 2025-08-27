@@ -1,9 +1,9 @@
+import { sql as drizzleSql, eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { clickEvents, creatorProfiles, socialLinks } from '@/lib/db/schema';
 import { detectPlatformFromUA } from '@/lib/utils';
 import { LinkType } from '@/types/db';
-import { db } from '@/lib/db';
-import { creatorProfiles, clickEvents, socialLinks } from '@/lib/db/schema';
-import { eq, sql as drizzleSql } from 'drizzle-orm';
 
 // API routes should be dynamic
 export const dynamic = 'force-dynamic';

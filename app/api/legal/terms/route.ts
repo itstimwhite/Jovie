@@ -1,8 +1,8 @@
 import fs from 'fs';
+import { NextResponse } from 'next/server';
 import path from 'path';
 import { remark } from 'remark';
 import html from 'remark-html';
-import { NextResponse } from 'next/server';
 
 // API routes should be dynamic
 export const dynamic = 'force-dynamic';

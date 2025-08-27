@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { ProfileShell } from './ProfileShell';
 import { Artist, LegacySocialLink } from '@/types/db';
+import { ProfileShell } from './ProfileShell';
 
 // Mock data for the stories
 const mockArtist: Artist = {
@@ -66,14 +66,14 @@ const mockSocialLinks: LegacySocialLink[] = [
 
 // Create a placeholder component for child content
 const PlaceholderSection = ({ title }: { title: string }) => (
-  <div className="w-full p-4 bg-white/20 dark:bg-gray-800/20 rounded-lg border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-sm">
-    <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-2">
+  <div className='w-full p-4 bg-white/20 dark:bg-gray-800/20 rounded-lg border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-sm'>
+    <h3 className='text-lg font-medium text-gray-800 dark:text-gray-200 mb-2'>
       {title}
     </h3>
-    <div className="space-y-3">
-      <div className="h-4 bg-gray-200/50 dark:bg-gray-700/50 rounded w-3/4"></div>
-      <div className="h-4 bg-gray-200/50 dark:bg-gray-700/50 rounded"></div>
-      <div className="h-4 bg-gray-200/50 dark:bg-gray-700/50 rounded w-5/6"></div>
+    <div className='space-y-3'>
+      <div className='h-4 bg-gray-200/50 dark:bg-gray-700/50 rounded w-3/4'></div>
+      <div className='h-4 bg-gray-200/50 dark:bg-gray-700/50 rounded'></div>
+      <div className='h-4 bg-gray-200/50 dark:bg-gray-700/50 rounded w-5/6'></div>
     </div>
   </div>
 );
@@ -146,12 +146,12 @@ type Story = StoryObj<typeof meta>;
 
 // Default story with placeholder content
 export const Default: Story = {
-  render: (args) => (
+  render: args => (
     <ProfileShell {...args}>
-      <div className="space-y-6">
-        <PlaceholderSection title="Music" />
-        <PlaceholderSection title="About" />
-        <PlaceholderSection title="Upcoming Shows" />
+      <div className='space-y-6'>
+        <PlaceholderSection title='Music' />
+        <PlaceholderSection title='About' />
+        <PlaceholderSection title='Upcoming Shows' />
       </div>
     </ProfileShell>
   ),
@@ -162,11 +162,11 @@ export const WithBackButton: Story = {
   args: {
     showBackButton: true,
   },
-  render: (args) => (
+  render: args => (
     <ProfileShell {...args}>
-      <div className="space-y-6">
-        <PlaceholderSection title="Music" />
-        <PlaceholderSection title="About" />
+      <div className='space-y-6'>
+        <PlaceholderSection title='Music' />
+        <PlaceholderSection title='About' />
       </div>
     </ProfileShell>
   ),
@@ -177,11 +177,11 @@ export const WithNotificationButton: Story = {
   args: {
     showNotificationButton: true,
   },
-  render: (args) => (
+  render: args => (
     <ProfileShell {...args}>
-      <div className="space-y-6">
-        <PlaceholderSection title="Music" />
-        <PlaceholderSection title="About" />
+      <div className='space-y-6'>
+        <PlaceholderSection title='Music' />
+        <PlaceholderSection title='About' />
       </div>
     </ProfileShell>
   ),
@@ -192,11 +192,11 @@ export const WithDotsPattern: Story = {
   args: {
     backgroundPattern: 'dots',
   },
-  render: (args) => (
+  render: args => (
     <ProfileShell {...args}>
-      <div className="space-y-6">
-        <PlaceholderSection title="Music" />
-        <PlaceholderSection title="About" />
+      <div className='space-y-6'>
+        <PlaceholderSection title='Music' />
+        <PlaceholderSection title='About' />
       </div>
     </ProfileShell>
   ),
@@ -207,11 +207,11 @@ export const WithGradientPattern: Story = {
   args: {
     backgroundPattern: 'gradient',
   },
-  render: (args) => (
+  render: args => (
     <ProfileShell {...args}>
-      <div className="space-y-6">
-        <PlaceholderSection title="Music" />
-        <PlaceholderSection title="About" />
+      <div className='space-y-6'>
+        <PlaceholderSection title='Music' />
+        <PlaceholderSection title='About' />
       </div>
     </ProfileShell>
   ),
@@ -223,11 +223,11 @@ export const WithNoPattern: Story = {
     backgroundPattern: 'none',
     showGradientBlurs: false,
   },
-  render: (args) => (
+  render: args => (
     <ProfileShell {...args}>
-      <div className="space-y-6">
-        <PlaceholderSection title="Music" />
-        <PlaceholderSection title="About" />
+      <div className='space-y-6'>
+        <PlaceholderSection title='Music' />
+        <PlaceholderSection title='About' />
       </div>
     </ProfileShell>
   ),
@@ -238,12 +238,12 @@ export const WithWiderLayout: Story = {
   args: {
     maxWidthClass: 'w-full max-w-2xl',
   },
-  render: (args) => (
+  render: args => (
     <ProfileShell {...args}>
-      <div className="space-y-6">
-        <PlaceholderSection title="Music" />
-        <PlaceholderSection title="About" />
-        <PlaceholderSection title="Upcoming Shows" />
+      <div className='space-y-6'>
+        <PlaceholderSection title='Music' />
+        <PlaceholderSection title='About' />
+        <PlaceholderSection title='Upcoming Shows' />
       </div>
     </ProfileShell>
   ),
@@ -255,11 +255,11 @@ export const MinimalControls: Story = {
     showSocialBar: false,
     showTipButton: false,
   },
-  render: (args) => (
+  render: args => (
     <ProfileShell {...args}>
-      <div className="space-y-6">
-        <PlaceholderSection title="Music" />
-        <PlaceholderSection title="About" />
+      <div className='space-y-6'>
+        <PlaceholderSection title='Music' />
+        <PlaceholderSection title='About' />
       </div>
     </ProfileShell>
   ),
@@ -270,11 +270,11 @@ export const WithoutFooter: Story = {
   args: {
     showFooter: false,
   },
-  render: (args) => (
+  render: args => (
     <ProfileShell {...args}>
-      <div className="space-y-6">
-        <PlaceholderSection title="Music" />
-        <PlaceholderSection title="About" />
+      <div className='space-y-6'>
+        <PlaceholderSection title='Music' />
+        <PlaceholderSection title='About' />
       </div>
     </ProfileShell>
   ),
@@ -285,11 +285,11 @@ export const CustomSubtitle: Story = {
   args: {
     subtitle: 'Grammy-nominated producer & DJ',
   },
-  render: (args) => (
+  render: args => (
     <ProfileShell {...args}>
-      <div className="space-y-6">
-        <PlaceholderSection title="Music" />
-        <PlaceholderSection title="About" />
+      <div className='space-y-6'>
+        <PlaceholderSection title='Music' />
+        <PlaceholderSection title='About' />
       </div>
     </ProfileShell>
   ),
@@ -297,16 +297,16 @@ export const CustomSubtitle: Story = {
 
 // Story with multiple content sections to demonstrate scrolling
 export const WithMultipleSections: Story = {
-  render: (args) => (
+  render: args => (
     <ProfileShell {...args}>
-      <div className="space-y-6">
-        <PlaceholderSection title="Music" />
-        <PlaceholderSection title="About" />
-        <PlaceholderSection title="Upcoming Shows" />
-        <PlaceholderSection title="Merchandise" />
-        <PlaceholderSection title="Videos" />
-        <PlaceholderSection title="Photos" />
-        <PlaceholderSection title="Contact" />
+      <div className='space-y-6'>
+        <PlaceholderSection title='Music' />
+        <PlaceholderSection title='About' />
+        <PlaceholderSection title='Upcoming Shows' />
+        <PlaceholderSection title='Merchandise' />
+        <PlaceholderSection title='Videos' />
+        <PlaceholderSection title='Photos' />
+        <PlaceholderSection title='Contact' />
       </div>
     </ProfileShell>
   ),
@@ -319,27 +319,27 @@ export const ResponsiveLayout: Story = {
       defaultViewport: 'mobile1',
     },
   },
-  render: (args) => (
+  render: args => (
     <ProfileShell {...args}>
-      <div className="space-y-6">
-        <div className="p-4 bg-white/20 dark:bg-gray-800/20 rounded-lg border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-sm">
-          <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-2">
+      <div className='space-y-6'>
+        <div className='p-4 bg-white/20 dark:bg-gray-800/20 rounded-lg border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-sm'>
+          <h3 className='text-lg font-medium text-gray-800 dark:text-gray-200 mb-2'>
             Responsive Demo
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-3">
+          <p className='text-gray-600 dark:text-gray-400 mb-3'>
             This profile layout adapts to different screen sizes. Try viewing on
             mobile, tablet, and desktop.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="h-24 bg-gray-200/50 dark:bg-gray-700/50 rounded flex items-center justify-center">
-              <span className="text-gray-500 dark:text-gray-400">Item 1</span>
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+            <div className='h-24 bg-gray-200/50 dark:bg-gray-700/50 rounded flex items-center justify-center'>
+              <span className='text-gray-500 dark:text-gray-400'>Item 1</span>
             </div>
-            <div className="h-24 bg-gray-200/50 dark:bg-gray-700/50 rounded flex items-center justify-center">
-              <span className="text-gray-500 dark:text-gray-400">Item 2</span>
+            <div className='h-24 bg-gray-200/50 dark:bg-gray-700/50 rounded flex items-center justify-center'>
+              <span className='text-gray-500 dark:text-gray-400'>Item 2</span>
             </div>
           </div>
         </div>
-        <PlaceholderSection title="About" />
+        <PlaceholderSection title='About' />
       </div>
     </ProfileShell>
   ),

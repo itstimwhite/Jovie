@@ -1,9 +1,9 @@
 'use client';
 
+import { AppleStyleOnboardingForm } from './AppleStyleOnboardingForm';
+import { MinimalistOnboardingForm } from './MinimalistOnboardingForm';
 import { OnboardingForm } from './OnboardingForm';
 import { ProgressiveOnboardingForm } from './ProgressiveOnboardingForm';
-import { MinimalistOnboardingForm } from './MinimalistOnboardingForm';
-import { AppleStyleOnboardingForm } from './AppleStyleOnboardingForm';
 
 interface OnboardingFormWrapperProps {
   useProgressiveForm: boolean;

@@ -1,4 +1,4 @@
-import { test, expect } from './setup';
+import { expect, test } from './setup';
 
 test.describe('TipPromo Feature Flag', () => {
   test.describe('when NEXT_PUBLIC_FEATURE_TIPS is enabled', () => {

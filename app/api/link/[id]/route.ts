@@ -11,10 +11,10 @@ import {
   incrementClickCount,
 } from '@/lib/services/link-wrapping';
 import {
-  detectBot,
-  logBotDetection,
   checkRateLimit,
   createBotResponse,
+  detectBot,
+  logBotDetection,
 } from '@/lib/utils/bot-detection';
 import { generateSignedToken } from '@/lib/utils/url-encryption';
 
@@ -112,7 +112,7 @@ export async function POST(
     });
 
     // Increment click count asynchronously
-    incrementClickCount(shortId).catch((error) => {
+    incrementClickCount(shortId).catch(error => {
       console.error('Failed to increment click count:', error);
     });
 

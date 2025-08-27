@@ -1,5 +1,5 @@
-import { Page, expect } from '@playwright/test';
 import { setupClerkTestingToken } from '@clerk/testing/playwright';
+import { expect, Page } from '@playwright/test';
 
 /**
  * Custom error types for better test debugging
@@ -62,7 +62,7 @@ export async function signInUser(
   await submitButton.click();
 
   // Wait for successful authentication (redirect away from sign-in)
-  await page.waitForURL((url) => !url.pathname.includes('/sign-in'), {
+  await page.waitForURL(url => !url.pathname.includes('/sign-in'), {
     timeout: 15000,
   });
 
@@ -94,7 +94,7 @@ export async function signOutUser(page: Page) {
   }
 
   // Wait for sign out to complete
-  await page.waitForURL((url) => !url.pathname.includes('/dashboard'), {
+  await page.waitForURL(url => !url.pathname.includes('/dashboard'), {
     timeout: 10000,
   });
 }

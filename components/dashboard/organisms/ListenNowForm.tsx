@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
 import {
   Artist,
   CreatorProfile,
@@ -66,64 +66,64 @@ export function ListenNowForm({ artist, onUpdate }: ListenNowFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <FormField label="Spotify URL" error={error}>
+    <form onSubmit={handleSubmit} className='space-y-4'>
+      <FormField label='Spotify URL' error={error}>
         <Input
-          type="url"
+          type='url'
           value={formData.spotify_url}
-          onChange={(e) =>
+          onChange={e =>
             setFormData({ ...formData, spotify_url: e.target.value })
           }
-          placeholder="https://open.spotify.com/artist/..."
-          inputMode="url"
-          autoCapitalize="none"
-          autoCorrect="off"
-          autoComplete="off"
+          placeholder='https://open.spotify.com/artist/...'
+          inputMode='url'
+          autoCapitalize='none'
+          autoCorrect='off'
+          autoComplete='off'
         />
       </FormField>
 
-      <FormField label="Apple Music URL">
+      <FormField label='Apple Music URL'>
         <Input
-          type="url"
+          type='url'
           value={formData.apple_music_url}
-          onChange={(e) =>
+          onChange={e =>
             setFormData({ ...formData, apple_music_url: e.target.value })
           }
-          placeholder="https://music.apple.com/..."
-          inputMode="url"
-          autoCapitalize="none"
-          autoCorrect="off"
-          autoComplete="off"
+          placeholder='https://music.apple.com/...'
+          inputMode='url'
+          autoCapitalize='none'
+          autoCorrect='off'
+          autoComplete='off'
         />
       </FormField>
 
-      <FormField label="YouTube URL">
+      <FormField label='YouTube URL'>
         <Input
-          type="url"
+          type='url'
           value={formData.youtube_url}
-          onChange={(e) =>
+          onChange={e =>
             setFormData({ ...formData, youtube_url: e.target.value })
           }
-          placeholder="https://youtube.com/..."
-          inputMode="url"
-          autoCapitalize="none"
-          autoCorrect="off"
-          autoComplete="off"
+          placeholder='https://youtube.com/...'
+          inputMode='url'
+          autoCapitalize='none'
+          autoCorrect='off'
+          autoComplete='off'
         />
       </FormField>
 
       <Button
-        type="submit"
+        type='submit'
         disabled={loading}
-        variant="primary"
-        className="w-full"
+        variant='primary'
+        className='w-full'
       >
         {loading ? 'Updating...' : 'Update Links'}
       </Button>
 
       {success && (
-        <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3">
-          <p className="text-sm text-green-600 dark:text-green-400">
+        <div className='bg-green-500/10 border border-green-500/20 rounded-lg p-3'>
+          <p className='text-sm text-green-600 dark:text-green-400'>
             Links updated successfully!
           </p>
         </div>

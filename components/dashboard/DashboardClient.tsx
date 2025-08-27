@@ -1,34 +1,35 @@
 'use client';
 
-import { useState, Suspense, lazy } from 'react';
 import { useRouter } from 'next/navigation';
-import { OptimizedImage } from '@/components/ui/OptimizedImage';
-import { Container } from '@/components/site/Container';
-import { ThemeToggle } from '@/components/site/ThemeToggle';
+import { lazy, Suspense, useState } from 'react';
+import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
 import {
-  ProfileLinkCard,
+  ListenNowForm,
   OnboardingForm,
   ProfileForm,
+  ProfileLinkCard,
   SocialsForm,
-  ListenNowForm,
 } from '@/components/dashboard';
-import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
+import { Container } from '@/components/site/Container';
+import { ThemeToggle } from '@/components/site/ThemeToggle';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { PendingClaimHandler } from './PendingClaimHandler';
 
 // Lazy load non-critical components for performance
 const AnalyticsCards = lazy(() =>
-  import('@/components/dashboard').then((mod) => ({
+  import('@/components/dashboard').then(mod => ({
     default: mod.AnalyticsCards,
   }))
 );
 const SettingsForm = lazy(() =>
-  import('@/components/dashboard').then((mod) => ({
+  import('@/components/dashboard').then(mod => ({
     default: mod.SettingsForm,
   }))
 );
-import { Artist, convertDrizzleCreatorProfileToArtist } from '@/types/db';
-import type { CreatorProfile } from '@/lib/db/schema';
+
 import { APP_NAME } from '@/constants/app';
+import type { CreatorProfile } from '@/lib/db/schema';
+import { Artist, convertDrizzleCreatorProfileToArtist } from '@/types/db';
 
 const tabs = [
   { id: 'profile', label: 'Profile' },
@@ -68,7 +69,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
   // Handle profile selection when user has multiple creator profiles
   const handleProfileSelection = (profileId: string) => {
-    const selectedProfile = creatorProfiles.find((p) => p.id === profileId);
+    const selectedProfile = creatorProfiles.find(p => p.id === profileId);
     if (selectedProfile) {
       setSelectedProfileId(profileId);
       const artistData = convertDrizzleCreatorProfileToArtist(selectedProfile);
@@ -78,34 +79,34 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
   if (initialData.needsOnboarding) {
     return (
-      <div className="min-h-screen bg-white dark:bg-[#0D0E12] transition-colors">
+      <div className='min-h-screen bg-white dark:bg-[#0D0E12] transition-colors'>
         {/* Subtle grid background pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
+        <div className='absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]' />
 
         {/* Gradient orbs - more subtle like Linear */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full blur-3xl" />
+        <div className='absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-3xl' />
+        <div className='absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full blur-3xl' />
 
         {/* Theme Toggle */}
-        <div className="absolute top-4 right-4 z-20">
+        <div className='absolute top-4 right-4 z-20'>
           <ThemeToggle />
         </div>
 
-        <Container className="relative z-10">
-          <div className="flex min-h-screen items-center justify-center py-8">
-            <div className="w-full max-w-md">
+        <Container className='relative z-10'>
+          <div className='flex min-h-screen items-center justify-center py-8'>
+            <div className='w-full max-w-md'>
               {/* Header */}
-              <div className="text-center mb-6">
-                <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-1 transition-colors">
+              <div className='text-center mb-6'>
+                <h1 className='text-3xl font-semibold text-gray-900 dark:text-white mb-1 transition-colors'>
                   Welcome to {APP_NAME}
                 </h1>
-                <p className="text-gray-600 dark:text-white/70 transition-colors">
+                <p className='text-gray-600 dark:text-white/70 transition-colors'>
                   Claim your handle to launch your artist profile
                 </p>
               </div>
 
               {/* Form Card */}
-              <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-xl p-6 shadow-xl transition-colors">
+              <div className='bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-xl p-6 shadow-xl transition-colors'>
                 <OnboardingForm />
               </div>
             </div>
@@ -124,39 +125,39 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
       <PendingClaimRunner />
       <PendingClaimHandler />
 
-      <div className="min-h-screen bg-white dark:bg-[#0D0E12] transition-colors">
+      <div className='min-h-screen bg-white dark:bg-[#0D0E12] transition-colors'>
         {/* Subtle grid background pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
+        <div className='absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]' />
 
         {/* Gradient orbs - more subtle like Linear */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full blur-3xl" />
+        <div className='absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-3xl' />
+        <div className='absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-full blur-3xl' />
 
         {/* Theme Toggle */}
-        <div className="absolute top-4 right-4 z-20">
+        <div className='absolute top-4 right-4 z-20'>
           <ThemeToggle />
         </div>
 
-        <Container className="relative z-10">
-          <div className="py-12">
-            <div className="mb-8" data-test="dashboard-welcome">
-              <h1 className="text-4xl font-semibold text-gray-900 dark:text-white mb-2 transition-colors">
+        <Container className='relative z-10'>
+          <div className='py-12'>
+            <div className='mb-8' data-test='dashboard-welcome'>
+              <h1 className='text-4xl font-semibold text-gray-900 dark:text-white mb-2 transition-colors'>
                 Dashboard
               </h1>
-              <p className="text-gray-600 dark:text-white/70 text-lg transition-colors">
+              <p className='text-gray-600 dark:text-white/70 text-lg transition-colors'>
                 Manage your {APP_NAME} profile
               </p>
             </div>
 
             {/* Profile Selector - Show when user has multiple creator profiles */}
             {creatorProfiles.length > 1 && (
-              <div className="mb-8">
-                <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-xl p-4 shadow-xl transition-colors">
-                  <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+              <div className='mb-8'>
+                <div className='bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-xl p-4 shadow-xl transition-colors'>
+                  <h3 className='text-sm font-medium text-gray-900 dark:text-white mb-3'>
                     Creator Profiles ({creatorProfiles.length})
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {creatorProfiles.map((profile) => (
+                  <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+                    {creatorProfiles.map(profile => (
                       <button
                         key={profile.id}
                         onClick={() => handleProfileSelection(profile.id)}
@@ -166,32 +167,32 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                             : 'border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 bg-white/50 dark:bg-white/5'
                         }`}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className='flex items-center gap-3'>
                           {profile.avatarUrl ? (
                             <OptimizedImage
                               src={profile.avatarUrl}
                               alt={profile.displayName || profile.username}
-                              size="sm"
-                              shape="circle"
-                              aspectRatio="square"
-                              objectFit="cover"
+                              size='sm'
+                              shape='circle'
+                              aspectRatio='square'
+                              objectFit='cover'
                               priority={true}
                               quality={90}
                             />
                           ) : (
-                            <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                              <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                            <div className='w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center'>
+                              <span className='text-xs font-medium text-gray-600 dark:text-gray-300'>
                                 {(profile.displayName || profile.username)
                                   .charAt(0)
                                   .toUpperCase()}
                               </span>
                             </div>
                           )}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                          <div className='flex-1 min-w-0'>
+                            <p className='text-sm font-medium text-gray-900 dark:text-white truncate'>
                               {profile.displayName || profile.username}
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                            <p className='text-xs text-gray-500 dark:text-gray-400 capitalize'>
                               {profile.creatorType} • @{profile.username}
                             </p>
                           </div>
@@ -201,26 +202,26 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   </div>
 
                   {/* Add New Profile Button */}
-                  <div className="mt-3 pt-3 border-t border-gray-200/50 dark:border-white/10">
+                  <div className='mt-3 pt-3 border-t border-gray-200/50 dark:border-white/10'>
                     <button
                       onClick={() => router.push('/onboarding')}
-                      className="w-full p-3 rounded-lg border border-dashed border-gray-300 dark:border-white/20 hover:border-gray-400 dark:hover:border-white/30 bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors text-center"
+                      className='w-full p-3 rounded-lg border border-dashed border-gray-300 dark:border-white/20 hover:border-gray-400 dark:hover:border-white/30 bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors text-center'
                     >
-                      <div className="flex items-center justify-center gap-2">
+                      <div className='flex items-center justify-center gap-2'>
                         <svg
-                          className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                          className='w-4 h-4 text-gray-500 dark:text-gray-400'
+                          fill='none'
+                          stroke='currentColor'
+                          viewBox='0 0 24 24'
                         >
                           <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
                             strokeWidth={2}
-                            d="M12 4v16m8-8H4"
+                            d='M12 4v16m8-8H4'
                           />
                         </svg>
-                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        <span className='text-sm font-medium text-gray-600 dark:text-gray-400'>
                           Create New Profile
                         </span>
                       </div>
@@ -230,14 +231,14 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
               </div>
             )}
 
-            <div className="mb-8">
+            <div className='mb-8'>
               <ProfileLinkCard artist={artist} />
             </div>
 
-            <div className="bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-xl p-6 shadow-xl transition-colors">
-              <div className="border-b border-gray-200/50 dark:border-white/10 mb-6">
-                <nav className="-mb-px flex space-x-8">
-                  {tabs.map((tab) => (
+            <div className='bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-xl p-6 shadow-xl transition-colors'>
+              <div className='border-b border-gray-200/50 dark:border-white/10 mb-6'>
+                <nav className='-mb-px flex space-x-8'>
+                  {tabs.map(tab => (
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
@@ -253,7 +254,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 </nav>
               </div>
 
-              <div className="space-y-6">
+              <div className='space-y-6'>
                 {activeTab === 'profile' && (
                   <ProfileForm artist={artist} onUpdate={handleArtistUpdated} />
                 )}
@@ -267,8 +268,8 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 {activeTab === 'analytics' && (
                   <Suspense
                     fallback={
-                      <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                      <div className='flex items-center justify-center py-8'>
+                        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600'></div>
                       </div>
                     }
                   >
@@ -278,8 +279,8 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 {activeTab === 'settings' && artist && (
                   <Suspense
                     fallback={
-                      <div className="flex items-center justify-center py-8">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                      <div className='flex items-center justify-center py-8'>
+                        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600'></div>
                       </div>
                     }
                   >

@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useRef, useEffect } from 'react';
-import { Container } from '@/components/site/Container';
+import { useEffect, useRef, useState } from 'react';
 import { LogoLink } from '@/components/atoms/LogoLink';
 import { AuthActions } from '@/components/molecules/AuthActions';
 import { ProductFlyout } from '@/components/organisms/ProductFlyout';
+import { Container } from '@/components/site/Container';
 
 export function HeaderNav() {
   const [isProductFlyoutOpen, setIsProductFlyoutOpen] = useState(false);
@@ -80,32 +80,32 @@ export function HeaderNav() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-200/10 dark:border-white/10 bg-white/95 dark:bg-[#0D0E12]/95 backdrop-blur-sm supports-backdrop-filter:bg-white/60 dark:supports-backdrop-filter:bg-[#0D0E12]/60">
+    <header className='sticky top-0 z-50 w-full border-b border-gray-200/10 dark:border-white/10 bg-white/95 dark:bg-[#0D0E12]/95 backdrop-blur-sm supports-backdrop-filter:bg-white/60 dark:supports-backdrop-filter:bg-[#0D0E12]/60'>
       <Container>
-        <div className="flex h-16 items-center">
+        <div className='flex h-16 items-center'>
           {/* Logo - Left side */}
-          <div className="flex items-center">
+          <div className='flex items-center'>
             <LogoLink />
           </div>
 
           {/* Navigation - Center (hidden on mobile) */}
-          <div className="hidden md:flex flex-1 justify-center">
-            <nav className="flex items-center space-x-6">
+          <div className='hidden md:flex flex-1 justify-center'>
+            <nav className='flex items-center space-x-6'>
               <div
-                className="relative"
+                className='relative'
                 onPointerEnter={handleHoverEnter}
                 onPointerLeave={handleHoverLeave}
-                data-testid="product-flyout-wrapper"
+                data-testid='product-flyout-wrapper'
               >
                 <button
                   ref={productTriggerRef}
-                  id="product-trigger"
+                  id='product-trigger'
                   onClick={handleProductClick}
                   onFocus={handleProductFocus}
                   onBlur={handleProductBlur}
                   aria-expanded={isProductFlyoutOpen}
-                  aria-haspopup="menu"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 rounded px-2 py-1"
+                  aria-haspopup='menu'
+                  className='text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 rounded px-2 py-1'
                 >
                   Product
                 </button>
@@ -116,8 +116,8 @@ export function HeaderNav() {
                 />
               </div>
               <Link
-                href="/pricing"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                href='/pricing'
+                className='text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors'
               >
                 Pricing
               </Link>
@@ -125,16 +125,16 @@ export function HeaderNav() {
           </div>
 
           {/* Mobile Navigation */}
-          <div className="md:hidden flex-1 justify-center flex">
-            <nav className="flex items-center space-x-4">
-              <div className="relative">
+          <div className='md:hidden flex-1 justify-center flex'>
+            <nav className='flex items-center space-x-4'>
+              <div className='relative'>
                 <button
                   onClick={handleProductClick}
                   onFocus={handleProductFocus}
                   onBlur={handleProductBlur}
                   aria-expanded={isProductFlyoutOpen}
-                  aria-haspopup="menu"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 rounded px-2 py-1 min-h-[44px] flex items-center"
+                  aria-haspopup='menu'
+                  className='text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:ring-offset-2 rounded px-2 py-1 min-h-[44px] flex items-center'
                 >
                   Product
                 </button>
@@ -145,8 +145,8 @@ export function HeaderNav() {
                 />
               </div>
               <Link
-                href="/pricing"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] flex items-center px-2"
+                href='/pricing'
+                className='text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] flex items-center px-2'
               >
                 Pricing
               </Link>
@@ -154,7 +154,7 @@ export function HeaderNav() {
           </div>
 
           {/* Actions - Right side */}
-          <div className="flex items-center space-x-4 md:ml-0 ml-auto">
+          <div className='flex items-center space-x-4 md:ml-0 ml-auto'>
             <AuthActions />
           </div>
         </div>
@@ -163,8 +163,8 @@ export function HeaderNav() {
       {/* Inert background when flyout is open */}
       {isProductFlyoutOpen && (
         <div
-          className="fixed inset-0 z-40"
-          aria-hidden="true"
+          className='fixed inset-0 z-40'
+          aria-hidden='true'
           onClick={closeFlyout}
         />
       )}

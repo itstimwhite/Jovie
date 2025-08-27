@@ -22,23 +22,23 @@ export const FlyoutItem = React.forwardRef<HTMLAnchorElement, FlyoutItemProps>(
             '--ring-color': `color-mix(in srgb, var(${feature.colorVar}) 25%, transparent)`,
           } as React.CSSProperties & { '--ring-color': string }
         }
-        role="menuitem"
+        role='menuitem'
       >
-        <div className="flex-shrink-0">
+        <div className='flex-shrink-0'>
           <IconBadge Icon={feature.Icon} colorVar={feature.colorVar} />
         </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-[var(--fg)] group-hover:text-[var(--fg)]">
+        <div className='min-w-0 flex-1'>
+          <div className='flex items-center gap-2'>
+            <h3 className='text-sm font-semibold text-[var(--fg)] group-hover:text-[var(--fg)]'>
               {feature.title}
             </h3>
             {feature.aiPowered && (
-              <span className="inline-flex items-center rounded-md bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-300/20">
+              <span className='inline-flex items-center rounded-md bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-300 ring-1 ring-inset ring-blue-700/10 dark:ring-blue-300/20'>
                 AI-powered
               </span>
             )}
           </div>
-          <p className="mt-1 text-xs text-[var(--muted)] group-hover:text-[var(--muted)]">
+          <p className='mt-1 text-xs text-[var(--muted)] group-hover:text-[var(--muted)]'>
             {feature.blurb}
           </p>
         </div>

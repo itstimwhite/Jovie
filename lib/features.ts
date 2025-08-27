@@ -1,11 +1,11 @@
 import {
   ArrowTrendingUpIcon,
-  ChartBarIcon,
   BoltIcon,
-  SparklesIcon,
-  MagnifyingGlassCircleIcon,
+  ChartBarIcon,
   LinkIcon,
+  MagnifyingGlassCircleIcon,
   RocketLaunchIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
 
 export type Feature = {

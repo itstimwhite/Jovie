@@ -151,7 +151,7 @@ async function updateArtistProfiles() {
         }
 
         // Add a small delay to avoid rate limiting
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 100));
       } catch (error) {
         console.error(`Error fetching Spotify data for ${artist.name}:`, error);
       }

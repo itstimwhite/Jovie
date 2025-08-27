@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { ErrorSummary } from '@/components/ui/ErrorSummary';
 
 // Mock the router
@@ -33,7 +33,7 @@ describe('Form Accessibility and Validation', () => {
       render(
         <ErrorSummary
           errors={errors}
-          title="Please fix the errors"
+          title='Please fix the errors'
           onFocusField={onFocusField}
         />
       );

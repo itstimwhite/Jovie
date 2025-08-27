@@ -37,8 +37,8 @@ async function runSqlFile(filePath) {
     // Split SQL into individual statements (basic approach)
     const statements = sql
       .split(';')
-      .map((stmt) => stmt.trim())
-      .filter((stmt) => stmt.length > 0 && !stmt.startsWith('--'));
+      .map(stmt => stmt.trim())
+      .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'));
 
     for (const statement of statements) {
       if (statement.trim()) {
@@ -111,7 +111,7 @@ async function seedDatabase() {
     }
 
     console.log(`✅ Found ${profiles.length} creator profiles:`);
-    profiles.forEach((profile) => {
+    profiles.forEach(profile => {
       console.log(`   • ${profile.display_name} (@${profile.username})`);
       if (profile.bio) {
         console.log(
@@ -127,7 +127,7 @@ async function seedDatabase() {
 
     if (!linksError && links) {
       console.log(
-        `\n📱 Social platforms available: ${links.map((l) => l.platform).join(', ')}`
+        `\n📱 Social platforms available: ${links.map(l => l.platform).join(', ')}`
       );
     }
   } catch (error) {
@@ -152,7 +152,7 @@ async function seedDatabase() {
 if (require.main === module) {
   seedDatabase()
     .then(() => process.exit(0))
-    .catch((error) => {
+    .catch(error => {
       console.error('❌ Seeding failed:', error.message);
       process.exit(1);
     });

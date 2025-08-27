@@ -79,7 +79,7 @@ async function listVerifiedArtists() {
 
     console.log('\n📋 Verified Artists:');
     if (data && data.length > 0) {
-      data.forEach((artist) => {
+      data.forEach(artist => {
         console.log(`  ✅ ${artist.name} (${artist.handle})`);
       });
     } else {

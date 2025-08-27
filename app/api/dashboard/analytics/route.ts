@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getUserAnalytics } from '@/lib/db/queries/analytics';
 import { withDbSession } from '@/lib/auth/session';
+import { getUserAnalytics } from '@/lib/db/queries/analytics';
 
 type TimeRange = '7d' | '30d' | '90d' | 'all';
 
 export async function GET(request: Request) {
   try {
-    return await withDbSession(async (userId) => {
+    return await withDbSession(async userId => {
       // Parse query parameters
       const { searchParams } = new URL(request.url);
       const range = (searchParams.get('range') as TimeRange) || '30d';

@@ -57,7 +57,7 @@ async function main() {
   console.log('[db-migrate] Non-CI or unsupported branch; skipping.');
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error('[db-migrate] Fatal error:', err);
   process.exit(1);
 });

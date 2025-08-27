@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach } from 'vitest';
-import { render, screen, cleanup } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import { CTASection } from '@/components/organisms/CTASection';
 
 describe('CTASection', () => {
@@ -8,10 +8,10 @@ describe('CTASection', () => {
   it('renders the main headline text', () => {
     render(
       <CTASection
-        title="Launch your artist page in minutes. Convert visitors into fans."
-        buttonText="Claim your handle →"
-        buttonHref="/sign-up"
-        variant="primary"
+        title='Launch your artist page in minutes. Convert visitors into fans.'
+        buttonText='Claim your handle →'
+        buttonHref='/sign-up'
+        variant='primary'
       />
     );
 
@@ -25,10 +25,10 @@ describe('CTASection', () => {
   it('renders the CTA button with correct text', () => {
     render(
       <CTASection
-        title="Launch your artist page in minutes. Convert visitors into fans."
-        buttonText="Claim your handle →"
-        buttonHref="/sign-up"
-        variant="primary"
+        title='Launch your artist page in minutes. Convert visitors into fans.'
+        buttonText='Claim your handle →'
+        buttonHref='/sign-up'
+        variant='primary'
       />
     );
 
@@ -40,10 +40,10 @@ describe('CTASection', () => {
   it('has proper accessibility attributes', () => {
     render(
       <CTASection
-        title="Launch your artist page in minutes. Convert visitors into fans."
-        buttonText="Claim your handle →"
-        buttonHref="/sign-up"
-        variant="primary"
+        title='Launch your artist page in minutes. Convert visitors into fans.'
+        buttonText='Claim your handle →'
+        buttonHref='/sign-up'
+        variant='primary'
       />
     );
 
@@ -59,10 +59,10 @@ describe('CTASection', () => {
   it('applies correct styling classes for emphasis', () => {
     render(
       <CTASection
-        title="Launch your artist page in minutes. Convert visitors into fans."
-        buttonText="Claim your handle →"
-        buttonHref="/sign-up"
-        variant="primary"
+        title='Launch your artist page in minutes. Convert visitors into fans.'
+        buttonText='Claim your handle →'
+        buttonHref='/sign-up'
+        variant='primary'
       />
     );
 
@@ -80,10 +80,10 @@ describe('CTASection', () => {
   it('has proper responsive layout structure', () => {
     render(
       <CTASection
-        title="Launch your artist page in minutes. Convert visitors into fans."
-        buttonText="Claim your handle →"
-        buttonHref="/sign-up"
-        variant="primary"
+        title='Launch your artist page in minutes. Convert visitors into fans.'
+        buttonText='Claim your handle →'
+        buttonHref='/sign-up'
+        variant='primary'
       />
     );
 

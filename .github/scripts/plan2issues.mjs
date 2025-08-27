@@ -1,6 +1,7 @@
 // node >=20, no build step
-import fs from 'node:fs';
+
 import crypto from 'node:crypto';
+import fs from 'node:fs';
 import { Octokit } from 'octokit';
 
 const planPath = process.env.PLAN_PATH || 'PLAN.md'; // or your plan file
@@ -89,9 +90,10 @@ Auto-synced from ${planPath}.
   }
 }
 console.log(`Synced ${tasks.length} tasks from ${planPath}`);
+
+import crypto from 'node:crypto';
 // node >=20, ESM, no build step
 import fs from 'node:fs';
-import crypto from 'node:crypto';
 import { Octokit } from 'octokit';
 
 // Config
@@ -286,7 +288,7 @@ for (const t of tasks) {
   // Ensure Copilot assigned for open work
   if (!shouldClose) {
     const alreadyAssigned = (found.assignees || []).some(
-      (a) => a.login === copilotAssignee
+      a => a.login === copilotAssignee
     );
     if (!alreadyAssigned) await assignCopilot(found.number);
   }

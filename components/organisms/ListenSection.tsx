@@ -2,9 +2,9 @@
 
 import React, { useEffect } from 'react';
 import { DSPButtonGroup } from '@/components/molecules/DSPButtonGroup';
-import type { AvailableDSP } from '@/lib/dsp';
-import { getDSPDeepLinkConfig, openDeepLink } from '@/lib/deep-links';
 import { LISTEN_COOKIE } from '@/constants/app';
+import { getDSPDeepLinkConfig, openDeepLink } from '@/lib/deep-links';
+import type { AvailableDSP } from '@/lib/dsp';
 
 export interface ListenSectionProps {
   /** Artist handle for tracking */
@@ -120,7 +120,7 @@ export function ListenSection({
   };
 
   return (
-    <div className={className} data-test="listen-btn">
+    <div className={className} data-test='listen-btn'>
       <DSPButtonGroup
         dsps={dsps}
         onDSPClick={handleDSPClick}

@@ -40,8 +40,8 @@ export const DarkTheme: Story = {
     },
   },
   decorators: [
-    (Story) => (
-      <div className="dark bg-gray-900 min-h-screen">
+    Story => (
+      <div className='dark bg-gray-900 min-h-screen'>
         <Story />
       </div>
     ),

@@ -159,7 +159,7 @@ export class PerformanceAlerts {
    */
   removeRule(metric: string, threshold: number) {
     this.rules = this.rules.filter(
-      (rule) => !(rule.metric === metric && rule.threshold === threshold)
+      rule => !(rule.metric === metric && rule.threshold === threshold)
     );
     return this;
   }
@@ -172,7 +172,7 @@ export class PerformanceAlerts {
     // Group metrics by name for easier processing
     const metricsByName: Record<string, Metric[]> = {};
 
-    metrics.forEach((metric) => {
+    metrics.forEach(metric => {
       if (!metricsByName[metric.name]) {
         metricsByName[metric.name] = [];
       }
@@ -180,7 +180,7 @@ export class PerformanceAlerts {
     });
 
     // Check each rule against the relevant metrics
-    this.rules.forEach((rule) => {
+    this.rules.forEach(rule => {
       const relevantMetrics = metricsByName[rule.metric] || [];
 
       // Skip if no metrics for this rule

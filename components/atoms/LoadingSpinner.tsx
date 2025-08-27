@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useTheme } from 'next-themes';
 import { clsx } from 'clsx';
+import { useTheme } from 'next-themes';
+import React, { useEffect, useState } from 'react';
 
 interface LoadingSpinnerProps {
   size?: 'xs' | 'sm' | 'md' | 'lg';
@@ -80,8 +80,8 @@ export function LoadingSpinner({
     return (
       <div
         className={clsx(sizeClasses[size], className)}
-        role="status"
-        aria-label="Loading"
+        role='status'
+        aria-label='Loading'
       >
         {/* Invisible placeholder to prevent layout shift */}
       </div>
@@ -95,36 +95,36 @@ export function LoadingSpinner({
         sizeClasses[size],
         className
       )}
-      role="status"
-      aria-label="Loading"
+      role='status'
+      aria-label='Loading'
     >
       <svg
         className={clsx(
           'animate-spin motion-reduce:animate-[spin_1.5s_linear_infinite]',
           'h-full w-full'
         )}
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
+        viewBox='0 0 24 24'
+        xmlns='http://www.w3.org/2000/svg'
+        fill='none'
       >
         {/* Background circle (lighter color) */}
         <circle
           className={colors.secondary}
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
+          cx='12'
+          cy='12'
+          r='10'
+          stroke='currentColor'
           strokeWidth={strokeWidth[size]}
-          strokeLinecap="round"
-          strokeDasharray="1, 1"
+          strokeLinecap='round'
+          strokeDasharray='1, 1'
         />
         {/* Foreground arc (primary color) */}
         <path
           className={colors.primary}
-          stroke="currentColor"
+          stroke='currentColor'
           strokeWidth={strokeWidth[size]}
-          strokeLinecap="round"
-          d="M12 2a10 10 0 0 1 10 10"
+          strokeLinecap='round'
+          d='M12 2a10 10 0 0 1 10 10'
         />
       </svg>
     </div>

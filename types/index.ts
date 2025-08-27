@@ -7,57 +7,50 @@
 // Import types for internal use
 import type {
   CreatorType,
+  CurrencyCode,
   LinkType,
+  SocialPlatform,
   SubscriptionPlan,
   SubscriptionStatus,
-  CurrencyCode,
-  SocialPlatform,
 } from './db';
 
 // Re-export shared enums and types from db.ts
 export type {
-  // Enums
-  CreatorType,
-  LinkType,
-  SubscriptionPlan,
-  SubscriptionStatus,
-  CurrencyCode,
-  SocialPlatform,
-
   // Core interfaces
   AppUser,
-  CreatorProfile,
-  SocialLink,
-
-  // Content interfaces
-  Release,
-
-  // Analytics interfaces
-  ClickEvent,
-
-  // Billing interfaces
-  Subscription,
-  Tip,
-
-  // Utility interfaces
-  RateLimitResult,
-
   // Backwards compatibility
   Artist,
-  LegacySocialLink,
-  User,
-
   // Specialized types
   ArtistProfile,
+  // Analytics interfaces
+  ClickEvent,
+  CreatorProfile,
+  // Enums
+  CreatorType,
+  CurrencyCode,
+  LegacySocialLink,
+  LinkType,
   PodcasterProfile,
+  // Utility interfaces
+  RateLimitResult,
+  // Content interfaces
+  Release,
+  SocialLink,
+  SocialPlatform,
+  // Billing interfaces
+  Subscription,
+  SubscriptionPlan,
+  SubscriptionStatus,
+  Tip,
+  User,
 } from './db';
 
 // Re-export utility functions
 export {
+  convertArtistToCreatorProfile,
+  convertCreatorProfileToArtist,
   isArtistProfile,
   isPodcasterProfile,
-  convertCreatorProfileToArtist,
-  convertArtistToCreatorProfile,
 } from './db';
 
 // =====================================

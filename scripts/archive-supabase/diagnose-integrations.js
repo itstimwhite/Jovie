@@ -26,7 +26,7 @@ console.log('📍 Project root detected');
 
 // Check for environment files
 const envFiles = ['.env.local', '.env', '.env.development', '.env.production'];
-const existingEnvFiles = envFiles.filter((file) => fs.existsSync(file));
+const existingEnvFiles = envFiles.filter(file => fs.existsSync(file));
 
 console.log('\n🔧 Environment Configuration:');
 if (existingEnvFiles.length === 0) {

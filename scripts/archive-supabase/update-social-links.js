@@ -151,7 +151,7 @@ async function updateAllSocialLinks() {
     for (const [handle, socialLinks] of Object.entries(artistSocialLinks)) {
       await updateArtistSocialLinks(handle, socialLinks);
       // Small delay to avoid overwhelming the database
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
 
     console.log('\n🎉 Finished updating all social links!');

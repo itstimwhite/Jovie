@@ -5,9 +5,9 @@
  * Seeds the database with demo data using Drizzle ORM and Neon
  */
 
-import { db } from '@/lib/db';
-import { users, creatorProfiles, socialLinks } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { db } from '@/lib/db';
+import { creatorProfiles, socialLinks, users } from '@/lib/db/schema';
 
 const DEMO_USERS = [
   {
@@ -206,7 +206,7 @@ async function seedDatabase() {
       console.log(
         `  ✅ Created ${profileLinks.length} social links for @${profile.username}`
       );
-      profileLinks.forEach((link) => {
+      profileLinks.forEach(link => {
         console.log(`    - ${link.platform}: ${link.displayText}`);
       });
     }
@@ -244,7 +244,7 @@ async function main() {
 if (require.main === module) {
   main()
     .then(() => process.exit(0))
-    .catch((error) => {
+    .catch(error => {
       console.error('❌ Fatal error:', error);
       process.exit(1);
     });

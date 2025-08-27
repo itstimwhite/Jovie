@@ -1,8 +1,8 @@
 'server only';
 
-import { getCreatorProfileWithLinks } from '@/lib/db/queries';
-import { updateCreatorProfile as updateProfile } from '@/app/dashboard/actions';
 import { revalidatePath } from 'next/cache';
+import { updateCreatorProfile as updateProfile } from '@/app/dashboard/actions';
+import { getCreatorProfileWithLinks } from '@/lib/db/queries';
 import type { CreatorProfile, SocialLink } from '@/lib/db/schema';
 
 export async function fetchCreatorProfile(

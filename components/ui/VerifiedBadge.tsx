@@ -18,12 +18,12 @@ export function VerifiedBadge({
   return (
     <span
       className={`inline-flex align-middle text-sky-600 dark:text-sky-400 ${className}`}
-      title="Verified artist"
-      aria-label="Verified artist"
+      title='Verified artist'
+      aria-label='Verified artist'
     >
       <CheckBadgeIcon
         className={`${sizeClasses[size]} translate-y-[1px]`}
-        aria-hidden="true"
+        aria-hidden='true'
       />
     </span>
   );

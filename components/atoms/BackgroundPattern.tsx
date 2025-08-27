@@ -19,7 +19,7 @@ export function BackgroundPattern({
   return (
     <div
       className={cn('absolute inset-0', patterns[variant], className)}
-      aria-hidden="true"
+      aria-hidden='true'
     />
   );
 }

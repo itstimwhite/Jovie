@@ -86,7 +86,7 @@ function cleanFilename(filename: string): string {
       .replace(/^(img|image|photo|pic|picture)[\s-_]/i, '')
       .replace(/[\s-_](img|image|photo|pic|picture)$/i, '')
       // Capitalize words
-      .replace(/\b\w/g, (l) => l.toUpperCase())
+      .replace(/\b\w/g, l => l.toUpperCase())
       // Clean up multiple spaces
       .replace(/\s+/g, ' ')
       .trim()

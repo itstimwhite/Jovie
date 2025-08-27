@@ -34,7 +34,7 @@ export function ArtistName({
   className,
 }: ArtistNameProps) {
   const content = (
-    <span className="flex items-center justify-center gap-2">
+    <span className='flex items-center justify-center gap-2'>
       <span
         className={cn(
           'font-semibold text-gray-900 dark:text-white',
@@ -51,8 +51,8 @@ export function ArtistName({
 
   if (showLink) {
     return (
-      <h1 className={cn(sizeClasses[size])} itemProp="name">
-        <Link href={`/${handle}`} className="inline-block">
+      <h1 className={cn(sizeClasses[size])} itemProp='name'>
+        <Link href={`/${handle}`} className='inline-block'>
           {content}
         </Link>
       </h1>
@@ -60,7 +60,7 @@ export function ArtistName({
   }
 
   return (
-    <h1 className={cn(sizeClasses[size])} itemProp="name">
+    <h1 className={cn(sizeClasses[size])} itemProp='name'>
       {content}
     </h1>
   );

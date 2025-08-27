@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { AnalyticsCard } from '../atoms/AnalyticsCard';
 import React from 'react';
+import { AnalyticsCard } from '../atoms/AnalyticsCard';
 
 // Create a mock version of the component for Storybook
 const MockAnalyticsCards = ({
@@ -42,9 +42,9 @@ const MockAnalyticsCards = ({
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {cards.map((card) => (
-          <AnalyticsCard key={card.id} title="Loading..." value="..." />
+      <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4'>
+        {cards.map(card => (
+          <AnalyticsCard key={card.id} title='Loading...' value='...' />
         ))}
       </div>
     );
@@ -52,15 +52,15 @@ const MockAnalyticsCards = ({
 
   if (error) {
     return (
-      <div className="text-center text-red-600">
+      <div className='text-center text-red-600'>
         <p>Failed to load analytics</p>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-      {cards.map((card) => (
+    <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4'>
+      {cards.map(card => (
         <AnalyticsCard
           key={card.id}
           title={card.title}
@@ -178,10 +178,10 @@ export const ThreeCards: Story = {
 // Responsive layout demonstration
 export const ResponsiveLayout: Story = {
   render: () => (
-    <div className="space-y-8">
+    <div className='space-y-8'>
       <div>
-        <h3 className="text-lg font-semibold mb-2">Desktop View (4 columns)</h3>
-        <div className="w-full">
+        <h3 className='text-lg font-semibold mb-2'>Desktop View (4 columns)</h3>
+        <div className='w-full'>
           <MockAnalyticsCards
             totalClicks={1250}
             spotifyClicks={750}
@@ -192,8 +192,8 @@ export const ResponsiveLayout: Story = {
       </div>
 
       <div>
-        <h3 className="text-lg font-semibold mb-2">Tablet View (2 columns)</h3>
-        <div className="w-[768px] mx-auto">
+        <h3 className='text-lg font-semibold mb-2'>Tablet View (2 columns)</h3>
+        <div className='w-[768px] mx-auto'>
           <MockAnalyticsCards
             totalClicks={1250}
             spotifyClicks={750}
@@ -204,8 +204,8 @@ export const ResponsiveLayout: Story = {
       </div>
 
       <div>
-        <h3 className="text-lg font-semibold mb-2">Mobile View (1 column)</h3>
-        <div className="w-[375px] mx-auto">
+        <h3 className='text-lg font-semibold mb-2'>Mobile View (1 column)</h3>
+        <div className='w-[375px] mx-auto'>
           <MockAnalyticsCards
             totalClicks={1250}
             spotifyClicks={750}
@@ -221,9 +221,9 @@ export const ResponsiveLayout: Story = {
 // Dark mode demonstration
 export const DarkMode: Story = {
   render: () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div className="p-6 bg-white rounded-lg">
-        <h3 className="text-lg font-semibold mb-4">Light Theme</h3>
+    <div className='grid grid-cols-1 md:grid-cols-2 gap-8'>
+      <div className='p-6 bg-white rounded-lg'>
+        <h3 className='text-lg font-semibold mb-4'>Light Theme</h3>
         <MockAnalyticsCards
           totalClicks={1250}
           spotifyClicks={750}
@@ -231,9 +231,9 @@ export const DarkMode: Story = {
           recentClicks={120}
         />
       </div>
-      <div className="p-6 bg-gray-900 rounded-lg">
-        <h3 className="text-lg font-semibold mb-4 text-white">Dark Theme</h3>
-        <div className="dark">
+      <div className='p-6 bg-gray-900 rounded-lg'>
+        <h3 className='text-lg font-semibold mb-4 text-white'>Dark Theme</h3>
+        <div className='dark'>
           <MockAnalyticsCards
             totalClicks={1250}
             spotifyClicks={750}

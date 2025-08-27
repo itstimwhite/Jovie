@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 /**
  * Hook to detect if the user prefers reduced motion.
@@ -48,8 +48,8 @@ export function useReducedMotion(): boolean {
     if (typeof mediaQuery.addEventListener === 'function') {
       mediaQuery.addEventListener('change', onChange);
     } else {
-      // @ts-expect-error - For older browsers
-      mediaQuery.addListener(onChange);
+      // For older browsers
+      mediaQuery.addListener?.(onChange);
     }
 
     // Cleanup
@@ -57,8 +57,8 @@ export function useReducedMotion(): boolean {
       if (typeof mediaQuery.removeEventListener === 'function') {
         mediaQuery.removeEventListener('change', onChange);
       } else {
-        // @ts-expect-error - For older browsers
-        mediaQuery.removeListener(onChange);
+        // For older browsers
+        mediaQuery.removeListener?.(onChange);
       }
     };
   }, []);

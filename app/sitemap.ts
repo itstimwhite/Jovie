@@ -1,8 +1,8 @@
+import { eq } from 'drizzle-orm';
 import { MetadataRoute } from 'next';
+import { APP_URL } from '@/constants/app';
 import { db } from '@/lib/db';
 import { creatorProfiles } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
-import { APP_URL } from '@/constants/app';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let profiles: Array<{ username: string; updatedAt: Date | null }> = [];
@@ -46,7 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // Creator profile pages with optimized priorities
-  const profilePages = profiles.map((profile) => ({
+  const profilePages = profiles.map(profile => ({
     url: `${baseUrl}/${profile.username}`,
     lastModified: profile.updatedAt || new Date(),
     changeFrequency: 'weekly' as const,

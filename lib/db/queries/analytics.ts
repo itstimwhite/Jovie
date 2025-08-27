@@ -1,4 +1,4 @@
-import { and, gte, sql as drizzleSql, count, eq } from 'drizzle-orm';
+import { and, count, sql as drizzleSql, eq, gte } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { clickEvents } from '@/lib/db/schema';
 
@@ -73,7 +73,7 @@ export async function getAnalyticsData(
         gte(clickEvents.createdAt, recentThreshold)
       )
     )
-    .then((res) => res[0]?.count ?? 0);
+    .then(res => res[0]?.count ?? 0);
 
   // Get clicks by day for the last 30 days
   const thirtyDaysAgo = new Date();
@@ -111,11 +111,11 @@ export async function getAnalyticsData(
     spotifyClicks: spotifyClicks[0]?.count ?? 0,
     socialClicks: socialClicks[0]?.count ?? 0,
     recentClicks,
-    clicksByDay: clicksByDay.map((row) => ({
+    clicksByDay: clicksByDay.map(row => ({
       date: row.date,
       count: Number(row.count),
     })),
-    topLinks: topLinks.map((row) => ({
+    topLinks: topLinks.map(row => ({
       id: row.id ?? 'unknown',
       url: row.url,
       clicks: Number(row.count),

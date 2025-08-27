@@ -2,7 +2,7 @@
  * Database Performance Monitoring Tests
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock the database module to prevent DATABASE_URL requirement
 vi.mock('@/lib/db', () => ({
@@ -53,7 +53,7 @@ describe('Database Performance Monitoring', () => {
 
     it('should track query duration', async () => {
       const slowQuery = vi.fn().mockImplementation(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 100));
         return 'result';
       });
 
@@ -66,7 +66,7 @@ describe('Database Performance Monitoring', () => {
     it('should identify slow queries', async () => {
       // Mock a slow query (> 500ms)
       const slowQuery = vi.fn().mockImplementation(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 600));
+        await new Promise(resolve => setTimeout(resolve, 600));
         return 'slow result';
       });
 
@@ -111,7 +111,7 @@ describe('Database Performance Monitoring', () => {
       expect(recentStats.totalQueries).toBe(1);
 
       // Wait a bit then get stats for a very small window
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       const veryRecentStats = databaseMonitor.getQueryStats(0.0001); // 0.006 seconds
       expect(veryRecentStats.totalQueries).toBe(0);
     });
@@ -130,11 +130,11 @@ describe('Database Performance Monitoring', () => {
     it('should identify slowest queries', async () => {
       const fastQuery = vi.fn().mockResolvedValue('fast');
       const mediumQuery = vi.fn().mockImplementation(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 50));
         return 'medium';
       });
       const slowQuery = vi.fn().mockImplementation(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 100));
         return 'slow';
       });
 

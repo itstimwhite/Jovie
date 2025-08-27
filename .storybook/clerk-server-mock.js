@@ -32,7 +32,7 @@ const mockUser = {
 const mockAuth = {
   userId: 'user_mock123',
   sessionId: 'sess_mock123',
-  getToken: (options) => {
+  getToken: options => {
     if (options?.template) {
       return Promise.resolve('sb-mock-jwt-token-12345');
     }

@@ -272,7 +272,7 @@ export function openDeepLink(
     timeout?: number;
   } = {}
 ): Promise<boolean> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const { timeout = 2000 } = options;
     const deepLink = createDeepLink(originalUrl, config);
 

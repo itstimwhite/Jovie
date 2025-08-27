@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
 import { setupClerkTestingToken } from '@clerk/testing/playwright';
+import { expect, test } from '@playwright/test';
 
 // Minimal onboarding smoke: unauthenticated users should be redirected to sign-in
 // This is deterministic and requires no external inbox/service.
@@ -61,7 +61,7 @@ test.describe('Onboarding smoke', () => {
         process.env.E2E_TEST_EMAIL || `playwright+${Date.now()}@example.com`;
 
       // Use Clerk's client-side API to sign in programmatically
-      await page.evaluate(async (email) => {
+      await page.evaluate(async email => {
         const clerk = (window as unknown as { Clerk: any }).Clerk;
         if (!clerk) throw new Error('Clerk not initialized');
 

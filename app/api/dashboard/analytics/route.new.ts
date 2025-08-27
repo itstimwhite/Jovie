@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import { and, gte } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { clickEvents } from '@/lib/db/schema';
-import { and, gte } from 'drizzle-orm';
 
 export async function GET(request: Request) {
   const { userId } = await auth();
@@ -50,10 +50,10 @@ export async function GET(request: Request) {
 
     // Calculate metrics
     const totalClicks = events.length;
-    const spotifyClicks = events.filter((e) => e.linkType === 'listen').length;
-    const socialClicks = events.filter((e) => e.linkType === 'social').length;
+    const spotifyClicks = events.filter(e => e.linkType === 'listen').length;
+    const socialClicks = events.filter(e => e.linkType === 'social').length;
     const recentClicks = events.filter(
-      (e) => new Date(e.createdAt) >= sevenDaysAgo
+      e => new Date(e.createdAt) >= sevenDaysAgo
     ).length;
 
     return NextResponse.json(

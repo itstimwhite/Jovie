@@ -14,5 +14,5 @@ export function ListenNow({ handle, artist }: ListenNowProps) {
   // Generate DSPs from artist data if available, otherwise empty array
   const dsps = artist ? getAvailableDSPs(artist) : [];
 
-  return <ListenSection handle={handle} dsps={dsps} className="" />;
+  return <ListenSection handle={handle} dsps={dsps} className='' />;
 }

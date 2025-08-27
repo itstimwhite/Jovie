@@ -57,12 +57,12 @@ export function detectBot(
   // const ip = request.headers.get('x-forwarded-for') || '';
 
   // Check for Meta crawlers
-  const isMeta = META_USER_AGENTS.some((agent) =>
+  const isMeta = META_USER_AGENTS.some(agent =>
     userAgent.toLowerCase().includes(agent.toLowerCase())
   );
 
   // Check for other known crawlers
-  const isKnownCrawler = KNOWN_CRAWLERS.some((bot) =>
+  const isKnownCrawler = KNOWN_CRAWLERS.some(bot =>
     userAgent.toLowerCase().includes(bot.toLowerCase())
   );
 
@@ -181,7 +181,7 @@ export function isSuspiciousRequest(request: NextRequest): boolean {
 
   // Only flag obviously suspicious requests
   const hasSuspiciousUA =
-    suspiciousPatterns.some((pattern) => pattern.test(userAgent)) &&
+    suspiciousPatterns.some(pattern => pattern.test(userAgent)) &&
     !userAgent.includes('Mozilla'); // Don't flag browser-based tools
 
   return hasSuspiciousUA;

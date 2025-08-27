@@ -1,7 +1,7 @@
-import { describe, it, expect, afterEach, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
-import { ProductFlyout } from '@/components/organisms/ProductFlyout';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { useRef } from 'react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ProductFlyout } from '@/components/organisms/ProductFlyout';
 
 // Mock the features data to avoid dependency issues
 vi.mock('@/lib/features', () => ({
@@ -11,7 +11,7 @@ vi.mock('@/lib/features', () => ({
       title: 'Smart Conversions',
       blurb: 'AI-optimized CTAs and layouts that adapt in real time.',
       href: '/features/smart-conversions',
-      Icon: () => <svg data-testid="test-icon" />,
+      Icon: () => <svg data-testid='test-icon' />,
       colorVar: '--accent-conv',
       aiPowered: true,
     },
@@ -20,7 +20,7 @@ vi.mock('@/lib/features', () => ({
       title: 'Real-Time Analytics',
       blurb: 'Instant insights, always aligned with your ad platforms.',
       href: '/features/analytics',
-      Icon: () => <svg data-testid="test-icon" />,
+      Icon: () => <svg data-testid='test-icon' />,
       colorVar: '--accent-analytics',
     },
   ],

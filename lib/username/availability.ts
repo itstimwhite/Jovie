@@ -4,10 +4,10 @@
  */
 
 import 'server-only';
-import { db } from '@/lib/db';
-import { users, creatorProfiles } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { validateUsername, normalizeUsername } from '@/lib/validation/username';
+import { db } from '@/lib/db';
+import { creatorProfiles, users } from '@/lib/db/schema';
+import { normalizeUsername, validateUsername } from '@/lib/validation/username';
 
 export interface UsernameAvailabilityResult {
   available: boolean;

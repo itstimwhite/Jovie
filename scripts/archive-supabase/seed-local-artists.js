@@ -106,7 +106,7 @@ async function seedArtists() {
     }
 
     console.log(`✅ Successfully created ${data.length} creator profiles:`);
-    data.forEach((profile) => {
+    data.forEach(profile => {
       console.log(
         `   - ${profile.display_name} (@${profile.username}) [${profile.creator_type}]`
       );

@@ -1,68 +1,68 @@
-import { StatusBadge } from '@/components/atoms/StatusBadge';
 import { SectionHeading } from '@/components/atoms/SectionHeading';
+import { StatusBadge } from '@/components/atoms/StatusBadge';
 import { StepCard } from '@/components/atoms/StepCard';
 
 // Icons
 const LinkIcon = (
   <svg
-    className="h-6 w-6"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
+    className='h-6 w-6'
+    fill='none'
+    viewBox='0 0 24 24'
+    stroke='currentColor'
   >
     <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeLinecap='round'
+      strokeLinejoin='round'
       strokeWidth={2}
-      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+      d='M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1'
     />
   </svg>
 );
 
 const LockIcon = (
   <svg
-    className="h-6 w-6"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
+    className='h-6 w-6'
+    fill='none'
+    viewBox='0 0 24 24'
+    stroke='currentColor'
   >
     <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeLinecap='round'
+      strokeLinejoin='round'
       strokeWidth={2}
-      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+      d='M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'
     />
   </svg>
 );
 
 const MusicIcon = (
   <svg
-    className="h-6 w-6"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
+    className='h-6 w-6'
+    fill='none'
+    viewBox='0 0 24 24'
+    stroke='currentColor'
   >
     <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeLinecap='round'
+      strokeLinejoin='round'
       strokeWidth={2}
-      d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15"
+      d='M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15'
     />
   </svg>
 );
 
 const LightningIcon = (
   <svg
-    className="w-4 h-4"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
+    className='w-4 h-4'
+    fill='none'
+    viewBox='0 0 24 24'
+    stroke='currentColor'
   >
     <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      strokeLinecap='round'
+      strokeLinejoin='round'
       strokeWidth={2}
-      d="M13 10V3L4 14h7v7l9-11h-7z"
+      d='M13 10V3L4 14h7v7l9-11h-7z'
     />
   </svg>
 );
@@ -121,28 +121,28 @@ export function HowItWorksSection({
     <section className={`relative py-24 sm:py-32 ${className}`}>
       {/* Section accent border */}
       {showAccentBorder && (
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-blue-500/50 via-purple-500/50 to-cyan-500/50" />
+        <div className='absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-blue-500/50 via-purple-500/50 to-cyan-500/50' />
       )}
 
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center mb-16">
-          <div className="mb-8">
-            <StatusBadge variant="purple" icon={LightningIcon}>
+      <div className='mx-auto max-w-7xl px-6 lg:px-8'>
+        <div className='mx-auto max-w-3xl text-center mb-16'>
+          <div className='mb-8'>
+            <StatusBadge variant='purple' icon={LightningIcon}>
               {badgeText}
             </StatusBadge>
           </div>
 
-          <SectionHeading level={2} size="xl" className="mb-6">
+          <SectionHeading level={2} size='xl' className='mb-6'>
             {title}
           </SectionHeading>
 
-          <p className="text-xl text-gray-600 dark:text-white/70">
+          <p className='text-xl text-gray-600 dark:text-white/70'>
             {description}
           </p>
         </div>
 
-        <div className="mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+        <div className='mx-auto max-w-6xl'>
+          <div className='grid grid-cols-1 gap-12 md:grid-cols-3'>
             {steps.map((step, index) => (
               <StepCard
                 key={step.number}

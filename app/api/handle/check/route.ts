@@ -1,7 +1,7 @@
+import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { creatorProfiles } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
 
 // In-memory cache for mock responses to reduce server load during testing
 // Cache expires after 10 seconds to balance performance with realistic behavior

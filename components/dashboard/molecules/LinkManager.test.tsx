@@ -1,16 +1,16 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
-import { LinkManager } from './LinkManager';
+import React from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ToastProvider } from '@/components/providers/ToastProvider';
 import type { DetectedLink } from '@/lib/utils/platform-detection';
+import { LinkManager } from './LinkManager';
 
 // Mock the useToast hook
 const mockShowToast = vi.fn();
 const mockHideToast = vi.fn();
 const mockClearToasts = vi.fn();
 
-vi.mock('@/components/ui/ToastContainer', async (importOriginal) => {
+vi.mock('@/components/ui/ToastContainer', async importOriginal => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
@@ -144,7 +144,7 @@ describe('LinkManager Component', () => {
       <LinkManager
         initialLinks={mixedLinks}
         onLinksChange={onLinksChangeMock}
-        allowedCategory="dsp"
+        allowedCategory='dsp'
       />
     );
 

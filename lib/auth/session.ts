@@ -1,8 +1,8 @@
 'server only';
 
 import { auth } from '@clerk/nextjs/server';
-import { db } from '@/lib/db';
 import { sql as drizzleSql } from 'drizzle-orm';
+import { db } from '@/lib/db';
 
 /**
  * Sets up the database session for the authenticated user

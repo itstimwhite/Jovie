@@ -1,12 +1,12 @@
+import { and, eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
 import { withDbSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
-import { socialLinks, creatorProfiles, users } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { creatorProfiles, socialLinks, users } from '@/lib/db/schema';
 
 export async function GET(req: Request) {
   try {
-    return await withDbSession(async (clerkUserId) => {
+    return await withDbSession(async clerkUserId => {
       const url = new URL(req.url);
       const profileId = url.searchParams.get('profileId');
       if (!profileId) {
@@ -55,7 +55,7 @@ export async function GET(req: Request) {
 
 export async function PUT(req: Request) {
   try {
-    return await withDbSession(async (clerkUserId) => {
+    return await withDbSession(async clerkUserId => {
       const body = (await req.json().catch(() => null)) as {
         profileId?: string;
         links?: Array<{

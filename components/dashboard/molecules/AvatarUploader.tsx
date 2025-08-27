@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
 import Image from 'next/image';
+import { useCallback, useMemo, useState } from 'react';
 import { flags } from '@/lib/env';
 
 interface UploadResult {
@@ -93,7 +93,7 @@ export default function AvatarUploader({
   if (disabled) {
     return (
       <div className={className}>
-        <p className="text-sm text-neutral-500">
+        <p className='text-sm text-neutral-500'>
           Avatar uploads are currently disabled.
         </p>
       </div>
@@ -102,31 +102,31 @@ export default function AvatarUploader({
 
   return (
     <div className={className}>
-      <div className="flex items-center gap-4">
+      <div className='flex items-center gap-4'>
         {preview ? (
           <Image
             src={preview}
-            alt="Preview"
+            alt='Preview'
             width={80}
             height={80}
-            className="rounded-full object-cover"
+            className='rounded-full object-cover'
           />
         ) : (
-          <div className="w-20 h-20 rounded-full bg-neutral-200 dark:bg-neutral-800" />
+          <div className='w-20 h-20 rounded-full bg-neutral-200 dark:bg-neutral-800' />
         )}
-        <div className="flex flex-col gap-2">
+        <div className='flex flex-col gap-2'>
           <input
-            type="file"
-            accept="image/*"
+            type='file'
+            accept='image/*'
             onChange={onSelect}
-            className="block text-sm cursor-pointer"
-            aria-label="Choose profile image"
+            className='block text-sm cursor-pointer'
+            aria-label='Choose profile image'
           />
           <button
-            type="button"
+            type='button'
             onClick={onUpload}
             disabled={!file || loading}
-            className="px-3 py-1.5 rounded bg-black text-white disabled:opacity-50 dark:bg-white dark:text-black"
+            className='px-3 py-1.5 rounded bg-black text-white disabled:opacity-50 dark:bg-white dark:text-black'
           >
             {loading ? 'Uploading…' : 'Upload'}
           </button>

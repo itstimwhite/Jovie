@@ -114,7 +114,7 @@ async function updateArtistImages() {
       }
 
       // Rate limiting - wait 100ms between requests
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
 
     console.log('✅ Artist image update complete!');

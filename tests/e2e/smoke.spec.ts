@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 /**
  * Smoke tests - verify the app runs without crashing
@@ -8,7 +8,7 @@ test.describe('Smoke Tests', () => {
   test('Homepage loads without errors @smoke', async ({ page }) => {
     // Monitor console errors
     const errors: string[] = [];
-    page.on('console', (msg) => {
+    page.on('console', msg => {
       if (msg.type() === 'error') {
         const text = msg.text();
         // Ignore specific expected errors in test environment

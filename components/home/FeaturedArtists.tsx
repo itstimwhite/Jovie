@@ -1,10 +1,10 @@
+import { and, eq } from 'drizzle-orm';
+import {
+  type FeaturedCreator,
+  FeaturedCreatorsSection,
+} from '@/components/organisms/FeaturedArtistsSection';
 import { db } from '@/lib/db';
 import { creatorProfiles } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
-import {
-  FeaturedCreatorsSection,
-  type FeaturedCreator,
-} from '@/components/organisms/FeaturedArtistsSection';
 
 async function getFeaturedCreators(): Promise<FeaturedCreator[]> {
   try {
@@ -35,7 +35,7 @@ async function getFeaturedCreators(): Promise<FeaturedCreator[]> {
       timeoutPromise,
     ]);
 
-    const mappedCreators = data.map((a) => ({
+    const mappedCreators = data.map(a => ({
       id: a.id,
       handle: a.username,
       name: a.displayName || a.username,

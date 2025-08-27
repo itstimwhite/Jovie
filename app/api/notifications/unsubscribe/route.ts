@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { trackServerEvent } from '@/lib/server-analytics';
 import { z } from 'zod';
+import { trackServerEvent } from '@/lib/server-analytics';
 
 // Schema for unsubscription request validation
 const unsubscribeSchema = z.object({

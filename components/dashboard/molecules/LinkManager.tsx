@@ -1,36 +1,35 @@
 'use client';
 
-import React, {
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-  KeyboardEvent,
-} from 'react';
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  type DragEndEvent,
 } from '@dnd-kit/core';
+import {
+  restrictToParentElement,
+  restrictToVerticalAxis,
+} from '@dnd-kit/modifiers';
 import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {
-  restrictToVerticalAxis,
-  restrictToParentElement,
-} from '@dnd-kit/modifiers';
-
-import { UniversalLinkInput } from '../atoms/UniversalLinkInput';
-import { SortableLinkItem } from '../atoms/SortableLinkItem';
+import React, {
+  KeyboardEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useToast } from '@/components/ui/ToastContainer';
 import type { DetectedLink } from '@/lib/utils/platform-detection';
+import { SortableLinkItem } from '../atoms/SortableLinkItem';
+import { UniversalLinkInput } from '../atoms/UniversalLinkInput';
 
 interface LinkItem extends DetectedLink {
   id: string;
@@ -95,7 +94,7 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
       switch (e.key) {
         case 'ArrowDown':
           e.preventDefault();
-          setFocusedLinkIndex((prev) => {
+          setFocusedLinkIndex(prev => {
             const newIndex = prev < links.length - 1 ? prev + 1 : 0;
             linkItemRefs.current[newIndex]?.focus();
             return newIndex;
@@ -103,7 +102,7 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
           break;
         case 'ArrowUp':
           e.preventDefault();
-          setFocusedLinkIndex((prev) => {
+          setFocusedLinkIndex(prev => {
             const newIndex = prev > 0 ? prev - 1 : links.length - 1;
             linkItemRefs.current[newIndex]?.focus();
             return newIndex;
@@ -140,14 +139,14 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
   // Undo delete
   const handleUndoDelete = useCallback(
     (linkId: string) => {
-      const deletedItem = deletedLinks.find((item) => item.link.id === linkId);
+      const deletedItem = deletedLinks.find(item => item.link.id === linkId);
       if (!deletedItem) return;
 
       // Clear the timeout
       clearTimeout(deletedItem.timeout);
 
       // Remove from deleted links
-      setDeletedLinks((prev) => prev.filter((item) => item.link.id !== linkId));
+      setDeletedLinks(prev => prev.filter(item => item.link.id !== linkId));
 
       // Add back to active links at original position
       const newLinks = [...links];
@@ -210,7 +209,7 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
   // Update existing link
   const handleUpdateLink = useCallback(
     (id: string, updates: Partial<LinkItem>) => {
-      const newLinks = links.map((link) =>
+      const newLinks = links.map(link =>
         link.id === id ? { ...link, ...updates } : link
       );
       updateLinks(newLinks);
@@ -221,19 +220,19 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
   // Delete link with undo functionality
   const handleDeleteLink = useCallback(
     (id: string) => {
-      const linkToDelete = links.find((link) => link.id === id);
+      const linkToDelete = links.find(link => link.id === id);
       if (!linkToDelete) return;
 
       // Remove from active links
-      const newLinks = links.filter((link) => link.id !== id);
+      const newLinks = links.filter(link => link.id !== id);
       updateLinks(newLinks);
 
       // Add to deleted links with 5-second undo timeout
       const timeout = setTimeout(() => {
-        setDeletedLinks((prev) => prev.filter((item) => item.link.id !== id));
+        setDeletedLinks(prev => prev.filter(item => item.link.id !== id));
       }, 5000);
 
-      setDeletedLinks((prev) => [...prev, { link: linkToDelete, timeout }]);
+      setDeletedLinks(prev => [...prev, { link: linkToDelete, timeout }]);
 
       // Show undo toast notification
       showToast({
@@ -255,8 +254,8 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
       const { active, over } = event;
 
       if (active.id !== over?.id) {
-        const oldIndex = links.findIndex((link) => link.id === active.id);
-        const newIndex = links.findIndex((link) => link.id === over?.id);
+        const oldIndex = links.findIndex(link => link.id === active.id);
+        const newIndex = links.findIndex(link => link.id === over?.id);
 
         const newLinks = arrayMove(links, oldIndex, newIndex);
         updateLinks(newLinks);
@@ -266,7 +265,7 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
   );
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {/* Add Link Input */}
       <UniversalLinkInput
         onAdd={handleAddLink}
@@ -276,8 +275,8 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
       {/* Links Counter */}
       {links.length > 0 && (
         <div
-          className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400"
-          aria-live="polite"
+          className='flex items-center justify-between text-sm text-gray-500 dark:text-gray-400'
+          aria-live='polite'
         >
           <span>
             {links.length} link{links.length === 1 ? '' : 's'}
@@ -300,17 +299,17 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
           accessibility={{
             announcements: {
               onDragStart: ({ active }) =>
-                `Picked up ${links.find((link) => link.id === active.id)?.title || 'link'}. Use arrow keys to move, space to drop.`,
+                `Picked up ${links.find(link => link.id === active.id)?.title || 'link'}. Use arrow keys to move, space to drop.`,
               onDragOver: ({ active, over }) => {
                 if (!over) return '';
-                const activeLink = links.find((link) => link.id === active.id);
-                const overLink = links.find((link) => link.id === over.id);
+                const activeLink = links.find(link => link.id === active.id);
+                const overLink = links.find(link => link.id === over.id);
                 return `${activeLink?.title || 'Link'} is over ${overLink?.title || 'position'}.`;
               },
               onDragEnd: ({ active, over }) => {
                 if (!over) return 'Cancelled sorting.';
-                const activeLink = links.find((link) => link.id === active.id);
-                const overLink = links.find((link) => link.id === over.id);
+                const activeLink = links.find(link => link.id === active.id);
+                const overLink = links.find(link => link.id === over.id);
                 return `Dropped ${activeLink?.title || 'link'} at position of ${overLink?.title || 'link'}.`;
               },
               onDragCancel: () => 'Sorting cancelled.',
@@ -318,15 +317,15 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
           }}
         >
           <SortableContext
-            items={links.map((link) => link.id)}
+            items={links.map(link => link.id)}
             strategy={verticalListSortingStrategy}
           >
             <div
-              className="space-y-2"
+              className='space-y-2'
               ref={linksContainerRef}
               onKeyDown={handleKeyDown}
-              role="list"
-              aria-label="Sortable links list"
+              role='list'
+              aria-label='Sortable links list'
               tabIndex={links.length > 0 ? 0 : -1}
             >
               {links.map((link, index) => (
@@ -336,7 +335,7 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
                   onUpdate={handleUpdateLink}
                   onDelete={handleDeleteLink}
                   disabled={disabled}
-                  ref={(el) => {
+                  ref={el => {
                     linkItemRefs.current[index] = el;
                   }}
                   isFocused={focusedLinkIndex === index}
@@ -352,32 +351,32 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
       {/* Empty State */}
       {links.length === 0 && (
         <div
-          className="text-center py-12 px-4"
-          role="status"
-          aria-live="polite"
+          className='text-center py-12 px-4'
+          role='status'
+          aria-live='polite'
         >
-          <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+          <div className='w-12 h-12 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center'>
             <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              className="text-gray-400"
-              aria-hidden="true"
+              width='24'
+              height='24'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              className='text-gray-400'
+              aria-hidden='true'
             >
               <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                strokeLinecap='round'
+                strokeLinejoin='round'
                 strokeWidth={2}
-                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                d='M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1'
               />
             </svg>
           </div>
-          <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+          <h3 className='text-sm font-medium text-gray-900 dark:text-gray-100 mb-2'>
             No links added yet
           </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+          <p className='text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto'>
             Paste any link from Spotify, Instagram, TikTok, YouTube, or other
             platforms to get started.
           </p>
@@ -385,7 +384,7 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
       )}
 
       {/* Screen reader announcements */}
-      <div aria-live="assertive" className="sr-only">
+      <div aria-live='assertive' className='sr-only'>
         {deletedLinks.length > 0 &&
           `Link deleted. ${deletedLinks.length} undo action available.`}
       </div>

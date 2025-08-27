@@ -4,14 +4,14 @@
  * Webhooks are the source of truth for billing status
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { headers } from 'next/headers';
-import Stripe from 'stripe';
-import { stripe } from '@/lib/stripe/client';
-import { updateUserBillingStatus } from '@/lib/stripe/customer-sync';
-import { getPlanFromPriceId } from '@/lib/stripe/config';
-import { env } from '@/lib/env';
 import { revalidatePath } from 'next/cache';
+import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
+import { env } from '@/lib/env';
+import { stripe } from '@/lib/stripe/client';
+import { getPlanFromPriceId } from '@/lib/stripe/config';
+import { updateUserBillingStatus } from '@/lib/stripe/customer-sync';
 
 const webhookSecret = env.STRIPE_WEBHOOK_SECRET!;
 

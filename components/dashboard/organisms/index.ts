@@ -1,9 +1,9 @@
-export { ArtistSelectionForm } from './ArtistSelectionForm';
-export { OnboardingForm } from './OnboardingForm';
-export { ProgressiveOnboardingForm } from './ProgressiveOnboardingForm';
-export { OnboardingFormWrapper } from './OnboardingFormWrapper';
 export { AppleStyleOnboardingForm } from './AppleStyleOnboardingForm';
-export { ProfileForm } from './ProfileForm';
-export { SocialsForm } from './SocialsForm';
+export { ArtistSelectionForm } from './ArtistSelectionForm';
 export { ListenNowForm } from './ListenNowForm';
+export { OnboardingForm } from './OnboardingForm';
+export { OnboardingFormWrapper } from './OnboardingFormWrapper';
+export { ProfileForm } from './ProfileForm';
+export { ProgressiveOnboardingForm } from './ProgressiveOnboardingForm';
 export { SettingsForm } from './SettingsForm';
+export { SocialsForm } from './SocialsForm';
