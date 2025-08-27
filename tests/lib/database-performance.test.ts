@@ -3,6 +3,14 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// Mock the database module to prevent DATABASE_URL requirement
+vi.mock('@/lib/db', () => ({
+  db: {
+    execute: vi.fn().mockResolvedValue({ rows: [{ count: 0 }] }),
+  },
+}));
+
 import {
   databaseMonitor,
   trackDatabaseQuery,
