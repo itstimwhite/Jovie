@@ -110,8 +110,9 @@ describe('Database Performance Monitoring', () => {
       const recentStats = databaseMonitor.getQueryStats(1);
       expect(recentStats.totalQueries).toBe(1);
 
-      // Get stats for a very small window (should exclude the query)
-      const veryRecentStats = databaseMonitor.getQueryStats(0.001); // 0.06 seconds
+      // Wait a bit then get stats for a very small window
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      const veryRecentStats = databaseMonitor.getQueryStats(0.0001); // 0.006 seconds
       expect(veryRecentStats.totalQueries).toBe(0);
     });
 
