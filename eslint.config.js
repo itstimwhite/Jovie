@@ -13,15 +13,10 @@ module.exports = [
   ...compat.extends(
     'next/core-web-vitals',
     'next/typescript',
-    'prettier',
     'plugin:import/recommended'
   ),
   {
-    plugins: {
-      prettier: require('eslint-plugin-prettier'),
-    },
     rules: {
-      'prettier/prettier': 'error',
       '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/no-explicit-any': 'warn',
       'prefer-const': 'error',

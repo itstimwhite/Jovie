@@ -10,20 +10,23 @@ export * from './alerts';
 export { withPerformanceMonitoring as withApiPerformanceMonitoring } from './api';
 export { withPerformanceMonitoring as withMiddlewarePerformanceMonitoring } from './middleware';
 
-// Re-export types
-export type { Metric } from 'web-vitals';
-export type { AlertRule, AlertSeverity } from './alerts';
+// Re-export types with aliases to avoid conflicts
+export type { Metric as WebVitalsMetric } from 'web-vitals';
+export type {
+  AlertRule as MonitoringAlertRule,
+  AlertSeverity as MonitoringAlertSeverity,
+} from './alerts';
 
 // Export a convenience function to initialize all monitoring
-export function initAllMonitoring() {
+export async function initAllMonitoring() {
   if (typeof window !== 'undefined') {
     // Initialize Web Vitals
-    const { initWebVitals } = require('./web-vitals');
-    initWebVitals();
+    const webVitalsModule = await import('./web-vitals');
+    webVitalsModule.initWebVitals();
 
     // Initialize Performance Tracking
-    const { PerformanceTracker } = require('./performance');
-    const performanceTracker = new PerformanceTracker();
+    const performanceModule = await import('./performance');
+    const performanceTracker = new performanceModule.PerformanceTracker();
 
     // Get the current page name from the URL
     const pageName = window.location.pathname;
@@ -35,12 +38,12 @@ export function initAllMonitoring() {
     performanceTracker.trackResourceLoad();
 
     // Initialize Regression Detection
-    const { RegressionDetector } = require('./regression');
-    const regressionDetector = new RegressionDetector();
+    const regressionModule = await import('./regression');
+    const regressionDetector = new regressionModule.RegressionDetector();
 
     // Initialize Performance Alerts
-    const { PerformanceAlerts } = require('./alerts');
-    const performanceAlerts = new PerformanceAlerts();
+    const alertsModule = await import('./alerts');
+    const performanceAlerts = new alertsModule.PerformanceAlerts();
 
     // Return the initialized trackers for further configuration
     return {
