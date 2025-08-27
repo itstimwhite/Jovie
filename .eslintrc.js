@@ -1,7 +1,7 @@
 module.exports = {
-  extends: ['next/core-web-vitals', 'prettier'],
+  extends: ['next/core-web-vitals', 'prettier', 'plugin:import/recommended'],
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'prettier'],
+  plugins: ['@typescript-eslint', 'prettier', 'import'],
   rules: {
     'prettier/prettier': 'error',
     '@typescript-eslint/no-unused-vars': 'error',
@@ -22,6 +22,30 @@ module.exports = {
               'Use @clerk/nextjs in the App Router. Import components/hooks from @clerk/nextjs or @clerk/nextjs/server only.',
           },
         ],
+      },
+    ],
+
+    // Prevent duplicate imports
+    'no-duplicate-imports': 'error',
+    'import/no-duplicates': 'error',
+
+    // Prevent cycles and deep imports
+    'import/no-cycle': 'error',
+    'import/no-internal-modules': [
+      'error',
+      {
+        forbid: ['**/lib/db/**'],
+      },
+    ],
+
+    // Prevent sql alias collision
+    'no-restricted-syntax': [
+      'error',
+      {
+        selector:
+          "ImportSpecifier[imported.name='sql'][local.name='sql'][parent.source.value='drizzle-orm']",
+        message:
+          "Alias drizzle's sql as drizzleSql to avoid conflicts with Neon client.",
       },
     ],
   },
