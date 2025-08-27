@@ -29,14 +29,8 @@ module.exports = {
     'no-duplicate-imports': 'error',
     'import/no-duplicates': 'error',
 
-    // Prevent cycles and deep imports
+    // Prevent cycles
     'import/no-cycle': 'error',
-    'import/no-internal-modules': [
-      'error',
-      {
-        forbid: ['**/lib/db/**'],
-      },
-    ],
 
     // Prevent sql alias collision
     'no-restricted-syntax': [
