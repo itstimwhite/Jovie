@@ -179,7 +179,7 @@ async function runMigrations() {
   
   log.info(`Environment: ${colors.bright}${env}${colors.reset}`);
   log.info(`Branch: ${colors.bright}${branch}${colors.reset}`);
-  log.info(`Database: ${colors.bright}${process.env.DATABASE_URL?.split('@')[1]?.split('/')[0] || 'unknown'}${colors.reset}`);
+  log.info(`Database: ${colors.bright}[REDACTED]${colors.reset}`);
 
   // Check if migrations exist
   if (!checkMigrationsExist()) {
