@@ -202,7 +202,7 @@ async function runMigrations() {
     log.info('Connecting to database...');
     
     // Clean the URL for Neon (remove the +neon part if present)
-    const databaseUrl = process.env.DATABASE_URL!.replace(/^postgres(ql)?\+neon:\/\//, 'postgres$1://');
+    const databaseUrl = process.env.DATABASE_URL!.replace(NEON_URL_PATTERN, 'postgres$1://');
     
     sql = postgres(databaseUrl, {
       max: 1,
