@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { drizzle as drizzleNeon } from 'drizzle-orm/neon-serverless';
+import { drizzle as drizzleNeon } from 'drizzle-orm/neon-http';
 import postgres from 'postgres';
-import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
+import { neon } from '@neondatabase/serverless';
 import { env } from '../lib/env';
 
 /**
@@ -18,6 +18,8 @@ import { env } from '../lib/env';
 
 // Connection singleton to avoid multiple connections in development
 let _db: ReturnType<typeof createDrizzleClient> | null = null;
+// Keep a reference to the postgres client for proper cleanup
+let _postgresClient: ReturnType<typeof postgres> | null = null;
 
 /**
  * Creates a Drizzle ORM client based on the DATABASE_URL format
@@ -32,14 +34,20 @@ function createDrizzleClient() {
     env.DATABASE_URL.startsWith('postgres+neon://') ||
     env.DATABASE_URL.startsWith('postgresql+neon://')
   ) {
-    // Use Neon serverless driver
-    const sql = neon(env.DATABASE_URL);
+    // Use Neon serverless driver (HTTP)
+    // Normalize URL: neon() expects postgresql://... remove the "+neon" marker
+    const neonUrl = env.DATABASE_URL.replace(
+      /^postgres(ql)?\+neon:\/\//,
+      'postgres$1://'
+    );
+    const sql = neon(neonUrl);
     return drizzleNeon(sql);
   } else {
     // Use standard Postgres driver
     const client = postgres(env.DATABASE_URL, {
       max: 10,
     });
+    // Track client so we can close it in tests/scripts
     _postgresClient = client;
     return drizzle(client);
   }
@@ -61,9 +69,6 @@ export function getDb() {
   }
   return _db;
 }
-
-// Keep a reference to the postgres client for proper cleanup
-let _postgresClient: ReturnType<typeof postgres> | null = null;
 
 /**
  * Explicitly closes the database connection
