@@ -169,7 +169,11 @@ async function cleanupTestData(
 }
 
 async function runTests() {
-  let testData: { user: { id: string } } | null = null;
+  let testData: {
+    user: { id: string };
+    creator: { id: string };
+    link: { id: string };
+  } | null = null;
 
   try {
     // Test connection

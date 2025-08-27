@@ -175,9 +175,8 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
     // User is no longer pro
     const result = await updateUserBillingStatus({
-      userId,
+      clerkUserId: userId,
       isPro: false,
-      plan: null,
       stripeSubscriptionId: null,
     });
 
@@ -261,9 +260,8 @@ async function processSubscription(
     if (!isActive) {
       // Subscription is not active, downgrade user
       const result = await updateUserBillingStatus({
-        userId,
+        clerkUserId: userId,
         isPro: false,
-        plan: null,
         stripeCustomerId: subscription.customer as string,
         stripeSubscriptionId: null,
       });
@@ -292,9 +290,8 @@ async function processSubscription(
 
     // Update user's billing status
     const result = await updateUserBillingStatus({
-      userId,
+      clerkUserId: userId,
       isPro: true,
-      plan: plan,
       stripeCustomerId: subscription.customer as string,
       stripeSubscriptionId: subscription.id,
     });

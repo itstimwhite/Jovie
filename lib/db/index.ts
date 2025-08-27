@@ -1,7 +1,7 @@
 import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { env } from '@/lib/env';
-import { sql } from 'drizzle-orm';
+import { sql as drizzleSql } from 'drizzle-orm';
 import * as schema from './schema';
 import type { NeonHttpDatabase } from 'drizzle-orm/neon-http';
 
@@ -62,7 +62,7 @@ export async function withDb<T>(
  */
 export async function setSessionUser(userId: string) {
   try {
-    await db.execute(sql`SET LOCAL app.clerk_user_id = ${userId}`);
+    await db.execute(drizzleSql`SET LOCAL app.clerk_user_id = ${userId}`);
   } catch (error) {
     console.error('Failed to set session user:', error);
     throw error;

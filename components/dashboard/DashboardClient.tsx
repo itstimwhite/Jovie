@@ -26,11 +26,8 @@ const SettingsForm = lazy(() =>
     default: mod.SettingsForm,
   }))
 );
-import {
-  Artist,
-  CreatorProfile,
-  convertCreatorProfileToArtist,
-} from '@/types/db';
+import { Artist, convertCreatorProfileToArtist } from '@/types/db';
+import { CreatorProfile } from '@/lib/db/schema';
 import { APP_NAME } from '@/constants/app';
 
 const tabs = [

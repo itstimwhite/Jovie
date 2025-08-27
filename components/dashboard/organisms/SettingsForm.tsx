@@ -23,7 +23,7 @@ export function SettingsForm({ artist, onUpdate }: SettingsFormProps) {
 
       // Update the profile in the database
       await updateCreatorProfile(artist.id, {
-        marketing_opt_out: optedOut,
+        marketingOptOut: optedOut,
       });
 
       // Update the local artist state

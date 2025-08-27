@@ -2,9 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import { fetchCreatorProfile } from '@/lib/actions/creator';
+import { CreatorProfile } from '@/lib/db/schema';
+
+type CreatorWithSocialLinks = CreatorProfile & {
+  socialLinks: Array<{
+    id: string;
+    platform: string;
+    url: string;
+    displayText: string | null;
+    clicks: number | null;
+  }>;
+};
 
 export function useCreator(username: string) {
-  const [creator, setCreator] = useState(null);
+  const [creator, setCreator] = useState<CreatorWithSocialLinks | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 

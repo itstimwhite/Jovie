@@ -1,10 +1,10 @@
 'use client';
 
 import { useCreator } from '@/hooks/useCreator';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { LoadingSkeleton as Skeleton } from '@/components/ui/LoadingSkeleton';
+import { OptimizedAvatar as Avatar } from '@/components/ui/OptimizedAvatar';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/Button';
 import { Icons } from '@/components/icons';
 
 export function CreatorProfile({ username }: { username: string }) {
@@ -14,7 +14,7 @@ export function CreatorProfile({ username }: { username: string }) {
     return (
       <div className="space-y-6">
         <div className="flex items-center space-x-4">
-          <Skeleton className="h-24 w-24 rounded-full" />
+          <Skeleton rounded="full" className="h-24 w-24" />
           <div className="space-y-2">
             <Skeleton className="h-6 w-48" />
             <Skeleton className="h-4 w-32" />
@@ -36,15 +36,12 @@ export function CreatorProfile({ username }: { username: string }) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col items-center space-y-4 sm:flex-row sm:space-x-6 sm:space-y-0">
-        <Avatar className="h-24 w-24">
-          <AvatarImage
-            src={creator.avatarUrl || ''}
-            alt={creator.displayName}
-          />
-          <AvatarFallback>
-            {creator.displayName?.charAt(0) || creator.username.charAt(0)}
-          </AvatarFallback>
-        </Avatar>
+        <Avatar
+          src={creator.avatarUrl}
+          alt={creator.displayName || creator.username}
+          size={128}
+          className="h-24 w-24"
+        />
         <div className="text-center sm:text-left">
           <h1 className="text-2xl font-bold">
             {creator.displayName || creator.username}

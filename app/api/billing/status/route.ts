@@ -21,18 +21,16 @@ export async function GET() {
       // User not found in database - they might need onboarding
       return NextResponse.json({
         isPro: false,
-        plan: null,
         stripeCustomerId: null,
         stripeSubscriptionId: null,
       });
     }
 
-    const { isPro, plan, stripeCustomerId, stripeSubscriptionId } =
+    const { isPro, stripeCustomerId, stripeSubscriptionId } =
       billingResult.data;
 
     return NextResponse.json({
       isPro,
-      plan,
       stripeCustomerId,
       stripeSubscriptionId,
     });
