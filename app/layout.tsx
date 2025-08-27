@@ -6,6 +6,7 @@ import React from 'react';
 import { ClientProviders } from '@/components/providers/ClientProviders';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
+import { runStartupEnvironmentValidation } from '@/lib/startup/environment-validator';
 import '@/styles/globals.css';
 import { headers } from 'next/headers';
 import { CookieBannerSection } from '@/components/organisms/CookieBannerSection';
@@ -111,6 +112,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Run environment validation at startup (server-side only)
+  await runStartupEnvironmentValidation();
+
   // Fetch feature flags server-side
   const featureFlags = await getServerFeatureFlags();
   const shouldInjectToolbar = process.env.NODE_ENV === 'development';

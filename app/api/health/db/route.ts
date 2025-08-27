@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { creatorProfiles } from '@/lib/db/schema';
+import { checkDbHealth, getDbConfig } from '@/lib/db';
 import { env } from '@/lib/env';
+import { validateDatabaseEnvironment } from '@/lib/startup/environment-validator';
 import { logger } from '@/lib/utils/logger';
 
 export const runtime = 'nodejs';
@@ -9,8 +9,17 @@ export const dynamic = 'force-dynamic';
 
 interface HealthDetails {
   databaseUrlOk: boolean;
-  count?: number | null;
+  databaseUrlValid: boolean;
+  latency?: number;
   error?: string;
+  config?: ReturnType<typeof getDbConfig>;
+  validationError?: string;
+  checks?: {
+    connection: boolean;
+    query: boolean;
+    transaction: boolean;
+    schemaAccess: boolean;
+  };
 }
 
 interface HealthResponse {
@@ -24,17 +33,29 @@ interface HealthResponse {
 export async function GET() {
   const databaseUrlOk = Boolean(env.DATABASE_URL);
   const now = new Date().toISOString();
+  const config = getDbConfig();
 
-  if (!databaseUrlOk) {
+  // Validate database environment
+  const dbValidation = validateDatabaseEnvironment();
+
+  if (!databaseUrlOk || !dbValidation.valid) {
     const body: HealthResponse = {
       service: 'db',
       status: 'error',
       ok: false,
       timestamp: now,
-      details: { databaseUrlOk, error: 'DATABASE_URL not configured' },
+      details: {
+        databaseUrlOk,
+        databaseUrlValid: dbValidation.valid,
+        error: !databaseUrlOk
+          ? 'DATABASE_URL not configured'
+          : 'DATABASE_URL validation failed',
+        validationError: dbValidation.error,
+        config,
+      },
     };
     logger.warn(
-      'DB healthcheck failed: configuration missing',
+      'DB healthcheck failed: configuration or validation error',
       body.details,
       'health/db'
     );
@@ -46,41 +67,45 @@ export async function GET() {
     });
   }
 
-  let count = null;
-  let error = null;
-
-  try {
-    // Test database connection with a simple query
-    const profiles = await db.select().from(creatorProfiles).limit(1);
-    count = profiles.length;
-  } catch (fetchError: unknown) {
-    const err =
-      fetchError instanceof Error ? fetchError : new Error('Unknown error');
-    error = err.message;
-  }
-
-  const ok = !error;
+  // Use the enhanced database health check with retry logic
+  const healthResult = await checkDbHealth();
 
   const body: HealthResponse = {
     service: 'db',
-    status: ok ? 'ok' : 'error',
-    ok,
+    status: healthResult.healthy ? 'ok' : 'error',
+    ok: healthResult.healthy,
     timestamp: now,
     details: {
       databaseUrlOk,
-      count: count ?? null,
-      ...(error ? { error } : {}),
+      databaseUrlValid: dbValidation.valid,
+      latency: healthResult.latency,
+      checks: healthResult.details,
+      ...(healthResult.error ? { error: healthResult.error } : {}),
+      config,
     },
   };
 
-  if (ok) {
-    logger.info('DB healthcheck ok', { count }, 'health/db');
+  if (healthResult.healthy) {
+    logger.info(
+      'DB healthcheck ok',
+      {
+        latency: healthResult.latency,
+      },
+      'health/db'
+    );
   } else {
-    logger.error('DB healthcheck error', { error }, 'health/db');
+    logger.error(
+      'DB healthcheck error',
+      {
+        error: healthResult.error,
+        latency: healthResult.latency,
+      },
+      'health/db'
+    );
   }
 
   return NextResponse.json(body, {
-    status: ok ? 200 : 503,
+    status: healthResult.healthy ? 200 : 503,
     headers: {
       'Cache-Control': 'no-store, no-cache, must-revalidate',
     },
