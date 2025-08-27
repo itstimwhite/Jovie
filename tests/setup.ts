@@ -5,7 +5,7 @@ import { cleanup } from '@testing-library/react';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { migrate } from 'drizzle-orm/neon-http/migrator';
 import React from 'react';
-import { afterAll, afterEach, beforeAll, expect, vi } from 'vitest';
+import { afterEach, beforeAll, expect, vi } from 'vitest';
 import * as schema from '@/lib/db/schema';
 
 // Setup test database

@@ -8,7 +8,8 @@ const planPath = process.env.PLAN_PATH || 'PLAN.md'; // or your plan file
 const copilotAssignee = process.env.COPILOT_ASSIGNEE || 'copilot'; // adjust if UI shows a different handle
 const token = process.env.GITHUB_TOKEN;
 if (!token) throw new Error('GITHUB_TOKEN required');
-if (!process.env.GITHUB_REPOSITORY) throw new Error('GITHUB_REPOSITORY required');
+if (!process.env.GITHUB_REPOSITORY)
+  throw new Error('GITHUB_REPOSITORY required');
 
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
 const octo = new Octokit({ auth: token });
