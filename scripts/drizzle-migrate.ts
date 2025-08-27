@@ -143,14 +143,14 @@ async function confirmProductionMigration(): Promise<boolean> {
 
   // Interactive confirmation for local runs
   if (process.stdout.isTTY) {
-    const readline = require('readline').createInterface({
+    const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
     });
 
     return new Promise((resolve) => {
-      readline.question('Type "MIGRATE PRODUCTION" to confirm: ', (answer: string) => {
-        readline.close();
+      rl.question('Type "MIGRATE PRODUCTION" to confirm: ', (answer: string) => {
+        rl.close();
         resolve(answer === 'MIGRATE PRODUCTION');
       });
     });
