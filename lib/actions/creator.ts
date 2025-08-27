@@ -3,11 +3,11 @@
 import { getCreatorProfileWithLinks } from '@/lib/db/queries';
 import { updateCreatorProfile as updateProfile } from '@/app/dashboard/actions';
 import { revalidatePath } from 'next/cache';
-import { CreatorProfile } from '@/lib/db/schema';
+import type { CreatorProfile, SocialLink } from '@/lib/db/schema';
 
 export async function fetchCreatorProfile(
   username: string
-): Promise<CreatorProfile | null> {
+): Promise<(CreatorProfile & { socialLinks: SocialLink[] }) | null> {
   try {
     return await getCreatorProfileWithLinks(username);
   } catch (error) {

@@ -26,8 +26,8 @@ const SettingsForm = lazy(() =>
     default: mod.SettingsForm,
   }))
 );
-import { Artist, convertCreatorProfileToArtist } from '@/types/db';
-import { CreatorProfile } from '@/lib/db/schema';
+import { Artist, convertDrizzleCreatorProfileToArtist } from '@/types/db';
+import type { CreatorProfile } from '@/lib/db/schema';
 import { APP_NAME } from '@/constants/app';
 
 const tabs = [
@@ -51,7 +51,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
   const router = useRouter();
   const [artist, setArtist] = useState<Artist | null>(
     initialData.selectedProfile
-      ? convertCreatorProfileToArtist(initialData.selectedProfile)
+      ? convertDrizzleCreatorProfileToArtist(initialData.selectedProfile)
       : null
   );
   const [creatorProfiles] = useState<CreatorProfile[]>(
@@ -71,7 +71,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
     const selectedProfile = creatorProfiles.find((p) => p.id === profileId);
     if (selectedProfile) {
       setSelectedProfileId(profileId);
-      const artistData = convertCreatorProfileToArtist(selectedProfile);
+      const artistData = convertDrizzleCreatorProfileToArtist(selectedProfile);
       setArtist(artistData);
     }
   };
@@ -167,10 +167,10 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          {profile.avatar_url ? (
+                          {profile.avatarUrl ? (
                             <OptimizedImage
-                              src={profile.avatar_url}
-                              alt={profile.display_name || profile.username}
+                              src={profile.avatarUrl}
+                              alt={profile.displayName || profile.username}
                               size="sm"
                               shape="circle"
                               aspectRatio="square"
@@ -181,7 +181,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                           ) : (
                             <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
                               <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
-                                {(profile.display_name || profile.username)
+                                {(profile.displayName || profile.username)
                                   .charAt(0)
                                   .toUpperCase()}
                               </span>
@@ -189,10 +189,10 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                           )}
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                              {profile.display_name || profile.username}
+                              {profile.displayName || profile.username}
                             </p>
                             <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                              {profile.creator_type} • @{profile.username}
+                              {profile.creatorType} • @{profile.username}
                             </p>
                           </div>
                         </div>

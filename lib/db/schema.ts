@@ -9,7 +9,6 @@ import {
   pgEnum,
 } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { z } from 'zod';
 
 // Enums
 export const creatorTypeEnum = pgEnum('creator_type', [
@@ -187,15 +186,11 @@ export const selectCreatorProfileSchema = createSelectSchema(creatorProfiles);
 export const insertSocialLinkSchema = createInsertSchema(socialLinks);
 export const selectSocialLinkSchema = createSelectSchema(socialLinks);
 
-export const insertClickEventSchema = createInsertSchema(clickEvents, {
-  metadata: z.record(z.unknown()).optional(),
-});
+export const insertClickEventSchema = createInsertSchema(clickEvents);
 
 export const selectClickEventSchema = createSelectSchema(clickEvents);
 
-export const insertTipSchema = createInsertSchema(tips, {
-  metadata: z.record(z.unknown()).optional(),
-});
+export const insertTipSchema = createInsertSchema(tips);
 
 export const selectTipSchema = createSelectSchema(tips);
 

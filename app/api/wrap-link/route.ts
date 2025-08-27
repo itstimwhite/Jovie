@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       'unknown';
 
     // Rate limiting
-    const isRateLimited = await checkRateLimit(ip, '/api/wrap-link', 50, 60); // 50 requests per hour
+    const isRateLimited = await checkRateLimit(ip, '/api/wrap-link'); // 50 requests per hour
     if (isRateLimited) {
       return NextResponse.json(
         { error: 'Rate limit exceeded' },

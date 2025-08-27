@@ -57,7 +57,7 @@ export async function POST(
     }
 
     // Rate limiting for API endpoints
-    const isRateLimited = await checkRateLimit(ip, '/api/link', 10, 5); // 10 requests per 5 minutes
+    const isRateLimited = await checkRateLimit(ip, '/api/link'); // 10 requests per 5 minutes
     if (isRateLimited) {
       return NextResponse.json(
         { error: 'Rate limit exceeded' },

@@ -258,7 +258,7 @@ describe('URL Encryption and Security', () => {
 
 describe('Rate Limiting', () => {
   it('should implement rate limiting correctly', async () => {
-    const isLimited = await checkRateLimit('127.0.0.1', '/api/test', 5, 1);
+    const isLimited = await checkRateLimit('127.0.0.1', '/api/test');
     expect(typeof isLimited).toBe('boolean');
   });
 });

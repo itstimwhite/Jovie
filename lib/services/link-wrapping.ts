@@ -63,10 +63,11 @@ export async function createWrappedLink(
   const domain = extractDomain(url);
   const category = await categorizeDomain(url);
 
-  try {
-    // Generate unique short ID
-    let shortId = customAlias || generateShortId();
+  // Generate unique short ID
+  let shortId = customAlias || generateShortId();
+  let expiresAt: Date | null = null;
 
+  try {
     // Ensure short ID is unique
     let attempts = 0;
     while (attempts < 5) {
@@ -90,7 +91,7 @@ export async function createWrappedLink(
     const encryptedUrl = simpleEncryptUrl(url);
 
     // Calculate expiration
-    const expiresAt = expiresInHours
+    expiresAt = expiresInHours
       ? new Date(Date.now() + expiresInHours * 60 * 60 * 1000)
       : null;
 

@@ -11,6 +11,8 @@ export interface ButtonProps
   as?: React.ElementType;
   outline?: boolean;
   plain?: boolean;
+  target?: string;
+  rel?: string;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

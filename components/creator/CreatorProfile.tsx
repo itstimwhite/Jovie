@@ -5,7 +5,7 @@ import { LoadingSkeleton as Skeleton } from '@/components/ui/LoadingSkeleton';
 import { OptimizedAvatar as Avatar } from '@/components/ui/OptimizedAvatar';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Icons } from '@/components/icons';
+import { ExternalLink } from 'lucide-react';
 
 export function CreatorProfile({ username }: { username: string }) {
   const { creator, loading, error } = useCreator(username);
@@ -56,12 +56,13 @@ export function CreatorProfile({ username }: { username: string }) {
                 variant="outline"
                 size="sm"
                 className="gap-2"
-                asChild
+                as="a"
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <a href={link.url} target="_blank" rel="noopener noreferrer">
-                  <Icons.externalLink className="h-4 w-4" />
-                  {link.displayText || link.platform}
-                </a>
+                <ExternalLink className="h-4 w-4" />
+                {link.displayText || link.platform}
               </Button>
             ))}
           </div>
