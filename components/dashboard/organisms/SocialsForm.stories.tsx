@@ -224,7 +224,7 @@ export const SuccessMessage: Story = {
 
       // Mock useState to show success message
       let callCount = 0;
-      // @ts-ignore - we're intentionally mocking this
+      // @ts-expect-error - we're intentionally mocking this
       React.useState = (initialState: unknown) => {
         callCount++;
         if (callCount === 1) return [false, () => {}]; // loading
@@ -238,7 +238,7 @@ export const SuccessMessage: Story = {
       const result = <Story />;
 
       // Restore the original implementations after rendering
-      // @ts-ignore - we're intentionally restoring this
+      // @ts-expect-error - we're intentionally restoring this
       React.useState = originalUseState;
       globalThis.fetch = originalFetch!;
 

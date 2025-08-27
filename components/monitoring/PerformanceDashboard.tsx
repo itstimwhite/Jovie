@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Metric } from 'web-vitals';
+import type { Metric } from 'web-vitals';
 
 interface PerformanceMetric {
   name: string;

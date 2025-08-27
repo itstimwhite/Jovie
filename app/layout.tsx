@@ -9,6 +9,16 @@ import { getServerFeatureFlags } from '@/lib/feature-flags';
 import '@/styles/globals.css';
 import { CookieBannerSection } from '@/components/organisms/CookieBannerSection';
 import { headers } from 'next/headers';
+import dynamic from 'next/dynamic';
+
+// Dynamic import for performance dashboard (development only)
+const DynamicPerformanceDashboard = dynamic(
+  () => import('@/components/monitoring/PerformanceDashboard').then((mod) => ({
+    default: mod.PerformanceDashboard,
+  })),
+  { ssr: false }
+);
+
 // Import performance monitoring
 // import { initWebVitals } from '@/lib/monitoring/web-vitals'; // Currently unused
 
@@ -183,11 +193,7 @@ export default async function RootLayout({
                 {/* Dynamic import to avoid SSR issues */}
                 {typeof window !== 'undefined' && (
                   <React.Suspense fallback={null}>
-                    {/* @ts-ignore - Dynamic import */}
-                    {React.createElement(
-                      require('@/components/monitoring/PerformanceDashboard')
-                        .PerformanceDashboard
-                    )}
+                    <DynamicPerformanceDashboard />
                   </React.Suspense>
                 )}
               </div>

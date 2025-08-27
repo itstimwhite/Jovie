@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { loadStripe, Stripe, PaymentRequest } from '@stripe/stripe-js';
+import { loadStripe, type Stripe, type StripePaymentRequest } from '@stripe/stripe-js';
 import { TipSection } from '@/components/organisms/TipSection';
 
 interface TipJarProps {
@@ -13,7 +13,7 @@ const AMOUNTS = [2, 5, 10];
 
 export function TipJar({ handle, artistName }: TipJarProps) {
   const [stripe, setStripe] = useState<Stripe | null>(null);
-  const [paymentRequest, setPaymentRequest] = useState<PaymentRequest | null>(
+  const [paymentRequest, setPaymentRequest] = useState<StripePaymentRequest | null>(
     null
   );
   const [supported, setSupported] = useState(false);

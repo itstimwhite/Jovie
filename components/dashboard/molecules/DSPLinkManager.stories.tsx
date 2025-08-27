@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { DSPLinkManager } from './DSPLinkManager';
-import { getPlatform } from '@/lib/utils/platform-detection';
-import type { DetectedLink } from '@/lib/utils/platform-detection';
+import { getPlatform, type DetectedLink } from '@/lib/utils/platform-detection';
 
 // Define LinkItem interface (matching DSPLinkManager component)
 interface LinkItem extends DetectedLink {

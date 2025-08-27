@@ -30,7 +30,7 @@
     "e2e:full:noauth": "playwright test --config=playwright.config.noauth.ts",
     "a11y:ci": "playwright test -g @a11y",
     "format": "biome format --write .",
-    "format:check": "biome format --check .",
+    "format:check": "biome check .",
     "clean": "rm -rf .next out dist coverage .nyc_output",
     "clean:deps": "rm -rf node_modules package-lock.json && npm install",
     "postbuild": "next-sitemap",
@@ -140,12 +140,12 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "biome format --check",
+      "biome check",
       "biome format --write",
       "eslint --fix --max-warnings=0 --no-warn-ignored"
     ],
     "*.{json,md,css}": [
-      "biome format --check",
+      "biome check",
       "biome format --write"
     ],
     "ignore": [

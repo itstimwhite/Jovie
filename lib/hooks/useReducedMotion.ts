@@ -48,7 +48,7 @@ export function useReducedMotion(): boolean {
     if (typeof mediaQuery.addEventListener === 'function') {
       mediaQuery.addEventListener('change', onChange);
     } else {
-      // @ts-ignore - For older browsers
+      // @ts-expect-error - For older browsers
       mediaQuery.addListener(onChange);
     }
 
@@ -57,7 +57,7 @@ export function useReducedMotion(): boolean {
       if (typeof mediaQuery.removeEventListener === 'function') {
         mediaQuery.removeEventListener('change', onChange);
       } else {
-        // @ts-ignore - For older browsers
+        // @ts-expect-error - For older browsers
         mediaQuery.removeListener(onChange);
       }
     };
