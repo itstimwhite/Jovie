@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
-import { cache } from 'react';
-import { Suspense } from 'react';
+import { cache, Suspense } from 'react';
 import { getCreatorProfileWithLinks } from '@/lib/db/queries';
 import { ProgressiveArtistPage } from '@/components/profile/ProgressiveArtistPage';
 import { DesktopQrOverlay } from '@/components/profile/DesktopQrOverlay';

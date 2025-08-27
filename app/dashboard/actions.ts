@@ -2,11 +2,10 @@
 
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
-import { users, creatorProfiles } from '@/lib/db/schema';
+import { users, creatorProfiles, type CreatorProfile } from '@/lib/db/schema';
 import { eq, asc } from 'drizzle-orm';
 import { withDbSession } from '@/lib/auth/session';
 import { unstable_noStore as noStore } from 'next/cache';
-import type { CreatorProfile } from '@/lib/db/schema';
 
 export interface DashboardData {
   user: { id: string } | null;

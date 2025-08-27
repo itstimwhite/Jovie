@@ -3,7 +3,7 @@ import { detectPlatformFromUA } from '@/lib/utils';
 import { LinkType } from '@/types/db';
 import { db } from '@/lib/db';
 import { creatorProfiles, clickEvents, socialLinks } from '@/lib/db/schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql as drizzleSql } from 'drizzle-orm';
 
 // API routes should be dynamic
 export const dynamic = 'force-dynamic';
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       await db
         .update(socialLinks)
         .set({
-          clicks: sql`${socialLinks.clicks} + 1`,
+          clicks: drizzleSql`${socialLinks.clicks} + 1`,
           updatedAt: new Date(),
         })
         .where(eq(socialLinks.id, linkId));
