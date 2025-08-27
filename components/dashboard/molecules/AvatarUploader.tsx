@@ -83,7 +83,6 @@ export default function AvatarUploader({
         height: json.height,
       });
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error('Avatar upload error', err);
     } finally {
       setLoading(false);
