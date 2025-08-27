@@ -286,13 +286,10 @@ export async function incrementClickCount(shortId: string): Promise<boolean> {
  */
 export async function getLinkStats(userId?: string): Promise<LinkStats> {
   try {
-    let query = db.select().from(wrappedLinks);
-
-    if (userId) {
-      query = query.where(eq(wrappedLinks.createdBy, userId));
-    }
-
-    const data = await query;
+    const data = await db
+      .select()
+      .from(wrappedLinks)
+      .where(userId ? eq(wrappedLinks.createdBy, userId) : undefined);
 
     const totalClicks = data.reduce(
       (sum, link) => sum + (link.clickCount || 0),

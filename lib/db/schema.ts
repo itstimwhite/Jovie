@@ -193,11 +193,6 @@ export const insertClickEventSchema = createInsertSchema(clickEvents, {
 
 export const selectClickEventSchema = createSelectSchema(clickEvents);
 
-// Fix the type error by providing the correct schema for the metadata field
-export const clickEventSchema = selectClickEventSchema.extend({
-  metadata: z.record(z.unknown()).optional(),
-});
-
 export const insertTipSchema = createInsertSchema(tips, {
   metadata: z.record(z.unknown()).optional(),
 });

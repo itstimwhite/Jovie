@@ -49,7 +49,10 @@ export async function ensureStripeCustomer(): Promise<{
       }
 
       // Create a new Stripe customer
-      const customer = await getOrCreateCustomer(clerkUserId, userData.email);
+      const customer = await getOrCreateCustomer(
+        clerkUserId,
+        userData.email || ''
+      );
 
       // Update our database with the new customer ID
       try {
