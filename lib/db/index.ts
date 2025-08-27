@@ -2,6 +2,7 @@ import { type NeonQueryFunction, neon } from '@neondatabase/serverless';
 import { sql as drizzleSql } from 'drizzle-orm';
 import { drizzle, type NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import { env } from '@/lib/env';
+import { DB_CONTEXTS, PERFORMANCE_THRESHOLDS, TABLE_NAMES } from './config';
 import * as schema from './schema';
 
 declare global {
@@ -9,16 +10,18 @@ declare global {
 }
 
 // Create the database client with schema
-type DbType = NeonHttpDatabase<typeof schema>;
+export type DbType = NeonHttpDatabase<typeof schema>;
+export type TransactionType = Parameters<DbType['transaction']>[0] extends (
+  tx: infer T
+) => unknown
+  ? T
+  : never;
 
-// Configuration for retry logic and database operations
+// Re-export configuration for backward compatibility
 const DB_CONFIG = {
-  // Retry settings for transient failures
-  maxRetries: 3,
-  retryDelay: 1000, // 1 second base delay
-  retryBackoffMultiplier: 2,
-  // Note: Neon HTTP doesn't use traditional connection pooling
-  // It uses HTTP connections which are managed automatically
+  maxRetries: PERFORMANCE_THRESHOLDS.maxRetries,
+  retryDelay: PERFORMANCE_THRESHOLDS.retryDelay,
+  retryBackoffMultiplier: PERFORMANCE_THRESHOLDS.retryBackoffMultiplier,
 } as const;
 
 // Enhanced logging for database operations
@@ -241,8 +244,8 @@ export async function setSessionUser(userId: string) {
  * Helper to get a database transaction with retry logic
  */
 export async function withTransaction<T>(
-  operation: (tx: DbType) => Promise<T>,
-  context = 'withTransaction'
+  operation: (tx: TransactionType) => Promise<T>,
+  context = DB_CONTEXTS.transaction
 ): Promise<{ data?: T; error?: Error }> {
   try {
     const result = await withRetry(async () => {
@@ -251,9 +254,8 @@ export async function withTransaction<T>(
         _db = initializeDb();
       }
       return await _db.transaction(async tx => {
-        // The transaction callback receives a transaction client
-        // Note: transaction client has a subset of the database methods
-        return await operation(tx as unknown as DbType);
+        // The transaction callback receives a properly typed transaction client
+        return await operation(tx);
       });
     }, context);
 
@@ -312,7 +314,7 @@ export async function checkDbHealth(): Promise<{
       // 4. Schema access test (try to query a table if it exists)
       try {
         await _db.execute(
-          drizzleSql`SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'creator_profiles') as table_exists`
+          drizzleSql`SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = ${TABLE_NAMES.creatorProfiles}) as table_exists`
         );
         details.schemaAccess = true;
       } catch {

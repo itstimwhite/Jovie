@@ -1,5 +1,6 @@
 import { validateDbConnection } from '@/lib/db';
 import { getEnvironmentInfo, validateAndLogEnvironment } from '@/lib/env';
+import { validateDatabaseUrl } from '@/lib/utils/database-url-validator';
 
 // Track if validation has already run to avoid duplicate checks
 let validationCompleted = false;
@@ -174,38 +175,12 @@ export function validateDatabaseEnvironment(): {
       return { valid: false, error: 'DATABASE_URL is not set' };
     }
 
-    // Validate URL format
-    try {
-      const parsed = new URL(databaseUrl);
-
-      const validProtocols = [
-        'postgres:',
-        'postgresql:',
-        'postgres+tcp:',
-        'postgresql+tcp:',
-      ];
-      if (!validProtocols.includes(parsed.protocol)) {
-        return {
-          valid: false,
-          error: `Invalid database protocol: ${parsed.protocol}. Expected one of: ${validProtocols.join(', ')}`,
-        };
-      }
-
-      if (!parsed.hostname) {
-        return { valid: false, error: 'Database hostname is missing' };
-      }
-
-      if (!parsed.pathname || parsed.pathname === '/') {
-        return { valid: false, error: 'Database name is missing' };
-      }
-
-      return { valid: true };
-    } catch (urlError) {
-      return {
-        valid: false,
-        error: `Invalid DATABASE_URL format: ${urlError instanceof Error ? urlError.message : 'Unknown error'}`,
-      };
-    }
+    // Use shared validation logic
+    const validationResult = validateDatabaseUrl(databaseUrl);
+    return {
+      valid: validationResult.valid,
+      error: validationResult.error,
+    };
   } catch (error) {
     return {
       valid: false,

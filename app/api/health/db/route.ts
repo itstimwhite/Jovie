@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server';
 import { checkDbHealth, getDbConfig } from '@/lib/db';
+import { HEALTH_CHECK_CONFIG } from '@/lib/db/config';
 import { env } from '@/lib/env';
 import { validateDatabaseEnvironment } from '@/lib/startup/environment-validator';
 import { logger } from '@/lib/utils/logger';
+import {
+  checkRateLimit,
+  createRateLimitHeaders,
+  getClientIP,
+  getRateLimitStatus,
+} from '@/lib/utils/rate-limit';
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
+export const runtime = HEALTH_CHECK_CONFIG.runtime;
+export const dynamic = HEALTH_CHECK_CONFIG.dynamic;
 
 interface HealthDetails {
   databaseUrlOk: boolean;
@@ -30,10 +37,38 @@ interface HealthResponse {
   details: HealthDetails;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const databaseUrlOk = Boolean(env.DATABASE_URL);
   const now = new Date().toISOString();
   const config = getDbConfig();
+
+  // Rate limiting check
+  const clientIP = getClientIP(request);
+  const isRateLimited = checkRateLimit(clientIP, true);
+  const rateLimitStatus = getRateLimitStatus(clientIP, true);
+
+  if (isRateLimited) {
+    return NextResponse.json(
+      {
+        service: 'db',
+        status: 'error',
+        ok: false,
+        timestamp: now,
+        details: {
+          databaseUrlOk,
+          databaseUrlValid: false,
+          error: 'Rate limit exceeded',
+        },
+      },
+      {
+        status: 429,
+        headers: {
+          ...HEALTH_CHECK_CONFIG.cacheHeaders,
+          ...createRateLimitHeaders(rateLimitStatus),
+        },
+      }
+    );
+  }
 
   // Validate database environment
   const dbValidation = validateDatabaseEnvironment();
@@ -60,9 +95,10 @@ export async function GET() {
       'health/db'
     );
     return NextResponse.json(body, {
-      status: 503,
+      status: HEALTH_CHECK_CONFIG.statusCodes.unhealthy,
       headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        ...HEALTH_CHECK_CONFIG.cacheHeaders,
+        ...createRateLimitHeaders(rateLimitStatus),
       },
     });
   }
@@ -105,9 +141,12 @@ export async function GET() {
   }
 
   return NextResponse.json(body, {
-    status: healthResult.healthy ? 200 : 503,
+    status: healthResult.healthy
+      ? HEALTH_CHECK_CONFIG.statusCodes.healthy
+      : HEALTH_CHECK_CONFIG.statusCodes.unhealthy,
     headers: {
-      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      ...HEALTH_CHECK_CONFIG.cacheHeaders,
+      ...createRateLimitHeaders(rateLimitStatus),
     },
   });
 }

@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server';
 import { checkDbHealth, validateDbConnection } from '@/lib/db';
+import { HEALTH_CHECK_CONFIG } from '@/lib/db/config';
 import { getEnvironmentInfo, validateEnvironment } from '@/lib/env';
 import { validateDatabaseEnvironment } from '@/lib/startup/environment-validator';
 import { logger } from '@/lib/utils/logger';
+import {
+  checkRateLimit,
+  createRateLimitHeaders,
+  getClientIP,
+  getRateLimitStatus,
+} from '@/lib/utils/rate-limit';
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
+export const runtime = HEALTH_CHECK_CONFIG.runtime;
+export const dynamic = HEALTH_CHECK_CONFIG.dynamic;
 
 interface ComprehensiveHealthResponse {
   service: 'comprehensive';
@@ -44,9 +51,40 @@ interface ComprehensiveHealthResponse {
   };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const now = new Date().toISOString();
   const startTime = Date.now();
+
+  // Rate limiting check
+  const clientIP = getClientIP(request);
+  const isRateLimited = checkRateLimit(clientIP, true); // true for health endpoint
+  const rateLimitStatus = getRateLimitStatus(clientIP, true);
+
+  if (isRateLimited) {
+    return NextResponse.json(
+      {
+        service: 'comprehensive',
+        status: 'error',
+        ok: false,
+        timestamp: now,
+        error: 'Rate limit exceeded',
+        summary: {
+          totalChecks: 0,
+          passedChecks: 0,
+          failedChecks: 1,
+          warningChecks: 0,
+        },
+        checks: {},
+      },
+      {
+        status: 429,
+        headers: {
+          ...HEALTH_CHECK_CONFIG.cacheHeaders,
+          ...createRateLimitHeaders(rateLimitStatus),
+        },
+      }
+    );
+  }
 
   try {
     // 1. Environment validation
@@ -172,10 +210,13 @@ export async function GET() {
     );
 
     return NextResponse.json(response, {
-      status: response.ok ? 200 : 503,
+      status: response.ok
+        ? HEALTH_CHECK_CONFIG.statusCodes.healthy
+        : HEALTH_CHECK_CONFIG.statusCodes.unhealthy,
       headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        ...HEALTH_CHECK_CONFIG.cacheHeaders,
         'X-Health-Check-Duration': totalLatency.toString(),
+        ...createRateLimitHeaders(rateLimitStatus),
       },
     });
   } catch (error) {
@@ -232,10 +273,11 @@ export async function GET() {
     };
 
     return NextResponse.json(errorResponse, {
-      status: 503,
+      status: HEALTH_CHECK_CONFIG.statusCodes.unhealthy,
       headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        ...HEALTH_CHECK_CONFIG.cacheHeaders,
         'X-Health-Check-Duration': totalLatency.toString(),
+        ...createRateLimitHeaders(rateLimitStatus),
       },
     });
   }

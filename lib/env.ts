@@ -1,50 +1,16 @@
 import { z } from 'zod';
+import {
+  getDatabaseUrlErrorMessage,
+  isDatabaseUrlValid,
+} from './utils/database-url-validator';
 
 // Centralized environment validation and access
 // Use this module instead of reading process.env throughout the app.
 
-// Custom DATABASE_URL validator for various database providers
-const databaseUrlValidator = z
-  .string()
-  .optional()
-  .refine(
-    url => {
-      if (!url) return true; // Allow empty during build time
-
-      try {
-        const parsed = new URL(url);
-
-        // Validate protocol
-        const validProtocols = [
-          'postgres:',
-          'postgresql:',
-          'postgres+tcp:',
-          'postgresql+tcp:',
-        ];
-        if (!validProtocols.includes(parsed.protocol)) {
-          return false;
-        }
-
-        // Validate hostname
-        if (!parsed.hostname) {
-          return false;
-        }
-
-        // Validate database name (pathname should exist and not be just '/')
-        if (!parsed.pathname || parsed.pathname === '/') {
-          return false;
-        }
-
-        return true;
-      } catch {
-        return false;
-      }
-    },
-    {
-      message:
-        'DATABASE_URL must be a valid PostgreSQL connection string (postgres://user:pass@host:port/dbname)',
-    }
-  );
+// Custom DATABASE_URL validator using shared validation logic
+const databaseUrlValidator = z.string().optional().refine(isDatabaseUrlValid, {
+  message: getDatabaseUrlErrorMessage(),
+});
 
 const EnvSchema = z.object({
   // Public client-side envs

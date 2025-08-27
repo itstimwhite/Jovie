@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server';
 import { checkDbPerformance, getDbConfig } from '@/lib/db';
+import { HEALTH_CHECK_CONFIG, PERFORMANCE_THRESHOLDS } from '@/lib/db/config';
 import { env } from '@/lib/env';
 import { validateDatabaseEnvironment } from '@/lib/startup/environment-validator';
 import { logger } from '@/lib/utils/logger';
+import {
+  checkRateLimit,
+  createRateLimitHeaders,
+  getClientIP,
+  getRateLimitStatus,
+} from '@/lib/utils/rate-limit';
 
-export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
+export const runtime = HEALTH_CHECK_CONFIG.runtime;
+export const dynamic = HEALTH_CHECK_CONFIG.dynamic;
 
 interface PerformanceHealthResponse {
   service: 'db-performance';
@@ -31,16 +38,45 @@ interface PerformanceHealthResponse {
   };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const databaseUrlOk = Boolean(env.DATABASE_URL);
   const now = new Date().toISOString();
   const config = getDbConfig();
 
-  // Performance thresholds
+  // Performance thresholds from centralized config
   const thresholds = {
-    simpleQueryMax: 1000, // 1 second
-    transactionTimeMax: 2000, // 2 seconds
+    simpleQueryMax: PERFORMANCE_THRESHOLDS.simpleQueryMax,
+    transactionTimeMax: PERFORMANCE_THRESHOLDS.transactionTimeMax,
   };
+
+  // Rate limiting check
+  const clientIP = getClientIP(request);
+  const isRateLimited = checkRateLimit(clientIP, true);
+  const rateLimitStatus = getRateLimitStatus(clientIP, true);
+
+  if (isRateLimited) {
+    return NextResponse.json(
+      {
+        service: 'db-performance',
+        status: 'error',
+        ok: false,
+        timestamp: now,
+        details: {
+          databaseUrlOk,
+          databaseUrlValid: false,
+          thresholds,
+          error: 'Rate limit exceeded',
+        },
+      },
+      {
+        status: 429,
+        headers: {
+          ...HEALTH_CHECK_CONFIG.cacheHeaders,
+          ...createRateLimitHeaders(rateLimitStatus),
+        },
+      }
+    );
+  }
 
   // Validate database environment first
   const dbValidation = validateDatabaseEnvironment();
@@ -70,9 +106,10 @@ export async function GET() {
     );
 
     return NextResponse.json(body, {
-      status: 503,
+      status: HEALTH_CHECK_CONFIG.statusCodes.unhealthy,
       headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        ...HEALTH_CHECK_CONFIG.cacheHeaders,
+        ...createRateLimitHeaders(rateLimitStatus),
       },
     });
   }
@@ -91,10 +128,10 @@ export async function GET() {
     // Check for warning conditions (slower than optimal but not critical)
     const simpleQuerySlow =
       (performanceResult.metrics.simpleQuery || 0) >
-      thresholds.simpleQueryMax * 0.5;
+      thresholds.simpleQueryMax * PERFORMANCE_THRESHOLDS.warningMultiplier;
     const transactionSlow =
       (performanceResult.metrics.transactionTime || 0) >
-      thresholds.transactionTimeMax * 0.5;
+      thresholds.transactionTimeMax * PERFORMANCE_THRESHOLDS.warningMultiplier;
 
     if (simpleQuerySlow || transactionSlow) {
       status = 'warning';
@@ -138,9 +175,12 @@ export async function GET() {
   }
 
   return NextResponse.json(body, {
-    status: ok ? (status === 'warning' ? 200 : 200) : 503,
+    status: ok
+      ? HEALTH_CHECK_CONFIG.statusCodes.healthy
+      : HEALTH_CHECK_CONFIG.statusCodes.unhealthy,
     headers: {
-      'Cache-Control': 'no-store, no-cache, must-revalidate',
+      ...HEALTH_CHECK_CONFIG.cacheHeaders,
+      ...createRateLimitHeaders(rateLimitStatus),
     },
   });
 }
