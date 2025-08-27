@@ -49,17 +49,6 @@ export const StaticListenInterface = React.memo(function StaticListenInterface({
 
   const availableDSPs = dsps.length > 0 ? dsps : mockDSPs;
 
-  // Preload DSP domains for faster opens
-  useEffect(() => {
-    const preloadDomains = ['open.spotify.com', 'music.apple.com'];
-    preloadDomains.forEach(domain => {
-      const link = document.createElement('link');
-      link.rel = 'dns-prefetch';
-      link.href = `https://${domain}`;
-      document.head.appendChild(link);
-    });
-  }, []);
-
   // Handle backspace key to go back
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

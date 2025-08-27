@@ -19,7 +19,10 @@ Object.defineProperty(window, 'navigator', {
 describe('Deep Links', () => {
   beforeEach(() => {
     // Reset userAgent before each test
-    (window.navigator as any).userAgent = '';
+    Object.defineProperty(window.navigator, 'userAgent', {
+      writable: true,
+      value: '',
+    });
   });
 
   describe('Platform Detection', () => {

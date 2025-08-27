@@ -18,7 +18,7 @@ describe('BrandingBadge', () => {
   });
 
   it('shows branding for free plan users', () => {
-    (useUser as any).mockReturnValue({
+    vi.mocked(useUser).mockReturnValue({
       user: {
         publicMetadata: { plan: 'free' },
       },
@@ -31,7 +31,7 @@ describe('BrandingBadge', () => {
   });
 
   it('hides branding for pro plan users', () => {
-    (useUser as any).mockReturnValue({
+    vi.mocked(useUser).mockReturnValue({
       user: {
         publicMetadata: { plan: 'pro' },
       },
@@ -44,7 +44,7 @@ describe('BrandingBadge', () => {
   });
 
   it('shows branding for users without plan metadata (defaults to free)', () => {
-    (useUser as any).mockReturnValue({
+    vi.mocked(useUser).mockReturnValue({
       user: {
         publicMetadata: {},
       },
@@ -57,7 +57,7 @@ describe('BrandingBadge', () => {
   });
 
   it('shows nothing while loading', () => {
-    (useUser as any).mockReturnValue({
+    vi.mocked(useUser).mockReturnValue({
       user: null,
       isLoaded: false,
     });
@@ -68,7 +68,7 @@ describe('BrandingBadge', () => {
   });
 
   it('shows branding for unauthenticated users', () => {
-    (useUser as any).mockReturnValue({
+    vi.mocked(useUser).mockReturnValue({
       user: null,
       isLoaded: true,
     });

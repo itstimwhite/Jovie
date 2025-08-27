@@ -1,5 +1,5 @@
 import * as Headless from '@headlessui/react';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React, { forwardRef, useId } from 'react';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 

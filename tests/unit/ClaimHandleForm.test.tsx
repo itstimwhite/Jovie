@@ -28,10 +28,10 @@ describe('ClaimHandleForm', () => {
     mockUseRouter.mockReturnValue({
       push: mockPush,
       prefetch: mockPrefetch,
-    } as any);
+    });
     mockUseAuth.mockReturnValue({
       isSignedIn: false,
-    } as any);
+    });
   });
 
   afterEach(() => {
@@ -66,7 +66,7 @@ describe('ClaimHandleForm', () => {
 
   test('tap-to-copy functionality with proper keyboard support', async () => {
     // Mock successful handle check
-    (global.fetch as any).mockResolvedValueOnce({
+    vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ available: true }),
     });
@@ -141,7 +141,7 @@ describe('ClaimHandleForm', () => {
 
   test('validation messages update aria attributes correctly', async () => {
     // Mock handle taken response
-    (global.fetch as any).mockResolvedValueOnce({
+    vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ available: false }),
     });

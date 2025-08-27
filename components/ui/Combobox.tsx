@@ -5,7 +5,7 @@ import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
 } from '@heroicons/react/20/solid';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import Image from 'next/image';
 import React, {
   forwardRef,

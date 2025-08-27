@@ -1,5 +1,5 @@
 import * as Headless from '@headlessui/react';
-import clsx from 'clsx';
+import { clsx } from 'clsx';
 import React, { forwardRef } from 'react';
 
 // Legacy interface for backward compatibility
