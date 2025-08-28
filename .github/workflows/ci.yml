@@ -105,7 +105,7 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
       - name: Typecheck
-        run: pnpm run typecheck --if-present
+        run: pnpm run typecheck
 
   ci-lint:
     name: Lint
@@ -128,7 +128,7 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
       - name: Lint (enforce zero warnings)
-        run: pnpm run lint --if-present -- --max-warnings=0
+        run: pnpm run lint -- --max-warnings=0
 
   ci-build:
     name: Build
@@ -216,7 +216,7 @@ jobs:
 
       - name: Build
         if: steps.check_changes.outputs.run_full_ci == 'true'
-        run: pnpm run build --if-present
+        run: pnpm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL_PREVIEW }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY: ${{ secrets.SUPABASE_ANON_KEY_PREVIEW }}
@@ -307,7 +307,7 @@ jobs:
 
       - name: Run unit tests
         if: steps.check_changes.outputs.run_full_ci == 'true'
-        run: pnpm test --if-present
+        run: pnpm test
 
   ci-e2e-tests:
     name: E2E Tests
@@ -410,12 +410,12 @@ jobs:
 
       - name: E2E Smoke (PR to Preview)
         if: ${{ steps.check_changes.outputs.run_full_ci == 'true' && github.ref != 'refs/heads/production' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
-        run: pnpm run e2e:smoke --if-present -- --trace=retain-on-failure
+        run: pnpm run e2e:smoke -- --trace=retain-on-failure
         continue-on-error: ${{ github.event_name == 'pull_request' }}
 
       - name: E2E Full (Preview Branch)
         if: ${{ steps.check_changes.outputs.run_full_ci == 'true' && github.ref == 'refs/heads/preview' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
-        run: pnpm run test:e2e --if-present -- --reporter=line
+        run: pnpm run test:e2e -- --reporter=line
 
       - name: Upload Playwright Artifacts on Failure
         if: ${{ failure() && steps.check_changes.outputs.run_full_ci == 'true' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
