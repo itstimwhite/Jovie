@@ -1,6 +1,7 @@
 'use client';
 
 import { useSession } from '@clerk/nextjs';
+import { CheckIcon, ClipboardIcon } from '@heroicons/react/24/outline';
 import React, {
   useCallback,
   useEffect,
@@ -58,6 +59,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
     error: null,
     lastSaved: null,
   });
+  const [copySuccess, setCopySuccess] = useState(false);
   const updateIndicatorRef = useRef<HTMLDivElement>(null);
 
   // Convert database social links to LinkItem format
@@ -103,16 +105,16 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   const convertLinkItemsToDbFormat = (
     linkItems: LinkItem[],
     creatorProfileId: string
-  ): Partial<SocialLink>[] => {
+  ) => {
     return linkItems
       .filter(link => link.isVisible)
       .map((link, index) => ({
-        creator_profile_id: creatorProfileId,
+        creatorProfileId: creatorProfileId,
         platform: link.platform.id,
-        platform_type: link.platform.id as SocialPlatform,
+        platformType: link.platform.id as SocialPlatform,
         url: link.normalizedUrl,
-        sort_order: index,
-        is_active: true,
+        sortOrder: index,
+        isActive: true,
       }));
   };
 
@@ -294,83 +296,103 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
     debouncedSave(socialLinks, newLinks);
   };
 
+  // Handle copy to clipboard
+  const handleCopyUrl = useCallback(async () => {
+    const profileUrl = `https://jov.ie/${artist.username || 'username'}`;
+
+    try {
+      await navigator.clipboard.writeText(profileUrl);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy URL:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = profileUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    }
+  }, [artist.username]);
+
   return (
-    <div className='h-full flex flex-col lg:flex-row'>
-      {/* Mobile View Toggle */}
-      <div className='lg:hidden flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mb-6'>
-        <button
-          onClick={() => setViewMode('edit')}
-          className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${
-            viewMode === 'edit'
-              ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-              : 'text-gray-600 dark:text-gray-400'
-          }`}
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => setViewMode('preview')}
-          className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${
-            viewMode === 'preview'
-              ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
-              : 'text-gray-600 dark:text-gray-400'
-          }`}
-        >
-          Preview
-        </button>
-      </div>
+    <>
+      {/* Main Edit Panel */}
+      <div className='xl:pr-96'>
+        {/* Mobile View Toggle */}
+        <div className='xl:hidden flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mb-6'>
+          <button
+            onClick={() => setViewMode('edit')}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+              viewMode === 'edit'
+                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400'
+            }`}
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => setViewMode('preview')}
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${
+              viewMode === 'preview'
+                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                : 'text-gray-600 dark:text-gray-400'
+            }`}
+          >
+            Preview
+          </button>
+        </div>
 
-      {/* Edit Panel */}
-      <div
-        className={`
-        lg:w-1/2 lg:pr-8 
-        ${viewMode === 'edit' ? 'block' : 'hidden lg:block'}
-      `}
-      >
-        <div className='space-y-8'>
-          {/* Header */}
-          <div>
-            <h2 className='text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2'>
-              Manage Your Links
-            </h2>
-            <p className='text-sm text-gray-600 dark:text-gray-400'>
-              Organize your social media and music streaming links. Changes save
-              automatically.
-              {saveStatus.lastSaved && (
-                <span className='ml-2 text-xs text-gray-400'>
-                  Last saved: {saveStatus.lastSaved.toLocaleTimeString()}
-                </span>
-              )}
-            </p>
+        {/* Edit Content */}
+        <div className={`${viewMode === 'edit' ? 'block' : 'hidden xl:block'}`}>
+          <div className='space-y-8 pb-20'>
+            {/* Header */}
+            <div>
+              <h2 className='text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2'>
+                Manage Your Links
+              </h2>
+              <p className='text-sm text-gray-600 dark:text-gray-400'>
+                Organize your social media and music streaming links. Changes
+                save automatically.
+                {saveStatus.lastSaved && (
+                  <span className='ml-2 text-xs text-gray-400'>
+                    Last saved: {saveStatus.lastSaved.toLocaleTimeString()}
+                  </span>
+                )}
+              </p>
+            </div>
+
+            {/* Social Links Manager */}
+            <SocialLinkManager
+              initialLinks={initialSocialLinks}
+              onLinksChange={handleSocialLinksChange}
+              disabled={disabled || saveStatus.saving}
+              maxLinks={10}
+            />
+
+            {/* Separator */}
+            <div className='border-t border-gray-200 dark:border-gray-700' />
+
+            {/* DSP Links Manager */}
+            <DSPLinkManager
+              initialLinks={initialDSPLinks}
+              onLinksChange={handleDSPLinksChange}
+              disabled={disabled || saveStatus.saving}
+              maxLinks={10}
+            />
           </div>
-
-          {/* Social Links Manager */}
-          <SocialLinkManager
-            initialLinks={initialSocialLinks}
-            onLinksChange={handleSocialLinksChange}
-            disabled={disabled || saveStatus.saving}
-            maxLinks={10}
-          />
-
-          {/* Separator */}
-          <div className='border-t border-gray-200 dark:border-gray-700' />
-
-          {/* DSP Links Manager */}
-          <DSPLinkManager
-            initialLinks={initialDSPLinks}
-            onLinksChange={handleDSPLinksChange}
-            disabled={disabled || saveStatus.saving}
-            maxLinks={10}
-          />
         </div>
       </div>
 
-      {/* Preview Panel */}
-      <div
+      {/* Preview Panel - Fixed aside on XL screens */}
+      <aside
         className={`
-        lg:w-1/2 lg:pl-8 lg:border-l lg:border-gray-200 lg:dark:border-gray-700
-        ${viewMode === 'preview' ? 'block' : 'hidden lg:block'}
-      `}
+          fixed inset-y-0 right-0 w-96 overflow-y-auto border-l border-gray-200 dark:border-white/10 px-4 py-6 sm:px-6 lg:px-8
+          ${viewMode === 'preview' ? 'block xl:block' : 'hidden xl:block'}
+        `}
       >
         <div className='space-y-6'>
           {/* Header */}
@@ -386,18 +408,23 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
 
           {/* Preview Container */}
           <div className='relative'>
-            {/* Mobile Frame */}
-            <div className='max-w-sm mx-auto bg-gray-50 dark:bg-gray-900 rounded-[2.5rem] p-2'>
-              <div className='bg-white dark:bg-gray-800 rounded-[2rem] overflow-hidden'>
+            {/* Mobile Frame - iPhone-like dimensions */}
+            <div className='max-w-[375px] mx-auto bg-gray-900 dark:bg-gray-800 rounded-[2.5rem] p-2 shadow-2xl'>
+              <div className='bg-white dark:bg-gray-900 rounded-[2.3rem] overflow-hidden'>
                 {/* Status Bar Mockup */}
-                <div className='bg-gray-100 dark:bg-gray-700 h-6 flex items-center justify-center'>
-                  <div className='text-xs text-gray-600 dark:text-gray-400'>
-                    Preview Mode
+                <div className='bg-gray-100 dark:bg-gray-800 h-7 flex items-center justify-between px-6'>
+                  <span className='text-[10px] font-medium text-gray-900 dark:text-gray-100'>
+                    9:41
+                  </span>
+                  <div className='flex items-center gap-1'>
+                    <div className='w-4 h-3 border border-gray-900 dark:border-gray-100 rounded-sm'>
+                      <div className='w-full h-full bg-gray-900 dark:bg-gray-100 rounded-sm scale-x-75 origin-left'></div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Profile Preview */}
-                <div className='h-[600px] overflow-y-auto'>
+                {/* Profile Preview - Fixed height to fit phone */}
+                <div className='h-[650px] overflow-y-auto bg-white dark:bg-gray-900'>
                   <StaticArtistPage
                     mode='default'
                     artist={previewArtist}
@@ -422,13 +449,54 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
           </div>
 
           {/* Preview Info */}
-          <div className='text-center'>
+          <div className='text-center space-y-3'>
             <p className='text-xs text-gray-500 dark:text-gray-400'>
               This is how your profile will appear to visitors
             </p>
+
+            {/* Profile URL and View Link */}
+            <div className='space-y-2'>
+              <div className='flex items-center justify-center gap-2'>
+                <code className='text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-gray-600 dark:text-gray-300'>
+                  jov.ie/{artist.username || 'username'}
+                </code>
+                <button
+                  onClick={handleCopyUrl}
+                  className='p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors group'
+                  title={copySuccess ? 'Copied!' : 'Copy profile URL'}
+                >
+                  {copySuccess ? (
+                    <CheckIcon className='w-3 h-3 text-green-600 dark:text-green-400' />
+                  ) : (
+                    <ClipboardIcon className='w-3 h-3 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300' />
+                  )}
+                </button>
+              </div>
+              <a
+                href={`/${artist.username}`}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors'
+              >
+                View Profile
+                <svg
+                  className='w-4 h-4'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14'
+                  />
+                </svg>
+              </a>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </aside>
+    </>
   );
 };

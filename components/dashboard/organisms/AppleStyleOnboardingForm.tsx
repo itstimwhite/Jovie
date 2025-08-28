@@ -8,6 +8,7 @@ import { completeOnboarding } from '@/app/onboarding/actions';
 import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { Button } from '@/components/ui/Button';
 import { APP_URL } from '@/constants/app';
+import { identify, track } from '@/lib/analytics';
 import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
 
 // Define the onboarding steps based on the new UX requirements
@@ -75,6 +76,16 @@ export function AppleStyleOnboardingForm() {
   const { user } = useUser();
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  // Track initial onboarding view
+  useEffect(() => {
+    if (user?.id) {
+      track('onboarding_started', {
+        user_id: user.id,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }, [user?.id]);
 
   // Extract domain from APP_URL for display
   const displayDomain = APP_URL.replace(/^https?:\/\//, '');
@@ -152,10 +163,31 @@ export function AppleStyleOnboardingForm() {
   // Navigation handlers with smooth transitions
   const goToNextStep = useCallback(() => {
     if (currentStepIndex < ONBOARDING_STEPS.length - 1) {
+      const currentStep = ONBOARDING_STEPS[currentStepIndex];
+      const nextStep = ONBOARDING_STEPS[currentStepIndex + 1];
+
+      // Track step progression
+      track('onboarding_step_completed', {
+        step_id: currentStep.id,
+        step_index: currentStepIndex,
+        step_title: currentStep.title,
+        next_step_id: nextStep.id,
+        user_id: user?.id,
+      });
+
       setIsTransitioning(true);
       setTimeout(() => {
         setCurrentStepIndex(currentStepIndex + 1);
         setIsTransitioning(false);
+
+        // Track step viewed
+        track('onboarding_step_viewed', {
+          step_id: nextStep.id,
+          step_index: currentStepIndex + 1,
+          step_title: nextStep.title,
+          user_id: user?.id,
+        });
+
         // Focus management for accessibility
         setTimeout(() => {
           const heading = document.querySelector('h1');
@@ -165,7 +197,7 @@ export function AppleStyleOnboardingForm() {
         }, 100);
       }, 300);
     }
-  }, [currentStepIndex]);
+  }, [currentStepIndex, user?.id]);
 
   const goToPreviousStep = useCallback(() => {
     if (currentStepIndex > 0) {
@@ -317,6 +349,24 @@ export function AppleStyleOnboardingForm() {
       )
         return;
 
+      // Track onboarding submission start
+      track('onboarding_submission_started', {
+        user_id: user.id,
+        handle,
+        artist_selected: selectedArtist ? true : false,
+        artist_name: selectedArtist?.artistName,
+        artist_spotify_id: selectedArtist?.spotifyId,
+      });
+
+      // Identify user for analytics
+      identify(user.id, {
+        email: user.emailAddresses[0]?.emailAddress,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        handle,
+        onboarding_started_at: new Date().toISOString(),
+      });
+
       setState(prev => ({
         ...prev,
         error: null,
@@ -333,6 +383,16 @@ export function AppleStyleOnboardingForm() {
 
         setState(prev => ({ ...prev, step: 'complete', progress: 100 }));
 
+        // Track successful onboarding completion
+        track('onboarding_completed', {
+          user_id: user.id,
+          handle,
+          artist_selected: selectedArtist ? true : false,
+          artist_name: selectedArtist?.artistName,
+          artist_spotify_id: selectedArtist?.spotifyId,
+          completion_time: new Date().toISOString(),
+        });
+
         // Clear session data
         sessionStorage.removeItem('selectedArtist');
         sessionStorage.removeItem('pendingClaim');
@@ -346,6 +406,17 @@ export function AppleStyleOnboardingForm() {
           setState(prev => ({ ...prev, step: 'complete', progress: 100 }));
           return;
         }
+
+        // Track onboarding error
+        track('onboarding_error', {
+          user_id: user.id,
+          handle,
+          artist_selected: selectedArtist ? true : false,
+          error_message:
+            error instanceof Error ? error.message : 'Unknown error',
+          error_step: 'submission',
+          timestamp: new Date().toISOString(),
+        });
 
         // Map error to user-friendly message
         let userMessage = 'An unexpected error occurred';

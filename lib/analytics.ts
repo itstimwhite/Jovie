@@ -53,9 +53,9 @@ if (typeof window !== 'undefined' && ANALYTICS.posthogKey) {
       // Disable session recordings and other features we don't use
       disable_session_recording: false,
     };
-    if (ANALYTICS.posthogHost) {
-      options.api_host = ANALYTICS.posthogHost;
-    }
+    // Use local proxy for PostHog to avoid CORS issues
+    options.api_host = '/ingest';
+    options.ui_host = 'https://us.posthog.com';
     try {
       posthog.init(ANALYTICS.posthogKey, options);
       // Ensure every event has env attached

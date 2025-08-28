@@ -79,7 +79,7 @@ async function globalSetup() {
       process.env.SUPABASE_SERVICE_ROLE_KEY || 'dummy_key',
     // Helpful default for links and sitemap-related logic
     NEXT_PUBLIC_APP_URL:
-      process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+      process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3100',
   });
 
   // Start browser to warm up
@@ -87,7 +87,7 @@ async function globalSetup() {
   const page = await browser.newPage();
 
   // Navigate to the app to ensure it's ready
-  const baseURL = process.env.BASE_URL || 'http://localhost:3000';
+  const baseURL = process.env.BASE_URL || 'http://localhost:3100';
   await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
 
   // Wait for the page to load completely

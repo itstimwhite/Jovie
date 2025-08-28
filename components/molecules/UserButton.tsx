@@ -6,8 +6,13 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useBillingStatus } from '@/hooks/use-billing-status';
+import type { Artist } from '@/types/db';
 
-export function UserButton() {
+interface UserButtonProps {
+  artist?: Artist | null;
+}
+
+export function UserButton({ artist }: UserButtonProps) {
   const { isLoaded, user } = useUser();
   const { signOut, openUserProfile } = useClerk();
   const router = useRouter();
@@ -165,6 +170,42 @@ export function UserButton() {
               </button>
             )}
           </MenuItem>
+
+          {artist?.username && (
+            <MenuItem>
+              {({ focus }) => (
+                <button
+                  onClick={() => router.push(`/${artist.username}`)}
+                  className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
+                    focus
+                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+                      : 'text-gray-700 dark:text-gray-300'
+                  }`}
+                >
+                  <svg
+                    className='w-4 h-4'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M15 12a3 3 0 11-6 0 3 3 0 016 0z'
+                    />
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z'
+                    />
+                  </svg>
+                  View Profile
+                </button>
+              )}
+            </MenuItem>
+          )}
 
           <MenuItem>
             {({ focus }) => (
