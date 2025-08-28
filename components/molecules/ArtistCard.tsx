@@ -35,9 +35,9 @@ export function ArtistCard({
         transition: { duration: 0.1 },
       }
     : {
-        // Full animations for normal motion preference
-        whileHover: { scale: 1.05, y: -5 },
-        whileFocus: { scale: 1.05, y: -5 },
+        // Full animations for normal motion preference - removed scale to prevent cropping
+        whileHover: { y: -5 },
+        whileFocus: { y: -5 },
         transition: {
           type: 'spring',
           stiffness: 400,

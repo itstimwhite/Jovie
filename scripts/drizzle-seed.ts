@@ -146,18 +146,26 @@ function slugify(name: string): string {
 function makeArtist(name: string): ArtistSeed {
   const username = slugify(name);
   const handle = username; // reuse for socials
+
+  // Special handling for Tim White
+  const isTimWhite = name === 'Tim White';
+
   return {
     clerkId: `seed_${username}`,
     email: `${username}@example.com`,
     profile: {
       username,
       displayName: name,
-      bio: `Official ${name} demo profile for development and testing.`,
+      bio: isTimWhite
+        ? `Tim White - Verified artist and creator of Jovie.`
+        : `Official ${name} demo profile for development and testing.`,
       creatorType: 'artist',
       isPublic: true,
-      isVerified: false,
-      isFeatured: false,
-      spotifyUrl: `https://open.spotify.com/artist/demo-${username}`,
+      isVerified: isTimWhite,
+      isFeatured: isTimWhite,
+      spotifyUrl: isTimWhite
+        ? `https://open.spotify.com/artist/4Uwpa6zW3zzCSQvooQNksm`
+        : `https://open.spotify.com/artist/demo-${username}`,
       appleMusicUrl: `https://music.apple.com/artist/demo-${username}`,
       youtubeUrl: `https://youtube.com/@${handle}`,
     },
