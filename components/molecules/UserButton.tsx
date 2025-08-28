@@ -8,6 +8,7 @@ import {
   flip,
   offset,
   shift,
+  size,
   useClick,
   useDismiss,
   useFloating,
@@ -37,9 +38,38 @@ export function UserButton({ artist, showUserInfo = false }: UserButtonProps) {
   const { refs, floatingStyles, context } = useFloating({
     open: isOpen,
     onOpenChange: setIsOpen,
-    middleware: [offset(8), flip({ padding: 16 }), shift({ padding: 16 })],
+    middleware: [
+      offset(8),
+      flip({
+        mainAxis: true,
+        crossAxis: true,
+        fallbackPlacements: [
+          'bottom-start',
+          'top-end',
+          'top-start',
+          'left',
+          'right',
+        ],
+        padding: 16,
+      }),
+      shift({
+        mainAxis: true,
+        crossAxis: true,
+        padding: 16,
+      }),
+      size({
+        apply({ availableWidth, availableHeight, elements }) {
+          Object.assign(elements.floating.style, {
+            maxWidth: `${Math.min(availableWidth, 256)}px`,
+            maxHeight: `${Math.min(availableHeight, 400)}px`,
+          });
+        },
+        padding: 16,
+      }),
+    ],
     whileElementsMounted: autoUpdate,
     placement: 'bottom-end',
+    strategy: 'fixed',
   });
 
   const click = useClick(context);
