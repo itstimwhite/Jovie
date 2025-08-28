@@ -4,8 +4,9 @@
   "private": true,
   "engines": {
     "node": ">=20.17",
-    "npm": ">=10.0.0"
+    "pnpm": ">=8.0.0"
   },
+  "packageManager": "pnpm@8.15.9",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -32,7 +33,7 @@
     "format": "biome format --write .",
     "format:check": "biome check .",
     "clean": "rm -rf .next out dist coverage .nyc_output",
-    "clean:deps": "rm -rf node_modules package-lock.json && npm install",
+    "clean:deps": "rm -rf node_modules pnpm-lock.yaml && pnpm install",
     "postbuild": "next-sitemap",
     "verify-artist-images": "node scripts/verify-artist-images.js",
     "update-artist-images": "node scripts/update-artist-images.js",
