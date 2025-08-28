@@ -128,7 +128,7 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
       - name: Lint (enforce zero warnings)
-        run: pnpm run lint -- --max-warnings=0
+        run: pnpm run lint --max-warnings=0
 
   ci-build:
     name: Build
@@ -410,12 +410,12 @@ jobs:
 
       - name: E2E Smoke (PR to Preview)
         if: ${{ steps.check_changes.outputs.run_full_ci == 'true' && github.ref != 'refs/heads/production' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
-        run: pnpm run e2e:smoke -- --trace=retain-on-failure
+        run: pnpm run e2e:smoke --trace=retain-on-failure
         continue-on-error: ${{ github.event_name == 'pull_request' }}
 
       - name: E2E Full (Preview Branch)
         if: ${{ steps.check_changes.outputs.run_full_ci == 'true' && github.ref == 'refs/heads/preview' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
-        run: pnpm run test:e2e -- --reporter=line
+        run: pnpm run test:e2e --reporter=line
 
       - name: Upload Playwright Artifacts on Failure
         if: ${{ failure() && steps.check_changes.outputs.run_full_ci == 'true' && (hashFiles('tests/e2e/**') != '' || hashFiles('tests/smoke/**') != '') }}
