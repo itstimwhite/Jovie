@@ -10,6 +10,7 @@ import React, {
   useState,
 } from 'react';
 import { StaticArtistPage } from '@/components/profile/StaticArtistPage';
+import { APP_URL } from '@/constants/app';
 import { debounce } from '@/lib/utils';
 import type { DetectedLink } from '@/lib/utils/platform-detection';
 import type {
@@ -295,7 +296,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
 
   // Handle copy to clipboard
   const handleCopyUrl = useCallback(async () => {
-    const profileUrl = `https://jov.ie/${artist.handle || 'username'}`;
+    const profileUrl = `${APP_URL}/${artist.handle || 'username'}`;
 
     try {
       await navigator.clipboard.writeText(profileUrl);
@@ -455,7 +456,8 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
             <div className='space-y-2'>
               <div className='flex items-center justify-center gap-2'>
                 <code className='text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-gray-600 dark:text-gray-300'>
-                  jov.ie/{artist.handle || 'username'}
+                  {APP_URL.replace('https://', '')}/
+                  {artist.handle || 'username'}
                 </code>
                 <button
                   onClick={handleCopyUrl}
