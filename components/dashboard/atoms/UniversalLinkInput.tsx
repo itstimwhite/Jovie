@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { SocialIcon } from '@/components/atoms/SocialIcon';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -23,6 +23,7 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
   const [url, setUrl] = useState('');
   const [customTitle, setCustomTitle] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const urlInputRef = useRef<HTMLInputElement>(null);
 
   // Real-time platform detection
   const detectedLink = useMemo(() => {
@@ -66,6 +67,11 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
     setUrl('');
     setCustomTitle('');
     setIsEditing(false);
+
+    // Auto-focus the URL input after adding a link
+    setTimeout(() => {
+      urlInputRef.current?.focus();
+    }, 50);
   }, [detectedLink, customTitle, onAdd]);
 
   // Handle keyboard interactions
@@ -98,6 +104,7 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
           Enter link URL
         </label>
         <Input
+          ref={urlInputRef}
           id='link-url-input'
           type='url'
           placeholder={placeholder}

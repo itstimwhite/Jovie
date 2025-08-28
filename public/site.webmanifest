@@ -4,12 +4,6 @@
   "description": "One link. All your music.",
   "icons": [
     {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
       "src": "/favicon-16x16.png",
       "sizes": "16x16",
       "type": "image/png"

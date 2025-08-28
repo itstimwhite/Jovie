@@ -153,11 +153,11 @@ export function SettingsPolished({
   const renderProfileSection = () => (
     <div className='space-y-8'>
       {/* Header */}
-      <div className='pb-6 border-b border-gray-100 dark:border-neutral-800'>
-        <h1 className='text-2xl font-semibold tracking-tight text-gray-900 dark:text-white'>
+      <div className='pb-6 border-b border-subtle-token'>
+        <h1 className='text-2xl font-semibold tracking-tight text-primary-token'>
           Your Profile
         </h1>
-        <p className='mt-2 text-sm text-gray-600 dark:text-neutral-400'>
+        <p className='mt-2 text-sm text-secondary-token'>
           This information will be displayed publicly so be mindful what you
           share.
         </p>
@@ -165,31 +165,31 @@ export function SettingsPolished({
 
       <form onSubmit={handleSubmit} className='space-y-8'>
         {/* Profile Photo Card */}
-        <div className='bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-6 shadow-sm'>
+        <div className='bg-surface-token rounded-xl border border-subtle-token p-6 shadow-sm'>
           <div className='flex items-center justify-between mb-4'>
-            <h3 className='text-lg font-medium text-gray-900 dark:text-white'>
+            <h3 className='text-lg font-medium text-primary-token'>
               Profile Photo
             </h3>
-            <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400'>
+            <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-surface-hover-token text-secondary-token border border-subtle-token'>
               <SparklesIcon className='w-3 h-3 mr-1' />
               Pro
             </span>
           </div>
           <div className='flex items-start space-x-6'>
             <div className='flex-shrink-0'>
-              <div className='w-20 h-20 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/20 dark:to-purple-900/20 flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-neutral-600 hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors cursor-pointer group'>
-                <PhotoIcon className='w-8 h-8 text-gray-400 dark:text-neutral-500 group-hover:text-indigo-500 transition-colors' />
+              <div className='w-20 h-20 rounded-full bg-surface-hover-token flex items-center justify-center border-2 border-dashed border-subtle-token hover:border-accent transition-colors cursor-pointer group'>
+                <PhotoIcon className='w-8 h-8 text-secondary-token group-hover:text-accent-token transition-colors' />
               </div>
             </div>
             <div className='flex-1 space-y-3'>
               <button
                 type='button'
-                className='inline-flex items-center px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg shadow-sm text-sm font-medium text-gray-700 dark:text-neutral-300 bg-white dark:bg-neutral-800 hover:bg-gray-50 dark:hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors'
+                className='inline-flex items-center px-4 py-2 border border-subtle-token rounded-lg shadow-sm text-sm font-medium text-secondary-token bg-surface-token hover:bg-surface-hover-token focus:outline-none focus:ring-2 ring-accent focus:ring-offset-2 transition-colors'
               >
                 <PhotoIcon className='w-4 h-4 mr-2' />
                 Upload photo
               </button>
-              <p className='text-sm text-gray-500 dark:text-neutral-400'>
+              <p className='text-sm text-secondary-token'>
                 JPG, GIF or PNG. Max size 2MB. Square images work best.
               </p>
             </div>
@@ -197,8 +197,8 @@ export function SettingsPolished({
         </div>
 
         {/* Basic Info Card */}
-        <div className='bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-6 shadow-sm'>
-          <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-6'>
+        <div className='bg-surface-token rounded-xl border border-subtle-token p-6 shadow-sm'>
+          <h3 className='text-lg font-medium text-primary-token mb-6'>
             Basic Information
           </h3>
 
@@ -207,13 +207,13 @@ export function SettingsPolished({
             <div>
               <label
                 htmlFor='username'
-                className='block text-sm font-medium text-gray-900 dark:text-white mb-2'
+                className='block text-sm font-medium text-primary-token mb-2'
               >
                 Username
               </label>
               <div className='relative'>
                 <div className='flex rounded-lg shadow-sm'>
-                  <span className='inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 dark:border-neutral-600 bg-gray-50 dark:bg-neutral-800 text-gray-500 dark:text-neutral-400 text-sm select-none'>
+                  <span className='inline-flex items-center px-3 rounded-l-lg border border-r-0 border-subtle-token bg-surface-hover-token text-secondary-token text-sm select-none'>
                     {appDomain}/
                   </span>
                   <input
@@ -224,7 +224,7 @@ export function SettingsPolished({
                     onChange={e =>
                       handleInputChange('username', e.target.value)
                     }
-                    className='flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-lg border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors'
+                    className='flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-lg border border-subtle-token bg-surface-token text-primary-token placeholder:text-secondary-token focus:outline-none focus:ring-2 ring-accent focus:border-transparent sm:text-sm transition-colors'
                     placeholder='yourname'
                   />
                 </div>
@@ -235,7 +235,7 @@ export function SettingsPolished({
             <div>
               <label
                 htmlFor='displayName'
-                className='block text-sm font-medium text-gray-900 dark:text-white mb-2'
+                className='block text-sm font-medium text-primary-token mb-2'
               >
                 Display Name
               </label>
@@ -245,7 +245,7 @@ export function SettingsPolished({
                 id='displayName'
                 value={formData.displayName}
                 onChange={e => handleInputChange('displayName', e.target.value)}
-                className='block w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm transition-colors'
+                className='block w-full px-3 py-2 border border-subtle-token rounded-lg bg-surface-token text-primary-token placeholder:text-secondary-token focus:outline-none focus:ring-2 ring-accent focus:border-transparent sm:text-sm shadow-sm transition-colors'
                 placeholder='The name your fans will see'
               />
             </div>
@@ -254,7 +254,7 @@ export function SettingsPolished({
             <div>
               <label
                 htmlFor='bio'
-                className='block text-sm font-medium text-gray-900 dark:text-white mb-2'
+                className='block text-sm font-medium text-primary-token mb-2'
               >
                 Bio
               </label>
@@ -264,10 +264,10 @@ export function SettingsPolished({
                 rows={4}
                 value={formData.bio}
                 onChange={e => handleInputChange('bio', e.target.value)}
-                className='block w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm resize-none transition-colors'
+                className='block w-full px-3 py-2 border border-subtle-token rounded-lg bg-surface-token text-primary-token placeholder:text-secondary-token focus:outline-none focus:ring-2 ring-accent focus:border-transparent sm:text-sm shadow-sm resize-none transition-colors'
                 placeholder='Tell your fans about yourself...'
               />
-              <p className='mt-2 text-sm text-gray-500 dark:text-neutral-400'>
+              <p className='mt-2 text-sm text-secondary-token'>
                 A few sentences about your music and what makes you unique.
               </p>
             </div>
@@ -276,7 +276,7 @@ export function SettingsPolished({
             <div>
               <label
                 htmlFor='creatorType'
-                className='block text-sm font-medium text-gray-900 dark:text-white mb-2'
+                className='block text-sm font-medium text-primary-token mb-2'
               >
                 Creator Type
               </label>
@@ -285,7 +285,7 @@ export function SettingsPolished({
                 name='creatorType'
                 value={formData.creatorType}
                 onChange={e => handleInputChange('creatorType', e.target.value)}
-                className='block w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-gray-900 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm transition-colors'
+                className='block w-full px-3 py-2 border border-subtle-token rounded-lg bg-surface-token text-primary-token focus:outline-none focus:ring-2 ring-accent focus:border-transparent sm:text-sm shadow-sm transition-colors'
               >
                 <option value='artist'>Solo Artist</option>
                 <option value='band'>Band</option>
@@ -297,11 +297,12 @@ export function SettingsPolished({
         </div>
 
         {/* Save Button */}
-        <div className='flex justify-end pt-4 border-t border-gray-100 dark:border-neutral-800'>
+        <div className='flex justify-end pt-4 border-t border-subtle-token'>
           <button
             type='submit'
             disabled={isLoading}
-            className='inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+            className='inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 ring-accent focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+            style={{ backgroundColor: 'var(--color-accent)' }}
           >
             {isLoading ? 'Saving...' : 'Save Changes'}
           </button>
@@ -314,17 +315,17 @@ export function SettingsPolished({
     <div className='space-y-8'>
       {/* Apple-styled header */}
       <div className='mb-8'>
-        <h1 className='text-[22px] font-semibold tracking-[-0.01em] text-gray-900 dark:text-white'>
+        <h1 className='text-[22px] font-semibold tracking-[-0.01em] text-primary-token'>
           Appearance
         </h1>
-        <p className='text-sm text-zinc-400 mt-1'>
+        <p className='text-sm text-secondary-token mt-1'>
           Customize how the interface looks and feels.
         </p>
       </div>
 
       {/* Theme Selection Card */}
-      <div className='bg-white/5 dark:bg-[#202022] rounded-xl backdrop-blur ring-1 ring-white/10 dark:ring-white/[0.08] p-6 space-y-4'>
-        <h3 className='text-lg font-medium text-gray-900 dark:text-zinc-200 mb-6'>
+      <div className='bg-surface-token rounded-xl border border-subtle-token p-6 space-y-4'>
+        <h3 className='text-lg font-medium text-primary-token mb-6'>
           Interface Theme
         </h3>
 
@@ -368,11 +369,11 @@ export function SettingsPolished({
               }
               className={`
                 group relative flex flex-col p-4 rounded-xl border-2 transition-all duration-300 ease-in-out
-                hover:translate-y-[-2px] hover:shadow-lg focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none
+                hover:translate-y-[-2px] hover:shadow-lg focus-visible:ring-2 ring-accent focus-visible:outline-none
                 ${
                   theme === option.value
-                    ? 'border-indigo-500/70 bg-indigo-50/50 dark:bg-indigo-950/30'
-                    : 'border-gray-200 dark:border-white/[0.08] hover:border-indigo-300 dark:hover:border-indigo-500/40'
+                    ? 'border-accent/70 bg-surface-hover-token'
+                    : 'border-subtle-token hover:border-accent/50'
                 }
               `}
             >
@@ -400,17 +401,17 @@ export function SettingsPolished({
 
               {/* Option Info */}
               <div className='text-left'>
-                <h4 className='font-medium text-gray-900 dark:text-zinc-200 text-sm mb-1'>
+                <h4 className='font-medium text-primary-token text-sm mb-1'>
                   {option.label}
                 </h4>
-                <p className='text-xs text-gray-500 dark:text-zinc-500 mt-1'>
+                <p className='text-xs text-secondary-token mt-1'>
                   {option.description}
                 </p>
               </div>
 
               {/* Animated Checkmark Overlay */}
               {theme === option.value && (
-                <div className='absolute top-2 right-2 w-5 h-5 bg-indigo-500 rounded-full flex items-center justify-center animate-in zoom-in-95 fade-in duration-200'>
+                <div className='absolute top-2 right-2 w-5 h-5 bg-accent-token rounded-full flex items-center justify-center animate-in zoom-in-95 fade-in duration-200'>
                   <svg
                     className='w-3 h-3 text-white'
                     fill='none'
@@ -430,7 +431,7 @@ export function SettingsPolished({
           ))}
         </div>
 
-        <p className='text-xs text-zinc-500 mt-4'>
+        <p className='text-xs text-secondary-token mt-4'>
           Choose how the interface appears. System automatically matches your
           device settings.
         </p>
@@ -447,20 +448,20 @@ export function SettingsPolished({
       case 'notifications':
         return (
           <div className='space-y-8'>
-            <div className='pb-6 border-b border-gray-100 dark:border-neutral-800'>
-              <h1 className='text-2xl font-semibold tracking-tight text-gray-900 dark:text-white'>
+            <div className='pb-6 border-b border-subtle-token'>
+              <h1 className='text-2xl font-semibold tracking-tight text-primary-token'>
                 Notifications
               </h1>
-              <p className='mt-2 text-sm text-gray-600 dark:text-neutral-400'>
+              <p className='mt-2 text-sm text-secondary-token'>
                 Stay informed about your profile activity.
               </p>
             </div>
-            <div className='bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-8 shadow-sm text-center'>
-              <BellIcon className='mx-auto h-12 w-12 text-gray-400 dark:text-neutral-500 mb-4' />
-              <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-2'>
+            <div className='bg-surface-token rounded-xl border border-subtle-token p-8 shadow-sm text-center'>
+              <BellIcon className='mx-auto h-12 w-12 text-secondary-token mb-4' />
+              <h3 className='text-lg font-medium text-primary-token mb-2'>
                 Notification settings coming soon
               </h3>
-              <p className='text-sm text-gray-500 dark:text-neutral-400'>
+              <p className='text-sm text-secondary-token'>
                 We&apos;re working on giving you more control over your
                 notifications.
               </p>
@@ -470,20 +471,20 @@ export function SettingsPolished({
       case 'privacy':
         return (
           <div className='space-y-8'>
-            <div className='pb-6 border-b border-gray-100 dark:border-neutral-800'>
-              <h1 className='text-2xl font-semibold tracking-tight text-gray-900 dark:text-white'>
+            <div className='pb-6 border-b border-subtle-token'>
+              <h1 className='text-2xl font-semibold tracking-tight text-primary-token'>
                 Privacy & Security
               </h1>
-              <p className='mt-2 text-sm text-gray-600 dark:text-neutral-400'>
+              <p className='mt-2 text-sm text-secondary-token'>
                 Control your profile visibility and data.
               </p>
             </div>
-            <div className='bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-8 shadow-sm text-center'>
-              <ShieldCheckIcon className='mx-auto h-12 w-12 text-gray-400 dark:text-neutral-500 mb-4' />
-              <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-2'>
+            <div className='bg-surface-token rounded-xl border border-subtle-token p-8 shadow-sm text-center'>
+              <ShieldCheckIcon className='mx-auto h-12 w-12 text-secondary-token mb-4' />
+              <h3 className='text-lg font-medium text-primary-token mb-2'>
                 Privacy settings coming soon
               </h3>
-              <p className='text-sm text-gray-500 dark:text-neutral-400'>
+              <p className='text-sm text-secondary-token'>
                 Advanced privacy controls and security settings are in
                 development.
               </p>
@@ -493,24 +494,27 @@ export function SettingsPolished({
       case 'billing':
         return (
           <div className='space-y-8'>
-            <div className='pb-6 border-b border-gray-100 dark:border-neutral-800'>
-              <h1 className='text-2xl font-semibold tracking-tight text-gray-900 dark:text-white'>
+            <div className='pb-6 border-b border-subtle-token'>
+              <h1 className='text-2xl font-semibold tracking-tight text-primary-token'>
                 Billing & Subscription
               </h1>
-              <p className='mt-2 text-sm text-gray-600 dark:text-neutral-400'>
+              <p className='mt-2 text-sm text-secondary-token'>
                 Manage your subscription and billing details.
               </p>
             </div>
-            <div className='bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-8 shadow-sm text-center'>
-              <CreditCardIcon className='mx-auto h-12 w-12 text-gray-400 dark:text-neutral-500 mb-4' />
-              <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-2'>
+            <div className='bg-surface-token rounded-xl border border-subtle-token p-8 shadow-sm text-center'>
+              <CreditCardIcon className='mx-auto h-12 w-12 text-secondary-token mb-4' />
+              <h3 className='text-lg font-medium text-primary-token mb-2'>
                 Billing dashboard coming soon
               </h3>
-              <p className='text-sm text-gray-500 dark:text-neutral-400 mb-4'>
+              <p className='text-sm text-secondary-token mb-4'>
                 Subscription management and billing history will be available
                 here.
               </p>
-              <button className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors'>
+              <button
+                className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white focus:outline-none focus:ring-2 ring-accent focus:ring-offset-2 transition-colors'
+                style={{ backgroundColor: 'var(--color-accent)' }}
+              >
                 Upgrade to Pro
               </button>
             </div>
@@ -532,18 +536,21 @@ export function SettingsPolished({
                 <li key={item.id}>
                   <button
                     onClick={() => setCurrentSection(item.id)}
+                    aria-current={
+                      currentSection === item.id ? 'page' : undefined
+                    }
                     className={classNames(
                       currentSection === item.id
-                        ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
-                        : 'text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-neutral-800 border-transparent',
-                      'group flex w-full items-center rounded-lg border p-3 text-left text-sm font-medium transition-all duration-200'
+                        ? 'bg-surface-hover-token text-primary-token border-accent/30'
+                        : 'text-secondary-token hover:text-primary-token hover:bg-surface-hover-token border-subtle-token',
+                      'group flex w-full items-center rounded-lg border p-3 text-left text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 ring-accent'
                     )}
                   >
                     <item.icon
                       className={classNames(
                         currentSection === item.id
-                          ? 'text-indigo-600 dark:text-indigo-400'
-                          : 'text-gray-400 dark:text-neutral-500 group-hover:text-gray-600 dark:group-hover:text-neutral-300',
+                          ? 'text-accent-token'
+                          : 'text-secondary-token group-hover:text-primary-token',
                         'h-5 w-5 flex-shrink-0 mr-3'
                       )}
                       aria-hidden='true'
@@ -552,12 +559,12 @@ export function SettingsPolished({
                       <div className='flex items-center justify-between'>
                         <span className='truncate'>{item.name}</span>
                         {item.isPro && (
-                          <span className='inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 ml-2'>
+                          <span className='inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-surface-hover-token text-secondary-token border border-subtle-token ml-2'>
                             Pro
                           </span>
                         )}
                       </div>
-                      <div className='text-xs text-gray-500 dark:text-neutral-400 mt-0.5 truncate'>
+                      <div className='text-xs text-secondary-token mt-0.5 truncate'>
                         {item.description}
                       </div>
                     </div>

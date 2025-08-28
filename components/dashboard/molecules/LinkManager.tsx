@@ -41,6 +41,7 @@ interface LinkItem extends DetectedLink {
 interface LinkManagerProps {
   initialLinks?: LinkItem[];
   onLinksChange: (links: LinkItem[]) => void;
+  onLinkAdded?: (links: LinkItem[]) => void; // Immediate save callback for new links
   disabled?: boolean;
   maxLinks?: number;
   allowedCategory?: 'dsp' | 'social' | 'custom' | 'all';
@@ -51,6 +52,7 @@ interface LinkManagerProps {
 export const LinkManager: React.FC<LinkManagerProps> = ({
   initialLinks = [],
   onLinksChange,
+  onLinkAdded,
   disabled = false,
   maxLinks = 20,
   allowedCategory = 'all',
@@ -201,9 +203,13 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
         order: links.length,
       };
 
-      updateLinks([...links, newLink]);
+      const newLinks = [...links, newLink];
+      updateLinks(newLinks);
+
+      // Immediately save when a new link is added (no debounce)
+      onLinkAdded?.(newLinks);
     },
-    [links, maxLinks, updateLinks, allowedCategory, showToast]
+    [links, maxLinks, updateLinks, allowedCategory, showToast, onLinkAdded]
   );
 
   // Update existing link
