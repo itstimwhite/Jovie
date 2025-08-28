@@ -42,7 +42,6 @@ export async function GET(request: Request) {
   const now = new Date().toISOString();
   const config = getDbConfig();
 
-<<<<<<< HEAD
   // Rate limiting check
   const clientIP = getClientIP(request);
   const isRateLimited = checkRateLimit(clientIP, true);
@@ -71,8 +70,6 @@ export async function GET(request: Request) {
     );
   }
 
-=======
->>>>>>> 4dc4433 (feat: comprehensive health checks and environment validation)
   // Validate database environment
   const dbValidation = validateDatabaseEnvironment();
 
@@ -144,13 +141,9 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json(body, {
-<<<<<<< HEAD
     status: healthResult.healthy
       ? HEALTH_CHECK_CONFIG.statusCodes.healthy
       : HEALTH_CHECK_CONFIG.statusCodes.unhealthy,
-=======
-    status: healthResult.healthy ? 200 : 503,
->>>>>>> 4dc4433 (feat: comprehensive health checks and environment validation)
     headers: {
       ...HEALTH_CHECK_CONFIG.cacheHeaders,
       ...createRateLimitHeaders(rateLimitStatus),

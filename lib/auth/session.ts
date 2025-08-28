@@ -2,7 +2,7 @@
 
 import { auth } from '@clerk/nextjs/server';
 import { sql as drizzleSql } from 'drizzle-orm';
-import { type DB, db } from '@/lib/db';
+import { type DbType, db } from '@/lib/db';
 
 /**
  * Sets up the database session for the authenticated user
@@ -37,7 +37,7 @@ export async function withDbSession<T>(
  * Ensures SET LOCAL app.clerk_user_id is applied within the transaction scope.
  */
 export async function withDbSessionTx<T>(
-  operation: (tx: DB, userId: string) => Promise<T>
+  operation: (tx: DbType, userId: string) => Promise<T>
 ): Promise<T> {
   const { userId } = await auth();
   if (!userId) {
@@ -49,7 +49,7 @@ export async function withDbSessionTx<T>(
     await tx.execute(
       drizzleSql.raw(`SET LOCAL app.clerk_user_id = '${userId}'`)
     );
-    return await operation(tx as unknown as DB, userId);
+    return await operation(tx as unknown as DbType, userId);
   });
 }
 
