@@ -25,30 +25,35 @@ const settingsNavigation = [
     id: 'profile',
     icon: UserIcon,
     description: 'Your identity and presence',
+    isPro: false,
   },
   {
     name: 'Appearance',
     id: 'appearance',
     icon: PaintBrushIcon,
     description: 'Theme and visual preferences',
+    isPro: false,
   },
   {
     name: 'Notifications',
     id: 'notifications',
     icon: BellIcon,
     description: 'Stay informed, your way',
+    isPro: true,
   },
   {
     name: 'Privacy & Security',
     id: 'privacy',
     icon: ShieldCheckIcon,
     description: 'Control your visibility',
+    isPro: true,
   },
   {
     name: 'Billing',
     id: 'billing',
     icon: CreditCardIcon,
     description: 'Subscription and payments',
+    isPro: false,
   },
 ];
 
@@ -63,10 +68,10 @@ export function SettingsPolished({
   const [currentSection, setCurrentSection] = useState('profile');
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    username: artist.username || '',
-    displayName: artist.display_name || '',
-    bio: artist.bio || '',
-    creatorType: artist.creator_type || 'artist',
+    username: artist.handle || '',
+    displayName: artist.name || '',
+    bio: artist.tagline || '',
+    creatorType: 'artist',
   });
 
   const handleInputChange = (field: string, value: string) => {
@@ -103,10 +108,9 @@ export function SettingsPolished({
         if (onArtistUpdate) {
           onArtistUpdate({
             ...artist,
-            username: profile.username,
-            display_name: profile.displayName,
-            bio: profile.bio,
-            creator_type: profile.creatorType,
+            handle: profile.username,
+            name: profile.displayName,
+            tagline: profile.bio,
           });
         }
       } catch (error) {

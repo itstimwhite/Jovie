@@ -16,6 +16,7 @@ import {
   LinkIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
@@ -253,7 +254,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                                     alt={
                                       profile.displayName || profile.username
                                     }
-                                    size='xs'
+                                    size='sm'
                                     shape='circle'
                                     aspectRatio='square'
                                     objectFit='cover'
@@ -309,10 +310,16 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
               {sidebarCollapsed && (
                 <button
                   onClick={() => setCurrentNavItem('overview')}
-                  className='w-8 h-8 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
+                  className='w-8 h-8 rounded-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors'
                   title='Go to Dashboard Overview'
                 >
-                  <span className='text-white text-sm font-bold'>J</span>
+                  <Image
+                    src='/favicon.svg'
+                    alt='Jovie App Icon'
+                    width={24}
+                    height={24}
+                    className='w-6 h-6'
+                  />
                 </button>
               )}
             </div>
@@ -370,7 +377,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                               <OptimizedImage
                                 src={profile.avatarUrl}
                                 alt={profile.displayName || profile.username}
-                                size='xs'
+                                size='sm'
                                 shape='circle'
                                 aspectRatio='square'
                                 objectFit='cover'
@@ -558,40 +565,6 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
               {currentNavItem === 'overview' && artist && (
                 <DashboardSplitView
                   artist={artist}
-                  creatorProfile={
-                    {
-                      id: initialData.selectedProfile!.id,
-                      user_id: initialData.selectedProfile!.userId!,
-                      creator_type: initialData.selectedProfile!.creatorType,
-                      username: initialData.selectedProfile!.username,
-                      username_normalized:
-                        initialData.selectedProfile!.usernameNormalized,
-                      display_name: initialData.selectedProfile!.displayName,
-                      bio: initialData.selectedProfile!.bio,
-                      avatar_url: initialData.selectedProfile!.avatarUrl,
-                      spotify_url: initialData.selectedProfile!.spotifyUrl,
-                      apple_music_url:
-                        initialData.selectedProfile!.appleMusicUrl,
-                      youtube_url: initialData.selectedProfile!.youtubeUrl,
-                      spotify_id: initialData.selectedProfile!.spotifyId,
-                      is_public: initialData.selectedProfile!.isPublic,
-                      is_verified: initialData.selectedProfile!.isVerified,
-                      is_featured: initialData.selectedProfile!.isFeatured,
-                      marketing_opt_out:
-                        initialData.selectedProfile!.marketingOptOut,
-                      is_claimed: initialData.selectedProfile!.isClaimed,
-                      claim_token: initialData.selectedProfile!.claimToken,
-                      claimed_at: initialData.selectedProfile!.claimedAt,
-                      last_login_at: initialData.selectedProfile!.lastLoginAt,
-                      profile_views: initialData.selectedProfile!.profileViews,
-                      onboarding_completed_at:
-                        initialData.selectedProfile!.onboardingCompletedAt,
-                      settings: initialData.selectedProfile!.settings,
-                      theme: initialData.selectedProfile!.theme,
-                      created_at: initialData.selectedProfile!.createdAt,
-                      updated_at: initialData.selectedProfile!.updatedAt,
-                    } as CreatorProfile
-                  }
                   onArtistUpdate={handleArtistUpdated}
                 />
               )}

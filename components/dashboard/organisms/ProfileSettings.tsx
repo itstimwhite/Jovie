@@ -17,10 +17,10 @@ export function ProfileSettings({
 }: ProfileSettingsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    username: artist.username || '',
-    displayName: artist.display_name || '',
-    bio: artist.bio || '',
-    creatorType: artist.creator_type || 'artist',
+    username: artist.handle || '',
+    displayName: artist.name || '',
+    bio: artist.tagline || '',
+    creatorType: 'artist',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,10 +56,9 @@ export function ProfileSettings({
       if (onArtistUpdate) {
         onArtistUpdate({
           ...artist,
-          username: profile.username,
-          display_name: profile.displayName,
-          bio: profile.bio,
-          creator_type: profile.creatorType,
+          handle: profile.username,
+          name: profile.displayName,
+          tagline: profile.bio,
         });
       }
     } catch (error) {

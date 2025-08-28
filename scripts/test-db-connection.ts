@@ -46,7 +46,12 @@ async function testConnection() {
       `);
       console.log(
         '📊 Available tables:',
-        tables.rows.map((r: { table_name: string }) => r.table_name).join(', ')
+        tables.rows
+          .map(
+            (r: Record<string, unknown>) =>
+              (r as { table_name: string }).table_name
+          )
+          .join(', ')
       );
     } catch {
       console.log(

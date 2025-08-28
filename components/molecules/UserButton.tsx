@@ -171,11 +171,11 @@ export function UserButton({ artist }: UserButtonProps) {
             )}
           </MenuItem>
 
-          {artist?.username && (
+          {artist?.handle && (
             <MenuItem>
               {({ focus }) => (
                 <button
-                  onClick={() => router.push(`/${artist.username}`)}
+                  onClick={() => router.push(`/${artist.handle}`)}
                   className={`w-full flex items-center gap-3 px-4 py-2 text-sm transition-colors ${
                     focus
                       ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'

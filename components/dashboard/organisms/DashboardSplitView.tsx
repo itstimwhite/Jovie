@@ -14,7 +14,6 @@ import { debounce } from '@/lib/utils';
 import type { DetectedLink } from '@/lib/utils/platform-detection';
 import type {
   Artist,
-  CreatorProfile,
   LegacySocialLink,
   SocialLink,
   SocialPlatform,
@@ -31,7 +30,6 @@ interface LinkItem extends DetectedLink {
 
 interface DashboardSplitViewProps {
   artist: Artist;
-  creatorProfile: CreatorProfile;
   onArtistUpdate: (updatedArtist: Artist) => void;
   disabled?: boolean;
 }
@@ -45,7 +43,6 @@ interface SaveStatus {
 
 export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
   artist,
-  creatorProfile, // eslint-disable-line @typescript-eslint/no-unused-vars
   onArtistUpdate,
   disabled = false,
 }) => {
@@ -298,7 +295,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
 
   // Handle copy to clipboard
   const handleCopyUrl = useCallback(async () => {
-    const profileUrl = `https://jov.ie/${artist.username || 'username'}`;
+    const profileUrl = `https://jov.ie/${artist.handle || 'username'}`;
 
     try {
       await navigator.clipboard.writeText(profileUrl);
@@ -316,7 +313,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     }
-  }, [artist.username]);
+  }, [artist.handle]);
 
   return (
     <>
@@ -458,7 +455,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
             <div className='space-y-2'>
               <div className='flex items-center justify-center gap-2'>
                 <code className='text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-gray-600 dark:text-gray-300'>
-                  jov.ie/{artist.username || 'username'}
+                  jov.ie/{artist.handle || 'username'}
                 </code>
                 <button
                   onClick={handleCopyUrl}
@@ -473,7 +470,7 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
                 </button>
               </div>
               <a
-                href={`/${artist.username}`}
+                href={`/${artist.handle}`}
                 target='_blank'
                 rel='noopener noreferrer'
                 className='inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors'
