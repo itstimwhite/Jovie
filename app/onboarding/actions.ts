@@ -1,11 +1,9 @@
 'use server';
 
 import { auth, currentUser } from '@clerk/nextjs/server';
-import { eq } from 'drizzle-orm';
+import { sql as drizzleSql } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
-import { withDbSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
-import { creatorProfiles, users } from '@/lib/db/schema';
 import {
   createOnboardingError,
   mapDatabaseError,
@@ -98,53 +96,23 @@ export async function completeOnboarding({
     // Step 7: Prepare user data for database operations
     const userEmail = user?.emailAddresses?.[0]?.emailAddress;
 
-    // Step 8: Create records using Drizzle transaction
-    await withDbSession(async clerkUserId => {
-      try {
-        await db.transaction(async tx => {
-          // First create user record
-          await tx
-            .insert(users)
-            .values({
-              clerkId: clerkUserId,
-              email: userEmail ?? null,
-            })
-            .onConflictDoUpdate({
-              target: users.clerkId,
-              set: {
-                email: userEmail ?? null,
-                updatedAt: new Date(),
-              },
-            });
-
-          // Get the user ID
-          const [user] = await tx
-            .select({ id: users.id })
-            .from(users)
-            .where(eq(users.clerkId, clerkUserId))
-            .limit(1);
-
-          if (!user) {
-            throw new Error('Failed to create or retrieve user');
-          }
-
-          // Then create creator profile
-          await tx.insert(creatorProfiles).values({
-            userId: user.id,
-            creatorType: 'artist',
-            username: normalizedUsername,
-            usernameNormalized: normalizedUsername.toLowerCase(),
-            displayName: displayName?.trim() || normalizedUsername,
-            isPublic: true,
-            onboardingCompletedAt: new Date(),
-          });
-        });
-      } catch (error) {
-        console.error('Error creating user and profile:', error);
-        const mappedError = mapDatabaseError(error);
-        throw new Error(mappedError.message);
-      }
-    });
+    // Step 8: Create user and profile via stored function in a single DB call (RLS-safe on neon-http)
+    try {
+      await db.execute(
+        drizzleSql`
+          SELECT onboarding_create_profile(
+            ${userId},
+            ${userEmail ?? null},
+            ${normalizedUsername},
+            ${displayName?.trim() || normalizedUsername}
+          ) AS profile_id
+        `
+      );
+    } catch (error) {
+      console.error('Error creating user and profile via function:', error);
+      const mappedError = mapDatabaseError(error);
+      throw new Error(mappedError.message);
+    }
 
     // Success - redirect to dashboard
     redirect('/dashboard');

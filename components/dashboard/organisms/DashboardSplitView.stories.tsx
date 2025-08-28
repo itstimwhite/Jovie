@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Artist, CreatorProfile } from '@/types/db';
+import { Artist } from '@/types/db';
 import { DashboardSplitView } from './DashboardSplitView';
 
 // Mock data for the stories
@@ -31,36 +31,6 @@ const mockArtist: Artist = {
   },
 };
 
-const mockCreatorProfile: CreatorProfile = {
-  id: 'profile-1',
-  user_id: 'user-1',
-  creator_type: 'artist',
-  username: 'artisthandle',
-  display_name: 'Artist Name',
-  bio: 'This is a sample artist bio that describes the artist and their work.',
-  avatar_url: 'https://via.placeholder.com/150',
-  spotify_url: 'https://spotify.com/artist/example',
-  apple_music_url: 'https://music.apple.com/artist/example',
-  youtube_url: 'https://youtube.com/channel/example',
-  spotify_id: '',
-  is_public: true,
-  is_verified: true,
-  is_featured: false,
-  marketing_opt_out: false,
-  is_claimed: true,
-  claim_token: null,
-  claimed_at: new Date().toISOString(),
-  profile_views: 0,
-  username_normalized: 'artisthandle',
-  search_text: 'Artist Name artisthandle',
-  display_title: 'Artist Name',
-  profile_completion_pct: 80,
-  settings: {},
-  theme: {},
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-};
-
 const meta = {
   title: 'Dashboard/Organisms/DashboardSplitView',
   component: DashboardSplitView,
@@ -90,7 +60,6 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     artist: mockArtist,
-    creatorProfile: mockCreatorProfile,
     onArtistUpdate: updatedArtist =>
       console.log('Artist updated:', updatedArtist),
     disabled: false,

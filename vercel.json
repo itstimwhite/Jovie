@@ -3,5 +3,15 @@
     "app/api/**/*.ts": {
       "maxDuration": 30
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/ingest/static/(.*)",
+      "destination": "https://us-assets.i.posthog.com/static/$1"
+    },
+    {
+      "source": "/ingest/(.*)",
+      "destination": "https://us.i.posthog.com/$1"
+    }
+  ]
 }

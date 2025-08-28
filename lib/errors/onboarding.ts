@@ -66,7 +66,12 @@ export function mapDatabaseError(error: unknown): OnboardingError {
 
   // Unique constraint violations
   if (errorRecord?.code === '23505' || errorMessage.includes('duplicate')) {
-    if (errorMessage.includes('username')) {
+    // Handle various forms of username unique errors (normalized/index names)
+    if (
+      errorMessage.includes('username') ||
+      errorMessage.includes('username_normalized') ||
+      errorMessage.includes('creator_profiles_username_normalized_unique_idx')
+    ) {
       return createOnboardingError(
         OnboardingErrorCode.USERNAME_TAKEN,
         'Username is already taken',
