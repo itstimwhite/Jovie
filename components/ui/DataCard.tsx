@@ -23,7 +23,7 @@ export function DataCard({
   children,
 }: DataCardProps) {
   const badgeClasses = {
-    default: 'bg-surface-hover-token text-secondary-token',
+    default: 'bg-surface-hover text-secondary',
     success:
       'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
     warning:
@@ -34,7 +34,7 @@ export function DataCard({
   return (
     <div
       className={cn(
-        'flex items-center justify-between rounded-lg border border-subtle-token bg-surface-token p-3 shadow-sm transition-colors',
+        'flex items-center justify-between rounded-lg border border-subtle bg-surface p-3 shadow-sm transition-colors',
         className
       )}
     >
@@ -53,10 +53,10 @@ export function DataCard({
           )}
         </div>
         {subtitle && subtitle.trim() !== '' && (
-          <p className='text-sm text-secondary-token truncate'>{subtitle}</p>
+          <p className='text-sm text-secondary truncate'>{subtitle}</p>
         )}
         {metadata && metadata.trim() !== '' && (
-          <p className='text-xs text-secondary-token'>{metadata}</p>
+          <p className='text-xs text-secondary'>{metadata}</p>
         )}
         {children}
       </div>

@@ -184,7 +184,7 @@ export function SettingsPolished({
             <div className='flex-1 space-y-3'>
               <button
                 type='button'
-                className='inline-flex items-center px-4 py-2 border border-subtle-token rounded-lg shadow-sm text-sm font-medium text-secondary-token bg-surface-token hover:bg-surface-hover-token focus:outline-none focus:ring-2 ring-accent focus:ring-offset-2 transition-colors'
+                className='inline-flex items-center px-4 py-2 border border-subtle-token rounded-lg shadow-sm text-sm font-medium text-secondary-token bg-surface-token hover:bg-surface-hover-token focus-ring-themed transition-colors'
               >
                 <PhotoIcon className='w-4 h-4 mr-2' />
                 Upload photo
@@ -224,7 +224,7 @@ export function SettingsPolished({
                     onChange={e =>
                       handleInputChange('username', e.target.value)
                     }
-                    className='flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-lg border border-subtle-token bg-surface-token text-primary-token placeholder:text-secondary-token focus:outline-none focus:ring-2 ring-accent focus:border-transparent sm:text-sm transition-colors'
+                    className='flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-lg border border-subtle-token bg-surface-token text-primary-token placeholder:text-secondary-token focus-ring-themed focus-visible:border-transparent sm:text-sm transition-colors'
                     placeholder='yourname'
                   />
                 </div>
@@ -245,7 +245,7 @@ export function SettingsPolished({
                 id='displayName'
                 value={formData.displayName}
                 onChange={e => handleInputChange('displayName', e.target.value)}
-                className='block w-full px-3 py-2 border border-subtle-token rounded-lg bg-surface-token text-primary-token placeholder:text-secondary-token focus:outline-none focus:ring-2 ring-accent focus:border-transparent sm:text-sm shadow-sm transition-colors'
+                className='block w-full px-3 py-2 border border-subtle-token rounded-lg bg-surface-token text-primary-token placeholder:text-secondary-token focus-ring-themed focus-visible:border-transparent sm:text-sm shadow-sm transition-colors'
                 placeholder='The name your fans will see'
               />
             </div>
@@ -264,7 +264,7 @@ export function SettingsPolished({
                 rows={4}
                 value={formData.bio}
                 onChange={e => handleInputChange('bio', e.target.value)}
-                className='block w-full px-3 py-2 border border-subtle-token rounded-lg bg-surface-token text-primary-token placeholder:text-secondary-token focus:outline-none focus:ring-2 ring-accent focus:border-transparent sm:text-sm shadow-sm resize-none transition-colors'
+                className='block w-full px-3 py-2 border border-subtle-token rounded-lg bg-surface-token text-primary-token placeholder:text-secondary-token focus-ring-themed focus-visible:border-transparent sm:text-sm shadow-sm resize-none transition-colors'
                 placeholder='Tell your fans about yourself...'
               />
               <p className='mt-2 text-sm text-secondary-token'>
@@ -285,7 +285,7 @@ export function SettingsPolished({
                 name='creatorType'
                 value={formData.creatorType}
                 onChange={e => handleInputChange('creatorType', e.target.value)}
-                className='block w-full px-3 py-2 border border-subtle-token rounded-lg bg-surface-token text-primary-token focus:outline-none focus:ring-2 ring-accent focus:border-transparent sm:text-sm shadow-sm transition-colors'
+                className='block w-full px-3 py-2 border border-subtle-token rounded-lg bg-surface-token text-primary-token focus-ring-themed focus-visible:border-transparent sm:text-sm shadow-sm transition-colors'
               >
                 <option value='artist'>Solo Artist</option>
                 <option value='band'>Band</option>
@@ -301,7 +301,7 @@ export function SettingsPolished({
           <button
             type='submit'
             disabled={isLoading}
-            className='inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white focus:outline-none focus:ring-2 ring-accent focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+            className='inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white focus-ring-themed disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
             style={{ backgroundColor: 'var(--color-accent)' }}
           >
             {isLoading ? 'Saving...' : 'Save Changes'}
@@ -512,7 +512,7 @@ export function SettingsPolished({
                 here.
               </p>
               <button
-                className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white focus:outline-none focus:ring-2 ring-accent focus:ring-offset-2 transition-colors'
+                className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white focus-ring-themed transition-colors'
                 style={{ backgroundColor: 'var(--color-accent)' }}
               >
                 Upgrade to Pro
@@ -543,7 +543,7 @@ export function SettingsPolished({
                       currentSection === item.id
                         ? 'bg-surface-hover-token text-primary-token border-accent/30'
                         : 'text-secondary-token hover:text-primary-token hover:bg-surface-hover-token border-subtle-token',
-                      'group flex w-full items-center rounded-lg border p-3 text-left text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 ring-accent'
+                      'group flex w-full items-center rounded-lg border p-3 text-left text-sm font-medium transition-all duration-200 focus-ring-themed'
                     )}
                   >
                     <item.icon

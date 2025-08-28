@@ -58,7 +58,7 @@ describe('DataCard', () => {
     rerender(
       <DataCard title='Test Card' badge='Default' badgeVariant='default' />
     );
-    expect(screen.getByText('Default')).toHaveClass('bg-gray-100');
+    expect(screen.getByText('Default')).toHaveClass('bg-surface-hover');
   });
 
   it('renders with actions', () => {
@@ -104,7 +104,7 @@ describe('DataCard', () => {
     const card = screen
       .getByText('Test Card')
       .closest('div[class*="flex items-center justify-between"]');
-    expect(card).toHaveClass('dark:border-gray-700');
+    expect(card).toHaveClass('border-subtle');
   });
 
   it('handles long titles with truncation', () => {
@@ -160,6 +160,6 @@ describe('DataCard', () => {
     render(<DataCard title='Test Card' metadata='Metadata text' />);
 
     const metadataElement = screen.getByText('Metadata text');
-    expect(metadataElement).toHaveClass('text-xs', 'text-gray-400');
+    expect(metadataElement).toHaveClass('text-xs', 'text-secondary');
   });
 });

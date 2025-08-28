@@ -460,7 +460,7 @@ export function AppleStyleOnboardingForm() {
                         : handleValidation.available
                           ? 'border-green-500 dark:border-green-500'
                           : 'border-transparent'
-                    } focus:ring-2 focus:ring-black dark:focus:ring-white`}
+                    } focus-visible:ring-2 focus-visible:ring-black dark:focus-visible:ring-white`}
                   />
                   {handleValidation.checking && (
                     <div className='absolute right-3 top-1/2 transform -translate-y-1/2'>
