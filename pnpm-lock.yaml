@@ -83,6 +83,9 @@ dependencies:
   posthog-js:
     specifier: ^1.260.2
     version: 1.260.3
+  posthog-node:
+    specifier: ^5.8.1
+    version: 5.8.1
   react:
     specifier: 18.3.1
     version: 18.3.1
@@ -2532,6 +2535,10 @@ packages:
 
   /@posthog/core@1.0.1:
     resolution: {integrity: sha512-bwXUeHe+MLgENm8+/FxEbiNocOw1Vjewmm+HEUaYQe6frq8OhZnrvtnzZU3Q3DF6N0UbAmD/q+iNfNgyx8mozg==}
+    dev: false
+
+  /@posthog/core@1.0.2:
+    resolution: {integrity: sha512-hWk3rUtJl2crQK0WNmwg13n82hnTwB99BT99/XI5gZSvIlYZ1TPmMZE8H2dhJJ98J/rm9vYJ/UXNzw3RV5HTpQ==}
     dev: false
 
   /@react-aria/focus@3.21.1(react-dom@18.3.1)(react@18.3.1):
@@ -8487,6 +8494,13 @@ packages:
       fflate: 0.4.8
       preact: 10.27.1
       web-vitals: 4.2.4
+    dev: false
+
+  /posthog-node@5.8.1:
+    resolution: {integrity: sha512-YJYlYnlpItVjHqM9IhvZx8TzK8gnx2nU+0uhiog4RN47NnV0Z0K1AdC4ul+O8VuvS/jHqKCQvL8iAONRA37+0A==}
+    engines: {node: '>=20'}
+    dependencies:
+      '@posthog/core': 1.0.2
     dev: false
 
   /preact@10.27.1:

@@ -193,6 +193,42 @@ for update using (current_setting('app.user_id', true) = user_id);
 4. **RSC streaming:** Use Suspense/streaming; ship only the minimal client JS.
 5. **PostHog tracking:** client‑side (deferred) and optionally server event for critical counters.
 
+## 🖼️ Profile Images (Seeded & User Uploads)
+
+1. **Seeded Creators**
+   - Store static images in `/public/avatars/<slug>.jpg`.
+   - Provide a universal fallback at `/public/avatars/default.png`.
+   - Use `next/image` directly for optimal caching.
+
+2. **User Uploads**
+   - Use **Vercel Blob** for storage (fast, CDN-backed).
+   - Key format: `avatars/users/{userId}/v{timestamp}.jpg` and `avatars/creators/{id}/v{timestamp}.jpg`.
+   - Store only the blob URL (and version) in Neon DB.
+   - Replace versions by bumping `v{timestamp}` to force cache bust.
+
+3. **Security & Limits**
+   - Validate file size ≤ 4MB and type (`jpeg|png|webp`).
+   - Rate-limit uploads with Upstash Redis (e.g., 3/min/user).
+   - Optionally preprocess with Sharp for 1024×1024 max, 82% JPEG.
+
+4. **next.config**
+   ```js
+   images: {
+     remotePatterns: [
+       { protocol: 'https', hostname: 'blob.vercel-storage.com' },
+     ],
+     formats: ['image/avif','image/webp'],
+   }
+   ```
+
+5. **Cleanup & Privacy**
+   - On profile deletion, remove blob via `@vercel/blob`.
+   - For private avatars, mark blobs `private` and serve via signed proxy route.
+
+6. **UI**
+   - Always render with `next/image` for responsive optimization.
+   - Default to fallback or generated initials (e.g., Dicebear) if no upload.
+
 ---
 
 ## ☁️ Upstash Redis (Edge‑friendly)

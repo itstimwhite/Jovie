@@ -103,5 +103,11 @@ async function getFeaturedCreators(): Promise<FeaturedCreator[]> {
 export async function FeaturedArtists() {
   const creators = await getFeaturedCreators();
   if (!creators.length) return null;
-  return <FeaturedCreatorsSection creators={creators} />;
+  return (
+    <FeaturedCreatorsSection
+      creators={creators}
+      showTitle={false}
+      showNames={false}
+    />
+  );
 }

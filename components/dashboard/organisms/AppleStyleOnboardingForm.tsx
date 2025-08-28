@@ -1,7 +1,6 @@
 'use client';
 
 import { useUser } from '@clerk/nextjs';
-import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { completeOnboarding } from '@/app/onboarding/actions';
@@ -9,7 +8,6 @@ import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { Button } from '@/components/ui/Button';
 import { APP_URL } from '@/constants/app';
 import { identify, track } from '@/lib/analytics';
-import { useArtistSearch } from '@/lib/hooks/useArtistSearch';
 
 // Define the onboarding steps based on the new UX requirements
 interface OnboardingStep {
@@ -22,17 +20,12 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: 'welcome',
     title: "Let's get you live.",
-    prompt: "We'll set up your profile in 3 quick steps.",
-  },
-  {
-    id: 'artist',
-    title: 'Find your artist',
-    prompt: 'Search Spotify or paste a link.',
+    prompt: "We'll set up your profile in 2 quick steps.",
   },
   {
     id: 'handle',
-    title: 'Choose your handle',
-    prompt: 'This becomes your profile link.',
+    title: 'Pick your @handle',
+    prompt: 'This will be your link on Jovie.',
   },
   {
     id: 'done',
@@ -40,16 +33,6 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
     prompt: "Here's your link.",
   },
 ];
-
-interface SelectedArtist {
-  spotifyId: string;
-  artistName: string;
-  imageUrl?: string;
-  popularity?: number;
-  followers?: number;
-  spotifyUrl?: string;
-  timestamp: number;
-}
 
 interface OnboardingState {
   step:
@@ -87,8 +70,11 @@ export function AppleStyleOnboardingForm() {
     }
   }, [user?.id]);
 
-  // Extract domain from APP_URL for display
-  const displayDomain = APP_URL.replace(/^https?:\/\//, '');
+  // Extract domain from APP_URL for display - use branded domain in production
+  const displayDomain =
+    APP_URL.includes('localhost') || APP_URL.includes('vercel')
+      ? 'jov.ie'
+      : APP_URL.replace(/^https?:\/\//, '');
 
   // Current step in the onboarding flow
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -97,10 +83,6 @@ export function AppleStyleOnboardingForm() {
   // Form state
   const [handle, setHandle] = useState('');
   const [handleInput, setHandleInput] = useState('');
-  const [selectedArtist, setSelectedArtist] = useState<SelectedArtist | null>(
-    null
-  );
-  const [artistSearchQuery, setArtistSearchQuery] = useState('');
   const [handleValidation, setHandleValidation] =
     useState<HandleValidationState>({
       available: false,
@@ -118,14 +100,6 @@ export function AppleStyleOnboardingForm() {
     retryCount: 0,
     isSubmitting: false,
   });
-
-  // Artist search hook
-  const {
-    searchResults,
-    isLoading: isSearching,
-    error: searchError,
-    searchArtists,
-  } = useArtistSearch();
 
   // Prefill handle and selected artist data
   useEffect(() => {
@@ -147,17 +121,8 @@ export function AppleStyleOnboardingForm() {
       } catch {}
     }
 
-    const stored = sessionStorage.getItem('selectedArtist');
-    if (stored) {
-      try {
-        const artist = JSON.parse(stored) as SelectedArtist;
-        setSelectedArtist(artist);
-        // If we have an artist, skip to handle step
-        setCurrentStepIndex(2);
-      } catch (error) {
-        console.error('Error parsing selected artist:', error);
-      }
-    }
+    // Remove any selected artist from sessionStorage since we removed the search step
+    sessionStorage.removeItem('selectedArtist');
   }, [searchParams]);
 
   // Navigation handlers with smooth transitions
@@ -215,48 +180,6 @@ export function AppleStyleOnboardingForm() {
       }, 300);
     }
   }, [currentStepIndex]);
-
-  // Artist selection handlers
-  const handleArtistSelect = useCallback(
-    (artist: {
-      id: string;
-      name: string;
-      imageUrl?: string;
-      popularity?: number;
-      followers?: number;
-      spotifyUrl?: string;
-    }) => {
-      const selectedArtistData: SelectedArtist = {
-        spotifyId: artist.id,
-        artistName: artist.name,
-        imageUrl: artist.imageUrl,
-        popularity: artist.popularity,
-        followers: artist.followers,
-        spotifyUrl: artist.spotifyUrl,
-        timestamp: Date.now(),
-      };
-
-      setSelectedArtist(selectedArtistData);
-
-      // Store in sessionStorage
-      sessionStorage.setItem(
-        'selectedArtist',
-        JSON.stringify(selectedArtistData)
-      );
-
-      // Auto-advance to next step
-      setTimeout(() => {
-        goToNextStep();
-      }, 500);
-    },
-    [goToNextStep]
-  );
-
-  const handleSkipArtist = useCallback(() => {
-    setSelectedArtist(null);
-    sessionStorage.removeItem('selectedArtist');
-    goToNextStep();
-  }, [goToNextStep]);
 
   // Handle validation
   const validateHandle = useCallback((input: string) => {
@@ -353,9 +276,6 @@ export function AppleStyleOnboardingForm() {
       track('onboarding_submission_started', {
         user_id: user.id,
         handle,
-        artist_selected: selectedArtist ? true : false,
-        artist_name: selectedArtist?.artistName,
-        artist_spotify_id: selectedArtist?.spotifyId,
       });
 
       // Identify user for analytics
@@ -378,7 +298,7 @@ export function AppleStyleOnboardingForm() {
       try {
         await completeOnboarding({
           username: handle.toLowerCase(),
-          displayName: selectedArtist?.artistName || handle,
+          displayName: handle,
         });
 
         setState(prev => ({ ...prev, step: 'complete', progress: 100 }));
@@ -387,14 +307,10 @@ export function AppleStyleOnboardingForm() {
         track('onboarding_completed', {
           user_id: user.id,
           handle,
-          artist_selected: selectedArtist ? true : false,
-          artist_name: selectedArtist?.artistName,
-          artist_spotify_id: selectedArtist?.spotifyId,
           completion_time: new Date().toISOString(),
         });
 
         // Clear session data
-        sessionStorage.removeItem('selectedArtist');
         sessionStorage.removeItem('pendingClaim');
 
         // Go to final step
@@ -411,7 +327,6 @@ export function AppleStyleOnboardingForm() {
         track('onboarding_error', {
           user_id: user.id,
           handle,
-          artist_selected: selectedArtist ? true : false,
           error_message:
             error instanceof Error ? error.message : 'Unknown error',
           error_step: 'submission',
@@ -419,17 +334,31 @@ export function AppleStyleOnboardingForm() {
         });
 
         // Map error to user-friendly message
-        let userMessage = 'An unexpected error occurred';
+        let userMessage =
+          'Something went wrong saving your handle. Please try again.';
         if (error instanceof Error) {
           if (error.message.includes('INVALID_SESSION')) {
-            userMessage = 'Session expired. Refresh to continue.';
+            userMessage = 'Your session expired. Please refresh and try again.';
           } else if (error.message.includes('USERNAME_TAKEN')) {
-            userMessage = 'This handle is already taken.';
+            userMessage =
+              'This handle is already taken. Please choose another one.';
           } else if (error.message.includes('RATE_LIMITED')) {
-            userMessage = 'Too many attempts. Please try again later.';
-          } else {
-            userMessage = error.message;
+            userMessage =
+              'Too many attempts. Please try again in a few moments.';
+          } else if (
+            error.message.includes('NETWORK') ||
+            error.message.includes('fetch')
+          ) {
+            userMessage =
+              'Connection issue. Please check your internet and try again.';
+          } else if (
+            error.message.includes('DATABASE') ||
+            error.message.includes('DB')
+          ) {
+            userMessage =
+              'Something went wrong saving your handle. Please try again.';
           }
+          // Don't show technical error messages to users
         }
 
         setState(prev => ({
@@ -447,7 +376,6 @@ export function AppleStyleOnboardingForm() {
       handleValidation.available,
       handleValidation.clientValid,
       handle,
-      selectedArtist,
       goToNextStep,
     ]
   );
@@ -505,7 +433,7 @@ export function AppleStyleOnboardingForm() {
           </div>
         );
 
-      // Step 2: Artist Search
+      // Step 2: Handle Selection
       case 1:
         return (
           <div className='flex flex-col items-center justify-center h-full space-y-8'>
@@ -515,111 +443,6 @@ export function AppleStyleOnboardingForm() {
               </h1>
               <p className='text-gray-600 dark:text-gray-300 text-xl'>
                 {ONBOARDING_STEPS[1].prompt}
-              </p>
-            </div>
-
-            <div className='w-full max-w-md space-y-6'>
-              <div className='space-y-4'>
-                <input
-                  type='text'
-                  value={artistSearchQuery}
-                  onChange={e => setArtistSearchQuery(e.target.value)}
-                  placeholder='Search by artist name'
-                  className='w-full px-4 py-4 text-lg bg-gray-100 dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-black dark:focus:ring-white transition-all'
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' && artistSearchQuery.trim()) {
-                      searchArtists(artistSearchQuery);
-                    }
-                  }}
-                />
-                <Button
-                  onClick={() => searchArtists(artistSearchQuery)}
-                  disabled={!artistSearchQuery.trim() || isSearching}
-                  className='w-full py-4 text-lg bg-black text-white dark:bg-white dark:text-black rounded-xl hover:opacity-90 transition-opacity'
-                >
-                  {isSearching ? (
-                    <div className='flex items-center justify-center space-x-2'>
-                      <LoadingSpinner size='sm' className='text-current' />
-                      <span>Searching...</span>
-                    </div>
-                  ) : (
-                    'Search'
-                  )}
-                </Button>
-              </div>
-
-              {/* Search results */}
-              {searchResults.length > 0 && (
-                <div className='space-y-4 mt-6'>
-                  <h3 className='text-lg font-medium text-black dark:text-white'>
-                    Select your artist profile
-                  </h3>
-                  <div className='space-y-3 max-h-[300px] overflow-y-auto pr-2'>
-                    {searchResults.map(artist => (
-                      <button
-                        key={artist.id}
-                        onClick={() => handleArtistSelect(artist)}
-                        className='w-full flex items-center space-x-3 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left'
-                      >
-                        {artist.imageUrl ? (
-                          <Image
-                            src={artist.imageUrl}
-                            alt={artist.name}
-                            width={48}
-                            height={48}
-                            className='w-12 h-12 rounded-full object-cover'
-                          />
-                        ) : (
-                          <div className='w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center'>
-                            <span className='text-gray-500 dark:text-gray-300 font-medium'>
-                              {artist.name.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                        )}
-                        <div>
-                          <div className='font-medium text-black dark:text-white'>
-                            {artist.name}
-                          </div>
-                          {artist.followers && (
-                            <div className='text-sm text-gray-500 dark:text-gray-400'>
-                              {new Intl.NumberFormat().format(artist.followers)}{' '}
-                              followers
-                            </div>
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {searchError && (
-                <div className='p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl text-red-600 dark:text-red-300 text-sm'>
-                  {searchError}
-                </div>
-              )}
-
-              {/* Skip option */}
-              <button
-                onClick={handleSkipArtist}
-                className='w-full text-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 py-2 text-sm'
-              >
-                Skip for now
-              </button>
-            </div>
-          </div>
-        );
-
-      // Step 3: Handle Selection
-      case 2:
-        return (
-          <div className='flex flex-col items-center justify-center h-full space-y-8'>
-            <div className='text-center space-y-3'>
-              <h1 className='text-4xl font-bold text-black dark:text-white'>
-                {ONBOARDING_STEPS[2].title}
-              </h1>
-              <p className='text-gray-600 dark:text-gray-300 text-xl'>
-                {ONBOARDING_STEPS[2].prompt}
               </p>
             </div>
 
@@ -656,18 +479,32 @@ export function AppleStyleOnboardingForm() {
                   </p>
                 </div>
 
-                {/* Validation feedback - inline below input */}
-                {handleValidation.error && (
-                  <div className='text-red-500 dark:text-red-400 text-sm px-1'>
-                    {handleValidation.error}
-                  </div>
-                )}
-
-                {handleValidation.available && handleValidation.clientValid && (
-                  <div className='text-green-500 dark:text-green-400 text-sm px-1'>
-                    Handle is available!
-                  </div>
-                )}
+                {/* Validation feedback - directly under input */}
+                <div className='min-h-[24px] flex items-center px-1'>
+                  {handleValidation.error && (
+                    <div className='text-red-500 dark:text-red-400 text-sm animate-in fade-in slide-in-from-top-1 duration-300'>
+                      {handleValidation.error}
+                    </div>
+                  )}
+                  {handleValidation.available &&
+                    handleValidation.clientValid && (
+                      <div className='flex items-center gap-2 text-green-600 dark:text-green-400 text-sm animate-in fade-in slide-in-from-bottom-1 duration-300'>
+                        <svg
+                          className='w-4 h-4'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                          xmlns='http://www.w3.org/2000/svg'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
+                            clipRule='evenodd'
+                          />
+                        </svg>
+                        <span className='font-medium'>Handle is available</span>
+                      </div>
+                    )}
+                </div>
 
                 {/* Suggestions if handle is taken */}
                 {handleValidation.suggestions.length > 0 && (
@@ -699,18 +536,18 @@ export function AppleStyleOnboardingForm() {
                     !handleValidation.clientValid ||
                     state.isSubmitting
                   }
-                  className={`w-full py-4 text-lg rounded-xl transition-all ${
+                  className={`w-full py-4 text-lg rounded-xl transition-all duration-300 ease-in-out ${
                     handleValidation.available &&
                     handleValidation.clientValid &&
                     !state.isSubmitting
-                      ? 'bg-black text-white dark:bg-white dark:text-black hover:opacity-90'
-                      : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                      ? 'bg-black text-white dark:bg-white dark:text-black hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]'
+                      : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed scale-100'
                   }`}
                 >
                   {state.isSubmitting ? (
                     <div className='flex items-center justify-center space-x-2'>
                       <LoadingSpinner size='sm' className='text-current' />
-                      <span>Creating profile...</span>
+                      <span>Saving…</span>
                     </div>
                   ) : (
                     'Continue'
@@ -718,14 +555,35 @@ export function AppleStyleOnboardingForm() {
                 </Button>
               </div>
 
-              {/* Error display */}
+              {/* Error display - only for submission errors */}
               {state.error && (
-                <div className='p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl text-red-600 dark:text-red-300 text-sm'>
-                  {state.error}
+                <div className='p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl text-red-600 dark:text-red-300 text-sm space-y-2 animate-in fade-in slide-in-from-top-1 duration-300'>
+                  <div className='flex items-center gap-2'>
+                    <svg
+                      className='w-4 h-4 flex-shrink-0'
+                      fill='currentColor'
+                      viewBox='0 0 20 20'
+                    >
+                      <path
+                        fillRule='evenodd'
+                        d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    <span>{state.error}</span>
+                  </div>
                   {state.retryCount < 3 && (
-                    <button onClick={retryOperation} className='ml-2 underline'>
-                      Retry
+                    <button
+                      onClick={retryOperation}
+                      className='text-red-700 dark:text-red-200 underline hover:no-underline font-medium'
+                    >
+                      Try again
                     </button>
+                  )}
+                  {state.retryCount >= 3 && (
+                    <p className='text-xs text-red-500 dark:text-red-400'>
+                      If it keeps happening, contact support.
+                    </p>
                   )}
                 </div>
               )}
@@ -741,16 +599,16 @@ export function AppleStyleOnboardingForm() {
           </div>
         );
 
-      // Step 4: Done
-      case 3:
+      // Step 3: Done
+      case 2:
         return (
           <div className='flex flex-col items-center justify-center h-full space-y-8'>
             <div className='text-center space-y-3'>
               <h1 className='text-4xl font-bold text-black dark:text-white'>
-                {ONBOARDING_STEPS[3].title}
+                {ONBOARDING_STEPS[2].title}
               </h1>
               <p className='text-gray-600 dark:text-gray-300 text-xl'>
-                {ONBOARDING_STEPS[3].prompt}
+                {ONBOARDING_STEPS[2].prompt}
               </p>
             </div>
 
