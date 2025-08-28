@@ -7,8 +7,13 @@ import { APP_NAME, APP_URL } from '@/constants/app';
 import { getServerFeatureFlags } from '@/lib/feature-flags';
 import { runStartupEnvironmentValidation } from '@/lib/startup/environment-validator';
 import '@/styles/globals.css';
-import { headers } from 'next/headers';
+import { auth } from '@clerk/nextjs/server';
+import { eq } from 'drizzle-orm';
+import { cookies, headers } from 'next/headers';
 import { CookieBannerSection } from '@/components/organisms/CookieBannerSection';
+import { userSettings, users } from '@/lib/db';
+import { db } from '@/lib/db/client';
+import type { ThemeMode } from '@/types';
 
 // Import performance monitoring
 // import { initWebVitals } from '@/lib/monitoring/web-vitals'; // Currently unused
@@ -125,8 +130,49 @@ export default async function RootLayout({
   const headersList = await headers();
   const showCookieBanner = headersList.get('x-show-cookie-banner') === '1';
 
+  // Resolve initial theme mode (server)
+  let initialThemeMode: ThemeMode = 'system';
+  try {
+    const { userId: clerkId } = await auth();
+    if (clerkId) {
+      // Find app user by Clerk ID
+      const found = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.clerkId, clerkId))
+        .limit(1);
+      const appUserId = found?.[0]?.id;
+      if (appUserId) {
+        const prefs = await db
+          .select({ themeMode: userSettings.themeMode })
+          .from(userSettings)
+          .where(eq(userSettings.userId, appUserId))
+          .limit(1);
+        const mode = prefs?.[0]?.themeMode as ThemeMode | undefined;
+        if (mode) initialThemeMode = mode;
+      }
+    } else {
+      // Signed-out: use cookie fallback
+      const cookieStore = await cookies();
+      const cookieTheme = cookieStore.get('jovie-theme')?.value as
+        | ThemeMode
+        | undefined;
+      if (
+        cookieTheme === 'light' ||
+        cookieTheme === 'dark' ||
+        cookieTheme === 'system'
+      ) {
+        initialThemeMode = cookieTheme;
+      }
+    }
+  } catch {}
+
   return (
-    <html lang='en' suppressHydrationWarning>
+    <html
+      lang='en'
+      suppressHydrationWarning
+      className={initialThemeMode === 'dark' ? 'dark' : undefined}
+    >
       <head>
         {/* Favicon and Icons */}
         <link rel='icon' href='/favicon.ico' type='image/x-icon' />
@@ -171,8 +217,13 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.variable} font-sans`}>
-        <ClientProviders initialFeatureFlags={featureFlags}>
+      <body
+        className={`${inter.variable} font-sans bg-base text-primary-token`}
+      >
+        <ClientProviders
+          initialFeatureFlags={featureFlags}
+          initialThemeMode={initialThemeMode}
+        >
           {children}
         </ClientProviders>
         {showCookieBanner && <CookieBannerSection />}

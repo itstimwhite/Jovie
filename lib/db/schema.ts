@@ -40,6 +40,9 @@ export const subscriptionStatusEnum = pgEnum('subscription_status', [
   'unpaid',
 ]);
 
+// Theme preference enum for users
+export const themeModeEnum = pgEnum('theme_mode', ['system', 'light', 'dark']);
+
 export const currencyCodeEnum = pgEnum('currency_code', [
   'USD',
   'EUR',
@@ -63,6 +66,15 @@ export const users = pgTable('users', {
   stripeSubscriptionId: text('stripe_subscription_id').unique(),
   billingUpdatedAt: timestamp('billing_updated_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Per-user settings (separate from creator profile)
+export const userSettings = pgTable('user_settings', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  themeMode: themeModeEnum('theme_mode').notNull().default('system'),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
@@ -223,3 +235,6 @@ export type NewSignedLinkAccess = typeof signedLinkAccess.$inferInsert;
 
 export type WrappedLink = typeof wrappedLinks.$inferSelect;
 export type NewWrappedLink = typeof wrappedLinks.$inferInsert;
+
+export type UserSettings = typeof userSettings.$inferSelect;
+export type NewUserSettings = typeof userSettings.$inferInsert;

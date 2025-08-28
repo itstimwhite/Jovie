@@ -1,6 +1,6 @@
 import { and, count, sql as drizzleSql, eq, gte } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { clickEvents } from '@/lib/db/schema';
+import { clickEvents, users } from '@/lib/db/schema';
 
 type TimeRange = '7d' | '30d' | '90d' | 'all';
 
@@ -125,12 +125,24 @@ export async function getAnalyticsData(
 
 // Helper function to get analytics for the current user
 export async function getUserAnalytics(
-  userId: string,
+  clerkUserId: string,
   range: TimeRange = '30d'
 ) {
-  // First get the creator profile for this user
+  // Map Clerk user ID to internal users.id (UUID)
+  const found = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.clerkId, clerkUserId))
+    .limit(1);
+
+  const appUserId = found?.[0]?.id;
+  if (!appUserId) {
+    throw new Error('User not found for Clerk ID');
+  }
+
+  // First get the creator profile for this internal user id
   const creatorProfile = await db.query.creatorProfiles.findFirst({
-    where: (profiles, { eq }) => eq(profiles.userId, userId),
+    where: (profiles, { eq }) => eq(profiles.userId, appUserId),
   });
 
   if (!creatorProfile) {

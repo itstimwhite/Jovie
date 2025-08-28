@@ -117,9 +117,9 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
   if (initialData.needsOnboarding) {
     return (
-      <div className='min-h-screen bg-white dark:bg-black transition-colors'>
+      <div className='min-h-screen bg-base transition-colors'>
         {/* Subtle grid background pattern */}
-        <div className='absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]' />
+        <div className='absolute inset-0 grid-bg dark:grid-bg-dark' />
 
         {/* Gradient orbs - more subtle like Linear */}
         <div className='absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-3xl' />
@@ -135,16 +135,16 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             <div className='w-full max-w-md'>
               {/* Header */}
               <div className='text-center mb-6'>
-                <h1 className='text-3xl font-semibold text-gray-900 dark:text-white mb-1 transition-colors'>
+                <h1 className='text-3xl font-semibold text-primary-token mb-1 transition-colors'>
                   Welcome to {APP_NAME}
                 </h1>
-                <p className='text-gray-600 dark:text-white/70 transition-colors'>
+                <p className='text-secondary-token transition-colors'>
                   Claim your handle to launch your artist profile
                 </p>
               </div>
 
               {/* Form Card */}
-              <div className='bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-xl p-6 shadow-xl transition-colors'>
+              <div className='bg-surface-token backdrop-blur-sm border border-subtle-token rounded-xl p-6 shadow-xl transition-colors'>
                 <OnboardingForm />
               </div>
             </div>
@@ -166,7 +166,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
       <div className='min-h-screen bg-base transition-colors relative'>
         {' '}
         {/* Subtle background pattern */}
-        <div className='absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.01)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:50px_50px] pointer-events-none' />
+        <div className='absolute inset-0 opacity-50 grid-bg dark:grid-bg-dark pointer-events-none' />
         {/* Gradient orbs for visual depth */}
         <div className='absolute top-0 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/5 to-blue-500/5 rounded-full blur-3xl pointer-events-none' />
         <div className='absolute bottom-1/4 left-1/3 w-96 h-96 bg-gradient-to-r from-blue-500/5 to-cyan-500/5 rounded-full blur-3xl pointer-events-none' />
@@ -178,7 +178,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
         >
           <DialogBackdrop
             transition
-            className='fixed inset-0 bg-gray-900/80 transition-opacity duration-300 ease-linear data-[closed]:opacity-0'
+            className='fixed inset-0 bg-black/70 transition-opacity duration-300 ease-linear data-[closed]:opacity-0'
           />
           <div className='fixed inset-0 flex'>
             <DialogPanel
@@ -545,7 +545,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
           <div className='sticky top-0 z-40 lg:hidden flex h-12 shrink-0 items-center gap-x-4 bg-surface-token backdrop-blur-md px-4 border-b border-subtle-token'>
             <button
               type='button'
-              className='-m-2.5 p-2.5 text-gray-700 dark:text-gray-300'
+              className='-m-2.5 p-2.5 text-secondary-token'
               onClick={() => setSidebarOpen(true)}
             >
               <span className='sr-only'>Open sidebar</span>
@@ -846,7 +846,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                               18-24
                             </span>
                             <div className='flex items-center gap-2'>
-                              <div className='w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full'>
+                              <div className='w-16 h-2 bg-surface-hover-token rounded-full'>
                                 <div className='w-3/4 h-full bg-blue-500 rounded-full'></div>
                               </div>
                               <span className='text-sm font-medium text-primary-token'>
@@ -859,7 +859,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                               25-34
                             </span>
                             <div className='flex items-center gap-2'>
-                              <div className='w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full'>
+                              <div className='w-16 h-2 bg-surface-hover-token rounded-full'>
                                 <div className='w-1/2 h-full bg-green-500 rounded-full'></div>
                               </div>
                               <span className='text-sm font-medium text-primary-token'>
@@ -872,7 +872,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                               35-44
                             </span>
                             <div className='flex items-center gap-2'>
-                              <div className='w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full'>
+                              <div className='w-16 h-2 bg-surface-hover-token rounded-full'>
                                 <div className='w-1/4 h-full bg-purple-500 rounded-full'></div>
                               </div>
                               <span className='text-sm font-medium text-primary-token'>
@@ -941,10 +941,10 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
               {currentNavItem === 'settings' && (
                 <>
                   <div className='mb-8 px-4 sm:px-6 lg:px-8'>
-                    <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>
+                    <h1 className='text-2xl font-bold text-primary-token'>
                       Settings
                     </h1>
-                    <p className='text-gray-600 dark:text-gray-400 mt-1'>
+                    <p className='text-secondary-token mt-1'>
                       Manage your account preferences and settings
                     </p>
                   </div>

@@ -195,6 +195,19 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
         return;
       }
 
+      // Check for duplicate platform
+      const existingPlatform = links.find(
+        link => link.platform.id === detectedLink.platform.id
+      );
+      if (existingPlatform) {
+        showToast({
+          message: `Duplicate ${detectedLink.platform.name} blocked: Having multiple links to the same platform creates decision paralysis for visitors, reducing engagement and conversions by up to 40%. Use one clear link per platform for better results.`,
+          type: 'error',
+          duration: 8000,
+        });
+        return;
+      }
+
       const newLink: LinkItem = {
         ...detectedLink,
         id: `link_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -276,6 +289,7 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
       <UniversalLinkInput
         onAdd={handleAddLink}
         disabled={disabled || links.length >= maxLinks}
+        existingPlatforms={links.map(link => link.platform.id)}
       />
 
       {/* Links Counter */}

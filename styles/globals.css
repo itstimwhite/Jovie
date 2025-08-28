@@ -231,7 +231,20 @@
     --focus-ring: 107 114 128 / 0.5;
   }
 
-  .dark {
+  /* Linear-style dashboard tokens (light) */
+  :root {
+    --color-bg-base: #ffffff;
+    --color-bg-surface: #f6f7f8; /* surface */
+    --color-bg-surface-hover: #eef0f2; /* hover */
+    --color-border-subtle: #e5e7eb;
+    --color-text-primary-token: #0c0c0c;
+    --color-text-secondary-token: #6b7280;
+    --color-accent: #7c3aed; /* accent */
+  }
+
+  /* Dark mode overrides — ensure this block comes AFTER light tokens */
+  :root.dark {
+    /* Base tokens */
     --background: 12 12 12;
     --foreground: 237 237 237;
     --accent: 124 58 237; /* purple-600 */
@@ -266,17 +279,6 @@
     --color-border-subtle: #2a2a2a; /* borders */
     --color-text-primary-token: #ededed;
     --color-text-secondary-token: #9a9a9a;
-    --color-accent: #7c3aed; /* accent */
-  }
-
-  /* Linear-style dashboard tokens (light) */
-  :root {
-    --color-bg-base: #ffffff;
-    --color-bg-surface: #f6f7f8; /* surface */
-    --color-bg-surface-hover: #eef0f2; /* hover */
-    --color-border-subtle: #e5e7eb;
-    --color-text-primary-token: #0c0c0c;
-    --color-text-secondary-token: #6b7280;
     --color-accent: #7c3aed; /* accent */
   }
 
