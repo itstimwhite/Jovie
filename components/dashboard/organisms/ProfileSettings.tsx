@@ -111,7 +111,7 @@ export function ProfileSettings({
                     onChange={e =>
                       handleInputChange('username', e.target.value)
                     }
-                    className='block min-w-0 grow bg-transparent py-1.5 pr-3 pl-1 text-base text-primary-token placeholder:text-secondary-token focus:outline-none sm:text-sm/6'
+                    className='block min-w-0 grow bg-transparent py-1.5 pr-3 pl-1 text-base text-primary-token placeholder:text-secondary-token focus-visible:outline-none sm:text-sm/6'
                   />
                 </div>
               </div>
@@ -131,7 +131,7 @@ export function ProfileSettings({
                   rows={3}
                   value={formData.bio}
                   onChange={e => handleInputChange('bio', e.target.value)}
-                  className='block w-full rounded-md bg-surface-token px-3 py-1.5 text-base text-primary-token placeholder:text-secondary-token border border-subtle-token focus:outline-none focus:ring-2 ring-accent sm:text-sm/6'
+                  className='block w-full rounded-md bg-surface-token px-3 py-1.5 text-base text-primary-token placeholder:text-secondary-token border border-subtle-token focus-visible:outline-none focus-visible:ring-2 ring-accent sm:text-sm/6'
                 />
               </div>
               <p className='mt-3 text-sm/6 text-secondary-token'>
@@ -153,7 +153,7 @@ export function ProfileSettings({
                 />
                 <button
                   type='button'
-                  className='rounded-md bg-surface-token px-3 py-2 text-sm font-medium text-primary-token border border-subtle-token hover:bg-surface-hover-token focus:outline-none focus:ring-2 ring-accent'
+                  className='rounded-md bg-surface-token px-3 py-2 text-sm font-medium text-primary-token border border-subtle-token hover:bg-surface-hover-token focus-visible:outline-none focus-visible:ring-2 ring-accent'
                 >
                   Change
                 </button>
@@ -226,7 +226,7 @@ export function ProfileSettings({
                   onChange={e =>
                     handleInputChange('displayName', e.target.value)
                   }
-                  className='block w-full rounded-md bg-surface-token px-3 py-1.5 text-base text-primary-token placeholder:text-secondary-token border border-subtle-token focus:outline-none focus:ring-2 ring-accent sm:text-sm/6'
+                  className='block w-full rounded-md bg-surface-token px-3 py-1.5 text-base text-primary-token placeholder:text-secondary-token border border-subtle-token focus-visible:outline-none focus-visible:ring-2 ring-accent sm:text-sm/6'
                 />
               </div>
             </div>
@@ -244,7 +244,7 @@ export function ProfileSettings({
                   name='email'
                   type='email'
                   autoComplete='email'
-                  className='block w-full rounded-md bg-surface-token px-3 py-1.5 text-base text-primary-token placeholder:text-secondary-token border border-subtle-token focus:outline-none focus:ring-2 ring-accent sm:text-sm/6'
+                  className='block w-full rounded-md bg-surface-token px-3 py-1.5 text-base text-primary-token placeholder:text-secondary-token border border-subtle-token focus-visible:outline-none focus-visible:ring-2 ring-accent sm:text-sm/6'
                 />
               </div>
             </div>
@@ -264,7 +264,7 @@ export function ProfileSettings({
                   onChange={e =>
                     handleInputChange('creatorType', e.target.value)
                   }
-                  className='col-start-1 row-start-1 w-full appearance-none rounded-md bg-surface-token py-1.5 pr-8 pl-3 text-base text-primary-token border border-subtle-token focus:outline-none focus:ring-2 ring-accent sm:text-sm/6'
+                  className='col-start-1 row-start-1 w-full appearance-none rounded-md bg-surface-token py-1.5 pr-8 pl-3 text-base text-primary-token border border-subtle-token focus-visible:outline-none focus-visible:ring-2 ring-accent sm:text-sm/6'
                 >
                   <option value='artist'>Artist</option>
                   <option value='band'>Band</option>
@@ -453,7 +453,7 @@ export function ProfileSettings({
         <button
           type='submit'
           disabled={isLoading}
-          className='rounded-md px-3 py-2 text-sm font-medium text-white shadow-lg hover:shadow-xl hover:shadow-accent/25 transition-all duration-300 focus:outline-none focus:ring-2 ring-accent disabled:opacity-50 disabled:cursor-not-allowed'
+          className='rounded-md px-3 py-2 text-sm font-medium text-white shadow-lg hover:shadow-xl hover:shadow-accent/25 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 ring-accent disabled:opacity-50 disabled:cursor-not-allowed'
           style={{ backgroundColor: 'var(--color-accent)' }}
         >
           {isLoading ? 'Saving...' : 'Save'}
