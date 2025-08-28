@@ -9,10 +9,10 @@ import {
   SparklesIcon,
   UserIcon,
 } from '@heroicons/react/24/outline';
+import { useTheme } from 'next-themes';
 import { useCallback, useState } from 'react';
 import { APP_URL } from '@/constants/app';
 import type { Artist } from '@/types/db';
-import { EnhancedThemeToggle } from '../molecules/EnhancedThemeToggle';
 
 interface SettingsPolishedProps {
   artist: Artist;
@@ -67,6 +67,7 @@ export function SettingsPolished({
 }: SettingsPolishedProps) {
   const [currentSection, setCurrentSection] = useState('profile');
   const [isLoading, setIsLoading] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [formData, setFormData] = useState({
     username: artist.handle || '',
     displayName: artist.name || '',
@@ -76,6 +77,31 @@ export function SettingsPolished({
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleThemeChange = async (newTheme: 'light' | 'dark' | 'system') => {
+    setTheme(newTheme);
+
+    try {
+      // Save theme preference to database for signed-in users
+      const response = await fetch('/api/dashboard/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          updates: {
+            theme: { preference: newTheme },
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to save theme preference');
+      }
+    } catch (error) {
+      console.error('Error saving theme preference:', error);
+    }
   };
 
   const handleSubmit = useCallback(
@@ -286,20 +312,128 @@ export function SettingsPolished({
 
   const renderAppearanceSection = () => (
     <div className='space-y-8'>
-      <div className='pb-6 border-b border-gray-100 dark:border-neutral-800'>
-        <h1 className='text-2xl font-semibold tracking-tight text-gray-900 dark:text-white'>
+      {/* Apple-styled header */}
+      <div className='mb-8'>
+        <h1 className='text-[22px] font-semibold tracking-[-0.01em] text-gray-900 dark:text-white'>
           Appearance
         </h1>
-        <p className='mt-2 text-sm text-gray-600 dark:text-neutral-400'>
+        <p className='text-sm text-zinc-400 mt-1'>
           Customize how the interface looks and feels.
         </p>
       </div>
 
-      <div className='bg-white dark:bg-neutral-900 rounded-xl border border-gray-200 dark:border-neutral-800 p-6 shadow-sm'>
-        <h3 className='text-lg font-medium text-gray-900 dark:text-white mb-6'>
+      {/* Theme Selection Card */}
+      <div className='bg-white/5 dark:bg-[#202022] rounded-xl backdrop-blur ring-1 ring-white/10 dark:ring-white/[0.08] p-6 space-y-4'>
+        <h3 className='text-lg font-medium text-gray-900 dark:text-zinc-200 mb-6'>
           Interface Theme
         </h3>
-        <EnhancedThemeToggle showSystemOption={true} />
+
+        <div className='grid grid-cols-3 gap-4'>
+          {[
+            {
+              value: 'light',
+              label: 'Light',
+              description: 'Bright and clean.',
+              preview: {
+                bg: 'bg-white',
+                sidebar: 'bg-gray-50',
+                accent: 'bg-gray-100',
+              },
+            },
+            {
+              value: 'dark',
+              label: 'Dark',
+              description: 'Bold and focused.',
+              preview: {
+                bg: 'bg-gray-900',
+                sidebar: 'bg-gray-800',
+                accent: 'bg-gray-700',
+              },
+            },
+            {
+              value: 'system',
+              label: 'System',
+              description: 'Match device settings.',
+              preview: {
+                bg: 'bg-gradient-to-br from-white to-gray-900',
+                sidebar: 'bg-gradient-to-br from-gray-50 to-gray-800',
+                accent: 'bg-gradient-to-br from-gray-100 to-gray-700',
+              },
+            },
+          ].map(option => (
+            <button
+              key={option.value}
+              onClick={() =>
+                handleThemeChange(option.value as 'light' | 'dark' | 'system')
+              }
+              className={`
+                group relative flex flex-col p-4 rounded-xl border-2 transition-all duration-300 ease-in-out
+                hover:translate-y-[-2px] hover:shadow-lg focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:outline-none
+                ${
+                  theme === option.value
+                    ? 'border-indigo-500/70 bg-indigo-50/50 dark:bg-indigo-950/30'
+                    : 'border-gray-200 dark:border-white/[0.08] hover:border-indigo-300 dark:hover:border-indigo-500/40'
+                }
+              `}
+            >
+              {/* Miniature Dashboard Preview */}
+              <div className='relative w-full h-20 rounded-lg overflow-hidden mb-3'>
+                <div className={`w-full h-full ${option.preview.bg}`}>
+                  {/* Sidebar */}
+                  <div
+                    className={`absolute left-0 top-0 w-6 h-full ${option.preview.sidebar} rounded-r`}
+                  />
+                  {/* Content area with some mock elements */}
+                  <div className='absolute left-8 top-2 right-2 bottom-2 space-y-1'>
+                    <div
+                      className={`h-2 ${option.preview.accent} rounded w-1/3`}
+                    />
+                    <div
+                      className={`h-1.5 ${option.preview.accent} rounded w-1/2 opacity-60`}
+                    />
+                    <div
+                      className={`h-1.5 ${option.preview.accent} rounded w-2/3 opacity-40`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Option Info */}
+              <div className='text-left'>
+                <h4 className='font-medium text-gray-900 dark:text-zinc-200 text-sm mb-1'>
+                  {option.label}
+                </h4>
+                <p className='text-xs text-gray-500 dark:text-zinc-500 mt-1'>
+                  {option.description}
+                </p>
+              </div>
+
+              {/* Animated Checkmark Overlay */}
+              {theme === option.value && (
+                <div className='absolute top-2 right-2 w-5 h-5 bg-indigo-500 rounded-full flex items-center justify-center animate-in zoom-in-95 fade-in duration-200'>
+                  <svg
+                    className='w-3 h-3 text-white'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={3}
+                      d='M5 13l4 4L19 7'
+                    />
+                  </svg>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <p className='text-xs text-zinc-500 mt-4'>
+          Choose how the interface appears. System automatically matches your
+          device settings.
+        </p>
       </div>
     </div>
   );
@@ -388,64 +522,55 @@ export function SettingsPolished({
   };
 
   return (
-    <div className='flex h-[calc(100vh-64px)] bg-gray-50 dark:bg-black'>
-      {/* Settings Sidebar */}
-      <div className='w-72 bg-white dark:bg-neutral-900 border-r border-gray-200 dark:border-neutral-800 flex flex-col'>
-        <div className='p-6 border-b border-gray-200 dark:border-neutral-800'>
-          <h2 className='text-lg font-semibold text-gray-900 dark:text-white'>
-            Settings
-          </h2>
-          <p className='text-sm text-gray-500 dark:text-neutral-400 mt-1'>
-            Manage your account preferences
-          </p>
-        </div>
-
-        <nav className='flex-1 p-4'>
-          <ul className='space-y-1'>
-            {settingsNavigation.map(item => (
-              <li key={item.id}>
-                <button
-                  onClick={() => setCurrentSection(item.id)}
-                  className={classNames(
-                    currentSection === item.id
-                      ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
-                      : 'text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-neutral-800 border-transparent',
-                    'group flex w-full items-center rounded-lg border p-3 text-left text-sm font-medium transition-all duration-200'
-                  )}
-                >
-                  <item.icon
+    <div className='flex gap-8 px-4 sm:px-6 lg:px-8'>
+      {/* Settings Navigation - Fixed/Sticky */}
+      <div className='w-64 flex-shrink-0'>
+        <div className='sticky top-8'>
+          <nav>
+            <ul className='space-y-2'>
+              {settingsNavigation.map(item => (
+                <li key={item.id}>
+                  <button
+                    onClick={() => setCurrentSection(item.id)}
                     className={classNames(
                       currentSection === item.id
-                        ? 'text-indigo-600 dark:text-indigo-400'
-                        : 'text-gray-400 dark:text-neutral-500 group-hover:text-gray-600 dark:group-hover:text-neutral-300',
-                      'h-5 w-5 flex-shrink-0 mr-3'
+                        ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
+                        : 'text-gray-700 dark:text-neutral-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-neutral-800 border-transparent',
+                      'group flex w-full items-center rounded-lg border p-3 text-left text-sm font-medium transition-all duration-200'
                     )}
-                    aria-hidden='true'
-                  />
-                  <div className='flex-1 min-w-0'>
-                    <div className='flex items-center justify-between'>
-                      <span className='truncate'>{item.name}</span>
-                      {item.isPro && (
-                        <span className='inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 ml-2'>
-                          Pro
-                        </span>
+                  >
+                    <item.icon
+                      className={classNames(
+                        currentSection === item.id
+                          ? 'text-indigo-600 dark:text-indigo-400'
+                          : 'text-gray-400 dark:text-neutral-500 group-hover:text-gray-600 dark:group-hover:text-neutral-300',
+                        'h-5 w-5 flex-shrink-0 mr-3'
                       )}
+                      aria-hidden='true'
+                    />
+                    <div className='flex-1 min-w-0'>
+                      <div className='flex items-center justify-between'>
+                        <span className='truncate'>{item.name}</span>
+                        {item.isPro && (
+                          <span className='inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400 ml-2'>
+                            Pro
+                          </span>
+                        )}
+                      </div>
+                      <div className='text-xs text-gray-500 dark:text-neutral-400 mt-0.5 truncate'>
+                        {item.description}
+                      </div>
                     </div>
-                    <div className='text-xs text-gray-500 dark:text-neutral-400 mt-0.5 truncate'>
-                      {item.description}
-                    </div>
-                  </div>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
       </div>
 
       {/* Settings Content */}
-      <div className='flex-1 overflow-auto bg-gray-50 dark:bg-black'>
-        <div className='max-w-4xl mx-auto p-8 h-full'>{renderContent()}</div>
-      </div>
+      <div className='flex-1 min-w-0'>{renderContent()}</div>
     </div>
   );
 }

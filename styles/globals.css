@@ -116,17 +116,148 @@
   color: rgb(var(--accent));
 }
 
+/* Menu/Dropdown utilities */
+@utility menu-background {
+  background-color: rgb(var(--menu-background));
+}
+
+@utility menu-border {
+  border-color: rgb(var(--menu-border));
+}
+
+@utility menu-shadow {
+  box-shadow:
+    0 10px 15px -3px rgb(var(--menu-shadow)),
+    0 4px 6px -2px rgb(var(--menu-shadow));
+}
+
+@utility menu-item-hover {
+  background-color: rgb(var(--menu-item-hover));
+}
+
+@utility menu-separator {
+  border-color: rgb(var(--menu-separator));
+}
+
+/* Surface utilities */
+@utility surface {
+  background-color: rgb(var(--surface));
+}
+
+@utility surface-hover {
+  background-color: rgb(var(--surface-hover));
+}
+
+@utility surface-pressed {
+  background-color: rgb(var(--surface-pressed));
+}
+
+/* Text utilities */
+@utility text-primary {
+  color: rgb(var(--text-primary));
+}
+
+@utility text-secondary {
+  color: rgb(var(--text-secondary));
+}
+
+@utility text-tertiary {
+  color: rgb(var(--text-tertiary));
+}
+
+@utility text-destructive {
+  color: rgb(var(--text-accent));
+}
+
+/* Interactive state utilities */
+@utility interactive-hover {
+  background-color: rgb(var(--interactive-hover));
+}
+
+@utility interactive-pressed {
+  background-color: rgb(var(--interactive-pressed));
+}
+
+@utility focus-ring-themed {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  --tw-ring-color: rgb(var(--focus-ring));
+}
+
+/* Menu animations */
+@keyframes user-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+  }
+}
+
 @layer base {
   :root {
     --background: 255 255 255;
     --foreground: 17 24 39;
     --accent: 192 132 252;
+
+    /* Menu/Dropdown tokens */
+    --menu-background: 255 255 255 / 0.95;
+    --menu-border: 0 0 0 / 0.05;
+    --menu-shadow: 0 0 0 / 0.1;
+    --menu-item-hover: 243 244 246;
+    --menu-separator: 229 231 235 / 0.5;
+
+    /* Surface colors for cards/panels */
+    --surface: 255 255 255;
+    --surface-hover: 249 250 251;
+    --surface-pressed: 243 244 246;
+
+    /* Text hierarchy */
+    --text-primary: 17 24 39;
+    --text-secondary: 75 85 99;
+    --text-tertiary: 107 114 128;
+    --text-accent: 239 68 68;
+
+    /* Interactive states */
+    --interactive-hover: 249 250 251 / 0.8;
+    --interactive-pressed: 243 244 246 / 0.9;
+    --focus-ring: 107 114 128 / 0.5;
   }
 
   .dark {
     --background: 17 24 39;
     --foreground: 249 250 251;
     --accent: 192 132 252;
+
+    /* Menu/Dropdown tokens */
+    --menu-background: 31 41 55 / 0.95;
+    --menu-border: 75 85 99 / 0.2;
+    --menu-shadow: 0 0 0 / 0.3;
+    --menu-item-hover: 55 65 81;
+    --menu-separator: 75 85 99 / 0.5;
+
+    /* Surface colors for cards/panels */
+    --surface: 31 41 55;
+    --surface-hover: 55 65 81;
+    --surface-pressed: 75 85 99;
+
+    /* Text hierarchy */
+    --text-primary: 249 250 251;
+    --text-secondary: 156 163 175;
+    --text-tertiary: 107 114 128;
+    --text-accent: 239 68 68;
+
+    /* Interactive states */
+    --interactive-hover: 55 65 81 / 0.8;
+    --interactive-pressed: 75 85 99 / 0.9;
+    --focus-ring: 255 255 255 / 0.4;
   }
 
   body {
