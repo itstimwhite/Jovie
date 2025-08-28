@@ -4,7 +4,6 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'plain';
   size?: 'sm' | 'md' | 'lg';
-  color?: 'indigo' | 'red' | 'green';
   children: React.ReactNode;
   href?: string;
   className?: string;
@@ -13,6 +12,7 @@ export interface ButtonProps
   plain?: boolean;
   target?: string;
   rel?: string;
+  loading?: boolean;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -20,30 +20,33 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     {
       variant = 'primary',
       size = 'md',
-      color = 'indigo',
       className = '',
       children,
       as: Component = 'button',
       outline = false,
       plain = false,
+      loading = false,
+      disabled,
       ...props
     },
     ref
   ) => {
+    const isDisabled = disabled || loading;
+
     const baseClasses =
-      'relative isolate inline-flex items-center justify-center rounded-lg font-semibold transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 cursor-pointer';
+      'relative isolate inline-flex items-center justify-center rounded-lg font-semibold transition-all duration-150 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900';
 
     const variantClasses = {
       primary:
-        'bg-indigo-600 text-white hover:bg-indigo-700 focus-visible:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600',
+        'bg-black text-white hover:bg-gray-800 focus-visible:ring-gray-500 dark:bg-white dark:text-black dark:hover:bg-gray-100',
       secondary:
-        'bg-gray-200 text-gray-900 hover:bg-gray-300 focus-visible:ring-gray-500 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600',
+        'bg-gray-100 text-black hover:bg-gray-200 focus-visible:ring-gray-400 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700',
       ghost:
-        'bg-transparent text-gray-700 hover:bg-gray-100 focus-visible:ring-gray-500 dark:text-gray-300 dark:hover:bg-gray-800',
+        'bg-transparent text-black hover:bg-gray-50 focus-visible:ring-gray-400 dark:text-white dark:hover:bg-gray-900',
       outline:
-        'border border-gray-300 bg-transparent text-gray-700 hover:bg-gray-50 focus-visible:ring-gray-500 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800',
+        'border border-gray-300 bg-transparent text-black hover:bg-gray-50 focus-visible:ring-gray-400 dark:border-gray-600 dark:text-white dark:hover:bg-gray-900',
       plain:
-        'bg-transparent text-gray-700 hover:bg-gray-100 focus-visible:ring-gray-500 dark:text-gray-300 dark:hover:bg-gray-800',
+        'bg-transparent text-black hover:bg-gray-50 focus-visible:ring-gray-400 dark:text-white dark:hover:bg-gray-900',
     };
 
     const sizeClasses = {
@@ -52,26 +55,47 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       lg: 'px-6 py-3 text-lg',
     };
 
-    const colorClasses = {
-      indigo:
-        'bg-indigo-600 text-white hover:bg-indigo-700 focus-visible:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600',
-      red: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600',
-      green:
-        'bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-500 dark:bg-green-500 dark:hover:bg-green-600',
-    };
-
     // Determine which classes to use based on props
     let variantClass = variantClasses[variant];
     if (outline) variantClass = variantClasses.outline;
     if (plain) variantClass = variantClasses.plain;
-    if (color && variant === 'primary') variantClass = colorClasses[color];
+
+    // Apply disabled/loading states
+    if (isDisabled) {
+      const cursorClass = 'cursor-not-allowed';
+      const opacityClass = 'opacity-50';
+      const hoverDisabled = 'hover:bg-current hover:text-current';
+
+      variantClass = `${opacityClass} ${hoverDisabled}`;
+
+      if (variant === 'primary') {
+        variantClass +=
+          ' bg-gray-400 text-white dark:bg-gray-600 dark:text-gray-300';
+      } else if (variant === 'secondary') {
+        variantClass +=
+          ' bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500';
+      } else {
+        variantClass += ' text-gray-400 dark:text-gray-500';
+      }
+
+      variantClass = `${cursorClass} ${variantClass}`;
+    } else {
+      variantClass = `cursor-pointer ${variantClass}`;
+    }
 
     const classes =
       `${baseClasses} ${variantClass} ${sizeClasses[size]} ${className}`.trim();
 
     return (
-      <Component ref={ref} className={classes} {...props}>
-        {children}
+      <Component ref={ref} className={classes} disabled={isDisabled} {...props}>
+        {loading && (
+          <div className='absolute inset-0 flex items-center justify-center'>
+            <div className='w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin' />
+          </div>
+        )}
+        <span className={loading ? 'opacity-0' : 'opacity-100'}>
+          {children}
+        </span>
       </Component>
     );
   }

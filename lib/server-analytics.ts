@@ -1,18 +1,40 @@
 /**
  * Server-side analytics implementation
- * This module provides server-side analytics tracking capabilities
+ * This module provides server-side analytics tracking capabilities using PostHog Node.js SDK
  */
 
+import { PostHog } from 'posthog-node';
 import { ANALYTICS } from '@/constants/app';
+
+// Initialize PostHog client (singleton)
+let posthogClient: PostHog | null = null;
+
+function getPostHogClient(): PostHog | null {
+  if (!ANALYTICS.posthogKey) {
+    return null;
+  }
+
+  if (!posthogClient) {
+    posthogClient = new PostHog(ANALYTICS.posthogKey, {
+      host: ANALYTICS.posthogHost || 'https://us.posthog.com',
+      flushAt: 1, // Send events immediately in development
+      flushInterval: 1000, // Flush every 1 second
+    });
+  }
+
+  return posthogClient;
+}
 
 /**
  * Track a server-side event
  * @param event The event name to track
  * @param properties Optional properties to include with the event
+ * @param distinctId Optional distinct ID for the user
  */
 export async function trackServerEvent(
   event: string,
-  properties?: Record<string, unknown>
+  properties?: Record<string, unknown>,
+  distinctId?: string
 ) {
   try {
     // Determine environment
@@ -36,38 +58,71 @@ export async function trackServerEvent(
       console.log(`[Server Analytics] ${event}`, eventProperties);
     }
 
-    // If PostHog key is available, send the event
-    if (ANALYTICS.posthogKey) {
-      // In a real implementation, we would use the PostHog Node.js client
-      // For now, we'll use a simple fetch to the PostHog API
-      const response = await fetch('https://app.posthog.com/capture/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          api_key: ANALYTICS.posthogKey,
-          event,
-          properties: eventProperties,
-          timestamp: new Date().toISOString(),
-        }),
+    // Track with PostHog Node.js SDK
+    const client = getPostHogClient();
+    if (client) {
+      await client.capture({
+        distinctId: distinctId || 'anonymous',
+        event,
+        properties: eventProperties,
       });
-
-      if (!response.ok) {
-        console.error(
-          `[Server Analytics] Failed to send event ${event}:`,
-          await response.text()
-        );
-      }
     }
-
-    // In a production environment, you might want to:
-    // 1. Use a proper PostHog Node.js client
-    // 2. Implement retry logic for failed events
-    // 3. Use a queue system for high-volume events
-    // 4. Add more robust error handling
   } catch (error) {
     // Log error but don't throw - analytics should never break the application
     console.error('[Server Analytics] Error tracking event:', error);
+  }
+}
+
+/**
+ * Identify a user on the server-side
+ * @param distinctId The user ID
+ * @param properties Optional user properties
+ */
+export async function identifyServerUser(
+  distinctId: string,
+  properties?: Record<string, unknown>
+) {
+  try {
+    const client = getPostHogClient();
+    if (client) {
+      await client.identify({
+        distinctId,
+        properties: {
+          ...(properties || {}),
+          server_side: true,
+        },
+      });
+    }
+  } catch (error) {
+    console.error('[Server Analytics] Error identifying user:', error);
+  }
+}
+
+/**
+ * Flush any pending events (call this during graceful shutdown)
+ */
+export async function flushServerAnalytics() {
+  try {
+    const client = getPostHogClient();
+    if (client) {
+      await client.flush();
+    }
+  } catch (error) {
+    console.error('[Server Analytics] Error flushing events:', error);
+  }
+}
+
+/**
+ * Shutdown the PostHog client (call this during graceful shutdown)
+ */
+export async function shutdownServerAnalytics() {
+  try {
+    const client = getPostHogClient();
+    if (client) {
+      await client.shutdown();
+      posthogClient = null;
+    }
+  } catch (error) {
+    console.error('[Server Analytics] Error shutting down client:', error);
   }
 }

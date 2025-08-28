@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { DashboardSplitView } from '@/components/dashboard/organisms/DashboardSplitView';
 import { ToastProvider } from '@/components/providers/ToastProvider';
-import { mockArtist, mockCreatorProfile } from '@/lib/test-utils/mock-data';
+import { mockArtist } from '@/lib/test-utils/mock-data';
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
@@ -81,11 +81,7 @@ describe('DashboardSplitView', () => {
   it('renders the component', () => {
     render(
       <ToastProvider>
-        <DashboardSplitView
-          artist={mockArtist}
-          creatorProfile={mockCreatorProfile}
-          onArtistUpdate={() => {}}
-        />
+        <DashboardSplitView artist={mockArtist} onArtistUpdate={() => {}} />
       </ToastProvider>
     );
 
@@ -101,11 +97,7 @@ describe('DashboardSplitView', () => {
     // The component should load with the mocked data from the useEffect
     render(
       <ToastProvider>
-        <DashboardSplitView
-          artist={mockArtist}
-          creatorProfile={mockCreatorProfile}
-          onArtistUpdate={() => {}}
-        />
+        <DashboardSplitView artist={mockArtist} onArtistUpdate={() => {}} />
       </ToastProvider>
     );
 
@@ -120,11 +112,7 @@ describe('DashboardSplitView', () => {
     // by checking the component renders without errors when using creator_profile_id
     render(
       <ToastProvider>
-        <DashboardSplitView
-          artist={mockArtist}
-          creatorProfile={mockCreatorProfile}
-          onArtistUpdate={() => {}}
-        />
+        <DashboardSplitView artist={mockArtist} onArtistUpdate={() => {}} />
       </ToastProvider>
     );
 
@@ -144,11 +132,7 @@ describe('DashboardSplitView', () => {
 
     render(
       <ToastProvider>
-        <DashboardSplitView
-          artist={mockArtist}
-          creatorProfile={mockCreatorProfile}
-          onArtistUpdate={() => {}}
-        />
+        <DashboardSplitView artist={mockArtist} onArtistUpdate={() => {}} />
       </ToastProvider>
     );
 
@@ -159,11 +143,7 @@ describe('DashboardSplitView', () => {
   it('categorizes platforms correctly for DSP vs social links', async () => {
     render(
       <ToastProvider>
-        <DashboardSplitView
-          artist={mockArtist}
-          creatorProfile={mockCreatorProfile}
-          onArtistUpdate={() => {}}
-        />
+        <DashboardSplitView artist={mockArtist} onArtistUpdate={() => {}} />
       </ToastProvider>
     );
 

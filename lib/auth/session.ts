@@ -2,7 +2,7 @@
 
 import { auth } from '@clerk/nextjs/server';
 import { sql as drizzleSql } from 'drizzle-orm';
-import { db } from '@/lib/db';
+import { type DbType, db } from '@/lib/db';
 
 /**
  * Sets up the database session for the authenticated user
@@ -16,7 +16,8 @@ export async function setupDbSession() {
   }
 
   // Set the session variable for RLS
-  await db.execute(drizzleSql`SET LOCAL app.clerk_user_id = ${userId}`);
+  // Note: We can't use parameters for SET LOCAL, so we'll use raw SQL
+  await db.execute(drizzleSql.raw(`SET LOCAL app.clerk_user_id = '${userId}'`));
 
   return { userId };
 }
@@ -29,6 +30,27 @@ export async function withDbSession<T>(
 ): Promise<T> {
   const { userId } = await setupDbSession();
   return await operation(userId);
+}
+
+/**
+ * Run DB operations inside a transaction with RLS session set.
+ * Ensures SET LOCAL app.clerk_user_id is applied within the transaction scope.
+ */
+export async function withDbSessionTx<T>(
+  operation: (tx: DbType, userId: string) => Promise<T>
+): Promise<T> {
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error('Unauthorized');
+  }
+
+  return await db.transaction(async tx => {
+    // Important: SET LOCAL must be inside the transaction to take effect
+    await tx.execute(
+      drizzleSql.raw(`SET LOCAL app.clerk_user_id = '${userId}'`)
+    );
+    return await operation(tx as unknown as DbType, userId);
+  });
 }
 
 /**

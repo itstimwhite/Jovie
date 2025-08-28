@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Footer } from '@/components/organisms/Footer';
 import { Container } from '@/components/site/Container';
 import { Logo } from '@/components/ui/Logo';
 
@@ -93,33 +94,9 @@ export default function NotFound() {
         </Container>
       </main>
 
-      {/* Footer */}
-      <footer className='border-t border-gray-200/50 dark:border-white/10 bg-white dark:bg-gray-900'>
-        <Container>
-          <div className='flex flex-col md:flex-row items-center justify-between gap-6 py-8 md:h-16 md:py-0 w-full'>
-            <div className='flex flex-col items-center md:items-start space-y-2 text-sm text-gray-500 dark:text-gray-400'>
-              <p>© 2024 Jovie. All rights reserved.</p>
-              <p className='text-xs text-gray-400 dark:text-gray-500'>
-                Made for musicians, by musicians
-              </p>
-            </div>
-            <div className='flex items-center space-x-6 text-sm md:ml-auto'>
-              <Link
-                href='/legal/privacy'
-                className='text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors'
-              >
-                Privacy
-              </Link>
-              <Link
-                href='/legal/terms'
-                className='text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors'
-              >
-                Terms
-              </Link>
-            </div>
-          </div>
-        </Container>
-      </footer>
+      <Container>
+        <Footer variant='minimal' />
+      </Container>
     </div>
   );
 }

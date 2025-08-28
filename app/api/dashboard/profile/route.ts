@@ -20,8 +20,10 @@ export async function PUT(req: Request) {
       // Convert camelCase to snake_case if needed and filter valid fields
       const validUpdates: Record<string, unknown> = {};
       const allowedFields = [
+        'username',
         'displayName',
         'bio',
+        'creatorType',
         'avatarUrl',
         'spotifyUrl',
         'appleMusicUrl',

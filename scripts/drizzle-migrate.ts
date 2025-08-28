@@ -12,6 +12,7 @@
 
 import { execSync } from 'child_process';
 import { config } from 'dotenv';
+import { sql as drizzleSql } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import { existsSync, readFileSync } from 'fs';
@@ -19,7 +20,8 @@ import path from 'path';
 import postgres from 'postgres';
 import * as readline from 'readline';
 
-// Load environment variables
+// Load environment variables: prefer .env.local, then fallback to .env
+config({ path: '.env.local', override: true });
 config();
 
 // Neon URL pattern for cleaning database URLs
@@ -223,18 +225,26 @@ async function runMigrations() {
   try {
     log.info('Connecting to database...');
 
-    // Clean the URL for Neon (remove the +neon part if present)
-    const databaseUrl = process.env.DATABASE_URL!.replace(
-      NEON_URL_PATTERN,
-      'postgres$1://'
-    );
+    // Clean the URL for Neon (remove the +neon suffix correctly, preserving 'postgres' or 'postgresql')
+    const rawUrl = process.env.DATABASE_URL!;
+    const databaseUrl = rawUrl.replace(NEON_URL_PATTERN, 'postgres$2$4');
 
     sql = postgres(databaseUrl, {
+      ssl: true,
       max: 1,
       onnotice: () => {}, // Suppress notices
     });
 
     db = drizzle(sql);
+
+    // Ensure we operate in the public schema without attempting to create it
+    try {
+      await db.execute(drizzleSql`SET search_path TO public`);
+    } catch (e) {
+      log.warning(
+        `Could not set search_path to public: ${(e as Error).message}`
+      );
+    }
 
     log.success('Database connection established');
   } catch (error) {
@@ -249,6 +259,8 @@ async function runMigrations() {
     const start = Date.now();
     await migrate(db, {
       migrationsFolder: './drizzle/migrations',
+      // Use default search_path (public) and avoid CREATE SCHEMA by not passing migrationsSchema
+      migrationsTable: 'drizzle__journal',
     });
     const duration = ((Date.now() - start) / 1000).toFixed(2);
 

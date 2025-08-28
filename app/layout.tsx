@@ -1,4 +1,3 @@
-import { SpeedInsights } from '@vercel/speed-insights/next';
 import { VercelToolbar } from '@vercel/toolbar/next';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
@@ -178,7 +177,7 @@ export default async function RootLayout({
           {children}
         </ClientProviders>
         {showCookieBanner && <CookieBannerSection />}
-        <SpeedInsights />
+        {/* <SpeedInsights /> */}
         {shouldInjectToolbar && (
           <>
             <VercelToolbar />

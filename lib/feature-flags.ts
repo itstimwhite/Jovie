@@ -15,6 +15,19 @@ export interface FeatureFlags {
   appleStyleOnboardingEnabled?: boolean;
 }
 
+// PostHog feature flag names (match what's defined in PostHog dashboard)
+export const POSTHOG_FLAGS = {
+  ARTIST_SEARCH_ENABLED: 'feature_artist_search_enabled',
+  DEBUG_BANNER_ENABLED: 'feature_debug_banner_enabled',
+  TIP_PROMO_ENABLED: 'feature_tip_promo_enabled',
+  PRICING_USE_CLERK: 'feature_pricing_use_clerk',
+  UNIVERSAL_NOTIFICATIONS_ENABLED: 'feature_universal_notifications_enabled',
+  FEATURE_CLICK_ANALYTICS_RPC: 'feature_click_analytics_rpc',
+  PROGRESSIVE_ONBOARDING_ENABLED: 'feature_progressive_onboarding_enabled',
+  MINIMALIST_ONBOARDING_ENABLED: 'feature_minimalist_onboarding_enabled',
+  APPLE_STYLE_ONBOARDING_ENABLED: 'feature_apple_style_onboarding_enabled',
+} as const;
+
 // Default feature flags (fallback)
 const defaultFeatureFlags: FeatureFlags = {
   artistSearchEnabled: true,
@@ -153,10 +166,101 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
   return defaultFeatureFlags;
 }
 
-// Server-side function to get feature flags
-export async function getServerFeatureFlags(): Promise<FeatureFlags> {
+// Server-side PostHog feature flag helper
+async function getPostHogServerFlags(
+  userId?: string
+): Promise<Partial<FeatureFlags>> {
   try {
-    // Dynamically import to avoid bundling in client
+    // Dynamically import PostHog to avoid bundling in client
+    const { PostHog } = await import('posthog-node');
+    const { ANALYTICS } = await import('@/constants/app');
+
+    if (!ANALYTICS.posthogKey) {
+      return {};
+    }
+
+    const client = new PostHog(ANALYTICS.posthogKey, {
+      host: ANALYTICS.posthogHost || 'https://us.posthog.com',
+    });
+
+    const distinctId = userId || 'anonymous';
+
+    // Check each PostHog feature flag
+    const [
+      artistSearchEnabled,
+      debugBannerEnabled,
+      tipPromoEnabled,
+      pricingUseClerk,
+      universalNotificationsEnabled,
+      featureClickAnalyticsRpc,
+      progressiveOnboardingEnabled,
+      minimalistOnboardingEnabled,
+      appleStyleOnboardingEnabled,
+    ] = await Promise.all([
+      client.isFeatureEnabled(POSTHOG_FLAGS.ARTIST_SEARCH_ENABLED, distinctId),
+      client.isFeatureEnabled(POSTHOG_FLAGS.DEBUG_BANNER_ENABLED, distinctId),
+      client.isFeatureEnabled(POSTHOG_FLAGS.TIP_PROMO_ENABLED, distinctId),
+      client.isFeatureEnabled(POSTHOG_FLAGS.PRICING_USE_CLERK, distinctId),
+      client.isFeatureEnabled(
+        POSTHOG_FLAGS.UNIVERSAL_NOTIFICATIONS_ENABLED,
+        distinctId
+      ),
+      client.isFeatureEnabled(
+        POSTHOG_FLAGS.FEATURE_CLICK_ANALYTICS_RPC,
+        distinctId
+      ),
+      client.isFeatureEnabled(
+        POSTHOG_FLAGS.PROGRESSIVE_ONBOARDING_ENABLED,
+        distinctId
+      ),
+      client.isFeatureEnabled(
+        POSTHOG_FLAGS.MINIMALIST_ONBOARDING_ENABLED,
+        distinctId
+      ),
+      client.isFeatureEnabled(
+        POSTHOG_FLAGS.APPLE_STYLE_ONBOARDING_ENABLED,
+        distinctId
+      ),
+    ]);
+
+    await client.shutdown();
+
+    return {
+      ...(typeof artistSearchEnabled === 'boolean' && { artistSearchEnabled }),
+      ...(typeof debugBannerEnabled === 'boolean' && { debugBannerEnabled }),
+      ...(typeof tipPromoEnabled === 'boolean' && { tipPromoEnabled }),
+      ...(typeof pricingUseClerk === 'boolean' && { pricingUseClerk }),
+      ...(typeof universalNotificationsEnabled === 'boolean' && {
+        universalNotificationsEnabled,
+      }),
+      ...(typeof featureClickAnalyticsRpc === 'boolean' && {
+        featureClickAnalyticsRpc,
+      }),
+      ...(typeof progressiveOnboardingEnabled === 'boolean' && {
+        progressiveOnboardingEnabled,
+      }),
+      ...(typeof minimalistOnboardingEnabled === 'boolean' && {
+        minimalistOnboardingEnabled,
+      }),
+      ...(typeof appleStyleOnboardingEnabled === 'boolean' && {
+        appleStyleOnboardingEnabled,
+      }),
+    };
+  } catch (error) {
+    console.warn('[Feature Flags] PostHog server flags failed:', error);
+    return {};
+  }
+}
+
+// Server-side function to get feature flags
+export async function getServerFeatureFlags(
+  userId?: string
+): Promise<FeatureFlags> {
+  try {
+    // 1) Try PostHog server-side feature flags first
+    const postHogFlags = await getPostHogServerFlags(userId);
+
+    // 2) Try app-internal endpoint as fallback
     const { headers } = await import('next/headers');
     const h = await headers();
     const host = h.get('x-forwarded-host') ?? h.get('host');
@@ -164,113 +268,82 @@ export async function getServerFeatureFlags(): Promise<FeatureFlags> {
       h.get('x-forwarded-proto') ??
       (host && host.includes('localhost') ? 'http' : 'https');
 
-    if (!host) {
-      return defaultFeatureFlags;
-    }
+    let localFlags: Partial<FeatureFlags> = {};
 
-    // 1) Try app-internal endpoint first
-    let url = `${proto}://${host}/api/feature-flags`;
-    let res = await fetch(url, { cache: 'no-store' });
-    if (res.ok) {
-      const data: Record<string, unknown> = await res.json();
-      const hasRpcFlag =
-        Object.prototype.hasOwnProperty.call(
-          data,
-          'featureClickAnalyticsRpc'
-        ) ||
-        Object.prototype.hasOwnProperty.call(
-          data,
-          'feature_click_analytics_rpc'
-        );
-      if (
-        typeof data?.artistSearchEnabled !== 'undefined' ||
-        typeof data?.debugBannerEnabled !== 'undefined' ||
-        typeof data?.tipPromoEnabled !== 'undefined' ||
-        typeof data?.progressiveOnboardingEnabled !== 'undefined' ||
-        hasRpcFlag
-      ) {
-        return {
-          artistSearchEnabled: Boolean(
-            data.artistSearchEnabled ?? defaultFeatureFlags.artistSearchEnabled
-          ),
-          debugBannerEnabled: Boolean(
-            data.debugBannerEnabled ?? defaultFeatureFlags.debugBannerEnabled
-          ),
-          tipPromoEnabled: Boolean(
-            data.tipPromoEnabled ?? defaultFeatureFlags.tipPromoEnabled
-          ),
-          pricingUseClerk: Boolean(
-            data.pricingUseClerk ?? defaultFeatureFlags.pricingUseClerk
-          ),
-          universalNotificationsEnabled: Boolean(
-            data.universalNotificationsEnabled ??
-              defaultFeatureFlags.universalNotificationsEnabled
-          ),
-          progressiveOnboardingEnabled: Boolean(
-            data.progressiveOnboardingEnabled ??
-              defaultFeatureFlags.progressiveOnboardingEnabled
-          ),
-          featureClickAnalyticsRpc: Boolean(
-            hasRpcFlag
-              ? ((data as Record<string, unknown>)[
-                  'featureClickAnalyticsRpc'
-                ] ??
-                  (data as Record<string, unknown>)[
-                    'feature_click_analytics_rpc'
-                  ])
-              : defaultFeatureFlags.featureClickAnalyticsRpc
-          ),
-        };
+    if (host) {
+      try {
+        const url = `${proto}://${host}/api/feature-flags`;
+        const res = await fetch(url, { cache: 'no-store' });
+        if (res.ok) {
+          const data: Record<string, unknown> = await res.json();
+          localFlags = {
+            artistSearchEnabled: Boolean(data.artistSearchEnabled),
+            debugBannerEnabled: Boolean(data.debugBannerEnabled),
+            tipPromoEnabled: Boolean(data.tipPromoEnabled),
+            pricingUseClerk: Boolean(data.pricingUseClerk),
+            universalNotificationsEnabled: Boolean(
+              data.universalNotificationsEnabled
+            ),
+            progressiveOnboardingEnabled: Boolean(
+              data.progressiveOnboardingEnabled
+            ),
+            minimalistOnboardingEnabled: Boolean(
+              data.minimalistOnboardingEnabled
+            ),
+            appleStyleOnboardingEnabled: Boolean(
+              data.appleStyleOnboardingEnabled
+            ),
+            featureClickAnalyticsRpc: Boolean(
+              data.featureClickAnalyticsRpc || data.feature_click_analytics_rpc
+            ),
+          };
+        }
+      } catch {
+        // ignore fetch errors
       }
     }
 
-    // 2) Fallback to Vercel discovery (may be blocked in Preview/Prod)
-    url = `${proto}://${host}/.well-known/vercel/flags`;
-    res = await fetch(url, { cache: 'no-store' });
-    if (res.ok) {
-      const data = (await res.json()) as {
-        version?: number;
-        flags?: Record<string, { default?: unknown }>;
-      };
-      if (typeof data?.version === 'number') {
-        const rpcFlag =
-          data.flags?.['featureClickAnalyticsRpc']?.default ??
-          data.flags?.['feature_click_analytics_rpc']?.default;
-        return {
-          artistSearchEnabled: Boolean(
-            data.flags?.artistSearchEnabled?.default ??
-              defaultFeatureFlags.artistSearchEnabled
-          ),
-          debugBannerEnabled: Boolean(
-            data.flags?.debugBannerEnabled?.default ??
-              defaultFeatureFlags.debugBannerEnabled
-          ),
-          tipPromoEnabled: Boolean(
-            data.flags?.tipPromoEnabled?.default ??
-              defaultFeatureFlags.tipPromoEnabled
-          ),
-          pricingUseClerk: Boolean(
-            data.flags?.pricingUseClerk?.default ??
-              defaultFeatureFlags.pricingUseClerk
-          ),
-          universalNotificationsEnabled: Boolean(
-            data.flags?.universalNotificationsEnabled?.default ??
-              defaultFeatureFlags.universalNotificationsEnabled
-          ),
-          progressiveOnboardingEnabled: Boolean(
-            data.flags?.progressiveOnboardingEnabled?.default ??
-              defaultFeatureFlags.progressiveOnboardingEnabled
-          ),
-          featureClickAnalyticsRpc: Boolean(
-            typeof rpcFlag !== 'undefined'
-              ? rpcFlag
-              : defaultFeatureFlags.featureClickAnalyticsRpc
-          ),
-        };
-      }
-    }
-  } catch {
-    // fallthrough to defaults
+    // 3) Merge flags with priority: PostHog > Local > Defaults
+    return {
+      artistSearchEnabled:
+        postHogFlags.artistSearchEnabled ??
+        localFlags.artistSearchEnabled ??
+        defaultFeatureFlags.artistSearchEnabled,
+      debugBannerEnabled:
+        postHogFlags.debugBannerEnabled ??
+        localFlags.debugBannerEnabled ??
+        defaultFeatureFlags.debugBannerEnabled,
+      tipPromoEnabled:
+        postHogFlags.tipPromoEnabled ??
+        localFlags.tipPromoEnabled ??
+        defaultFeatureFlags.tipPromoEnabled,
+      pricingUseClerk:
+        postHogFlags.pricingUseClerk ??
+        localFlags.pricingUseClerk ??
+        defaultFeatureFlags.pricingUseClerk,
+      universalNotificationsEnabled:
+        postHogFlags.universalNotificationsEnabled ??
+        localFlags.universalNotificationsEnabled ??
+        defaultFeatureFlags.universalNotificationsEnabled,
+      featureClickAnalyticsRpc:
+        postHogFlags.featureClickAnalyticsRpc ??
+        localFlags.featureClickAnalyticsRpc ??
+        defaultFeatureFlags.featureClickAnalyticsRpc,
+      progressiveOnboardingEnabled:
+        postHogFlags.progressiveOnboardingEnabled ??
+        localFlags.progressiveOnboardingEnabled ??
+        defaultFeatureFlags.progressiveOnboardingEnabled,
+      minimalistOnboardingEnabled:
+        postHogFlags.minimalistOnboardingEnabled ??
+        localFlags.minimalistOnboardingEnabled ??
+        defaultFeatureFlags.minimalistOnboardingEnabled,
+      appleStyleOnboardingEnabled:
+        postHogFlags.appleStyleOnboardingEnabled ??
+        localFlags.appleStyleOnboardingEnabled ??
+        defaultFeatureFlags.appleStyleOnboardingEnabled,
+    };
+  } catch (error) {
+    console.warn('[Feature Flags] Server flags failed:', error);
+    return defaultFeatureFlags;
   }
-  return defaultFeatureFlags;
 }
