@@ -18,7 +18,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import Image from 'next/image';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
 import { OnboardingForm } from '@/components/dashboard';

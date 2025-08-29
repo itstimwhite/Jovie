@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 // Define the valid navigation items

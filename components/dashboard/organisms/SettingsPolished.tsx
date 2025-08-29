@@ -11,7 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { APP_URL } from '@/constants/app';
 import { 
   SETTINGS_SECTIONS, 
@@ -118,7 +118,6 @@ export function SettingsPolished({
     new Set([urlSection || 'profile'])
   );
   const [isPro] = useState(false); // TODO: Get from user subscription status
-  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [formData, setFormData] = useState({
     username: artist.handle || '',
     displayName: artist.name || '',
