@@ -1,121 +1,140 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { isShareSupported, shareContent } from '@/lib/share';
+import { toast } from 'sonner';
 
-// Mock toast
+// Mock the toast module
 vi.mock('sonner', () => ({
   toast: {
     success: vi.fn(),
-    error: vi.fn(),
   },
 }));
 
 describe('share utilities', () => {
-  const originalNavigator = global.navigator;
-  const mockNavigator = {
-    share: vi.fn(),
-    clipboard: {
-      writeText: vi.fn(),
-    },
-  };
-
+  // Setup and teardown
   beforeEach(() => {
-    // Reset mocks
+    // Reset all mocks before each test
     vi.resetAllMocks();
-
-    // Mock navigator
-    Object.defineProperty(global, 'navigator', {
-      value: mockNavigator,
-      writable: true,
-    });
   });
 
   afterEach(() => {
-    // Restore original navigator
-    Object.defineProperty(global, 'navigator', {
-      value: originalNavigator,
-      writable: true,
-    });
+    // Restore all mocks after each test
+    vi.restoreAllMocks();
   });
 
   describe('isShareSupported', () => {
     it('should return true when navigator.share is available', () => {
+      // Mock navigator.share
+      Object.defineProperty(global.navigator, 'share', {
+        value: vi.fn(),
+        configurable: true,
+      });
+
       expect(isShareSupported()).toBe(true);
     });
 
     it('should return false when navigator.share is not available', () => {
+      // Mock navigator without share
       Object.defineProperty(global.navigator, 'share', {
         value: undefined,
+        configurable: true,
       });
+
       expect(isShareSupported()).toBe(false);
     });
   });
 
   describe('shareContent', () => {
     it('should use Web Share API when available', async () => {
-      mockNavigator.share.mockResolvedValueOnce(undefined);
+      // Mock navigator.share
+      const mockShare = vi.fn().mockResolvedValue(undefined);
+      Object.defineProperty(global.navigator, 'share', {
+        value: mockShare,
+        configurable: true,
+      });
 
+      const onSuccess = vi.fn();
       const result = await shareContent({
-        url: 'https://example.com/tip/123',
-        title: 'Support this artist',
-        text: 'Help support this artist with a tip!',
+        url: 'https://example.com',
+        title: 'Test Title',
+        text: 'Test Text',
+        onSuccess,
       });
 
-      expect(result).toBe(true);
-      expect(mockNavigator.share).toHaveBeenCalledWith({
-        url: 'https://example.com/tip/123',
-        title: 'Support this artist',
-        text: 'Help support this artist with a tip!',
+      expect(mockShare).toHaveBeenCalledWith({
+        url: 'https://example.com',
+        title: 'Test Title',
+        text: 'Test Text',
       });
-      expect(mockNavigator.clipboard.writeText).not.toHaveBeenCalled();
+      expect(onSuccess).toHaveBeenCalled();
+      expect(result).toBe(true);
     });
 
     it('should fall back to clipboard when Web Share API is not available', async () => {
-      // Remove share API
+      // Mock navigator without share
       Object.defineProperty(global.navigator, 'share', {
         value: undefined,
+        configurable: true,
       });
 
-      mockNavigator.clipboard.writeText.mockResolvedValueOnce(undefined);
+      // Mock clipboard
+      const mockWriteText = vi.fn().mockResolvedValue(undefined);
+      Object.defineProperty(global.navigator, 'clipboard', {
+        value: { writeText: mockWriteText },
+        configurable: true,
+      });
 
+      const onSuccess = vi.fn();
       const result = await shareContent({
-        url: 'https://example.com/tip/123',
+        url: 'https://example.com',
+        onSuccess,
       });
 
+      expect(mockWriteText).toHaveBeenCalledWith('https://example.com');
+      expect(toast.success).toHaveBeenCalledWith('Link copied to clipboard!');
+      expect(onSuccess).toHaveBeenCalled();
       expect(result).toBe(true);
-      expect(mockNavigator.clipboard.writeText).toHaveBeenCalledWith(
-        'https://example.com/tip/123'
-      );
     });
 
     it('should handle Web Share API errors gracefully', async () => {
-      const error = new Error('Share failed');
-      mockNavigator.share.mockRejectedValueOnce(error);
-
-      const onErrorMock = vi.fn();
-
-      const result = await shareContent({
-        url: 'https://example.com/tip/123',
-        onError: onErrorMock,
+      // Mock navigator.share with rejection
+      const mockShare = vi.fn().mockRejectedValue(new Error('Share failed'));
+      Object.defineProperty(global.navigator, 'share', {
+        value: mockShare,
+        configurable: true,
       });
 
+      const onError = vi.fn();
+      const result = await shareContent({
+        url: 'https://example.com',
+        onError,
+      });
+
+      expect(mockShare).toHaveBeenCalled();
+      expect(onError).toHaveBeenCalledWith(expect.any(Error));
       expect(result).toBe(false);
-      expect(onErrorMock).toHaveBeenCalledWith(error);
     });
 
     it('should not call onError when user cancels share', async () => {
+      // Mock navigator.share with AbortError
       const abortError = new Error('User cancelled');
       abortError.name = 'AbortError';
-      mockNavigator.share.mockRejectedValueOnce(abortError);
+      const mockShare = vi.fn().mockRejectedValue(abortError);
 
-      const onErrorMock = vi.fn();
-
-      const result = await shareContent({
-        url: 'https://example.com/tip/123',
-        onError: onErrorMock,
+      Object.defineProperty(global.navigator, 'share', {
+        value: mockShare,
+        configurable: true,
       });
 
+      const onError = vi.fn();
+      const result = await shareContent({
+        url: 'https://example.com',
+        onError,
+      });
+
+      expect(mockShare).toHaveBeenCalled();
+      expect(onError).not.toHaveBeenCalled();
       expect(result).toBe(false);
-      expect(onErrorMock).not.toHaveBeenCalled();
     });
   });
 });
+
