@@ -8,6 +8,7 @@ import { LoadingSpinner } from '@/components/atoms/LoadingSpinner';
 import { env } from '@/lib/env';
 import { FeatureFlags } from '@/lib/feature-flags';
 import { logger } from '@/lib/utils/logger';
+import type { ThemeMode } from '@/types';
 import { FeatureFlagsProvider } from './FeatureFlagsProvider';
 import { ToastProvider } from './ToastProvider';
 
@@ -16,6 +17,7 @@ import { ToastProvider } from './ToastProvider';
 interface ClientProvidersProps {
   children: React.ReactNode;
   initialFeatureFlags?: FeatureFlags;
+  initialThemeMode?: ThemeMode;
 }
 
 function ClerkWrapper({ children }: { children: React.ReactNode }) {
@@ -65,6 +67,7 @@ function ClerkWrapper({ children }: { children: React.ReactNode }) {
 export function ClientProviders({
   children,
   initialFeatureFlags,
+  initialThemeMode = 'system',
 }: ClientProvidersProps) {
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -128,7 +131,7 @@ export function ClientProviders({
       <FeatureFlagsProvider initialFlags={initialFeatureFlags}>
         <ThemeProvider
           attribute='class'
-          defaultTheme='system'
+          defaultTheme={initialThemeMode}
           enableSystem={true}
           disableTransitionOnChange
           storageKey='jovie-theme'

@@ -57,7 +57,7 @@ export const Textarea = forwardRef(function Textarea(
           // Background color
           'bg-transparent dark:bg-white/5',
           // Hide default focus styles
-          'focus:outline-hidden',
+          'focus-visible:outline-hidden',
           // Invalid state
           'data-invalid:border-red-500 data-invalid:data-hover:border-red-500 dark:data-invalid:border-red-600 dark:data-invalid:data-hover:border-red-600',
           // Disabled state

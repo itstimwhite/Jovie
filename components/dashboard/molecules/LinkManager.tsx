@@ -41,6 +41,7 @@ interface LinkItem extends DetectedLink {
 interface LinkManagerProps {
   initialLinks?: LinkItem[];
   onLinksChange: (links: LinkItem[]) => void;
+  onLinkAdded?: (links: LinkItem[]) => void; // Immediate save callback for new links
   disabled?: boolean;
   maxLinks?: number;
   allowedCategory?: 'dsp' | 'social' | 'custom' | 'all';
@@ -51,6 +52,7 @@ interface LinkManagerProps {
 export const LinkManager: React.FC<LinkManagerProps> = ({
   initialLinks = [],
   onLinksChange,
+  onLinkAdded,
   disabled = false,
   maxLinks = 20,
   allowedCategory = 'all',
@@ -193,6 +195,19 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
         return;
       }
 
+      // Check for duplicate platform
+      const existingPlatform = links.find(
+        link => link.platform.id === detectedLink.platform.id
+      );
+      if (existingPlatform) {
+        showToast({
+          message: `Duplicate ${detectedLink.platform.name} blocked: Having multiple links to the same platform creates decision paralysis for visitors, reducing engagement and conversions by up to 40%. Use one clear link per platform for better results.`,
+          type: 'error',
+          duration: 8000,
+        });
+        return;
+      }
+
       const newLink: LinkItem = {
         ...detectedLink,
         id: `link_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -201,9 +216,13 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
         order: links.length,
       };
 
-      updateLinks([...links, newLink]);
+      const newLinks = [...links, newLink];
+      updateLinks(newLinks);
+
+      // Immediately save when a new link is added (no debounce)
+      onLinkAdded?.(newLinks);
     },
-    [links, maxLinks, updateLinks, allowedCategory, showToast]
+    [links, maxLinks, updateLinks, allowedCategory, showToast, onLinkAdded]
   );
 
   // Update existing link
@@ -270,6 +289,7 @@ export const LinkManager: React.FC<LinkManagerProps> = ({
       <UniversalLinkInput
         onAdd={handleAddLink}
         disabled={disabled || links.length >= maxLinks}
+        existingPlatforms={links.map(link => link.platform.id)}
       />
 
       {/* Links Counter */}

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { MAX_SOCIAL_LINKS } from '@/constants/app';
 import type { DetectedLink } from '@/lib/utils/platform-detection';
 import { LinkManager } from './LinkManager';
 
@@ -14,15 +15,15 @@ interface LinkItem extends DetectedLink {
 interface SocialLinkManagerProps {
   initialLinks?: LinkItem[];
   onLinksChange: (links: LinkItem[]) => void;
+  onLinkAdded?: (links: LinkItem[]) => void; // Immediate save callback for new links
   disabled?: boolean;
-  maxLinks?: number;
 }
 
 export const SocialLinkManager: React.FC<SocialLinkManagerProps> = ({
   initialLinks = [],
   onLinksChange,
+  onLinkAdded,
   disabled = false,
-  maxLinks = 10,
 }) => {
   // Filter to only social platform links
   const socialLinks = initialLinks.filter(
@@ -58,8 +59,9 @@ export const SocialLinkManager: React.FC<SocialLinkManagerProps> = ({
         <LinkManager
           initialLinks={socialLinks}
           onLinksChange={handleSocialLinksChange}
+          onLinkAdded={onLinkAdded}
           disabled={disabled}
-          maxLinks={maxLinks}
+          maxLinks={MAX_SOCIAL_LINKS}
           allowedCategory='social'
           title='Social Links'
           description='Add Instagram, Twitter, YouTube channels, and other social platforms.'

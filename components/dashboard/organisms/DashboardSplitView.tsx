@@ -273,13 +273,29 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
     [session, artist, onArtistUpdate, showUpdateIndicator]
   );
 
-  // Debounced save function
+  // Debounced save function with shorter delay
   const debouncedSave = useMemo(() => {
     const fn = (socialLinks: LinkItem[], dspLinks: LinkItem[]) => {
       saveLinks(socialLinks, dspLinks);
     };
-    return debounce(fn as (...args: unknown[]) => void, 800);
+    return debounce(fn as (...args: unknown[]) => void, 300);
   }, [saveLinks]);
+
+  // Handle immediate save for new links (no debounce)
+  const handleLinkAdded = useCallback(
+    (newLinks: LinkItem[]) => {
+      // Determine if this is social or DSP links and save immediately
+      const isSocialLinks = newLinks.some(
+        link => link.platform.category === 'social'
+      );
+      if (isSocialLinks) {
+        saveLinks(newLinks, dspLinks);
+      } else {
+        saveLinks(socialLinks, newLinks);
+      }
+    },
+    [socialLinks, dspLinks, saveLinks]
+  );
 
   // Handle social link changes
   const handleSocialLinksChange = (newLinks: LinkItem[]) => {
@@ -366,8 +382,8 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
             <SocialLinkManager
               initialLinks={initialSocialLinks}
               onLinksChange={handleSocialLinksChange}
+              onLinkAdded={handleLinkAdded}
               disabled={disabled || saveStatus.saving}
-              maxLinks={10}
             />
 
             {/* Separator */}
@@ -377,8 +393,8 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
             <DSPLinkManager
               initialLinks={initialDSPLinks}
               onLinksChange={handleDSPLinksChange}
+              onLinkAdded={handleLinkAdded}
               disabled={disabled || saveStatus.saving}
-              maxLinks={10}
             />
           </div>
         </div>

@@ -2,16 +2,34 @@ import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { env } from '@/lib/env';
 
-if (!env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is not set in environment variables');
+// Lazy-initialize the database connection to avoid build-time errors
+let _db: ReturnType<typeof drizzle> | null = null;
+let _sql: ReturnType<typeof neon> | null = null;
+
+function initializeDatabase() {
+  if (!env.DATABASE_URL) {
+    throw new Error('DATABASE_URL is not set in environment variables');
+  }
+
+  if (!_sql) {
+    _sql = neon(env.DATABASE_URL);
+  }
+
+  if (!_db) {
+    _db = drizzle(_sql, {
+      logger: process.env.NODE_ENV === 'development',
+    });
+  }
+
+  return _db;
 }
 
-// Create the connection to Neon
-const sql = neon(env.DATABASE_URL);
-
-// Create the Drizzle instance with the Neon HTTP client
-export const db = drizzle(sql, {
-  logger: process.env.NODE_ENV === 'development',
+// Create a proxy that initializes the database on first access
+export const db = new Proxy({} as ReturnType<typeof drizzle>, {
+  get(target, prop) {
+    const realDb = initializeDatabase();
+    return realDb[prop as keyof typeof realDb];
+  },
 });
 
 // Export types

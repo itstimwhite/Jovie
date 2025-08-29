@@ -51,7 +51,7 @@ export function ArtistCarousel({ artists }: ArtistCarouselProps) {
                 <div
                   className={`absolute inset-0 flex items-center justify-center bg-black/50 rounded-full ${
                     prefersReducedMotion
-                      ? 'opacity-0 focus-within:opacity-100 group-focus:opacity-100'
+                      ? 'opacity-0 focus-visible-within:opacity-100 group-focus-visible:opacity-100'
                       : 'opacity-0 group-hover:opacity-100 transition-opacity duration-300'
                   }`}
                 >

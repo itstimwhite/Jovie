@@ -65,6 +65,18 @@ export const CREATOR_TYPES: readonly CreatorType[] = [
   'creator',
 ] as const;
 
+// Theme mode for user preference (persisted)
+export type ThemeMode = 'system' | 'light' | 'dark';
+export const THEME_MODES: readonly ThemeMode[] = [
+  'system',
+  'light',
+  'dark',
+] as const;
+
+export function isValidThemeMode(value: string): value is ThemeMode {
+  return (THEME_MODES as readonly string[]).includes(value);
+}
+
 export const LINK_TYPES: readonly LinkType[] = [
   'listen',
   'social',

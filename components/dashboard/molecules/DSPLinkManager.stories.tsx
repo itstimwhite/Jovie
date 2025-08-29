@@ -73,10 +73,6 @@ const meta: Meta<typeof DSPLinkManager> = {
       description: 'Whether the component is disabled',
       control: 'boolean',
     },
-    maxLinks: {
-      description: 'Maximum number of links allowed',
-      control: { type: 'number', min: 1, max: 20 },
-    },
   },
   decorators: [
     Story => (
@@ -100,7 +96,6 @@ export const Default: Story = {
     initialLinks: mockDSPLinks,
     onLinksChange: mockOnLinksChange,
     disabled: false,
-    maxLinks: 10,
   },
 };
 
@@ -109,7 +104,6 @@ export const Empty: Story = {
     initialLinks: [],
     onLinksChange: mockOnLinksChange,
     disabled: false,
-    maxLinks: 10,
   },
   parameters: {
     docs: {
@@ -125,7 +119,6 @@ export const Disabled: Story = {
     initialLinks: mockDSPLinks,
     onLinksChange: mockOnLinksChange,
     disabled: true,
-    maxLinks: 10,
   },
   parameters: {
     docs: {
@@ -137,59 +130,11 @@ export const Disabled: Story = {
   },
 };
 
-export const LimitedLinks: Story = {
-  args: {
-    initialLinks: mockDSPLinks,
-    onLinksChange: mockOnLinksChange,
-    disabled: false,
-    maxLinks: 3,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'DSPLinkManager with a limit of 3 links, showing how the component behaves when the limit is reached.',
-      },
-    },
-  },
-};
-
-export const ValidationErrors: Story = {
-  args: {
-    initialLinks: [
-      ...mockDSPLinks,
-      {
-        id: 'link_4',
-        platform: getPlatform('spotify')!,
-        normalizedUrl: 'https://open.spotify.com/invalid',
-        originalUrl: 'https://open.spotify.com/invalid',
-        suggestedTitle: 'Invalid Spotify Link',
-        title: 'Invalid Spotify',
-        isValid: false,
-        error: 'Invalid URL format',
-        isVisible: true,
-        order: 3,
-      },
-    ],
-    onLinksChange: mockOnLinksChange,
-    disabled: false,
-    maxLinks: 10,
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'DSPLinkManager with a validation error for one of the links.',
-      },
-    },
-  },
-};
-
 export const DarkMode: Story = {
   args: {
     initialLinks: mockDSPLinks,
     onLinksChange: mockOnLinksChange,
     disabled: false,
-    maxLinks: 10,
   },
   parameters: {
     backgrounds: { default: 'dark' },

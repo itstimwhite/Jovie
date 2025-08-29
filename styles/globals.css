@@ -116,21 +116,122 @@
   color: rgb(var(--accent));
 }
 
+/* Menu/Dropdown utilities */
+@utility menu-background {
+  background-color: rgb(var(--menu-background));
+}
+
+@utility menu-border {
+  border-color: rgb(var(--menu-border));
+}
+
+@utility menu-shadow {
+  box-shadow:
+    0 10px 15px -3px rgb(var(--menu-shadow)),
+    0 4px 6px -2px rgb(var(--menu-shadow));
+}
+
+@utility menu-item-hover {
+  background-color: rgb(var(--menu-item-hover));
+}
+
+@utility menu-separator {
+  border-color: rgb(var(--menu-separator));
+}
+
+/* Surface utilities */
+@utility surface {
+  background-color: var(--color-bg-surface);
+}
+
+@utility surface-hover {
+  background-color: var(--color-bg-surface-hover);
+}
+
+@utility surface-pressed {
+  background-color: var(--color-bg-surface-hover);
+}
+
+/* Text utilities */
+@utility text-primary {
+  color: var(--color-text-primary-token);
+}
+
+@utility text-secondary {
+  color: var(--color-text-secondary-token);
+}
+
+@utility text-tertiary {
+  color: var(--color-text-secondary-token);
+}
+
+@utility text-destructive {
+  color: #dc2626; /* red-600 */
+
+  &:is(.dark *) {
+    color: #f87171; /* red-400 */
+  }
+}
+
+/* Interactive state utilities */
+@utility interactive-hover {
+  background-color: rgb(var(--interactive-hover));
+}
+
+@utility interactive-pressed {
+  background-color: rgb(var(--interactive-pressed));
+}
+
+@utility focus-ring-themed {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  --tw-ring-color: rgb(var(--focus-ring));
+}
+
+/* Menu animations */
+@keyframes user-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+  }
+}
+
 @layer base {
+  /* Linear-style dashboard tokens (light) */
   :root {
-    --background: 255 255 255;
-    --foreground: 17 24 39;
-    --accent: 192 132 252;
+    --color-bg-base: #ffffff;
+    --color-bg-surface: #f6f7f8; /* surface */
+    --color-bg-surface-hover: #eef0f2; /* hover */
+    --color-border-subtle: #e5e7eb;
+    --color-text-primary-token: #0c0c0c;
+    --color-text-secondary-token: #6b7280;
+    --color-accent: #7c3aed; /* accent */
   }
 
-  .dark {
-    --background: 17 24 39;
-    --foreground: 249 250 251;
-    --accent: 192 132 252;
+  /* Dark mode overrides — ensure this block comes AFTER light tokens */
+  :root.dark {
+    /* Linear-style dashboard tokens (dark) */
+    --color-bg-base: #0c0c0c; /* app background */
+    --color-bg-surface: #151515; /* sidebars/cards */
+    --color-bg-surface-hover: #1c1c1c; /* hover */
+    --color-border-subtle: #2a2a2a; /* borders */
+    --color-text-primary-token: #ededed;
+    --color-text-secondary-token: #9a9a9a;
+    --color-accent: #7c3aed; /* accent */
   }
 
   body {
-    @apply bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-50;
+    background-color: var(--color-bg-base);
+    color: var(--color-text-primary-token);
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
@@ -168,4 +269,21 @@
   h6 {
     @apply text-base lg:text-lg;
   }
+}
+
+/* Utility bridges for Linear-style tokens */
+@utility bg-base {
+  background-color: var(--color-bg-base);
+}
+
+@utility border-subtle {
+  border-color: var(--color-border-subtle);
+}
+
+@utility text-accent-token {
+  color: var(--color-accent);
+}
+
+@utility ring-accent {
+  --tw-ring-color: var(--color-accent);
 }

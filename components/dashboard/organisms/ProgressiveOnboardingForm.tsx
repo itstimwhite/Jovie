@@ -527,7 +527,7 @@ export function ProgressiveOnboardingForm() {
                       clearResults();
                     }
                   }}
-                  className='w-full px-4 py-3 pl-12 text-base bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                  className='w-full px-4 py-3 pl-12 text-base bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent'
                   autoFocus
                 />
                 <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
@@ -829,7 +829,7 @@ export function ProgressiveOnboardingForm() {
       {/* Skip link for accessibility */}
       <a
         href='#main-content'
-        className='sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50'
+        className='sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50'
       >
         Skip to main content
       </a>

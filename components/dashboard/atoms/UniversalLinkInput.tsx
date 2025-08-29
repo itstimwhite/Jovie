@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { SocialIcon } from '@/components/atoms/SocialIcon';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -13,16 +13,19 @@ interface UniversalLinkInputProps {
   onAdd: (link: DetectedLink) => void;
   placeholder?: string;
   disabled?: boolean;
+  existingPlatforms?: string[]; // Array of existing platform IDs to check for duplicates
 }
 
 export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
   onAdd,
   placeholder = 'Paste any link (Spotify, Instagram, TikTok, etc.)',
   disabled = false,
+  existingPlatforms = [],
 }) => {
   const [url, setUrl] = useState('');
   const [customTitle, setCustomTitle] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const urlInputRef = useRef<HTMLInputElement>(null);
 
   // Real-time platform detection
   const detectedLink = useMemo(() => {
@@ -66,6 +69,11 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
     setUrl('');
     setCustomTitle('');
     setIsEditing(false);
+
+    // Auto-focus the URL input after adding a link
+    setTimeout(() => {
+      urlInputRef.current?.focus();
+    }, 50);
   }, [detectedLink, customTitle, onAdd]);
 
   // Handle keyboard interactions
@@ -88,7 +96,15 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
   const displayTitle = customTitle || detectedLink?.suggestedTitle || '';
   const brandColor = detectedLink?.platform.color
     ? `#${detectedLink.platform.color}`
-    : '#6B7280';
+    : 'rgb(var(--text-secondary))'; // Use design token for fallback
+
+  // Check if this platform already exists
+  const isPlatformDuplicate = detectedLink
+    ? existingPlatforms.includes(detectedLink.platform.id)
+    : false;
+  const effectiveBrandColor = isPlatformDuplicate
+    ? 'rgb(var(--text-accent))'
+    : brandColor;
 
   return (
     <div className='space-y-3'>
@@ -98,6 +114,7 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
           Enter link URL
         </label>
         <Input
+          ref={urlInputRef}
           id='link-url-input'
           type='url'
           placeholder={placeholder}
@@ -122,8 +139,8 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
             <div
               className='flex items-center justify-center w-6 h-6 rounded-full'
               style={{
-                backgroundColor: `${brandColor}15`,
-                color: brandColor,
+                backgroundColor: `${effectiveBrandColor}15`,
+                color: effectiveBrandColor,
               }}
             >
               <SocialIcon
@@ -149,13 +166,21 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
       {/* Link preview & title editing */}
       {detectedLink && (
         <div
-          className='p-3 rounded-lg border transition-all duration-200'
-          style={{
-            borderColor: detectedLink.isValid ? `${brandColor}30` : '#ef444430',
-            backgroundColor: detectedLink.isValid
-              ? `${brandColor}08`
-              : '#ef444408',
-          }}
+          className={`p-3 rounded-lg border transition-all duration-200 ${
+            isPlatformDuplicate
+              ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/20'
+              : detectedLink.isValid
+                ? 'border-surface-hover-token bg-surface-token'
+                : 'border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-950/10'
+          }`}
+          style={
+            detectedLink.isValid && !isPlatformDuplicate
+              ? {
+                  borderColor: `${brandColor}30`,
+                  backgroundColor: `${brandColor}08`,
+                }
+              : {}
+          }
           role='region'
           aria-label='Link preview'
         >
@@ -164,8 +189,8 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
             <div
               className='flex items-center justify-center w-8 h-8 rounded-lg shrink-0 mt-0.5'
               style={{
-                backgroundColor: `${brandColor}15`,
-                color: brandColor,
+                backgroundColor: `${effectiveBrandColor}15`,
+                color: effectiveBrandColor,
               }}
               aria-hidden='true'
             >
@@ -178,14 +203,14 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
             <div className='flex-1 min-w-0'>
               {/* Platform name and category */}
               <div className='flex items-center gap-2 mb-2'>
-                <span className='font-medium text-sm text-gray-900 dark:text-gray-100'>
+                <span className='font-medium text-sm text-primary-token'>
                   {detectedLink.platform.name}
                 </span>
                 <span
                   className='text-xs px-2 py-0.5 rounded-full'
                   style={{
-                    backgroundColor: `${brandColor}20`,
-                    color: brandColor,
+                    backgroundColor: `${effectiveBrandColor}20`,
+                    color: effectiveBrandColor,
                   }}
                 >
                   {detectedLink.platform.category}
@@ -214,9 +239,28 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
               />
 
               {/* URL preview */}
-              <div className='text-xs text-gray-500 dark:text-gray-400 truncate'>
+              <div className='text-xs text-secondary-token truncate'>
                 {detectedLink.normalizedUrl}
               </div>
+
+              {/* Duplicate platform warning */}
+              {isPlatformDuplicate && (
+                <div
+                  className='text-xs text-red-600 dark:text-red-400 mt-1 p-2 bg-red-50 dark:bg-red-950/20 rounded border border-red-200 dark:border-red-800'
+                  role='alert'
+                >
+                  <div className='font-medium mb-1'>
+                    ⚠️ Duplicate Platform Detected
+                  </div>
+                  <div>
+                    You already have a {detectedLink.platform.name} link. Having
+                    multiple links to the same platform creates decision
+                    paralysis for visitors, leading to lower engagement and
+                    fewer conversions. Consider replacing your existing{' '}
+                    {detectedLink.platform.name} link instead.
+                  </div>
+                </div>
+              )}
 
               {/* Validation error */}
               {!detectedLink.isValid && detectedLink.error && (
@@ -233,14 +277,26 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
             <Button
               onClick={handleAdd}
               disabled={
-                disabled || !detectedLink.isValid || !displayTitle.trim()
+                disabled ||
+                !detectedLink.isValid ||
+                !displayTitle.trim() ||
+                isPlatformDuplicate
               }
               size='sm'
               style={{
-                backgroundColor: detectedLink.isValid ? brandColor : undefined,
+                backgroundColor:
+                  detectedLink.isValid && !isPlatformDuplicate
+                    ? brandColor
+                    : undefined,
               }}
-              className={!detectedLink.isValid ? 'opacity-50' : ''}
-              aria-label={`Add ${displayTitle || 'link'}`}
+              className={
+                !detectedLink.isValid || isPlatformDuplicate ? 'opacity-50' : ''
+              }
+              aria-label={
+                isPlatformDuplicate
+                  ? `Cannot add duplicate ${detectedLink.platform.name} link`
+                  : `Add ${displayTitle || 'link'}`
+              }
             >
               Add
             </Button>
@@ -250,7 +306,7 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
 
       {/* Validation hint */}
       {url && !detectedLink?.isValid && (
-        <div className='text-xs text-gray-500 dark:text-gray-400' role='status'>
+        <div className='text-xs text-secondary-token' role='status'>
           💡 Paste links from Spotify, Instagram, TikTok, YouTube, and more for
           automatic detection
         </div>
