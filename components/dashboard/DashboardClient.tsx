@@ -26,6 +26,7 @@ import { AnalyticsCards } from '@/components/dashboard/molecules/AnalyticsCards'
 import { EnhancedThemeToggle } from '@/components/dashboard/molecules/EnhancedThemeToggle';
 import { DashboardSplitView } from '@/components/dashboard/organisms/DashboardSplitView';
 import { SettingsPolished } from '@/components/dashboard/organisms/SettingsPolished';
+import { TipMetricsCard } from '@/components/tipping/TipMetricsCard';
 import { UserButton } from '@/components/molecules/UserButton';
 import { Logo } from '@/components/ui/Logo';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
@@ -737,7 +738,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   </div>
 
                   {/* Analytics Cards */}
-                  <AnalyticsCards profileUrl={`${APP_URL}/${artist.handle}`} />
+                  <AnalyticsCards profileUrl={`${APP_URL}/${artist.handle}`} artistHandle={artist.handle} />
 
                   {/* Additional analytics info */}
                   <div className='mt-8 bg-surface-1 backdrop-blur-sm rounded-lg p-6 border border-subtle hover:shadow-lg hover:border-accent/10 transition-all duration-300 relative z-10'>

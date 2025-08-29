@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { AnalyticsCard } from '../atoms/AnalyticsCard';
+import { TipMetricsCard } from '@/components/tipping/TipMetricsCard';
 
 interface AnalyticsData {
   total_clicks: number;
@@ -14,9 +15,10 @@ interface AnalyticsData {
 
 interface AnalyticsCardsProps {
   profileUrl?: string;
+  artistHandle?: string;
 }
 
-export function AnalyticsCards({ profileUrl }: AnalyticsCardsProps) {
+export function AnalyticsCards({ profileUrl, artistHandle }: AnalyticsCardsProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | undefined>();
   const [data, setData] = useState<AnalyticsData>({
@@ -238,6 +240,8 @@ export function AnalyticsCards({ profileUrl }: AnalyticsCardsProps) {
           metadata={card.metadata}
         />
       ))}
+      {/* Add TipMetricsCard to the analytics dashboard */}
+      <TipMetricsCard artistHandle={artistHandle} />
     </div>
   );
 }
