@@ -1,7 +1,8 @@
 'use client';
 
 import { useTheme } from 'next-themes';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
+import { updateThemePreference } from './ThemeToggleActions';
 
 interface EnhancedThemeToggleProps {
   onThemeChange?: (theme: 'light' | 'dark' | 'system') => void;
@@ -15,7 +16,7 @@ export function EnhancedThemeToggle({
   variant = 'default',
 }: EnhancedThemeToggleProps) {
   const [mounted, setMounted] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   useEffect(() => {
@@ -41,34 +42,31 @@ export function EnhancedThemeToggle({
     );
   }
 
-  const handleThemeChange = async (newTheme: 'light' | 'dark' | 'system') => {
-    setIsUpdating(true);
+  const handleThemeChange = (newTheme: 'light' | 'dark' | 'system') => {
+    // Update theme immediately for responsive UI
     setTheme(newTheme);
+    
+    // Save to database via server action
+    startTransition(async () => {
+      try {
+        const result = await updateThemePreference(newTheme);
+        
+        if (!result.success) {
+          console.error('Failed to save theme preference:', result.error);
+          // Revert theme change on API failure
+          setTheme(theme || 'system');
+          // TODO: Add toast notification for user feedback
+          return;
+        }
 
-    try {
-      // Save theme preference to database for signed-in users
-      const response = await fetch('/api/dashboard/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          updates: {
-            theme: { preference: newTheme },
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        console.error('Failed to save theme preference');
+        onThemeChange?.(newTheme);
+      } catch (error) {
+        console.error('Error saving theme preference:', error);
+        // Revert theme change on error
+        setTheme(theme || 'system');
+        // TODO: Add toast notification for user feedback
       }
-
-      onThemeChange?.(newTheme);
-    } catch (error) {
-      console.error('Error saving theme preference:', error);
-    } finally {
-      setIsUpdating(false);
-    }
+    });
   };
 
   if (showSystemOption) {
@@ -89,7 +87,7 @@ export function EnhancedThemeToggle({
               onClick={() =>
                 handleThemeChange(option.value as 'light' | 'dark' | 'system')
               }
-              disabled={isUpdating}
+              disabled={isPending}
               className={`
                 flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-all duration-200
                 ${
@@ -124,10 +122,10 @@ export function EnhancedThemeToggle({
     return (
       <button
         type='button'
-        disabled={isUpdating}
+        disabled={isPending}
         onClick={() => handleThemeChange(isDark ? 'light' : 'dark')}
         className={`inline-flex h-7 w-7 items-center justify-center rounded-full border border-subtle-token bg-surface-hover-token/80 backdrop-blur-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 disabled:cursor-not-allowed ${
-          isUpdating ? 'animate-pulse' : ''
+          isPending ? 'animate-pulse' : ''
         }`}
         title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       >
@@ -163,7 +161,7 @@ export function EnhancedThemeToggle({
   return (
     <button
       type='button'
-      disabled={isUpdating}
+      disabled={isPending}
       onClick={() => handleThemeChange(isDark ? 'light' : 'dark')}
       className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border border-subtle-token transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 disabled:cursor-not-allowed ${
         isDark ? 'bg-accent' : 'bg-surface-hover-token'
@@ -173,7 +171,7 @@ export function EnhancedThemeToggle({
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       <span className='sr-only'>
-        {isUpdating
+        {isPending
           ? 'Updating theme...'
           : `Switch to ${isDark ? 'light' : 'dark'} mode`}
       </span>
@@ -181,7 +179,7 @@ export function EnhancedThemeToggle({
         aria-hidden='true'
         className={`flex h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out items-center justify-center ${
           isDark ? 'translate-x-5' : 'translate-x-0'
-        } ${isUpdating ? 'animate-pulse' : ''}`}
+        } ${isPending ? 'animate-pulse' : ''}`}
       >
         {isDark ? (
           <svg
