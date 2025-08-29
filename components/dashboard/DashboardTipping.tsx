@@ -10,14 +10,14 @@ interface DashboardTippingProps {
 }
 
 export function DashboardTipping({ initialData }: DashboardTippingProps) {
-  const [artist, setArtist] = useState<Artist | null>(
+  const [artist] = useState<Artist | null>(
     initialData.selectedProfile
       ? convertDrizzleCreatorProfileToArtist(initialData.selectedProfile)
       : null
   );
-  const [creatorProfiles] = useState<CreatorProfile[]>(
-    initialData.creatorProfiles
-  );
+  // const [creatorProfiles] = useState<CreatorProfile[]>(
+  //   initialData.creatorProfiles
+  // );
   // Note: These handlers are currently unused but kept for future functionality
   // const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
   //   initialData.selectedProfile?.id || null

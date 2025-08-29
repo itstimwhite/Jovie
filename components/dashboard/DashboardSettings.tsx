@@ -16,17 +16,17 @@ export function DashboardSettings({ initialData }: DashboardSettingsProps) {
       ? convertDrizzleCreatorProfileToArtist(initialData.selectedProfile)
       : null
   );
-  const [creatorProfiles] = useState<CreatorProfile[]>(
-    initialData.creatorProfiles
-  );
+  // const [creatorProfiles] = useState<CreatorProfile[]>(
+  //   initialData.creatorProfiles
+  // );
   // Note: These handlers are currently unused but kept for future functionality
   // const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
   //   initialData.selectedProfile?.id || null
   // );
 
-  // const handleArtistUpdated = (updatedArtist: Artist) => {
-  //   setArtist(updatedArtist);
-  // };
+  const handleArtistUpdated = (updatedArtist: Artist) => {
+    setArtist(updatedArtist);
+  };
 
   // // Handle profile selection when user has multiple creator profiles
   // const handleProfileSelection = (profileId: string) => {

@@ -7,7 +7,9 @@ import { Artist } from '@/types/db';
 import * as platformDetection from '@/lib/utils/platform-detection';
 
 // Use proper mock approach to avoid import/namespace linting error
-const mockPlatformDetection = platformDetection as any;
+const mockPlatformDetection = platformDetection as typeof platformDetection & {
+  getBaseUrl: () => string;
+};
 mockPlatformDetection.getBaseUrl = () => 'https://jov.ie';
 
 const meta: Meta<typeof TipLinkCard> = {
