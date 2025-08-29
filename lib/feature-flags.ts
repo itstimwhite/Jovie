@@ -13,6 +13,8 @@ export interface FeatureFlags {
   minimalistOnboardingEnabled?: boolean;
   // New Apple-style full-screen onboarding with improved UX (JOV-134)
   appleStyleOnboardingEnabled?: boolean;
+  // Venmo tip button in profile footer (JOV-146)
+  venmoTipButtonEnabled?: boolean;
 }
 
 // PostHog feature flag names (match what's defined in PostHog dashboard)
@@ -26,6 +28,7 @@ export const POSTHOG_FLAGS = {
   PROGRESSIVE_ONBOARDING_ENABLED: 'feature_progressive_onboarding_enabled',
   MINIMALIST_ONBOARDING_ENABLED: 'feature_minimalist_onboarding_enabled',
   APPLE_STYLE_ONBOARDING_ENABLED: 'feature_apple_style_onboarding_enabled',
+  VENMO_TIP_BUTTON_ENABLED: 'feature_venmo_tip_button_enabled',
 } as const;
 
 // Default feature flags (fallback)
@@ -44,6 +47,8 @@ const defaultFeatureFlags: FeatureFlags = {
   minimalistOnboardingEnabled: true,
   // New Apple-style full-screen onboarding with improved UX (JOV-134)
   appleStyleOnboardingEnabled: true,
+  // Venmo tip button in profile footer (JOV-146)
+  venmoTipButtonEnabled: true,
 };
 
 // Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
@@ -196,6 +201,7 @@ async function getPostHogServerFlags(
       progressiveOnboardingEnabled,
       minimalistOnboardingEnabled,
       appleStyleOnboardingEnabled,
+      venmoTipButtonEnabled,
     ] = await Promise.all([
       client.isFeatureEnabled(POSTHOG_FLAGS.ARTIST_SEARCH_ENABLED, distinctId),
       client.isFeatureEnabled(POSTHOG_FLAGS.DEBUG_BANNER_ENABLED, distinctId),
@@ -221,6 +227,10 @@ async function getPostHogServerFlags(
         POSTHOG_FLAGS.APPLE_STYLE_ONBOARDING_ENABLED,
         distinctId
       ),
+      client.isFeatureEnabled(
+        POSTHOG_FLAGS.VENMO_TIP_BUTTON_ENABLED,
+        distinctId
+      ),
     ]);
 
     await client.shutdown();
@@ -244,6 +254,9 @@ async function getPostHogServerFlags(
       }),
       ...(typeof appleStyleOnboardingEnabled === 'boolean' && {
         appleStyleOnboardingEnabled,
+      }),
+      ...(typeof venmoTipButtonEnabled === 'boolean' && {
+        venmoTipButtonEnabled,
       }),
     };
   } catch (error) {
@@ -293,6 +306,9 @@ export async function getServerFeatureFlags(
             appleStyleOnboardingEnabled: Boolean(
               data.appleStyleOnboardingEnabled
             ),
+            venmoTipButtonEnabled: Boolean(
+              data.venmoTipButtonEnabled
+            ),
             featureClickAnalyticsRpc: Boolean(
               data.featureClickAnalyticsRpc || data.feature_click_analytics_rpc
             ),
@@ -341,6 +357,10 @@ export async function getServerFeatureFlags(
         postHogFlags.appleStyleOnboardingEnabled ??
         localFlags.appleStyleOnboardingEnabled ??
         defaultFeatureFlags.appleStyleOnboardingEnabled,
+      venmoTipButtonEnabled:
+        postHogFlags.venmoTipButtonEnabled ??
+        localFlags.venmoTipButtonEnabled ??
+        defaultFeatureFlags.venmoTipButtonEnabled,
     };
   } catch (error) {
     console.warn('[Feature Flags] Server flags failed:', error);

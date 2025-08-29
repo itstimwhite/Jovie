@@ -186,6 +186,8 @@ export function ProfileShell({
                 <ProfileFooter
                   artistHandle={artist.handle}
                   artistSettings={artist.settings}
+                  socialLinks={socialLinks}
+                  artistName={artist.name}
                 />
               </div>
             </div>
