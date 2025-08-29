@@ -654,7 +654,20 @@ export function SettingsPolished({
                 {item.subsections.map(subsection => (
                   <button
                     key={subsection.id}
-                    onClick={() => setCurrentSection(subsection.id)}
+                    onClick={() => {
+                      // Switch current section group if needed, then smooth-scroll to the anchor
+                      setCurrentSection(subsection.id);
+                      // Allow the DOM to render the section content before scrolling
+                      setTimeout(() => {
+                        const el = document.getElementById(subsection.id);
+                        if (el) {
+                          el.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start',
+                          });
+                        }
+                      }, 0);
+                    }}
                     className={cn(
                       'w-full text-left px-3 py-2 rounded text-sm transition-colors',
                       currentSection === subsection.id
@@ -692,7 +705,9 @@ export function SettingsPolished({
       </div>
 
       {/* Settings Content */}
-      <div className='flex-1 min-w-0'>{renderContent()}</div>
+      <div className='flex-1 min-w-0 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2'>
+        {renderContent()}
+      </div>
     </div>
   );
 }

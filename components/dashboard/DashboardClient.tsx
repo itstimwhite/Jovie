@@ -125,6 +125,20 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
         <div className='relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='flex min-h-screen items-center justify-center py-8'>
             <div className='w-full max-w-md'>
+              {/* App Icon */}
+              <div className='flex justify-center mb-6'>
+                <div className='w-16 h-16 rounded-2xl bg-surface-1 border border-subtle flex items-center justify-center shadow-lg'>
+                  <Image
+                    src='/android-chrome-512x512.png'
+                    alt='Jovie Logo'
+                    width={48}
+                    height={48}
+                    className='w-12 h-12 object-contain'
+                    priority={true}
+                  />
+                </div>
+              </div>
+
               {/* Header */}
               <div className='text-center mb-6'>
                 <h1 className='text-3xl font-semibold text-primary-token mb-1 transition-colors'>
@@ -271,7 +285,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                                     quality={75}
                                   />
                                 ) : (
-                                  <div className='h-6 w-6 rounded-full bg-surface-2 flex items-center justify-center'>
+                                  <div className='h-6 w-6 rounded-full bg-gradient-to-br from-surface-2 to-surface-1 border border-subtle flex items-center justify-center'>
                                     <span className='text-xs font-medium text-secondary-token'>
                                       {(
                                         profile.displayName ||
@@ -435,7 +449,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                                 quality={75}
                               />
                             ) : (
-                              <div className='h-6 w-6 rounded-full bg-surface-2 flex items-center justify-center'>
+                              <div className='h-6 w-6 rounded-full bg-gradient-to-br from-surface-2 to-surface-1 border border-subtle flex items-center justify-center'>
                                 <span className='text-xs font-medium text-secondary-token'>
                                   {(
                                     profile.displayName ||
@@ -489,7 +503,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                         style={{ backgroundColor: 'var(--color-accent)' }}
                       >
                         <svg
-                          className='h-4 w-4 flex-shrink-0'
+                          className='h-4 w-4 flex-shrink-0 animate-pulse filter drop-shadow-[0_0_10px_rgba(255,255,255,0.15)]'
                           fill='none'
                           stroke='currentColor'
                           viewBox='0 0 24 24'
@@ -507,7 +521,9 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   )}
 
                   {/* Theme toggle, horizontal divider, and user info */}
-                  <div className='pt-4 border-t border-subtle space-y-3'>
+                  <div className='pt-4 space-y-3'>
+                    {/* Soft gradient divider */}
+                    <div className='h-px bg-gradient-to-r from-transparent via-subtle-token to-transparent' />
                     <div className='flex justify-center'>
                       <EnhancedThemeToggle />
                     </div>
@@ -589,7 +605,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
                     <button
                       onClick={() => handleNavigation('analytics')}
-                      className='bg-surface-1/80 backdrop-blur-sm rounded-xl border border-subtle/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2/80 transition-all duration-300 group card-hover btn-press'
+                      className='bg-surface-1 backdrop-blur-sm rounded-xl border border-subtle p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2 transition-all duration-300 group card-hover btn-press'
                     >
                       <div className='flex items-center justify-between mb-3'>
                         <ChartPieIcon className='h-8 w-8 text-accent-token' />
@@ -605,7 +621,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
                     <button
                       onClick={() => handleNavigation('audience')}
-                      className='bg-surface-1/80 backdrop-blur-sm rounded-xl border border-subtle/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2/80 transition-all duration-300 group card-hover btn-press'
+                      className='bg-surface-1 backdrop-blur-sm rounded-xl border border-subtle p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2 transition-all duration-300 group card-hover btn-press'
                     >
                       <div className='flex items-center justify-between mb-3'>
                         <UsersIcon className='h-8 w-8 text-accent-token' />
@@ -621,7 +637,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
                     <button
                       onClick={() => handleNavigation('settings')}
-                      className='bg-surface-1/80 backdrop-blur-sm rounded-xl border border-subtle/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2/80 transition-all duration-300 group card-hover btn-press'
+                      className='bg-surface-1 backdrop-blur-sm rounded-xl border border-subtle p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2 transition-all duration-300 group card-hover btn-press'
                     >
                       <div className='flex items-center justify-between mb-3'>
                         <Cog6ToothIcon className='h-8 w-8 text-accent-token' />
@@ -701,15 +717,6 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
               {currentNavItem === 'links' && (
                 <>
-                  <div className='mb-8'>
-                    <h1 className='text-2xl font-bold text-primary-token'>
-                      Links
-                    </h1>
-                    <p className='text-secondary-token mt-1'>
-                      Manage your social and streaming platform links
-                    </p>
-                  </div>
-
                   {/* Use the full DashboardSplitView for universal inputs and live preview */}
                   <DashboardSplitView
                     artist={artist}
