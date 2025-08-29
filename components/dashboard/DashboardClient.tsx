@@ -31,44 +31,37 @@ import { Logo } from '@/components/ui/Logo';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import type { CreatorProfile } from '@/lib/db/schema';
+import { cn } from '@/lib/utils';
 import { Artist, convertDrizzleCreatorProfileToArtist } from '@/types/db';
 import { PendingClaimHandler } from './PendingClaimHandler';
 
 const navigation = [
   {
     name: 'Overview',
-    href: '#',
-    icon: HomeIcon,
-    current: true,
     id: 'overview',
+    icon: HomeIcon,
   },
-  { name: 'Links', href: '#', icon: LinkIcon, current: false, id: 'links' },
+  {
+    name: 'Links',
+    id: 'links',
+    icon: LinkIcon,
+  },
   {
     name: 'Analytics',
-    href: '#',
-    icon: ChartPieIcon,
-    current: false,
     id: 'analytics',
+    icon: ChartPieIcon,
   },
   {
     name: 'Audience',
-    href: '#',
-    icon: UsersIcon,
-    current: false,
     id: 'audience',
+    icon: UsersIcon,
   },
   {
     name: 'Settings',
-    href: '#',
-    icon: Cog6ToothIcon,
-    current: false,
     id: 'settings',
+    icon: Cog6ToothIcon,
   },
 ];
-
-function classNames(...classes: (string | boolean | undefined)[]): string {
-  return classes.filter(Boolean).join(' ');
-}
 
 interface DashboardClientProps {
   initialData: {
@@ -112,7 +105,6 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
   const handleNavigation = (navId: string) => {
     setCurrentNavItem(navId);
-    setSidebarOpen(false);
   };
 
   if (initialData.needsOnboarding) {
@@ -164,12 +156,12 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
       <PendingClaimHandler />
 
       <div className='min-h-screen bg-base transition-colors relative'>
-        {' '}
         {/* Subtle background pattern */}
         <div className='absolute inset-0 opacity-50 grid-bg dark:grid-bg-dark pointer-events-none' />
         {/* Gradient orbs for visual depth */}
         <div className='absolute top-0 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/5 to-blue-500/5 rounded-full blur-3xl pointer-events-none' />
         <div className='absolute bottom-1/4 left-1/3 w-96 h-96 bg-gradient-to-r from-blue-500/5 to-cyan-500/5 rounded-full blur-3xl pointer-events-none' />
+
         {/* Mobile sidebar */}
         <Dialog
           open={sidebarOpen}
@@ -220,7 +212,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                           <li key={item.name}>
                             <button
                               onClick={() => handleNavigation(item.id)}
-                              className={classNames(
+                              className={cn(
                                 currentNavItem === item.id
                                   ? 'bg-surface-2 text-primary-token ring-1 ring-accent'
                                   : 'text-secondary-token hover:text-primary-token hover:bg-surface-2',
@@ -231,7 +223,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                               }
                             >
                               <item.icon
-                                className={classNames(
+                                className={cn(
                                   currentNavItem === item.id
                                     ? 'text-primary-token'
                                     : 'text-secondary-token group-hover:text-primary-token',
@@ -258,7 +250,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                                 onClick={() =>
                                   handleProfileSelection(profile.id)
                                 }
-                                className={classNames(
+                                className={cn(
                                   selectedProfileId === profile.id
                                     ? 'bg-surface-2 text-primary-token ring-1 ring-accent'
                                     : 'text-secondary-token hover:text-primary-token hover:bg-surface-2',
@@ -313,15 +305,16 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             </DialogPanel>
           </div>
         </Dialog>
+
         {/* Static sidebar for desktop */}
         <div
-          className={classNames(
+          className={cn(
             'hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col transition-all duration-300 ease-in-out',
             sidebarCollapsed ? 'lg:w-16' : 'lg:w-72'
           )}
         >
           <div
-            className={classNames(
+            className={cn(
               'flex grow flex-col gap-y-5 overflow-y-auto border-r border-subtle bg-surface-0 backdrop-blur-sm',
               sidebarCollapsed ? 'px-2' : 'px-6',
               'pb-4'
@@ -385,7 +378,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                       <li key={item.name}>
                         <button
                           onClick={() => handleNavigation(item.id)}
-                          className={classNames(
+                          className={cn(
                             currentNavItem === item.id
                               ? 'bg-surface-2 text-primary-token ring-1 ring-accent'
                               : 'text-secondary-token hover:text-primary-token hover:bg-surface-2',
@@ -398,7 +391,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                           }
                         >
                           <item.icon
-                            className={classNames(
+                            className={cn(
                               currentNavItem === item.id
                                 ? 'text-primary-token'
                                 : 'text-secondary-token group-hover:text-primary-token',
@@ -423,7 +416,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                         <li key={profile.id}>
                           <button
                             onClick={() => handleProfileSelection(profile.id)}
-                            className={classNames(
+                            className={cn(
                               selectedProfileId === profile.id
                                 ? 'bg-surface-2 text-primary-token ring-1 ring-accent'
                                 : 'text-secondary-token hover:text-primary-token hover:bg-surface-2',
@@ -484,6 +477,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                     </ul>
                   </li>
                 )}
+
                 {/* UserButton in sidebar with user info */}
                 <li className='mt-auto'>
                   {/* Pro Upgrade - moved above horizontal line */}
@@ -518,7 +512,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                       <EnhancedThemeToggle />
                     </div>
                     <div
-                      className={classNames(
+                      className={cn(
                         'flex',
                         sidebarCollapsed ? 'justify-center' : ''
                       )}
@@ -535,8 +529,9 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             </nav>
           </div>
         </div>
+
         <div
-          className={classNames(
+          className={cn(
             'transition-all duration-300 ease-in-out',
             sidebarCollapsed ? 'lg:pl-16' : 'lg:pl-72'
           )}
@@ -574,11 +569,11 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                     </p>
                   </div>
 
-                  {/* Quick Actions CTA Cards */}
+                  {/* Quick Actions CTA Cards with enhanced micro-animations */}
                   <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 relative z-10'>
                     <button
                       onClick={() => handleNavigation('links')}
-                      className='bg-surface-1 backdrop-blur-sm rounded-xl border border-subtle p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2 transition-all duration-300 group transform hover:-translate-y-0.5'
+                      className='bg-surface-1 backdrop-blur-sm rounded-xl border border-subtle p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2 transition-all duration-300 group card-hover btn-press'
                     >
                       <div className='flex items-center justify-between mb-3'>
                         <LinkIcon className='h-8 w-8 text-accent-token' />
@@ -594,7 +589,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
                     <button
                       onClick={() => handleNavigation('analytics')}
-                      className='bg-surface-1/80 backdrop-blur-sm rounded-xl border border-subtle/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2/80 transition-all duration-300 group transform hover:-translate-y-0.5'
+                      className='bg-surface-1/80 backdrop-blur-sm rounded-xl border border-subtle/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2/80 transition-all duration-300 group card-hover btn-press'
                     >
                       <div className='flex items-center justify-between mb-3'>
                         <ChartPieIcon className='h-8 w-8 text-accent-token' />
@@ -610,7 +605,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
                     <button
                       onClick={() => handleNavigation('audience')}
-                      className='bg-surface-1/80 backdrop-blur-sm rounded-xl border border-subtle/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2/80 transition-all duration-300 group transform hover:-translate-y-0.5'
+                      className='bg-surface-1/80 backdrop-blur-sm rounded-xl border border-subtle/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2/80 transition-all duration-300 group card-hover btn-press'
                     >
                       <div className='flex items-center justify-between mb-3'>
                         <UsersIcon className='h-8 w-8 text-accent-token' />
@@ -626,7 +621,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
                     <button
                       onClick={() => handleNavigation('settings')}
-                      className='bg-surface-1/80 backdrop-blur-sm rounded-xl border border-subtle/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2/80 transition-all duration-300 group transform hover:-translate-y-0.5'
+                      className='bg-surface-1/80 backdrop-blur-sm rounded-xl border border-subtle/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2/80 transition-all duration-300 group card-hover btn-press'
                     >
                       <div className='flex items-center justify-between mb-3'>
                         <Cog6ToothIcon className='h-8 w-8 text-accent-token' />
@@ -663,10 +658,13 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                           <p className='text-sm font-medium text-primary-token'>
                             Profile updated
                           </p>
-                          <p className='text-xs text-secondary-token'>
+                          <span className='text-xs text-secondary'>
                             2 hours ago
-                          </p>
+                          </span>
                         </div>
+                        <p className='text-xs text-secondary mt-0.5'>
+                          Your profile information was successfully updated
+                        </p>
                       </div>
                       <div className='flex items-center gap-3 p-3 rounded-lg bg-surface-2/30'>
                         <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
@@ -674,10 +672,13 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                           <p className='text-sm font-medium text-primary-token'>
                             New link added
                           </p>
-                          <p className='text-xs text-secondary-token'>
+                          <span className='text-xs text-secondary'>
                             1 day ago
-                          </p>
+                          </span>
                         </div>
+                        <p className='text-xs text-secondary mt-0.5'>
+                          Added music streaming link to your profile
+                        </p>
                       </div>
                       <div className='flex items-center gap-3 p-3 rounded-lg bg-surface-2/30'>
                         <div className='w-2 h-2 bg-purple-500 rounded-full'></div>
@@ -685,10 +686,13 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                           <p className='text-sm font-medium text-primary-token'>
                             Analytics milestone reached
                           </p>
-                          <p className='text-xs text-secondary-token'>
+                          <span className='text-xs text-secondary'>
                             3 days ago
-                          </p>
+                          </span>
                         </div>
+                        <p className='text-xs text-secondary mt-0.5'>
+                          Your profile reached 100 profile views this month
+                        </p>
                       </div>
                     </div>
                   </div>
