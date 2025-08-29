@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Artist, convertDrizzleCreatorProfileToArtist } from '@/types/db';
-import type { CreatorProfile } from '@/lib/db/schema';
 import type { DashboardData } from '@/app/dashboard/actions';
 
 interface DashboardTippingProps {
@@ -15,26 +14,6 @@ export function DashboardTipping({ initialData }: DashboardTippingProps) {
       ? convertDrizzleCreatorProfileToArtist(initialData.selectedProfile)
       : null
   );
-  const [creatorProfiles] = useState<CreatorProfile[]>(
-    initialData.creatorProfiles
-  );
-  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
-    initialData.selectedProfile?.id || null
-  );
-
-  const handleArtistUpdated = (updatedArtist: Artist) => {
-    setArtist(updatedArtist);
-  };
-
-  // Handle profile selection when user has multiple creator profiles
-  const handleProfileSelection = (profileId: string) => {
-    const selectedProfile = creatorProfiles.find(p => p.id === profileId);
-    if (selectedProfile) {
-      setSelectedProfileId(profileId);
-      const artistData = convertDrizzleCreatorProfileToArtist(selectedProfile);
-      setArtist(artistData);
-    }
-  };
 
   if (!artist) {
     return null; // This shouldn't happen given the server-side logic
@@ -81,7 +60,7 @@ export function DashboardTipping({ initialData }: DashboardTippingProps) {
           </h3>
           <div className="space-y-4">
             <p className="text-secondary-token">
-              Tipping functionality is coming soon. You'll be able to customize your tipping experience and manage payment methods here.
+              Tipping functionality is coming soon. You&apos;ll be able to customize your tipping experience and manage payment methods here.
             </p>
           </div>
         </div>
@@ -93,7 +72,7 @@ export function DashboardTipping({ initialData }: DashboardTippingProps) {
           </h3>
           <div className="space-y-4">
             <p className="text-secondary-token">
-              No tips received yet. When you receive tips, they'll appear here.
+              No tips received yet. When you receive tips, they&apos;ll appear here.
             </p>
           </div>
         </div>

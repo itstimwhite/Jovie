@@ -10,7 +10,6 @@ import {
   UserIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from 'next-themes';
-import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { APP_URL } from '@/constants/app';
 import { 
@@ -107,11 +106,9 @@ export function SettingsPolished({
   artist,
   onArtistUpdate,
 }: SettingsPolishedProps) {
-  const router = useRouter();
   const urlSection = useCurrentSettingsSection();
   const urlSubsection = useCurrentSettingsSubsection();
   const [currentSection, setCurrentSection] = useState<SettingsSection>(urlSection || 'profile');
-  const [currentSubsection, setCurrentSubsection] = useState<SettingsSubsection | null>(urlSubsection);
   const [isLoading, setIsLoading] = useState(false);
   const { theme, setTheme } = useTheme();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
@@ -155,7 +152,6 @@ export function SettingsPolished({
           if (subsectionExists) {
             setCurrentSection(navItem.id as SettingsSection);
             setExpandedSections(prev => new Set([...prev, navItem.id]));
-            setCurrentSubsection(hash as SettingsSubsection);
             
             // Scroll to the subsection after the component has rendered
             setTimeout(() => {
@@ -199,7 +195,6 @@ export function SettingsPolished({
     if (SETTINGS_SECTIONS.includes(sectionId as SettingsSection)) {
       window.location.hash = sectionId;
       setCurrentSection(sectionId as SettingsSection);
-      setCurrentSubsection(null);
     }
   };
 
@@ -739,7 +734,6 @@ export function SettingsPolished({
                       
                       // Update state
                       setCurrentSection(item.id as SettingsSection);
-                      setCurrentSubsection(subsection.id as SettingsSubsection);
                       
                       // Allow the DOM to render the section content before scrolling
                       setTimeout(() => {

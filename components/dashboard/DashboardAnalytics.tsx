@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { AnalyticsCards } from '@/components/dashboard/molecules/AnalyticsCards';
 import { Artist, convertDrizzleCreatorProfileToArtist } from '@/types/db';
-import type { CreatorProfile } from '@/lib/db/schema';
 import type { DashboardData } from '@/app/dashboard/actions';
 
 interface DashboardAnalyticsProps {
@@ -16,26 +15,6 @@ export function DashboardAnalytics({ initialData }: DashboardAnalyticsProps) {
       ? convertDrizzleCreatorProfileToArtist(initialData.selectedProfile)
       : null
   );
-  const [creatorProfiles] = useState<CreatorProfile[]>(
-    initialData.creatorProfiles
-  );
-  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
-    initialData.selectedProfile?.id || null
-  );
-
-  const handleArtistUpdated = (updatedArtist: Artist) => {
-    setArtist(updatedArtist);
-  };
-
-  // Handle profile selection when user has multiple creator profiles
-  const handleProfileSelection = (profileId: string) => {
-    const selectedProfile = creatorProfiles.find(p => p.id === profileId);
-    if (selectedProfile) {
-      setSelectedProfileId(profileId);
-      const artistData = convertDrizzleCreatorProfileToArtist(selectedProfile);
-      setArtist(artistData);
-    }
-  };
 
   if (!artist) {
     return null; // This shouldn't happen given the server-side logic
