@@ -57,6 +57,7 @@ function renderContent(
               venmoLink={venmoLink}
               venmoUsername={venmoUsername ?? undefined}
               amounts={AMOUNTS}
+              artistName={artist.name}
             />
           ) : (
             <div className='text-center'>

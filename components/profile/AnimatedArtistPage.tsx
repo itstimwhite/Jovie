@@ -89,6 +89,7 @@ function renderContent(
                 venmoUsername={venmoUsername ?? undefined}
                 amounts={AMOUNTS}
                 className='w-full max-w-sm'
+                artistName={artist.name}
               />
             ) : (
               <div className='text-center'>

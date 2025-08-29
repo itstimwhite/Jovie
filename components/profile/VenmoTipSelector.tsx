@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { TipSelector } from '@/components/molecules/TipSelector';
+import { TipShareCard } from '@/components/tipping/TipShareCard';
 
 type VenmoTipSelectorProps = {
   venmoLink: string;
@@ -9,6 +10,7 @@ type VenmoTipSelectorProps = {
   amounts?: number[];
   className?: string;
   onContinue?: (url: string) => void;
+  artistName?: string;
 };
 
 export default function VenmoTipSelector({
@@ -17,7 +19,10 @@ export default function VenmoTipSelector({
   amounts = [3, 5, 7],
   className,
   onContinue,
+  artistName,
 }: VenmoTipSelectorProps) {
+  const [tipUrl, setTipUrl] = useState<string | null>(null);
+  
   const handleAmountSelected = useCallback(
     (amount: number) => {
       const sep = venmoLink.includes('?') ? '&' : '?';
@@ -25,6 +30,9 @@ export default function VenmoTipSelector({
         venmoUsername ?? ''
       )}`;
 
+      // Save the tip URL for sharing
+      setTipUrl(url);
+      
       onContinue?.(url);
       window.open(url, '_blank', 'noopener,noreferrer');
     },
@@ -34,6 +42,15 @@ export default function VenmoTipSelector({
   return (
     <div className={className}>
       <TipSelector amounts={amounts} onContinue={handleAmountSelected} />
+      
+      {tipUrl && (
+        <div className="mt-4">
+          <TipShareCard 
+            tipUrl={tipUrl} 
+            artistName={artistName} 
+          />
+        </div>
+      )}
     </div>
   );
 }
