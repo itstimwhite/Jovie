@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/Button';
-import { DataCard } from '@/components/ui/DataCard';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { AnalyticsCard } from '../atoms/AnalyticsCard';
 
 interface AnalyticsData {
@@ -133,7 +133,7 @@ export function AnalyticsCards({ profileUrl }: AnalyticsCardsProps) {
     return (
       <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4'>
         {cards.map(card => (
-          <AnalyticsCard key={card.id} title='Loading...' value='...' />
+          <SkeletonCard key={card.id} />
         ))}
       </div>
     );
@@ -166,20 +166,13 @@ export function AnalyticsCards({ profileUrl }: AnalyticsCardsProps) {
 
   if (allZero) {
     return (
-      <div className='grid grid-cols-1'>
-        <DataCard
-          title='No profile views yet'
-          subtitle='Share your profile link to get started'
-          metadata={profileUrl}
-          actions={
-            profileUrl ? (
-              <Button onClick={handleCopy} aria-label='Copy profile link'>
-                {copied ? 'Copied!' : 'Copy Link'}
-              </Button>
-            ) : null
-          }
-        />
-      </div>
+      <EmptyState
+        type='analytics'
+        title='📊 No profile views yet'
+        description='Share your profile link to start tracking clicks and engagement from your fans.'
+        actionLabel={copied ? 'Copied!' : 'Copy Profile Link'}
+        onAction={profileUrl ? handleCopy : undefined}
+      />
     );
   }
 

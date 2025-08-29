@@ -144,7 +144,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
               </div>
 
               {/* Form Card */}
-              <div className='bg-surface-token backdrop-blur-sm border border-subtle-token rounded-xl p-6 shadow-xl transition-colors'>
+              <div className='bg-surface-1 backdrop-blur-sm border border-subtle rounded-xl p-6 shadow-xl transition-colors'>
                 <OnboardingForm />
               </div>
             </div>
@@ -200,7 +200,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   </button>
                 </div>
               </TransitionChild>
-              <div className='flex grow flex-col gap-y-5 overflow-y-auto bg-surface-token backdrop-blur-sm px-6 pb-4 border-r border-subtle-token'>
+              <div className='flex grow flex-col gap-y-5 overflow-y-auto bg-surface-0 backdrop-blur-sm px-6 pb-4 border-r border-subtle'>
                 <div className='flex h-16 shrink-0 items-center'>
                   <button
                     onClick={() => {
@@ -222,8 +222,8 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                               onClick={() => handleNavigation(item.id)}
                               className={classNames(
                                 currentNavItem === item.id
-                                  ? 'bg-surface-hover-token text-primary-token ring-1 ring-accent'
-                                  : 'text-secondary-token hover:text-primary-token hover:bg-surface-hover-token',
+                                  ? 'bg-surface-2 text-primary-token ring-1 ring-accent'
+                                  : 'text-secondary-token hover:text-primary-token hover:bg-surface-2',
                                 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left'
                               )}
                               aria-current={
@@ -260,8 +260,8 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                                 }
                                 className={classNames(
                                   selectedProfileId === profile.id
-                                    ? 'bg-surface-hover-token text-primary-token ring-1 ring-accent'
-                                    : 'text-secondary-token hover:text-primary-token hover:bg-surface-hover-token',
+                                    ? 'bg-surface-2 text-primary-token ring-1 ring-accent'
+                                    : 'text-secondary-token hover:text-primary-token hover:bg-surface-2',
                                   'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left'
                                 )}
                               >
@@ -279,7 +279,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                                     quality={75}
                                   />
                                 ) : (
-                                  <div className='h-6 w-6 rounded-full bg-surface-hover-token flex items-center justify-center'>
+                                  <div className='h-6 w-6 rounded-full bg-surface-2 flex items-center justify-center'>
                                     <span className='text-xs font-medium text-secondary-token'>
                                       {(
                                         profile.displayName ||
@@ -302,7 +302,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                     )}
                   </ul>
                   {/* Theme toggle and UserButton in mobile sidebar */}
-                  <div className='mt-auto pt-4 border-t border-subtle-token space-y-3'>
+                  <div className='mt-auto pt-4 border-t border-subtle space-y-3'>
                     <div className='flex justify-center'>
                       <EnhancedThemeToggle />
                     </div>
@@ -322,7 +322,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
         >
           <div
             className={classNames(
-              'flex grow flex-col gap-y-5 overflow-y-auto border-r border-subtle-token bg-surface-token backdrop-blur-sm',
+              'flex grow flex-col gap-y-5 overflow-y-auto border-r border-subtle bg-surface-0 backdrop-blur-sm',
               sidebarCollapsed ? 'px-2' : 'px-6',
               'pb-4'
             )}
@@ -335,7 +335,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 <div className='justify-self-center'>
                   <button
                     onClick={() => setCurrentNavItem('overview')}
-                    className='w-10 h-10 rounded-lg flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 hover:bg-surface-hover-token transition-colors'
+                    className='w-10 h-10 rounded-lg flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 hover:bg-surface-2 transition-colors'
                     title='Go to Dashboard Overview'
                   >
                     <Image
@@ -351,7 +351,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 <div className='justify-self-end pr-2'>
                   <button
                     onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                    className='p-1.5 text-secondary-token hover:text-primary-token hover:bg-surface-hover-token rounded-md transition-colors'
+                    className='p-1.5 text-secondary-token hover:text-primary-token hover:bg-surface-2 rounded-md transition-colors'
                     title='Expand sidebar'
                   >
                     <ChevronRightIcon className='h-4 w-4' />
@@ -370,7 +370,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 </div>
                 <button
                   onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                  className='p-1.5 text-secondary-token hover:text-primary-token hover:bg-surface-hover-token rounded-md transition-colors'
+                  className='p-1.5 text-secondary-token hover:text-primary-token hover:bg-surface-2 rounded-md transition-colors'
                   title='Collapse sidebar'
                 >
                   <ChevronLeftIcon className='h-4 w-4' />
@@ -387,8 +387,8 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                           onClick={() => handleNavigation(item.id)}
                           className={classNames(
                             currentNavItem === item.id
-                              ? 'bg-surface-hover-token text-primary-token ring-1 ring-accent'
-                              : 'text-secondary-token hover:text-primary-token hover:bg-surface-hover-token',
+                              ? 'bg-surface-2 text-primary-token ring-1 ring-accent'
+                              : 'text-secondary-token hover:text-primary-token hover:bg-surface-2',
                             'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left',
                             sidebarCollapsed ? 'justify-center' : ''
                           )}
@@ -425,8 +425,8 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                             onClick={() => handleProfileSelection(profile.id)}
                             className={classNames(
                               selectedProfileId === profile.id
-                                ? 'bg-surface-hover-token text-primary-token ring-1 ring-accent'
-                                : 'text-secondary-token hover:text-primary-token hover:bg-surface-hover-token',
+                                ? 'bg-surface-2 text-primary-token ring-1 ring-accent'
+                                : 'text-secondary-token hover:text-primary-token hover:bg-surface-2',
                               'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left'
                             )}
                           >
@@ -442,7 +442,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                                 quality={75}
                               />
                             ) : (
-                              <div className='h-6 w-6 rounded-full bg-surface-hover-token flex items-center justify-center'>
+                              <div className='h-6 w-6 rounded-full bg-surface-2 flex items-center justify-center'>
                                 <span className='text-xs font-medium text-secondary-token'>
                                   {(
                                     profile.displayName ||
@@ -463,7 +463,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                       <li>
                         <button
                           onClick={() => router.push('/onboarding')}
-                          className='text-secondary-token hover:text-primary-token hover:bg-surface-hover-token group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left border border-dashed border-subtle-token'
+                          className='text-secondary-token hover:text-primary-token hover:bg-surface-2 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left border border-dashed border-subtle'
                         >
                           <svg
                             className='h-6 w-6 shrink-0 text-secondary-token group-hover:text-primary-token'
@@ -513,7 +513,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   )}
 
                   {/* Theme toggle, horizontal divider, and user info */}
-                  <div className='pt-4 border-t border-subtle-token space-y-3'>
+                  <div className='pt-4 border-t border-subtle space-y-3'>
                     <div className='flex justify-center'>
                       <EnhancedThemeToggle />
                     </div>
@@ -542,7 +542,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
           )}
         >
           {/* Mobile header bar - minimal */}
-          <div className='sticky top-0 z-40 lg:hidden flex h-12 shrink-0 items-center gap-x-4 bg-surface-token backdrop-blur-md px-4 border-b border-subtle-token'>
+          <div className='sticky top-0 z-40 lg:hidden flex h-12 shrink-0 items-center gap-x-4 bg-surface-0/95 backdrop-blur-md px-4 border-b border-subtle'>
             <button
               type='button'
               className='-m-2.5 p-2.5 text-secondary-token'
@@ -578,7 +578,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 relative z-10'>
                     <button
                       onClick={() => handleNavigation('links')}
-                      className='bg-surface-token backdrop-blur-sm rounded-xl border border-subtle-token p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-hover-token transition-all duration-300 group transform hover:-translate-y-0.5'
+                      className='bg-surface-1 backdrop-blur-sm rounded-xl border border-subtle p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2 transition-all duration-300 group transform hover:-translate-y-0.5'
                     >
                       <div className='flex items-center justify-between mb-3'>
                         <LinkIcon className='h-8 w-8 text-accent-token' />
@@ -594,7 +594,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
                     <button
                       onClick={() => handleNavigation('analytics')}
-                      className='bg-surface-token/80 backdrop-blur-sm rounded-xl border border-subtle-token/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-hover-token/80 transition-all duration-300 group transform hover:-translate-y-0.5'
+                      className='bg-surface-1/80 backdrop-blur-sm rounded-xl border border-subtle/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2/80 transition-all duration-300 group transform hover:-translate-y-0.5'
                     >
                       <div className='flex items-center justify-between mb-3'>
                         <ChartPieIcon className='h-8 w-8 text-accent-token' />
@@ -610,7 +610,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
                     <button
                       onClick={() => handleNavigation('audience')}
-                      className='bg-surface-token/80 backdrop-blur-sm rounded-xl border border-subtle-token/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-hover-token/80 transition-all duration-300 group transform hover:-translate-y-0.5'
+                      className='bg-surface-1/80 backdrop-blur-sm rounded-xl border border-subtle/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2/80 transition-all duration-300 group transform hover:-translate-y-0.5'
                     >
                       <div className='flex items-center justify-between mb-3'>
                         <UsersIcon className='h-8 w-8 text-accent-token' />
@@ -626,7 +626,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
                     <button
                       onClick={() => handleNavigation('settings')}
-                      className='bg-surface-token/80 backdrop-blur-sm rounded-xl border border-subtle-token/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-hover-token/80 transition-all duration-300 group transform hover:-translate-y-0.5'
+                      className='bg-surface-1/80 backdrop-blur-sm rounded-xl border border-subtle/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2/80 transition-all duration-300 group transform hover:-translate-y-0.5'
                     >
                       <div className='flex items-center justify-between mb-3'>
                         <Cog6ToothIcon className='h-8 w-8 text-accent-token' />
@@ -652,12 +652,12 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   </div>
 
                   {/* Recent Activity Card */}
-                  <div className='mt-8 bg-surface-token backdrop-blur-sm rounded-xl border border-subtle-token p-6 relative z-10'>
+                  <div className='mt-8 bg-surface-1 backdrop-blur-sm rounded-xl border border-subtle p-6 relative z-10'>
                     <h3 className='text-lg font-medium text-primary-token mb-4'>
                       Recent Activity
                     </h3>
                     <div className='space-y-3'>
-                      <div className='flex items-center gap-3 p-3 rounded-lg bg-surface-hover-token'>
+                      <div className='flex items-center gap-3 p-3 rounded-lg bg-surface-2'>
                         <div className='w-2 h-2 bg-green-500 rounded-full'></div>
                         <div className='flex-1'>
                           <p className='text-sm font-medium text-primary-token'>
@@ -668,7 +668,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                           </p>
                         </div>
                       </div>
-                      <div className='flex items-center gap-3 p-3 rounded-lg bg-surface-hover-token/30'>
+                      <div className='flex items-center gap-3 p-3 rounded-lg bg-surface-2/30'>
                         <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
                         <div className='flex-1'>
                           <p className='text-sm font-medium text-primary-token'>
@@ -679,7 +679,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                           </p>
                         </div>
                       </div>
-                      <div className='flex items-center gap-3 p-3 rounded-lg bg-surface-hover-token/30'>
+                      <div className='flex items-center gap-3 p-3 rounded-lg bg-surface-2/30'>
                         <div className='w-2 h-2 bg-purple-500 rounded-full'></div>
                         <div className='flex-1'>
                           <p className='text-sm font-medium text-primary-token'>
@@ -729,7 +729,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   <AnalyticsCards profileUrl={`${APP_URL}/${artist.handle}`} />
 
                   {/* Additional analytics info */}
-                  <div className='mt-8 bg-surface-token backdrop-blur-sm rounded-lg p-6 border border-subtle-token hover:shadow-lg hover:border-accent/10 transition-all duration-300 relative z-10'>
+                  <div className='mt-8 bg-surface-1 backdrop-blur-sm rounded-lg p-6 border border-subtle hover:shadow-lg hover:border-accent/10 transition-all duration-300 relative z-10'>
                     <h3 className='text-sm font-medium text-primary-token mb-2'>
                       Coming Soon
                     </h3>
@@ -755,7 +755,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
                   {/* Audience Overview Cards */}
                   <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 relative z-10'>
-                    <div className='bg-surface-token backdrop-blur-sm rounded-lg border border-subtle-token p-4 hover:shadow-lg hover:border-accent/20 transition-all duration-300'>
+                    <div className='bg-surface-1 backdrop-blur-sm rounded-lg border border-subtle p-4 hover:shadow-lg hover:border-accent/20 transition-all duration-300'>
                       <div className='flex items-center justify-between'>
                         <div>
                           <p className='text-sm font-medium text-secondary-token'>
@@ -772,7 +772,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                       </p>
                     </div>
 
-                    <div className='bg-surface-token/80 backdrop-blur-sm rounded-lg border border-subtle-token/50 p-4 hover:shadow-lg hover:border-accent/20 transition-all duration-300'>
+                    <div className='bg-surface-1/80 backdrop-blur-sm rounded-lg border border-subtle/50 p-4 hover:shadow-lg hover:border-accent/20 transition-all duration-300'>
                       <div className='flex items-center justify-between'>
                         <div>
                           <p className='text-sm font-medium text-secondary-token'>
@@ -791,7 +791,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                       </p>
                     </div>
 
-                    <div className='bg-surface-token/80 backdrop-blur-sm rounded-lg border border-subtle-token/50 p-4 hover:shadow-lg hover:border-accent/20 transition-all duration-300'>
+                    <div className='bg-surface-1/80 backdrop-blur-sm rounded-lg border border-subtle/50 p-4 hover:shadow-lg hover:border-accent/20 transition-all duration-300'>
                       <div className='flex items-center justify-between'>
                         <div>
                           <p className='text-sm font-medium text-secondary-token'>
@@ -810,7 +810,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                       </p>
                     </div>
 
-                    <div className='bg-surface-token/80 backdrop-blur-sm rounded-lg border border-subtle-token/50 p-4 hover:shadow-lg hover:border-accent/20 transition-all duration-300'>
+                    <div className='bg-surface-1/80 backdrop-blur-sm rounded-lg border border-subtle/50 p-4 hover:shadow-lg hover:border-accent/20 transition-all duration-300'>
                       <div className='flex items-center justify-between'>
                         <div>
                           <p className='text-sm font-medium text-secondary-token'>
@@ -831,7 +831,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   </div>
 
                   {/* Demographics Section */}
-                  <div className='bg-surface-token backdrop-blur-sm rounded-lg border border-subtle-token p-6 hover:shadow-lg hover:border-accent/10 transition-all duration-300 relative z-10'>
+                  <div className='bg-surface-1 backdrop-blur-sm rounded-lg border border-subtle p-6 hover:shadow-lg hover:border-accent/10 transition-all duration-300 relative z-10'>
                     <h3 className='text-lg font-medium text-primary-token mb-4'>
                       Demographics
                     </h3>
@@ -846,7 +846,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                               18-24
                             </span>
                             <div className='flex items-center gap-2'>
-                              <div className='w-16 h-2 bg-surface-hover-token rounded-full'>
+                              <div className='w-16 h-2 bg-surface-2 rounded-full'>
                                 <div className='w-3/4 h-full bg-blue-500 rounded-full'></div>
                               </div>
                               <span className='text-sm font-medium text-primary-token'>
@@ -859,7 +859,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                               25-34
                             </span>
                             <div className='flex items-center gap-2'>
-                              <div className='w-16 h-2 bg-surface-hover-token rounded-full'>
+                              <div className='w-16 h-2 bg-surface-2 rounded-full'>
                                 <div className='w-1/2 h-full bg-green-500 rounded-full'></div>
                               </div>
                               <span className='text-sm font-medium text-primary-token'>
@@ -872,7 +872,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                               35-44
                             </span>
                             <div className='flex items-center gap-2'>
-                              <div className='w-16 h-2 bg-surface-hover-token rounded-full'>
+                              <div className='w-16 h-2 bg-surface-2 rounded-full'>
                                 <div className='w-1/4 h-full bg-purple-500 rounded-full'></div>
                               </div>
                               <span className='text-sm font-medium text-primary-token'>
@@ -925,7 +925,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   </div>
 
                   {/* Audience Insights */}
-                  <div className='bg-surface-token/80 backdrop-blur-sm rounded-lg p-6 border border-subtle-token/50 hover:shadow-lg hover:border-accent/10 transition-all duration-300 relative z-10'>
+                  <div className='bg-surface-1/80 backdrop-blur-sm rounded-lg p-6 border border-subtle/50 hover:shadow-lg hover:border-accent/10 transition-all duration-300 relative z-10'>
                     <h3 className='text-sm font-medium text-primary-token mb-2'>
                       Coming Soon
                     </h3>

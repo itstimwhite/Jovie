@@ -95,8 +95,7 @@ jobs:
           cancel_others: 'true'
       - uses: actions/checkout@v4
         with: { fetch-depth: 2 }
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -118,8 +117,7 @@ jobs:
           cancel_others: 'true'
       - uses: actions/checkout@v4
         with: { fetch-depth: 2 }
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -447,10 +445,7 @@ jobs:
         with: { node-version: 20 }
       - name: Install Vercel CLI
         run: pnpm add -g vercel@latest
-      - name: Setup pnpm for migration
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8
+      - uses: pnpm/action-setup@v4
       - name: Install dependencies for migration
         run: pnpm install --frozen-lockfile
       - name: DB migrate (preview - Drizzle)
@@ -584,6 +579,7 @@ jobs:
           node-version: 20
       - name: Install Vercel CLI
         run: pnpm add -g vercel@latest
+      - uses: pnpm/action-setup@v4
       - name: DB migrate (production) — requires backup and ALLOW_PROD_MIGRATIONS=true
         run: pnpm run db:migrate
         env:
