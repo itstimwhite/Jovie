@@ -23,18 +23,13 @@ The tipping feature is controlled by the `tipping_mvp` feature flag, which can b
 
 ### PostHog Feature Flag
 
-The tipping promo section is controlled by a PostHog feature flag:
-
-```typescript
-// PostHog feature flag name
-TIP_PROMO_ENABLED: 'feature_tip_promo_enabled'
-```
+While the project supports PostHog feature flags (including `feature_tip_promo_enabled`), the `TipPromo` component currently only uses the environment variable for gating. The PostHog feature flag system is available for other features in the application.
 
 ## Setup
 
 1. **Enable the feature flag**:
    - Set `NEXT_PUBLIC_FEATURE_TIPS=true` in your environment
-   - Ensure the PostHog feature flag `feature_tip_promo_enabled` is enabled if using PostHog
+   - Note: The `TipPromo` component currently only checks the environment variable
 
 2. **Configure Stripe** (for future payment processing):
    - Set `STRIPE_SECRET_KEY` for the Stripe API
@@ -99,15 +94,6 @@ https://jovie.fm/[username]/tip
 ```
 
 The tip route automatically redirects to the profile page with `?mode=tip` parameter.
-
-## Event Tracking
-
-The tipping feature includes the following event tracking:
-
-| Event Name | Description | Parameters |
-|------------|-------------|------------|
-| `tip_click` | Triggered when a user clicks on a tip amount | `amount`, `artist_username` |
-| `route_redirect` | Triggered when a user is redirected to Venmo | `from`, `to`, `artist_username` |
 
 ## API Routes
 
