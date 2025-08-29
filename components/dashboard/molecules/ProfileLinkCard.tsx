@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Card, CardContent } from '@/components/ui/Card';
 import { getBaseUrl } from '@/lib/utils/platform-detection';
 import { Artist } from '@/types/db';
+import { DashboardCard } from '../atoms/DashboardCard';
 
 interface ProfileLinkCardProps {
   artist: Artist;
@@ -29,25 +29,23 @@ export function ProfileLinkCard({ artist }: ProfileLinkCardProps) {
   };
 
   return (
-    <Card data-testid='profile-link-card'>
-      <CardContent>
-        <div className='flex items-center justify-between'>
-          <div>
-            <h3 className='font-medium'>Your Profile Link</h3>
-            <p className='mt-1 text-sm text-gray-500 dark:text-gray-400'>
-              {profileUrl}
-            </p>
-          </div>
-          <div className='flex space-x-2'>
-            <Button variant='secondary' size='sm' onClick={handleCopy}>
-              {copied ? 'Copied!' : 'Copy'}
-            </Button>
-            <Button variant='primary' size='sm' onClick={handleViewProfile}>
-              View Profile
-            </Button>
-          </div>
+    <DashboardCard variant='default' data-testid='profile-link-card'>
+      <div className='flex items-center justify-between'>
+        <div>
+          <h3 className='font-medium'>Your Profile Link</h3>
+          <p className='mt-1 text-sm text-gray-500 dark:text-gray-400'>
+            {profileUrl}
+          </p>
         </div>
-      </CardContent>
-    </Card>
+        <div className='flex space-x-2'>
+          <Button variant='secondary' size='sm' onClick={handleCopy}>
+            {copied ? 'Copied!' : 'Copy'}
+          </Button>
+          <Button variant='primary' size='sm' onClick={handleViewProfile}>
+            View Profile
+          </Button>
+        </div>
+      </div>
+    </DashboardCard>
   );
 }

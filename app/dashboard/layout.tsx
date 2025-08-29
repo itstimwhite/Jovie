@@ -1,5 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { DashboardNav } from '@/components/dashboard/DashboardNav';
 import { getDashboardData } from './actions';
 import { Logo } from '@/components/ui/Logo';
@@ -46,9 +47,9 @@ export default async function DashboardLayout({
             <div className="hidden lg:flex lg:flex-col lg:w-64 lg:z-50">
               <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-surface-0 backdrop-blur-sm px-6 pb-4 border-r border-subtle">
                 <div className="flex h-16 shrink-0 items-center">
-                  <a href="/dashboard/overview" className="focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 rounded-md">
+                  <Link href="/dashboard/overview" className="focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 rounded-md">
                     <Logo size="md" />
-                  </a>
+                  </Link>
                 </div>
                 <nav className="flex flex-1 flex-col">
                   <DashboardNav />
@@ -125,12 +126,12 @@ export default async function DashboardLayout({
           <p className="text-gray-600 dark:text-white/70 mb-4">
             Failed to load dashboard data. Please refresh the page.
           </p>
-          <a
+          <Link
             href="/dashboard"
             className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
           >
             Refresh Page
-          </a>
+          </Link>
         </div>
       </div>
     );
