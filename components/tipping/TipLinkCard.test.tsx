@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { TipLinkCard } from './TipLinkCard';
 import { ToastProvider } from '@/components/providers/ToastProvider';
+import { Artist } from '@/types/db';
 
 // Mock the clipboard API
 Object.assign(navigator, {
@@ -34,10 +35,17 @@ vi.mock('@/lib/utils/platform-detection', () => {
 });
 
 describe('TipLinkCard Component', () => {
-  const mockArtist = {
+  const mockArtist: Artist = {
     id: '123',
+    owner_user_id: 'user123',
     handle: 'testartist',
+    spotify_id: '',
     name: 'Test Artist',
+    published: true,
+    is_verified: false,
+    is_featured: false,
+    marketing_opt_out: false,
+    created_at: '2023-01-01T00:00:00Z',
   };
 
   const renderWithToastProvider = (ui: React.ReactElement) => {
@@ -50,25 +58,21 @@ describe('TipLinkCard Component', () => {
 
   it('renders the tip link correctly', () => {
     renderWithToastProvider(<TipLinkCard artist={mockArtist} />);
-
+    
     // Check if the component renders with the correct URL
-    expect(
-      screen.getByText('https://jov.ie/testartist/tip')
-    ).toBeInTheDocument();
+    expect(screen.getByText('https://jov.ie/testartist/tip')).toBeInTheDocument();
     expect(screen.getByText('Your Tip Link')).toBeInTheDocument();
   });
 
   it('copies the link to clipboard when Copy Link button is clicked', async () => {
     renderWithToastProvider(<TipLinkCard artist={mockArtist} />);
-
+    
     const copyButton = screen.getByRole('button', { name: /copy link/i });
     fireEvent.click(copyButton);
-
+    
     // Verify clipboard API was called with the correct URL
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      'https://jov.ie/testartist/tip'
-    );
-
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('https://jov.ie/testartist/tip');
+    
     // Verify toast was shown
     expect(mockShowToast).toHaveBeenCalledWith({
       message: 'Tip link copied to clipboard!',
@@ -79,10 +83,10 @@ describe('TipLinkCard Component', () => {
 
   it('opens the link in a new tab when Open Link button is clicked', () => {
     renderWithToastProvider(<TipLinkCard artist={mockArtist} />);
-
+    
     const openButton = screen.getByRole('button', { name: /open link/i });
     fireEvent.click(openButton);
-
+    
     // Verify window.open was called with the correct URL and options
     expect(mockWindowOpen).toHaveBeenCalledWith(
       'https://jov.ie/testartist/tip',
@@ -92,15 +96,15 @@ describe('TipLinkCard Component', () => {
   });
 
   it('handles artists without a handle gracefully', () => {
-    const artistWithoutHandle = {
-      id: '123',
+    const artistWithoutHandle: Artist = {
+      ...mockArtist,
       handle: '',
-      name: 'Test Artist',
     };
-
+    
     renderWithToastProvider(<TipLinkCard artist={artistWithoutHandle} />);
-
+    
     // Should show URL with empty handle
     expect(screen.getByText('https://jov.ie//tip')).toBeInTheDocument();
   });
 });
+
