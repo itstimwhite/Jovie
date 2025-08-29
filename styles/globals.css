@@ -359,7 +359,7 @@
 }
 
 @utility input-focus-glow {
-  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:shadow-lg focus-visible:shadow-accent/20 transition-all duration-200;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:shadow-lg transition-all duration-200;
 }
 
 @utility btn-press {
