@@ -35,16 +35,19 @@ export function useCurrentSettingsSection(): SettingsSection | null {
   const [hash, setHash] = useState<string | null>(null);
   
   useEffect(() => {
-    // Get the hash from the window location
-    setHash(window.location.hash.replace('#', ''));
-    
-    // Listen for hash changes
-    const handleHashChange = () => {
+    // Only run in browser environment
+    if (typeof window !== 'undefined') {
+      // Get the hash from the window location
       setHash(window.location.hash.replace('#', ''));
-    };
-    
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+      
+      // Listen for hash changes
+      const handleHashChange = () => {
+        setHash(window.location.hash.replace('#', ''));
+      };
+      
+      window.addEventListener('hashchange', handleHashChange);
+      return () => window.removeEventListener('hashchange', handleHashChange);
+    }
   }, []);
   
   // Only process if we're on the settings page
@@ -76,16 +79,19 @@ export function useCurrentSettingsSubsection(): SettingsSubsection | null {
   const [hash, setHash] = useState<string | null>(null);
   
   useEffect(() => {
-    // Get the hash from the window location
-    setHash(window.location.hash.replace('#', ''));
-    
-    // Listen for hash changes
-    const handleHashChange = () => {
+    // Only run in browser environment
+    if (typeof window !== 'undefined') {
+      // Get the hash from the window location
       setHash(window.location.hash.replace('#', ''));
-    };
-    
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+      
+      // Listen for hash changes
+      const handleHashChange = () => {
+        setHash(window.location.hash.replace('#', ''));
+      };
+      
+      window.addEventListener('hashchange', handleHashChange);
+      return () => window.removeEventListener('hashchange', handleHashChange);
+    }
   }, []);
   
   // Only process if we're on the settings page

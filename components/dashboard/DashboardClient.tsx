@@ -119,7 +119,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
       // and we're not already on the /dashboard path (which is handled by the other effect)
       router.push('/dashboard/overview');
     }
-  }, []);
+  }, [pathname, router]);
 
   const handleArtistUpdated = (updatedArtist: Artist) => {
     setArtist(updatedArtist);

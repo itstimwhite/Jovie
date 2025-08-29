@@ -128,6 +128,9 @@ export function SettingsPolished({
   
   // Read the hash from the URL on component mount
   useEffect(() => {
+    // Only run in browser environment
+    if (typeof window === 'undefined') return;
+    
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1);
       
@@ -147,11 +150,15 @@ export function SettingsPolished({
       }
       
       // Check if the hash corresponds to a subsection
-      for (const [section, subsections] of Object.entries(SETTINGS_SUBSECTIONS)) {
-        if (subsections.includes(hash)) {
-          setCurrentSection(section as SettingsSection);
-          setExpandedSections(prev => new Set([...prev, section]));
-          setCurrentSubsection(hash as SettingsSubsection);
+      // SETTINGS_SUBSECTIONS is an array of subsection IDs, not an object
+      const subsection = SETTINGS_SUBSECTIONS.find(sub => sub === hash);
+      if (subsection) {
+        // Extract the parent section from the subsection ID (format: "section-name")
+        const sectionPart = subsection.split('-')[0];
+        if (SETTINGS_SECTIONS.includes(sectionPart as SettingsSection)) {
+          setCurrentSection(sectionPart as SettingsSection);
+          setExpandedSections(prev => new Set([...prev, sectionPart]));
+          setCurrentSubsection(subsection);
           
           // Scroll to the subsection after the component has rendered
           setTimeout(() => {
@@ -169,7 +176,7 @@ export function SettingsPolished({
     // Initial hash check
     handleHashChange();
     
-    // Listen for hash changes
+    // Listen for hash changes (we already checked that window exists)
     window.addEventListener('hashchange', handleHashChange);
     
     return () => {
