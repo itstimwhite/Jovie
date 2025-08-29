@@ -1,3 +1,5 @@
+'use client'
+
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -136,4 +138,3 @@ export function getSettingsSectionUrl(section: SettingsSection): string {
 export function getSettingsSubsectionUrl(subsection: SettingsSubsection): string {
   return `/dashboard/settings#${subsection}`;
 }
-
