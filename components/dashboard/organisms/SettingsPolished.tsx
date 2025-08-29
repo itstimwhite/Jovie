@@ -151,7 +151,7 @@ export function SettingsPolished({
         if (subsections.includes(hash)) {
           setCurrentSection(section as SettingsSection);
           setExpandedSections(prev => new Set([...prev, section]));
-          setCurrentSubsection(hash);
+          setCurrentSubsection(hash as SettingsSubsection);
           
           // Scroll to the subsection after the component has rendered
           setTimeout(() => {
@@ -563,7 +563,7 @@ export function SettingsPolished({
         return renderProfileSection();
       case 'appearance':
         return renderAppearanceSection();
-      case 'notifications':
+      case 'links-notifications':
         return (
           <div id="links-notifications" className='space-y-8'>
             <div className='pb-6 border-b border-subtle'>
@@ -731,8 +731,8 @@ export function SettingsPolished({
                       window.location.hash = subsection.id;
                       
                       // Update state
-                      setCurrentSection(section as SettingsSection);
-                      setCurrentSubsection(subsection.id);
+                      setCurrentSection(item.id as SettingsSection);
+                      setCurrentSubsection(subsection.id as SettingsSubsection);
                       
                       // Allow the DOM to render the section content before scrolling
                       setTimeout(() => {

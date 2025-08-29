@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import { UserButton } from '@/components/molecules/UserButton';
 import { Logo } from '@/components/ui/Logo';
 import type { CreatorProfile } from '@/lib/db/schema';
-import { NavigationItem } from '@/lib/navigation';
+import { NavigationItem, useCurrentNavItem } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 import type { Artist } from '@/types/db';
 import { DashboardNavItem } from '../molecules/DashboardNavItem';
@@ -47,6 +47,7 @@ export function DashboardLayout({
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const currentNavItem = useCurrentNavItem();
 
   // Loading screen with app icon
   if (loading) {
