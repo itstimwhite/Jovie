@@ -207,7 +207,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                       setCurrentNavItem('overview');
                       setSidebarOpen(false);
                     }}
-                    className='focus:outline-none focus:ring-2 ring-accent focus:ring-offset-2 rounded-md'
+                    className='focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 rounded-md'
                   >
                     <Logo size='md' />
                   </button>
@@ -335,7 +335,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 <div className='justify-self-center'>
                   <button
                     onClick={() => setCurrentNavItem('overview')}
-                    className='w-10 h-10 rounded-lg flex items-center justify-center focus:outline-none focus:ring-2 ring-accent focus:ring-offset-2 hover:bg-surface-hover-token transition-colors'
+                    className='w-10 h-10 rounded-lg flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 hover:bg-surface-hover-token transition-colors'
                     title='Go to Dashboard Overview'
                   >
                     <Image
@@ -363,7 +363,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 <div className='flex items-center'>
                   <button
                     onClick={() => setCurrentNavItem('overview')}
-                    className='focus:outline-none focus:ring-2 ring-accent focus:ring-offset-2 rounded-md'
+                    className='focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 rounded-md'
                   >
                     <Logo size='md' />
                   </button>
@@ -491,7 +491,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                     <div className='mb-4'>
                       <button
                         onClick={() => router.push('/pricing')}
-                        className='inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white shadow-lg hover:shadow-xl hover:shadow-accent/25 hover:brightness-110 transition-all duration-300 w-full gap-2 focus:outline-none focus:ring-2 ring-accent transform hover:-translate-y-0.5'
+                        className='inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white shadow-lg hover:shadow-xl hover:shadow-accent/25 hover:brightness-110 transition-all duration-300 w-full gap-2 focus-visible:outline-none focus-visible:ring-2 ring-accent transform hover:-translate-y-0.5'
                         style={{ backgroundColor: 'var(--color-accent)' }}
                       >
                         <svg

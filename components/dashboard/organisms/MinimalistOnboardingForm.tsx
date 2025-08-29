@@ -381,7 +381,7 @@ export function MinimalistOnboardingForm() {
                 <input
                   type='text'
                   placeholder='Search by artist name'
-                  className='w-full px-4 py-3 border border-subtle-token rounded-xl bg-transparent text-primary-token focus:outline-none focus:ring-1 focus:ring-accent'
+                  className='w-full px-4 py-3 border border-subtle-token rounded-xl bg-transparent text-primary-token focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent'
                   onChange={e => searchArtists(e.target.value)}
                 />
                 {isSearching && (
@@ -461,7 +461,7 @@ export function MinimalistOnboardingForm() {
                     value={handle}
                     onChange={e => setHandle(e.target.value)}
                     placeholder='your-handle'
-                    className='w-full px-4 py-3 border border-subtle-token rounded-xl bg-transparent text-primary-token focus:outline-none focus:ring-1 focus:ring-accent font-mono'
+                    className='w-full px-4 py-3 border border-subtle-token rounded-xl bg-transparent text-primary-token focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent font-mono'
                     autoCapitalize='none'
                     autoCorrect='off'
                     autoComplete='off'
@@ -727,7 +727,7 @@ export function MinimalistOnboardingForm() {
       {/* Skip link for accessibility */}
       <a
         href='#main-content'
-        className='sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded-md z-50'
+        className='sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 bg-black text-white dark:bg-white dark:text-black px-4 py-2 rounded-md z-50'
       >
         Skip to main content
       </a>

@@ -184,7 +184,7 @@ export function UserButton({ artist, showUserInfo = false }: UserButtonProps) {
             <div
               ref={refs.setFloating}
               {...getFloatingProps()}
-              className='z-50 w-64 rounded-lg border menu-background menu-border menu-shadow backdrop-blur-sm focus:outline-none'
+              className='z-50 w-64 rounded-lg border menu-background menu-border menu-shadow backdrop-blur-sm focus-visible:outline-none'
               style={{
                 ...floatingStyles,
                 animation: 'user-menu-enter 150ms ease-out',
