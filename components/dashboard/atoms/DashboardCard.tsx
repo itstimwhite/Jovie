@@ -15,12 +15,14 @@ interface DashboardCardProps {
 }
 
 const cardVariants = {
-  default: 'bg-surface-1 border border-subtle rounded-xl p-6 shadow-sm',
+  default:
+    'bg-surface-1 border border-subtle rounded-xl p-6 shadow-sm card-hover',
   interactive:
-    'bg-surface-1 backdrop-blur-sm rounded-xl border border-subtle p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2 transition-all duration-300 group transform hover:-translate-y-0.5 cursor-pointer',
-  settings: 'bg-surface-1 rounded-xl border border-subtle p-6 shadow-sm',
+    'bg-surface-1 backdrop-blur-sm rounded-xl border border-subtle p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-2 transition-all duration-300 group transform hover:-translate-y-1 cursor-pointer',
+  settings:
+    'bg-surface-1 rounded-xl border border-subtle p-6 shadow-sm card-hover',
   analytics:
-    'bg-surface-1 border border-subtle rounded-xl p-6 hover:shadow-lg hover:shadow-accent/5 hover:border-accent/20 transition-all duration-300 group',
+    'bg-surface-1 border border-subtle rounded-xl p-6 hover:shadow-lg hover:shadow-accent/5 hover:border-accent/20 transition-all duration-300 group card-hover',
   'empty-state':
     'bg-surface-1 border border-subtle rounded-xl p-8 text-center relative overflow-hidden',
 };

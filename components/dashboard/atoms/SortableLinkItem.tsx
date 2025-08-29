@@ -154,8 +154,8 @@ export const SortableLinkItem = forwardRef<
         }}
         style={style}
         className={`
-        group relative bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 
-        transition-all duration-200 hover:border-gray-300 dark:hover:border-gray-600
+        group relative bg-surface-1 rounded-lg border border-subtle 
+        transition-all duration-200 hover:border-default
         ${isDragging ? 'shadow-lg z-50 rotate-1' : 'hover:shadow-sm'}
         ${!link.isVisible ? 'opacity-60' : ''}
         ${isFocused ? 'ring-2 ring-indigo-500' : ''}

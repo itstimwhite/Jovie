@@ -23,41 +23,77 @@ interface SettingsPolishedProps {
   onArtistUpdate?: (updatedArtist: Artist) => void;
 }
 
-const settingsNavigation = [
+// Organized settings with proper hierarchy
+const coreSettingsNavigation = [
   {
     name: 'Profile',
     id: 'profile',
     icon: UserIcon,
     description: 'Your identity and presence',
-    isPro: false,
+    subsections: [
+      { name: 'Display Name', id: 'profile-name' },
+      { name: 'Bio & Description', id: 'profile-bio' },
+      { name: 'Profile Photo', id: 'profile-photo' },
+    ],
   },
   {
     name: 'Appearance',
     id: 'appearance',
     icon: PaintBrushIcon,
     description: 'Theme and visual preferences',
-    isPro: false,
+    subsections: [
+      { name: 'Color Theme', id: 'appearance-theme' },
+      { name: 'Layout Preferences', id: 'appearance-layout' },
+    ],
   },
   {
-    name: 'Notifications',
-    id: 'notifications',
+    name: 'Links & Notifications',
+    id: 'links-notifications',
     icon: BellIcon,
-    description: 'Stay informed, your way',
-    isPro: true,
+    description: 'Manage your connections',
+    subsections: [
+      { name: 'Link Organization', id: 'links-org' },
+      { name: 'Email Updates', id: 'notifications-email' },
+    ],
   },
+];
+
+const proSettingsNavigation = [
   {
     name: 'Privacy & Security',
     id: 'privacy',
     icon: ShieldCheckIcon,
-    description: 'Control your visibility',
-    isPro: true,
+    description: 'Advanced privacy controls',
+    subsections: [
+      { name: 'Profile Visibility', id: 'privacy-visibility' },
+      { name: 'Data Controls', id: 'privacy-data' },
+      { name: 'Analytics Privacy', id: 'privacy-analytics' },
+    ],
   },
+  {
+    name: 'Advanced Features',
+    id: 'advanced',
+    icon: SparklesIcon,
+    description: 'Pro-only capabilities',
+    subsections: [
+      { name: 'Custom Branding', id: 'advanced-branding' },
+      { name: 'Analytics Dashboard', id: 'advanced-analytics' },
+      { name: 'Priority Support', id: 'advanced-support' },
+    ],
+  },
+];
+
+const billingNavigation = [
   {
     name: 'Billing',
     id: 'billing',
     icon: CreditCardIcon,
     description: 'Subscription and payments',
-    isPro: false,
+    subsections: [
+      { name: 'Current Plan', id: 'billing-plan' },
+      { name: 'Payment Methods', id: 'billing-payment' },
+      { name: 'Billing History', id: 'billing-history' },
+    ],
   },
 ];
 
@@ -68,12 +104,28 @@ export function SettingsPolished({
   const [currentSection, setCurrentSection] = useState('profile');
   const [isLoading, setIsLoading] = useState(false);
   const { theme, setTheme } = useTheme();
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(
+    new Set(['profile'])
+  );
+  const [isPro] = useState(false); // TODO: Get from user subscription status
   const [formData, setFormData] = useState({
     username: artist.handle || '',
     displayName: artist.name || '',
     bio: artist.tagline || '',
     creatorType: 'artist',
   });
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => {
+      const next = new Set(prev);
+      if (next.has(sectionId)) {
+        next.delete(sectionId);
+      } else {
+        next.add(sectionId);
+      }
+      return next;
+    });
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -480,43 +532,122 @@ export function SettingsPolished({
     }
   };
 
-  return (
-    <div className='flex gap-8 px-4 sm:px-6 lg:px-8'>
-      {/* Settings Navigation - Fixed/Sticky */}
-      <div className='w-64 flex-shrink-0'>
-        <div className='sticky top-8'>
-          <nav>
-            <ul className='space-y-2'>
-              {settingsNavigation.map(item => (
-                <li key={item.id}>
-                  <DashboardButton
-                    variant='nav-item'
-                    onClick={() => setCurrentSection(item.id)}
-                    isActive={currentSection === item.id}
-                    isPro={item.isPro}
-                    className='border p-3'
+  const renderSettingsGroup = (
+    title: string,
+    items: typeof coreSettingsNavigation,
+    showLockIcon = false
+  ) => (
+    <div className='space-y-1'>
+      <div className='flex items-center gap-2 px-3 py-2'>
+        <h4 className='text-xs font-semibold text-secondary uppercase tracking-wider'>
+          {title}
+        </h4>
+        {showLockIcon && (
+          <div className='group relative'>
+            <ShieldCheckIcon className='h-4 w-4 text-orange-500' />
+            <div className='absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap'>
+              Upgrade to unlock
+            </div>
+          </div>
+        )}
+      </div>
+
+      {items.map(item => {
+        const isExpanded = expandedSections.has(item.id);
+        const Icon = item.icon;
+
+        return (
+          <div key={item.id} className='space-y-1'>
+            <button
+              onClick={() => {
+                if (showLockIcon && !isPro) {
+                  // Show upgrade modal or redirect
+                  return;
+                }
+                toggleSection(item.id);
+                setCurrentSection(item.id);
+              }}
+              className={cn(
+                'w-full group flex items-center justify-between p-3 text-left rounded-lg transition-all duration-200',
+                currentSection === item.id
+                  ? 'bg-surface-2 text-primary shadow-sm border border-accent/20'
+                  : 'text-secondary hover:text-primary hover:bg-surface-1',
+                showLockIcon && !isPro && 'opacity-60 cursor-not-allowed'
+              )}
+              disabled={showLockIcon && !isPro}
+            >
+              <div className='flex items-center gap-3 flex-1'>
+                <Icon className='h-5 w-5 flex-shrink-0' />
+                <div className='flex-1'>
+                  <div className='flex items-center gap-2'>
+                    <span className='font-medium text-sm'>{item.name}</span>
+                    {showLockIcon && !isPro && (
+                      <ShieldCheckIcon className='h-3 w-3 text-orange-500' />
+                    )}
+                  </div>
+                  <div className='text-xs text-secondary mt-0.5'>
+                    {item.description}
+                  </div>
+                </div>
+              </div>
+
+              <svg
+                className={cn(
+                  'h-4 w-4 text-secondary transition-transform duration-200',
+                  isExpanded && 'transform rotate-180'
+                )}
+                fill='none'
+                stroke='currentColor'
+                viewBox='0 0 24 24'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M19 9l-7 7-7-7'
+                />
+              </svg>
+            </button>
+
+            {/* Collapsible Subsections */}
+            {isExpanded && item.subsections && (
+              <div className='ml-8 space-y-1 pb-2'>
+                {item.subsections.map(subsection => (
+                  <button
+                    key={subsection.id}
+                    onClick={() => setCurrentSection(subsection.id)}
+                    className={cn(
+                      'w-full text-left px-3 py-2 rounded text-sm transition-colors',
+                      currentSection === subsection.id
+                        ? 'bg-accent/10 text-accent-token font-medium'
+                        : 'text-secondary hover:text-primary hover:bg-surface-1'
+                    )}
                   >
-                    <item.icon
-                      className={cn(
-                        'h-5 w-5 flex-shrink-0 mr-3',
-                        currentSection === item.id
-                          ? 'text-accent-token'
-                          : 'text-secondary group-hover:text-primary'
-                      )}
-                      aria-hidden='true'
-                    />
-                    <div className='flex-1 min-w-0'>
-                      <div className='flex items-center justify-between'>
-                        <span className='truncate'>{item.name}</span>
-                      </div>
-                      <div className='text-xs text-secondary mt-0.5 truncate'>
-                        {item.description}
-                      </div>
-                    </div>
-                  </DashboardButton>
-                </li>
-              ))}
-            </ul>
+                    {subsection.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  return (
+    <div className='flex gap-8'>
+      {/* Enhanced Settings Navigation */}
+      <div className='w-72 flex-shrink-0'>
+        <div className='sticky top-8 space-y-6'>
+          <nav className='space-y-6'>
+            {/* Core Settings */}
+            {renderSettingsGroup('Core Settings', coreSettingsNavigation)}
+
+            {/* Pro Settings */}
+            {renderSettingsGroup('Pro Features', proSettingsNavigation, true)}
+
+            {/* Billing */}
+            {renderSettingsGroup('Billing', billingNavigation)}
           </nav>
         </div>
       </div>

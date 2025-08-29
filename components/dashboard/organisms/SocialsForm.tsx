@@ -152,7 +152,7 @@ export function SocialsForm({ artist }: SocialsFormProps) {
           {socialLinks.map((link, index) => (
             <div
               key={link.id}
-              className='flex items-center space-x-3 p-4 border border-gray-200 dark:border-gray-700 rounded-lg'
+              className='flex items-center space-x-3 p-4 border border-subtle rounded-lg'
             >
               <FormField label='Platform' className='w-32'>
                 <Select

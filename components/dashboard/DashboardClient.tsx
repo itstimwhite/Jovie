@@ -158,48 +158,88 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             />
 
             {/* Quick Actions Grid */}
-            <QuickActionsGrid onNavigate={handleNavigation} className='mb-8' />
+            <QuickActionsGrid onNavigate={handleNavigation} className='mb-6' />
 
             {/* Quick Stats */}
-            <div className='mt-8'>
-              <h3 className='text-lg font-medium text-primary mb-4'>
+            <div className='mt-6'>
+              <h3 className='text-lg font-medium text-primary mb-6'>
                 Quick Stats
               </h3>
               <AnalyticsCards profileUrl={`${APP_URL}/${artist.handle}`} />
             </div>
 
             {/* Recent Activity Card */}
-            <div className='mt-8'>
+            <div className='mt-6'>
               <DashboardCardWithHeader
                 title='Recent Activity'
                 cardVariant='default'
               >
-                <div className='space-y-3'>
-                  <div className='flex items-center gap-3 p-3 rounded-lg bg-surface-2'>
-                    <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                    <div className='flex-1'>
-                      <p className='text-sm font-medium text-primary'>
-                        Profile updated
-                      </p>
-                      <p className='text-xs text-secondary'>2 hours ago</p>
+                {/* Vertical Timeline */}
+                <div className='relative'>
+                  {/* Timeline line */}
+                  <div className='absolute left-2 top-3 bottom-3 w-0.5 bg-gradient-to-b from-green-500 via-blue-500 to-purple-500 opacity-30'></div>
+
+                  <div className='space-y-6'>
+                    {/* Profile updated - Spotify green */}
+                    <div className='flex items-start gap-4'>
+                      <div className='relative'>
+                        <div className='w-4 h-4 bg-green-500 rounded-full border-2 border-green-500 shadow-sm'>
+                          <div className='absolute inset-0 bg-green-500 rounded-full animate-ping opacity-20'></div>
+                        </div>
+                      </div>
+                      <div className='flex-1 min-w-0'>
+                        <div className='flex items-center justify-between'>
+                          <p className='text-sm font-medium text-primary'>
+                            Profile updated
+                          </p>
+                          <span className='text-xs text-secondary'>
+                            2 hours ago
+                          </span>
+                        </div>
+                        <p className='text-xs text-secondary mt-0.5'>
+                          Your profile information was successfully updated
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className='flex items-center gap-3 p-3 rounded-lg bg-surface-2/30'>
-                    <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
-                    <div className='flex-1'>
-                      <p className='text-sm font-medium text-primary'>
-                        New link added
-                      </p>
-                      <p className='text-xs text-secondary'>1 day ago</p>
+
+                    {/* New link added - Instagram pink */}
+                    <div className='flex items-start gap-4'>
+                      <div className='relative'>
+                        <div className='w-4 h-4 bg-blue-500 rounded-full border-2 border-blue-500 shadow-sm'></div>
+                      </div>
+                      <div className='flex-1 min-w-0'>
+                        <div className='flex items-center justify-between'>
+                          <p className='text-sm font-medium text-primary'>
+                            New Spotify link added
+                          </p>
+                          <span className='text-xs text-secondary'>
+                            1 day ago
+                          </span>
+                        </div>
+                        <p className='text-xs text-secondary mt-0.5'>
+                          Added music streaming link to your profile
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className='flex items-center gap-3 p-3 rounded-lg bg-surface-2/30'>
-                    <div className='w-2 h-2 bg-purple-500 rounded-full'></div>
-                    <div className='flex-1'>
-                      <p className='text-sm font-medium text-primary'>
-                        Analytics milestone reached
-                      </p>
-                      <p className='text-xs text-secondary'>3 days ago</p>
+
+                    {/* Analytics milestone - Jovie purple */}
+                    <div className='flex items-start gap-4'>
+                      <div className='relative'>
+                        <div className='w-4 h-4 bg-purple-500 rounded-full border-2 border-purple-500 shadow-sm'></div>
+                      </div>
+                      <div className='flex-1 min-w-0'>
+                        <div className='flex items-center justify-between'>
+                          <p className='text-sm font-medium text-primary'>
+                            Analytics milestone reached
+                          </p>
+                          <span className='text-xs text-secondary'>
+                            3 days ago
+                          </span>
+                        </div>
+                        <p className='text-xs text-secondary mt-0.5'>
+                          Your profile reached 100 profile views this month
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -418,18 +458,10 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
         )}
 
         {currentNavItem === 'settings' && (
-          <>
-            <div className='mb-8 px-4 sm:px-6 lg:px-8'>
-              <DashboardPageHeader
-                title='Settings'
-                subtitle='Manage your account preferences and settings'
-              />
-            </div>
-            <SettingsPolished
-              artist={artist}
-              onArtistUpdate={handleArtistUpdated}
-            />
-          </>
+          <SettingsPolished
+            artist={artist}
+            onArtistUpdate={handleArtistUpdated}
+          />
         )}
       </DashboardLayout>
     </>
