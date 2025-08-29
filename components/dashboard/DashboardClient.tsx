@@ -18,8 +18,8 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
 import { OnboardingForm } from '@/components/dashboard';
 import { AnalyticsCards } from '@/components/dashboard/molecules/AnalyticsCards';
@@ -31,6 +31,11 @@ import { Logo } from '@/components/ui/Logo';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import type { CreatorProfile } from '@/lib/db/schema';
+import { 
+  NavigationItem, 
+  NAVIGATION_ITEMS, 
+  useCurrentNavItem 
+} from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 import { Artist, convertDrizzleCreatorProfileToArtist } from '@/types/db';
 import { PendingClaimHandler } from './PendingClaimHandler';
@@ -38,28 +43,33 @@ import { PendingClaimHandler } from './PendingClaimHandler';
 const navigation = [
   {
     name: 'Overview',
-    id: 'overview',
+    id: 'overview' as NavigationItem,
     icon: HomeIcon,
+    path: '/dashboard/overview',
   },
   {
     name: 'Links',
-    id: 'links',
+    id: 'links' as NavigationItem,
     icon: LinkIcon,
+    path: '/dashboard/links',
   },
   {
     name: 'Analytics',
-    id: 'analytics',
+    id: 'analytics' as NavigationItem,
     icon: ChartPieIcon,
+    path: '/dashboard/analytics',
   },
   {
     name: 'Audience',
-    id: 'audience',
+    id: 'audience' as NavigationItem,
     icon: UsersIcon,
+    path: '/dashboard/audience',
   },
   {
     name: 'Settings',
-    id: 'settings',
+    id: 'settings' as NavigationItem,
     icon: Cog6ToothIcon,
+    path: '/dashboard/settings',
   },
 ];
 
@@ -74,9 +84,10 @@ interface DashboardClientProps {
 
 export function DashboardClient({ initialData }: DashboardClientProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [currentNavItem, setCurrentNavItem] = useState('overview');
+  const currentNavItem = useCurrentNavItem();
   const [artist, setArtist] = useState<Artist | null>(
     initialData.selectedProfile
       ? convertDrizzleCreatorProfileToArtist(initialData.selectedProfile)
@@ -88,6 +99,27 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
     initialData.selectedProfile?.id || null
   );
+
+  // Redirect to the correct dashboard path if accessed directly at /dashboard
+  useEffect(() => {
+    if (pathname === '/dashboard') {
+      router.replace('/dashboard/overview');
+    }
+  }, [pathname, router]);
+  
+  // Sync URL with navigation state on component mount
+  useEffect(() => {
+    const path = pathname || '';
+    const navItem = path.split('/')[2] as NavigationItem;
+    
+    if (navItem && NAVIGATION_ITEMS.includes(navItem)) {
+      // URL already matches a valid navigation item, no need to update
+    } else if (path !== '/dashboard') {
+      // Default to overview if the URL doesn't match a valid navigation item
+      // and we're not already on the /dashboard path (which is handled by the other effect)
+      router.push('/dashboard/overview');
+    }
+  }, []);
 
   const handleArtistUpdated = (updatedArtist: Artist) => {
     setArtist(updatedArtist);
@@ -103,8 +135,11 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
     }
   };
 
-  const handleNavigation = (navId: string) => {
-    setCurrentNavItem(navId);
+  const handleNavigation = (navId: NavigationItem) => {
+    const navItem = navigation.find(item => item.id === navId);
+    if (navItem) {
+      router.push(navItem.path);
+    }
   };
 
   if (initialData.needsOnboarding) {
@@ -210,7 +245,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 <div className='flex h-16 shrink-0 items-center'>
                   <button
                     onClick={() => {
-                      setCurrentNavItem('overview');
+                      handleNavigation('overview');
                       setSidebarOpen(false);
                     }}
                     className='focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 rounded-md'
@@ -341,7 +376,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 {/* Centered logo button */}
                 <div className='justify-self-center'>
                   <button
-                    onClick={() => setCurrentNavItem('overview')}
+                    onClick={() => handleNavigation('overview')}
                     className='w-10 h-10 rounded-lg flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 hover:bg-surface-2 transition-colors'
                     title='Go to Dashboard Overview'
                   >
@@ -369,7 +404,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
               <div className='flex h-16 shrink-0 items-center justify-between'>
                 <div className='flex items-center'>
                   <button
-                    onClick={() => setCurrentNavItem('overview')}
+                    onClick={() => handleNavigation('overview')}
                     className='focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 rounded-md'
                   >
                     <Logo size='md' />

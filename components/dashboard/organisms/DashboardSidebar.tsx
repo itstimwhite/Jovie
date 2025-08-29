@@ -6,23 +6,24 @@ import { UserButton } from '@/components/molecules/UserButton';
 import { Logo } from '@/components/ui/Logo';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import type { CreatorProfile } from '@/lib/db/schema';
+import { NavigationItem, useCurrentNavItem } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 import type { Artist } from '@/types/db';
 import { DashboardButton } from '../atoms/DashboardButton';
 import { DashboardNavItem } from '../molecules/DashboardNavItem';
 import { EnhancedThemeToggle } from '../molecules/EnhancedThemeToggle';
 
-interface NavigationItem {
+interface SidebarNavigationItem {
   name: string;
-  id: string;
+  id: NavigationItem;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   isPro?: boolean;
+  path: string;
 }
 
 interface DashboardSidebarProps {
-  navigation: NavigationItem[];
-  currentNavItem: string;
-  onNavigate: (navId: string) => void;
+  navigation: SidebarNavigationItem[];
+  onNavigate: (navId: NavigationItem) => void;
   collapsed: boolean;
   onToggleCollapsed: () => void;
   artist: Artist;
@@ -34,7 +35,6 @@ interface DashboardSidebarProps {
 
 export function DashboardSidebar({
   navigation,
-  currentNavItem,
   onNavigate,
   collapsed,
   onToggleCollapsed,
@@ -45,6 +45,7 @@ export function DashboardSidebar({
   className,
 }: DashboardSidebarProps) {
   const router = useRouter();
+  const currentNavItem = useCurrentNavItem();
 
   return (
     <div

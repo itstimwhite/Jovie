@@ -10,8 +10,17 @@ import {
   UserIcon,
 } from '@heroicons/react/24/outline';
 import { useTheme } from 'next-themes';
-import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { APP_URL } from '@/constants/app';
+import { 
+  SETTINGS_SECTIONS, 
+  SETTINGS_SUBSECTIONS,
+  SettingsSection, 
+  SettingsSubsection,
+  useCurrentSettingsSection,
+  useCurrentSettingsSubsection
+} from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 import type { Artist } from '@/types/db';
 
@@ -98,19 +107,75 @@ export function SettingsPolished({
   artist,
   onArtistUpdate,
 }: SettingsPolishedProps) {
-  const [currentSection, setCurrentSection] = useState('profile');
+  const router = useRouter();
+  const urlSection = useCurrentSettingsSection();
+  const urlSubsection = useCurrentSettingsSubsection();
+  const [currentSection, setCurrentSection] = useState<SettingsSection>(urlSection || 'profile');
+  const [currentSubsection, setCurrentSubsection] = useState<SettingsSubsection | null>(urlSubsection);
   const [isLoading, setIsLoading] = useState(false);
   const { theme, setTheme } = useTheme();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(['profile'])
+    new Set([urlSection || 'profile'])
   );
   const [isPro] = useState(false); // TODO: Get from user subscription status
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [formData, setFormData] = useState({
     username: artist.handle || '',
     displayName: artist.name || '',
     bio: artist.tagline || '',
     creatorType: 'artist',
   });
+  
+  // Read the hash from the URL on component mount
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1);
+      
+      if (!hash) {
+        // Default to profile if no hash is present
+        setCurrentSection('profile');
+        setCurrentSubsection(null);
+        return;
+      }
+      
+      // Check if the hash corresponds to a section
+      if (SETTINGS_SECTIONS.includes(hash as SettingsSection)) {
+        setCurrentSection(hash as SettingsSection);
+        setExpandedSections(prev => new Set([...prev, hash]));
+        setCurrentSubsection(null);
+        return;
+      }
+      
+      // Check if the hash corresponds to a subsection
+      for (const [section, subsections] of Object.entries(SETTINGS_SUBSECTIONS)) {
+        if (subsections.includes(hash)) {
+          setCurrentSection(section as SettingsSection);
+          setExpandedSections(prev => new Set([...prev, section]));
+          setCurrentSubsection(hash);
+          
+          // Scroll to the subsection after the component has rendered
+          setTimeout(() => {
+            const el = document.getElementById(hash);
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 100);
+          
+          return;
+        }
+      }
+    };
+    
+    // Initial hash check
+    handleHashChange();
+    
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev => {
@@ -122,6 +187,13 @@ export function SettingsPolished({
       }
       return next;
     });
+    
+    // Update the URL hash
+    if (SETTINGS_SECTIONS.includes(sectionId as SettingsSection)) {
+      window.location.hash = sectionId;
+      setCurrentSection(sectionId as SettingsSection);
+      setCurrentSubsection(null);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -214,7 +286,7 @@ export function SettingsPolished({
 
       <form onSubmit={handleSubmit} className='space-y-8'>
         {/* Profile Photo Card */}
-        <div className='bg-surface-1 rounded-xl border border-subtle p-6 shadow-sm'>
+        <div id="profile-photo" className='bg-surface-1 rounded-xl border border-subtle p-6 shadow-sm'>
           <div className='flex items-center justify-between mb-4'>
             <h3 className='text-lg font-medium text-primary'>Profile Photo</h3>
             <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-surface-2 text-secondary border border-subtle'>
@@ -245,14 +317,14 @@ export function SettingsPolished({
         </div>
 
         {/* Basic Info Card */}
-        <div className='bg-surface-1 rounded-xl border border-subtle p-6 shadow-sm'>
+        <div id="profile-bio" className='bg-surface-1 rounded-xl border border-subtle p-6 shadow-sm'>
           <h3 className='text-lg font-medium text-primary mb-6'>
             Basic Information
           </h3>
 
           <div className='space-y-6'>
             {/* Username */}
-            <div>
+            <div id="profile-name">
               <label
                 htmlFor='username'
                 className='block text-sm font-medium text-primary mb-2'
@@ -360,7 +432,7 @@ export function SettingsPolished({
   );
 
   const renderAppearanceSection = () => (
-    <div className='space-y-8'>
+    <div id="appearance" className='space-y-8'>
       {/* Apple-styled header */}
       <div className='mb-8'>
         <h1 className='text-[22px] font-semibold tracking-[-0.01em] text-primary'>
@@ -372,7 +444,7 @@ export function SettingsPolished({
       </div>
 
       {/* Theme Selection Card */}
-      <div className='bg-surface-1 rounded-xl border border-subtle p-6 space-y-4'>
+      <div id="appearance-theme" className='bg-surface-1 rounded-xl border border-subtle p-6 space-y-4'>
         <h3 className='text-lg font-medium text-primary mb-6'>
           Interface Theme
         </h3>
@@ -493,7 +565,7 @@ export function SettingsPolished({
         return renderAppearanceSection();
       case 'notifications':
         return (
-          <div className='space-y-8'>
+          <div id="links-notifications" className='space-y-8'>
             <div className='pb-6 border-b border-subtle'>
               <h1 className='text-2xl font-semibold tracking-tight text-primary'>
                 Notifications
@@ -516,7 +588,7 @@ export function SettingsPolished({
         );
       case 'privacy':
         return (
-          <div className='space-y-8'>
+          <div id="privacy" className='space-y-8'>
             <div className='pb-6 border-b border-subtle'>
               <h1 className='text-2xl font-semibold tracking-tight text-primary'>
                 Privacy & Security
@@ -539,7 +611,7 @@ export function SettingsPolished({
         );
       case 'billing':
         return (
-          <div className='space-y-8'>
+          <div id="billing" className='space-y-8'>
             <div className='pb-6 border-b border-subtle'>
               <h1 className='text-2xl font-semibold tracking-tight text-primary'>
                 Billing & Subscription
@@ -604,7 +676,7 @@ export function SettingsPolished({
                   return;
                 }
                 toggleSection(item.id);
-                setCurrentSection(item.id);
+                // URL hash update is handled in toggleSection
               }}
               className={cn(
                 'w-full group flex items-center justify-between p-3 text-left rounded-lg transition-all duration-200',
@@ -655,8 +727,13 @@ export function SettingsPolished({
                   <button
                     key={subsection.id}
                     onClick={() => {
-                      // Switch current section group if needed, then smooth-scroll to the anchor
-                      setCurrentSection(subsection.id);
+                      // Update the URL hash
+                      window.location.hash = subsection.id;
+                      
+                      // Update state
+                      setCurrentSection(section as SettingsSection);
+                      setCurrentSubsection(subsection.id);
+                      
                       // Allow the DOM to render the section content before scrolling
                       setTimeout(() => {
                         const el = document.getElementById(subsection.id);
@@ -666,7 +743,7 @@ export function SettingsPolished({
                             block: 'start',
                           });
                         }
-                      }, 0);
+                      }, 100);
                     }}
                     className={cn(
                       'w-full text-left px-3 py-2 rounded text-sm transition-colors',

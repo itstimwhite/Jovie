@@ -9,23 +9,24 @@ import React, { useState } from 'react';
 import { UserButton } from '@/components/molecules/UserButton';
 import { Logo } from '@/components/ui/Logo';
 import type { CreatorProfile } from '@/lib/db/schema';
+import { NavigationItem } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
 import type { Artist } from '@/types/db';
 import { DashboardNavItem } from '../molecules/DashboardNavItem';
 import { EnhancedThemeToggle } from '../molecules/EnhancedThemeToggle';
 import { DashboardSidebar } from './DashboardSidebar';
 
-interface NavigationItem {
+interface LayoutNavigationItem {
   name: string;
-  id: string;
+  id: NavigationItem;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   isPro?: boolean;
+  path: string;
 }
 
 interface DashboardLayoutProps {
-  navigation: NavigationItem[];
-  currentNavItem: string;
-  onNavigate: (navId: string) => void;
+  navigation: LayoutNavigationItem[];
+  onNavigate: (navId: NavigationItem) => void;
   artist: Artist;
   creatorProfiles: CreatorProfile[];
   selectedProfileId: string | null;
@@ -36,7 +37,6 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({
   navigation,
-  currentNavItem,
   onNavigate,
   artist,
   creatorProfiles,
@@ -190,7 +190,6 @@ export function DashboardLayout({
       >
         <DashboardSidebar
           navigation={navigation}
-          currentNavItem={currentNavItem}
           onNavigate={onNavigate}
           collapsed={sidebarCollapsed}
           onToggleCollapsed={() => setSidebarCollapsed(!sidebarCollapsed)}
