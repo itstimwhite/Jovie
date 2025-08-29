@@ -129,6 +129,7 @@ export function SettingsPolished({
   // Read the hash from the URL on component mount
   useEffect(() => {
     const handleHashChange = () => {
+      if (typeof window === 'undefined') return;
       const hash = window.location.hash.slice(1);
       
       if (!hash) {
@@ -147,21 +148,26 @@ export function SettingsPolished({
       }
       
       // Check if the hash corresponds to a subsection
-      for (const [section, subsections] of Object.entries(SETTINGS_SUBSECTIONS)) {
-        if (subsections.includes(hash)) {
-          setCurrentSection(section as SettingsSection);
-          setExpandedSections(prev => new Set([...prev, section]));
-          setCurrentSubsection(hash as SettingsSubsection);
-          
-          // Scroll to the subsection after the component has rendered
-          setTimeout(() => {
-            const el = document.getElementById(hash);
-            if (el) {
-              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          }, 100);
-          
-          return;
+      if (SETTINGS_SUBSECTIONS.includes(hash as SettingsSubsection)) {
+        // Find the parent section from the navigation structure
+        const allNavigation = [...coreSettingsNavigation, ...proSettingsNavigation, ...billingNavigation];
+        for (const navItem of allNavigation) {
+          const subsectionExists = navItem.subsections?.some(sub => sub.id === hash);
+          if (subsectionExists) {
+            setCurrentSection(navItem.id as SettingsSection);
+            setExpandedSections(prev => new Set([...prev, navItem.id]));
+            setCurrentSubsection(hash as SettingsSubsection);
+            
+            // Scroll to the subsection after the component has rendered
+            setTimeout(() => {
+              const el = document.getElementById(hash);
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }, 100);
+            
+            return;
+          }
         }
       }
     };
@@ -169,12 +175,14 @@ export function SettingsPolished({
     // Initial hash check
     handleHashChange();
     
-    // Listen for hash changes
-    window.addEventListener('hashchange', handleHashChange);
-    
-    return () => {
-      window.removeEventListener('hashchange', handleHashChange);
-    };
+    // Listen for hash changes only on client side
+    if (typeof window !== 'undefined') {
+      window.addEventListener('hashchange', handleHashChange);
+      
+      return () => {
+        window.removeEventListener('hashchange', handleHashChange);
+      };
+    }
   }, []);
 
   const toggleSection = (sectionId: string) => {
