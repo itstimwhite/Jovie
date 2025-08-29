@@ -179,7 +179,7 @@
 }
 
 @utility text-tertiary {
-  color: var(--color-text-secondary-token);
+  color: var(--color-text-tertiary-token);
 }
 
 @utility text-destructive {
@@ -351,11 +351,6 @@
 /* Preview update animation */
 @utility animate-shimmer {
   animation: shimmer 1.5s ease-in-out infinite;
-}
-
-/* Text color utilities */
-@utility text-tertiary {
-  color: var(--color-text-tertiary-token);
 }
 
 /* Micro-animations */

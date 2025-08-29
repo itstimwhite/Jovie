@@ -14,9 +14,6 @@ import { useCallback, useState } from 'react';
 import { APP_URL } from '@/constants/app';
 import { cn } from '@/lib/utils';
 import type { Artist } from '@/types/db';
-import { DashboardButton } from '../atoms/DashboardButton';
-import { DashboardPageHeader } from '../atoms/DashboardPageHeader';
-import { DashboardFormSection } from '../molecules/DashboardFormSection';
 
 interface SettingsPolishedProps {
   artist: Artist;
@@ -204,23 +201,28 @@ export function SettingsPolished({
 
   const renderProfileSection = () => (
     <div className='space-y-8'>
-      <DashboardPageHeader
-        title='Your Profile'
-        subtitle='This information will be displayed publicly so be mindful what you share.'
-        className='pb-6 border-b border-subtle'
-      />
+      {/* Header */}
+      <div className='pb-6 border-b border-subtle'>
+        <h1 className='text-2xl font-semibold tracking-tight text-primary'>
+          Your Profile
+        </h1>
+        <p className='mt-2 text-sm text-secondary'>
+          This information will be displayed publicly so be mindful what you
+          share.
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit} className='space-y-8'>
         {/* Profile Photo Card */}
-        <DashboardFormSection
-          title='Profile Photo'
-          actions={
+        <div className='bg-surface-1 rounded-xl border border-subtle p-6 shadow-sm'>
+          <div className='flex items-center justify-between mb-4'>
+            <h3 className='text-lg font-medium text-primary'>Profile Photo</h3>
             <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-surface-2 text-secondary border border-subtle'>
               <SparklesIcon className='w-3 h-3 mr-1' />
               Pro
             </span>
-          }
-        >
+          </div>
+
           <div className='flex items-start space-x-6'>
             <div className='flex-shrink-0'>
               <div className='w-20 h-20 rounded-full bg-surface-2 flex items-center justify-center border-2 border-dashed border-subtle hover:border-accent transition-colors cursor-pointer group'>
@@ -228,114 +230,130 @@ export function SettingsPolished({
               </div>
             </div>
             <div className='flex-1 space-y-3'>
-              <DashboardButton variant='secondary' type='button'>
+              <button
+                type='button'
+                className='inline-flex items-center px-4 py-2 border border-subtle rounded-lg shadow-sm text-sm font-medium text-secondary bg-surface-1 hover:bg-surface-2 focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 transition-colors'
+              >
                 <PhotoIcon className='w-4 h-4 mr-2' />
                 Upload photo
-              </DashboardButton>
+              </button>
               <p className='text-sm text-secondary'>
                 JPG, GIF or PNG. Max size 2MB. Square images work best.
               </p>
             </div>
           </div>
-        </DashboardFormSection>
+        </div>
 
         {/* Basic Info Card */}
-        <DashboardFormSection title='Basic Information'>
-          {/* Username */}
-          <div>
-            <label
-              htmlFor='username'
-              className='block text-sm font-medium text-primary mb-2'
-            >
-              Username
-            </label>
-            <div className='relative'>
-              <div className='flex rounded-lg shadow-sm'>
-                <span className='inline-flex items-center px-3 rounded-l-lg border border-r-0 border-subtle bg-surface-2 text-secondary text-sm select-none'>
-                  {appDomain}/
-                </span>
-                <input
-                  type='text'
-                  name='username'
-                  id='username'
-                  value={formData.username}
-                  onChange={e => handleInputChange('username', e.target.value)}
-                  className='flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-lg border border-subtle bg-surface-1 text-primary placeholder:text-secondary focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:border-transparent sm:text-sm transition-colors'
-                  placeholder='yourname'
-                />
+        <div className='bg-surface-1 rounded-xl border border-subtle p-6 shadow-sm'>
+          <h3 className='text-lg font-medium text-primary mb-6'>
+            Basic Information
+          </h3>
+
+          <div className='space-y-6'>
+            {/* Username */}
+            <div>
+              <label
+                htmlFor='username'
+                className='block text-sm font-medium text-primary mb-2'
+              >
+                Username
+              </label>
+              <div className='relative'>
+                <div className='flex rounded-lg shadow-sm'>
+                  <span className='inline-flex items-center px-3 rounded-l-lg border border-r-0 border-subtle bg-surface-2 text-secondary text-sm select-none'>
+                    {appDomain}/
+                  </span>
+                  <input
+                    type='text'
+                    name='username'
+                    id='username'
+                    value={formData.username}
+                    onChange={e =>
+                      handleInputChange('username', e.target.value)
+                    }
+                    className='flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-lg border border-subtle bg-surface-1 text-primary placeholder:text-secondary focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:border-transparent sm:text-sm transition-colors'
+                    placeholder='yourname'
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Display Name */}
-          <div>
-            <label
-              htmlFor='displayName'
-              className='block text-sm font-medium text-primary mb-2'
-            >
-              Display Name
-            </label>
-            <input
-              type='text'
-              name='displayName'
-              id='displayName'
-              value={formData.displayName}
-              onChange={e => handleInputChange('displayName', e.target.value)}
-              className='block w-full px-3 py-2 border border-subtle rounded-lg bg-surface-1 text-primary placeholder:text-secondary focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:border-transparent sm:text-sm shadow-sm transition-colors'
-              placeholder='The name your fans will see'
-            />
-          </div>
+            {/* Display Name */}
+            <div>
+              <label
+                htmlFor='displayName'
+                className='block text-sm font-medium text-primary mb-2'
+              >
+                Display Name
+              </label>
+              <input
+                type='text'
+                name='displayName'
+                id='displayName'
+                value={formData.displayName}
+                onChange={e => handleInputChange('displayName', e.target.value)}
+                className='block w-full px-3 py-2 border border-subtle rounded-lg bg-surface-1 text-primary placeholder:text-secondary focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:border-transparent sm:text-sm shadow-sm transition-colors'
+                placeholder='The name your fans will see'
+              />
+            </div>
 
-          {/* Bio */}
-          <div>
-            <label
-              htmlFor='bio'
-              className='block text-sm font-medium text-primary mb-2'
-            >
-              Bio
-            </label>
-            <textarea
-              name='bio'
-              id='bio'
-              rows={4}
-              value={formData.bio}
-              onChange={e => handleInputChange('bio', e.target.value)}
-              className='block w-full px-3 py-2 border border-subtle rounded-lg bg-surface-1 text-primary placeholder:text-secondary focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:border-transparent sm:text-sm shadow-sm resize-none transition-colors'
-              placeholder='Tell your fans about yourself...'
-            />
-            <p className='mt-2 text-sm text-secondary'>
-              A few sentences about your music and what makes you unique.
-            </p>
-          </div>
+            {/* Bio */}
+            <div>
+              <label
+                htmlFor='bio'
+                className='block text-sm font-medium text-primary mb-2'
+              >
+                Bio
+              </label>
+              <textarea
+                name='bio'
+                id='bio'
+                rows={4}
+                value={formData.bio}
+                onChange={e => handleInputChange('bio', e.target.value)}
+                className='block w-full px-3 py-2 border border-subtle rounded-lg bg-surface-1 text-primary placeholder:text-secondary focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:border-transparent sm:text-sm shadow-sm resize-none transition-colors'
+                placeholder='Tell your fans about yourself...'
+              />
+              <p className='mt-2 text-sm text-secondary'>
+                A few sentences about your music and what makes you unique.
+              </p>
+            </div>
 
-          {/* Creator Type */}
-          <div>
-            <label
-              htmlFor='creatorType'
-              className='block text-sm font-medium text-primary mb-2'
-            >
-              Creator Type
-            </label>
-            <select
-              id='creatorType'
-              name='creatorType'
-              value={formData.creatorType}
-              onChange={e => handleInputChange('creatorType', e.target.value)}
-              className='block w-full px-3 py-2 border border-subtle rounded-lg bg-surface-1 text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:border-transparent sm:text-sm shadow-sm transition-colors'
-            >
-              <option value='artist'>Solo Artist</option>
-              <option value='band'>Band</option>
-              <option value='podcaster'>Podcaster</option>
-              <option value='creator'>Content Creator</option>
-            </select>
+            {/* Creator Type */}
+            <div>
+              <label
+                htmlFor='creatorType'
+                className='block text-sm font-medium text-primary mb-2'
+              >
+                Creator Type
+              </label>
+              <select
+                id='creatorType'
+                name='creatorType'
+                value={formData.creatorType}
+                onChange={e => handleInputChange('creatorType', e.target.value)}
+                className='block w-full px-3 py-2 border border-subtle rounded-lg bg-surface-1 text-primary focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:border-transparent sm:text-sm shadow-sm transition-colors'
+              >
+                <option value='artist'>Solo Artist</option>
+                <option value='band'>Band</option>
+                <option value='podcaster'>Podcaster</option>
+                <option value='creator'>Content Creator</option>
+              </select>
+            </div>
           </div>
-        </DashboardFormSection>
+        </div>
 
         {/* Save Button */}
         <div className='flex justify-end pt-4 border-t border-subtle'>
-          <DashboardButton variant='primary' type='submit' disabled={isLoading}>
+          <button
+            type='submit'
+            disabled={isLoading}
+            className='inline-flex items-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed transition-colors btn-press'
+            style={{ backgroundColor: 'var(--color-accent)' }}
+          >
             {isLoading ? 'Saving...' : 'Save Changes'}
-          </DashboardButton>
+          </button>
         </div>
       </form>
     </div>
@@ -343,13 +361,22 @@ export function SettingsPolished({
 
   const renderAppearanceSection = () => (
     <div className='space-y-8'>
-      <DashboardPageHeader
-        title='Appearance'
-        subtitle='Customize how the interface looks and feels.'
-      />
+      {/* Apple-styled header */}
+      <div className='mb-8'>
+        <h1 className='text-[22px] font-semibold tracking-[-0.01em] text-primary'>
+          Appearance
+        </h1>
+        <p className='text-sm text-secondary mt-1'>
+          Customize how the interface looks and feels.
+        </p>
+      </div>
 
       {/* Theme Selection Card */}
-      <DashboardFormSection title='Interface Theme'>
+      <div className='bg-surface-1 rounded-xl border border-subtle p-6 space-y-4'>
+        <h3 className='text-lg font-medium text-primary mb-6'>
+          Interface Theme
+        </h3>
+
         <div className='grid grid-cols-3 gap-4'>
           {[
             {
@@ -390,7 +417,7 @@ export function SettingsPolished({
               }
               className={cn(
                 'group relative flex flex-col p-4 rounded-xl border-2 transition-all duration-300 ease-in-out',
-                'hover:translate-y-[-2px] hover:shadow-lg focus-visible:ring-2 ring-accent focus-visible:outline-none',
+                'hover:translate-y-[-2px] hover:shadow-lg focus-visible:ring-2 ring-accent focus-visible:outline-none card-hover',
                 theme === option.value
                   ? 'border-accent/70 bg-surface-2'
                   : 'border-subtle hover:border-accent/50'
@@ -454,7 +481,7 @@ export function SettingsPolished({
           Choose how the interface appears. System automatically matches your
           device settings.
         </p>
-      </DashboardFormSection>
+      </div>
     </div>
   );
 
@@ -467,11 +494,14 @@ export function SettingsPolished({
       case 'notifications':
         return (
           <div className='space-y-8'>
-            <DashboardPageHeader
-              title='Notifications'
-              subtitle='Stay informed about your profile activity.'
-              className='pb-6 border-b border-subtle'
-            />
+            <div className='pb-6 border-b border-subtle'>
+              <h1 className='text-2xl font-semibold tracking-tight text-primary'>
+                Notifications
+              </h1>
+              <p className='mt-2 text-sm text-secondary'>
+                Stay informed about your profile activity.
+              </p>
+            </div>
             <div className='bg-surface-1 rounded-xl border border-subtle p-8 shadow-sm text-center'>
               <BellIcon className='mx-auto h-12 w-12 text-secondary mb-4' />
               <h3 className='text-lg font-medium text-primary mb-2'>
@@ -487,11 +517,14 @@ export function SettingsPolished({
       case 'privacy':
         return (
           <div className='space-y-8'>
-            <DashboardPageHeader
-              title='Privacy & Security'
-              subtitle='Control your profile visibility and data.'
-              className='pb-6 border-b border-subtle'
-            />
+            <div className='pb-6 border-b border-subtle'>
+              <h1 className='text-2xl font-semibold tracking-tight text-primary'>
+                Privacy & Security
+              </h1>
+              <p className='mt-2 text-sm text-secondary'>
+                Control your profile visibility and data.
+              </p>
+            </div>
             <div className='bg-surface-1 rounded-xl border border-subtle p-8 shadow-sm text-center'>
               <ShieldCheckIcon className='mx-auto h-12 w-12 text-secondary mb-4' />
               <h3 className='text-lg font-medium text-primary mb-2'>
@@ -507,11 +540,14 @@ export function SettingsPolished({
       case 'billing':
         return (
           <div className='space-y-8'>
-            <DashboardPageHeader
-              title='Billing & Subscription'
-              subtitle='Manage your subscription and billing details.'
-              className='pb-6 border-b border-subtle'
-            />
+            <div className='pb-6 border-b border-subtle'>
+              <h1 className='text-2xl font-semibold tracking-tight text-primary'>
+                Billing & Subscription
+              </h1>
+              <p className='mt-2 text-sm text-secondary'>
+                Manage your subscription and billing details.
+              </p>
+            </div>
             <div className='bg-surface-1 rounded-xl border border-subtle p-8 shadow-sm text-center'>
               <CreditCardIcon className='mx-auto h-12 w-12 text-secondary mb-4' />
               <h3 className='text-lg font-medium text-primary mb-2'>
@@ -521,9 +557,12 @@ export function SettingsPolished({
                 Subscription management and billing history will be available
                 here.
               </p>
-              <DashboardButton variant='pro-upgrade'>
+              <button
+                className='inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 transition-colors btn-press'
+                style={{ backgroundColor: 'var(--color-accent)' }}
+              >
                 Upgrade to Pro
-              </DashboardButton>
+              </button>
             </div>
           </div>
         );
