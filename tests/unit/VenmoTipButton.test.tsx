@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { VenmoTipButton } from '@/components/profile/VenmoTipButton';
 import { track } from '@/lib/analytics';
 import { LegacySocialLink } from '@/types/db';

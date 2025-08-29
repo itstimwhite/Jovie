@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { type FeatureFlags, getFeatureFlags } from '@/lib/feature-flags';
+import { type FeatureFlags } from '@/lib/feature-flags';
+import { getClientFeatureFlags } from '@/lib/feature-flags-client';
 
 export function useFeatureFlags(): FeatureFlags {
   const [flags, setFlags] = useState<FeatureFlags>({
@@ -12,13 +13,15 @@ export function useFeatureFlags(): FeatureFlags {
     universalNotificationsEnabled: false,
     featureClickAnalyticsRpc: false,
     progressiveOnboardingEnabled: true,
+    minimalistOnboardingEnabled: true,
+    appleStyleOnboardingEnabled: true,
     venmoTipButtonEnabled: true,
   });
 
   useEffect(() => {
     const fetchFlags = async () => {
       try {
-        const featureFlags = await getFeatureFlags();
+        const featureFlags = await getClientFeatureFlags();
         setFlags(featureFlags);
       } catch (error) {
         console.error('Failed to fetch feature flags:', error);
