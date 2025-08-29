@@ -12,15 +12,12 @@ interface DashboardOverviewProps {
 }
 
 export function DashboardOverview({ initialData }: DashboardOverviewProps) {
-  const [artist, setArtist] = useState<Artist | null>(
+  const [artist] = useState<Artist | null>(
     initialData.selectedProfile
       ? convertDrizzleCreatorProfileToArtist(initialData.selectedProfile)
       : null
   );
-  const [creatorProfiles] = useState<CreatorProfile[]>(
-    initialData.creatorProfiles
-  );
-  // Unused variables removed - these were for future profile switching functionality
+  // Note: Profile switching functionality will be implemented in the future
 
   if (!artist) {
     return null; // This shouldn't happen given the server-side logic
