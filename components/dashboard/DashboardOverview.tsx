@@ -49,7 +49,7 @@ export function DashboardOverview({ initialData }: DashboardOverviewProps) {
           Dashboard
         </h1>
         <p className="text-secondary-token mt-1">
-          Welcome back, {artist.displayName || 'Artist'}
+          Welcome back, {artist.name || 'Artist'}
         </p>
       </div>
 
@@ -120,4 +120,3 @@ export function DashboardOverview({ initialData }: DashboardOverviewProps) {
     </div>
   );
 }
-
