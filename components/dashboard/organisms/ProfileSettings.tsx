@@ -78,12 +78,10 @@ export function ProfileSettings({
   return (
     <form onSubmit={handleSubmit}>
       <div className='space-y-12'>
-        <div className='grid grid-cols-1 gap-x-8 gap-y-10 border-b border-subtle-token pb-12 md:grid-cols-3'>
+        <div className='grid grid-cols-1 gap-x-8 gap-y-10 border-b border-subtle pb-12 md:grid-cols-3'>
           <div>
-            <h2 className='text-base/7 font-semibold text-primary-token'>
-              Profile
-            </h2>
-            <p className='mt-1 text-sm/6 text-secondary-token'>
+            <h2 className='text-base/7 font-semibold text-primary'>Profile</h2>
+            <p className='mt-1 text-sm/6 text-secondary'>
               This information will be displayed publicly so be careful what you
               share.
             </p>
@@ -93,13 +91,13 @@ export function ProfileSettings({
             <div className='sm:col-span-4'>
               <label
                 htmlFor='username'
-                className='block text-sm/6 font-medium text-primary-token'
+                className='block text-sm/6 font-medium text-primary'
               >
                 Username
               </label>
               <div className='mt-2'>
-                <div className='flex items-center rounded-md bg-surface-token pl-3 border border-subtle-token focus-within:ring-2 ring-accent'>
-                  <div className='shrink-0 text-base text-secondary-token select-none sm:text-sm/6'>
+                <div className='flex items-center rounded-md bg-surface-1 pl-3 border border-subtle focus-within:ring-2 ring-accent'>
+                  <div className='shrink-0 text-base text-secondary select-none sm:text-sm/6'>
                     {appDomain}/
                   </div>
                   <input
@@ -111,7 +109,7 @@ export function ProfileSettings({
                     onChange={e =>
                       handleInputChange('username', e.target.value)
                     }
-                    className='block min-w-0 grow bg-transparent py-1.5 pr-3 pl-1 text-base text-primary-token placeholder:text-secondary-token focus-visible:outline-none sm:text-sm/6'
+                    className='block min-w-0 grow bg-transparent py-1.5 pr-3 pl-1 text-base text-primary placeholder:text-secondary focus-visible:outline-none sm:text-sm/6'
                   />
                 </div>
               </div>
@@ -120,7 +118,7 @@ export function ProfileSettings({
             <div className='col-span-full'>
               <label
                 htmlFor='about'
-                className='block text-sm/6 font-medium text-primary-token'
+                className='block text-sm/6 font-medium text-primary'
               >
                 Bio
               </label>
@@ -131,10 +129,10 @@ export function ProfileSettings({
                   rows={3}
                   value={formData.bio}
                   onChange={e => handleInputChange('bio', e.target.value)}
-                  className='block w-full rounded-md bg-surface-token px-3 py-1.5 text-base text-primary-token placeholder:text-secondary-token border border-subtle-token focus-visible:outline-none focus-visible:ring-2 ring-accent sm:text-sm/6'
+                  className='block w-full rounded-md bg-surface-1 px-3 py-1.5 text-base text-primary placeholder:text-secondary border border-subtle focus-visible:outline-none focus-visible:ring-2 ring-accent sm:text-sm/6'
                 />
               </div>
-              <p className='mt-3 text-sm/6 text-secondary-token'>
+              <p className='mt-3 text-sm/6 text-secondary'>
                 Write a few sentences about yourself or your music.
               </p>
             </div>
@@ -142,18 +140,18 @@ export function ProfileSettings({
             <div className='col-span-full'>
               <label
                 htmlFor='photo'
-                className='block text-sm/6 font-medium text-primary-token'
+                className='block text-sm/6 font-medium text-primary'
               >
                 Profile Photo
               </label>
               <div className='mt-2 flex items-center gap-x-3'>
                 <UserCircleIcon
                   aria-hidden='true'
-                  className='size-12 text-secondary-token'
+                  className='size-12 text-secondary'
                 />
                 <button
                   type='button'
-                  className='rounded-md bg-surface-token px-3 py-2 text-sm font-medium text-primary-token border border-subtle-token hover:bg-surface-hover-token focus-visible:outline-none focus-visible:ring-2 ring-accent'
+                  className='rounded-md bg-surface-1 px-3 py-2 text-sm font-medium text-primary border border-subtle hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 ring-accent'
                 >
                   Change
                 </button>
@@ -163,17 +161,17 @@ export function ProfileSettings({
             <div className='col-span-full'>
               <label
                 htmlFor='cover-photo'
-                className='block text-sm/6 font-medium text-primary-token'
+                className='block text-sm/6 font-medium text-primary'
               >
                 Cover photo
               </label>
-              <div className='mt-2 flex justify-center rounded-lg border border-dashed border-subtle-token px-6 py-10'>
+              <div className='mt-2 flex justify-center rounded-lg border border-dashed border-subtle px-6 py-10'>
                 <div className='text-center'>
                   <PhotoIcon
                     aria-hidden='true'
-                    className='mx-auto size-12 text-secondary-token'
+                    className='mx-auto size-12 text-secondary'
                   />
-                  <div className='mt-4 flex text-sm/6 text-secondary-token'>
+                  <div className='mt-4 flex text-sm/6 text-secondary'>
                     <label
                       htmlFor='file-upload'
                       className='relative cursor-pointer rounded-md bg-transparent font-medium text-accent-token focus-within:outline-none hover:underline'
@@ -188,7 +186,7 @@ export function ProfileSettings({
                     </label>
                     <p className='pl-1'>or drag and drop</p>
                   </div>
-                  <p className='text-xs/5 text-secondary-token'>
+                  <p className='text-xs/5 text-secondary'>
                     PNG, JPG, GIF up to 10MB
                   </p>
                 </div>
@@ -198,12 +196,12 @@ export function ProfileSettings({
         </div>
 
         {/* Account Information section */}
-        <div className='grid grid-cols-1 gap-x-8 gap-y-10 border-b border-subtle-token pb-12 md:grid-cols-3'>
+        <div className='grid grid-cols-1 gap-x-8 gap-y-10 border-b border-subtle pb-12 md:grid-cols-3'>
           <div>
-            <h2 className='text-base/7 font-semibold text-primary-token'>
+            <h2 className='text-base/7 font-semibold text-primary'>
               Account Information
             </h2>
-            <p className='mt-1 text-sm/6 text-secondary-token'>
+            <p className='mt-1 text-sm/6 text-secondary'>
               Update your account settings and preferences.
             </p>
           </div>
@@ -212,7 +210,7 @@ export function ProfileSettings({
             <div className='sm:col-span-3'>
               <label
                 htmlFor='first-name'
-                className='block text-sm/6 font-medium text-primary-token'
+                className='block text-sm/6 font-medium text-primary'
               >
                 Display name
               </label>
@@ -226,7 +224,7 @@ export function ProfileSettings({
                   onChange={e =>
                     handleInputChange('displayName', e.target.value)
                   }
-                  className='block w-full rounded-md bg-surface-token px-3 py-1.5 text-base text-primary-token placeholder:text-secondary-token border border-subtle-token focus-visible:outline-none focus-visible:ring-2 ring-accent sm:text-sm/6'
+                  className='block w-full rounded-md bg-surface-1 px-3 py-1.5 text-base text-primary placeholder:text-secondary border border-subtle focus-visible:outline-none focus-visible:ring-2 ring-accent sm:text-sm/6'
                 />
               </div>
             </div>
@@ -234,7 +232,7 @@ export function ProfileSettings({
             <div className='sm:col-span-4'>
               <label
                 htmlFor='email'
-                className='block text-sm/6 font-medium text-primary-token'
+                className='block text-sm/6 font-medium text-primary'
               >
                 Email address
               </label>
@@ -244,7 +242,7 @@ export function ProfileSettings({
                   name='email'
                   type='email'
                   autoComplete='email'
-                  className='block w-full rounded-md bg-surface-token px-3 py-1.5 text-base text-primary-token placeholder:text-secondary-token border border-subtle-token focus-visible:outline-none focus-visible:ring-2 ring-accent sm:text-sm/6'
+                  className='block w-full rounded-md bg-surface-1 px-3 py-1.5 text-base text-primary placeholder:text-secondary border border-subtle focus-visible:outline-none focus-visible:ring-2 ring-accent sm:text-sm/6'
                 />
               </div>
             </div>
@@ -252,7 +250,7 @@ export function ProfileSettings({
             <div className='sm:col-span-3'>
               <label
                 htmlFor='creator-type'
-                className='block text-sm/6 font-medium text-primary-token'
+                className='block text-sm/6 font-medium text-primary'
               >
                 Creator Type
               </label>
@@ -264,7 +262,7 @@ export function ProfileSettings({
                   onChange={e =>
                     handleInputChange('creatorType', e.target.value)
                   }
-                  className='col-start-1 row-start-1 w-full appearance-none rounded-md bg-surface-token py-1.5 pr-8 pl-3 text-base text-primary-token border border-subtle-token focus-visible:outline-none focus-visible:ring-2 ring-accent sm:text-sm/6'
+                  className='col-start-1 row-start-1 w-full appearance-none rounded-md bg-surface-1 py-1.5 pr-8 pl-3 text-base text-primary border border-subtle focus-visible:outline-none focus-visible:ring-2 ring-accent sm:text-sm/6'
                 >
                   <option value='artist'>Artist</option>
                   <option value='band'>Band</option>
@@ -273,19 +271,19 @@ export function ProfileSettings({
                 </select>
                 <ChevronDownIcon
                   aria-hidden='true'
-                  className='pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-secondary-token sm:size-4'
+                  className='pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-secondary sm:size-4'
                 />
               </div>
             </div>
           </div>
         </div>
 
-        <div className='grid grid-cols-1 gap-x-8 gap-y-10 border-b border-subtle-token pb-12 md:grid-cols-3'>
+        <div className='grid grid-cols-1 gap-x-8 gap-y-10 border-b border-subtle pb-12 md:grid-cols-3'>
           <div>
-            <h2 className='text-base/7 font-semibold text-primary-token'>
+            <h2 className='text-base/7 font-semibold text-primary'>
               Notifications
             </h2>
-            <p className='mt-1 text-sm/6 text-secondary-token'>
+            <p className='mt-1 text-sm/6 text-secondary'>
               Choose what updates you want to receive about your profile and
               links.
             </p>
@@ -293,7 +291,7 @@ export function ProfileSettings({
 
           <div className='max-w-2xl space-y-10 md:col-span-2'>
             <fieldset>
-              <legend className='text-sm/6 font-semibold text-primary-token'>
+              <legend className='text-sm/6 font-semibold text-primary'>
                 Email Notifications
               </legend>
               <div className='mt-6 space-y-6'>
@@ -333,14 +331,11 @@ export function ProfileSettings({
                   <div className='text-sm/6'>
                     <label
                       htmlFor='analytics'
-                      className='font-medium text-primary-token'
+                      className='font-medium text-primary'
                     >
                       Weekly Analytics
                     </label>
-                    <p
-                      id='analytics-description'
-                      className='text-secondary-token'
-                    >
+                    <p id='analytics-description' className='text-secondary'>
                       Get weekly reports about your profile views and link
                       clicks.
                     </p>
@@ -379,13 +374,10 @@ export function ProfileSettings({
                     </div>
                   </div>
                   <div className='text-sm/6'>
-                    <label
-                      htmlFor='tips'
-                      className='font-medium text-primary-token'
-                    >
+                    <label htmlFor='tips' className='font-medium text-primary'>
                       New Tips
                     </label>
-                    <p id='tips-description' className='text-secondary-token'>
+                    <p id='tips-description' className='text-secondary'>
                       Get notified when someone sends you a tip.
                     </p>
                   </div>
@@ -425,14 +417,11 @@ export function ProfileSettings({
                   <div className='text-sm/6'>
                     <label
                       htmlFor='marketing'
-                      className='font-medium text-primary-token'
+                      className='font-medium text-primary'
                     >
                       Marketing Updates
                     </label>
-                    <p
-                      id='marketing-description'
-                      className='text-secondary-token'
-                    >
+                    <p id='marketing-description' className='text-secondary'>
                       Receive news about new features and updates.
                     </p>
                   </div>
@@ -446,7 +435,7 @@ export function ProfileSettings({
       <div className='mt-6 flex items-center justify-end gap-x-6'>
         <button
           type='button'
-          className='text-sm/6 font-medium text-primary-token hover:underline'
+          className='text-sm/6 font-medium text-primary hover:underline'
         >
           Cancel
         </button>

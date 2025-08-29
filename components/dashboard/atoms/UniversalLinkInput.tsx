@@ -170,7 +170,7 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
             isPlatformDuplicate
               ? 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/20'
               : detectedLink.isValid
-                ? 'border-surface-hover-token bg-surface-token'
+                ? 'border-surface-2 bg-surface-1'
                 : 'border-red-200 bg-red-50/50 dark:border-red-800 dark:bg-red-950/10'
           }`}
           style={

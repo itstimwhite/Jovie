@@ -4,6 +4,7 @@ import {
   MusicalNoteIcon,
   ShareIcon,
 } from '@heroicons/react/24/outline';
+import { DashboardStatCard } from '../molecules/DashboardStatCard';
 
 interface AnalyticsCardProps {
   title: string;
@@ -13,19 +14,17 @@ interface AnalyticsCardProps {
 }
 
 const getIcon = (title: string) => {
-  const iconProps = { className: 'h-8 w-8 text-accent-token' };
-
   switch (title) {
     case 'Total Clicks':
-      return <ChartBarIcon {...iconProps} />;
+      return ChartBarIcon;
     case 'Spotify Clicks':
-      return <MusicalNoteIcon {...iconProps} />;
+      return MusicalNoteIcon;
     case 'Social Clicks':
-      return <ShareIcon {...iconProps} />;
+      return ShareIcon;
     case 'Recent Activity':
-      return <ClockIcon {...iconProps} />;
+      return ClockIcon;
     default:
-      return <ChartBarIcon {...iconProps} />;
+      return ChartBarIcon;
   }
 };
 
@@ -37,20 +36,12 @@ export function AnalyticsCard({
 }: AnalyticsCardProps) {
   return (
     <div className={order}>
-      <div className='bg-surface-1 border border-subtle rounded-xl p-6 hover:shadow-lg hover:shadow-accent/5 hover:border-accent/20 transition-all duration-300 group'>
-        <div className='flex items-center justify-between mb-3'>
-          <div className='flex-1'>
-            <p className='text-sm font-medium text-secondary mb-2'>{title}</p>
-            <p className='text-2xl font-bold text-primary tracking-tight'>
-              {value}
-            </p>
-            {metadata && (
-              <p className='text-xs text-tertiary mt-1'>{metadata}</p>
-            )}
-          </div>
-          <div className='flex-shrink-0 ml-4'>{getIcon(title)}</div>
-        </div>
-      </div>
+      <DashboardStatCard
+        title={title}
+        value={value}
+        metadata={metadata}
+        icon={getIcon(title)}
+      />
     </div>
   );
 }
