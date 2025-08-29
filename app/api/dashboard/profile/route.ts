@@ -28,6 +28,7 @@ export async function PUT(req: Request) {
         'spotifyUrl',
         'appleMusicUrl',
         'youtubeUrl',
+        'venmoHandle',
         'isPublic',
         'settings',
         'theme',
