@@ -28,6 +28,7 @@ export function TipQrCard({
   className = '',
 }: TipQrCardProps) {
   const [svgString, setSvgString] = useState<string>('');
+  const [svgDataUrl, setSvgDataUrl] = useState<string>('');
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
 
   // Generate QR code on mount or when tipUrl changes
@@ -41,6 +42,7 @@ export function TipQrCard({
         ecl: 'M',
       });
       setSvgString(svg);
+      setSvgDataUrl(svgToDataUrl(svg));
     }
   }, [tipUrl, size]);
 
@@ -74,10 +76,17 @@ export function TipQrCard({
       className={`flex flex-col items-center p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm ${className}`}
     >
       {/* QR Code */}
-      <div
-        className='mb-4 p-4 bg-white rounded-lg shadow-sm'
-        dangerouslySetInnerHTML={{ __html: svgString }}
-      />
+      <div className='mb-4 p-4 bg-white rounded-lg shadow-sm'>
+        {svgDataUrl && (
+          <img
+            src={svgDataUrl}
+            alt={`QR code for ${handle} tip page`}
+            width={size}
+            height={size}
+            className='block'
+          />
+        )}
+      </div>
 
       {/* Title and Description */}
       {title && (
@@ -96,7 +105,7 @@ export function TipQrCard({
         <button
           onClick={downloadSvg}
           className='flex items-center px-3 py-2 text-sm font-medium rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white transition-colors'
-          disabled={isDownloading || !svgString}
+          disabled={isDownloading || !svgDataUrl}
         >
           <ArrowDownTrayIcon className='h-4 w-4 mr-1' />
           SVG
@@ -104,7 +113,7 @@ export function TipQrCard({
         <button
           onClick={downloadPng}
           className='flex items-center px-3 py-2 text-sm font-medium rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white transition-colors'
-          disabled={isDownloading || !svgString}
+          disabled={isDownloading || !svgDataUrl}
         >
           <ArrowDownTrayIcon className='h-4 w-4 mr-1' />
           PNG
