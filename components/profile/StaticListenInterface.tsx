@@ -141,7 +141,7 @@ export const StaticListenInterface = React.memo(function StaticListenInterface({
               w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-semibold text-base
               transition-all duration-150 ease-out will-change-transform
               hover:scale-[1.01] hover:-translate-y-px active:scale-[0.99]
-              focus:outline-none focus:ring-2 focus:ring-opacity-50
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-opacity-50
               disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
               ${selectedDSP === dsp.key ? 'opacity-75 cursor-wait' : ''}
             `}

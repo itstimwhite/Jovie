@@ -23,7 +23,7 @@ export function DataCard({
   children,
 }: DataCardProps) {
   const badgeClasses = {
-    default: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
+    default: 'bg-surface-hover text-secondary',
     success:
       'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
     warning:
@@ -34,7 +34,7 @@ export function DataCard({
   return (
     <div
       className={cn(
-        'flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-colors dark:border-gray-700 dark:bg-gray-800',
+        'flex items-center justify-between rounded-lg border border-subtle bg-surface p-3 shadow-sm transition-colors',
         className
       )}
     >
@@ -53,12 +53,10 @@ export function DataCard({
           )}
         </div>
         {subtitle && subtitle.trim() !== '' && (
-          <p className='text-sm text-gray-500 dark:text-gray-400 truncate'>
-            {subtitle}
-          </p>
+          <p className='text-sm text-secondary truncate'>{subtitle}</p>
         )}
         {metadata && metadata.trim() !== '' && (
-          <p className='text-xs text-gray-400 dark:text-gray-500'>{metadata}</p>
+          <p className='text-xs text-secondary'>{metadata}</p>
         )}
         {children}
       </div>

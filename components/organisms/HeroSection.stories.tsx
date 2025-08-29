@@ -139,7 +139,7 @@ export const MinimalForm: Story = {
         <input
           type='email'
           placeholder='Enter your email'
-          className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+          className='w-full px-4 py-3 border border-gray-300 rounded-lg focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-transparent'
         />
         <CTAButton href='#' variant='primary' size='lg' className='w-full'>
           Join Now

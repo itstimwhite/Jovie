@@ -111,7 +111,7 @@ export default function WaitlistPage() {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   required
-                  className='w-full px-4 py-3 border border-gray-300 dark:border-white/20 rounded-lg bg-white dark:bg-white/10 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-white/50 focus:ring-2 focus:ring-blue-500 dark:focus:ring-purple-500 focus:border-transparent transition-colors'
+                  className='w-full px-4 py-3 border border-gray-300 dark:border-white/20 rounded-lg bg-white dark:bg-white/10 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-white/50 focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-purple-500 focus-visible:border-transparent transition-colors'
                   placeholder='Enter your email address'
                   disabled={isSubmitting}
                 />

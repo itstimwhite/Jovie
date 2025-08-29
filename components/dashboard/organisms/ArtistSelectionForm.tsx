@@ -167,9 +167,9 @@ export function ArtistSelectionForm() {
   }, [pendingClaim, searchResults, selectedArtist]);
 
   return (
-    <div className='min-h-screen bg-white dark:bg-[#0D0E12] transition-colors'>
+    <div className='min-h-screen bg-base transition-colors'>
       {/* Subtle grid background pattern */}
-      <div className='absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]' />
+      <div className='absolute inset-0 grid-bg dark:grid-bg-dark' />
 
       {/* Gradient orbs - more subtle like Linear */}
       <div className='absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-3xl' />

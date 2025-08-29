@@ -14,12 +14,36 @@ export async function GET(request: Request) {
       // Get analytics data for the current user
       const analytics = await getUserAnalytics(userId, range);
 
-      return NextResponse.json(analytics, { status: 200 });
+      // Normalize to snake_case for client expectations
+      const payload = {
+        total_clicks: analytics.totalClicks ?? 0,
+        spotify_clicks: analytics.spotifyClicks ?? 0,
+        social_clicks: analytics.socialClicks ?? 0,
+        recent_clicks: analytics.recentClicks ?? 0,
+      };
+
+      return NextResponse.json(payload, { status: 200 });
     });
   } catch (error) {
     console.error('Error in analytics API:', error);
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    // Gracefully handle missing user/profile by returning zeroed stats
+    if (
+      error instanceof Error &&
+      (error.message.includes('User not found for Clerk ID') ||
+        error.message.includes('Creator profile not found'))
+    ) {
+      return NextResponse.json(
+        {
+          total_clicks: 0,
+          spotify_clicks: 0,
+          social_clicks: 0,
+          recent_clicks: 0,
+        },
+        { status: 200 }
+      );
     }
     return NextResponse.json(
       { error: 'Failed to fetch analytics data' },

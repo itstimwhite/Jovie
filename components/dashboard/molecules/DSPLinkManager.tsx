@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { MAX_SOCIAL_LINKS } from '@/constants/app';
 import type { DetectedLink } from '@/lib/utils/platform-detection';
 import { LinkManager } from './LinkManager';
 
@@ -14,15 +15,15 @@ interface LinkItem extends DetectedLink {
 interface DSPLinkManagerProps {
   initialLinks?: LinkItem[];
   onLinksChange: (links: LinkItem[]) => void;
+  onLinkAdded?: (links: LinkItem[]) => void; // Immediate save callback for new links
   disabled?: boolean;
-  maxLinks?: number;
 }
 
 export const DSPLinkManager: React.FC<DSPLinkManagerProps> = ({
   initialLinks = [],
   onLinksChange,
+  onLinkAdded,
   disabled = false,
-  maxLinks = 10,
 }) => {
   // Filter to only DSP platform links
   const dspLinks = initialLinks.filter(
@@ -54,8 +55,9 @@ export const DSPLinkManager: React.FC<DSPLinkManagerProps> = ({
       <LinkManager
         initialLinks={dspLinks}
         onLinksChange={handleDSPLinksChange}
+        onLinkAdded={onLinkAdded}
         disabled={disabled}
-        maxLinks={maxLinks}
+        maxLinks={MAX_SOCIAL_LINKS}
         allowedCategory='dsp'
         title='DSP Links'
         description='Add Spotify, Apple Music, YouTube Music, and other streaming platforms.'

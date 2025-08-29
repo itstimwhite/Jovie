@@ -14,6 +14,7 @@ import {
   Cog6ToothIcon,
   HomeIcon,
   LinkIcon,
+  UsersIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import Image from 'next/image';
@@ -28,7 +29,7 @@ import { SettingsPolished } from '@/components/dashboard/organisms/SettingsPolis
 import { UserButton } from '@/components/molecules/UserButton';
 import { Logo } from '@/components/ui/Logo';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
-import { APP_NAME } from '@/constants/app';
+import { APP_NAME, APP_URL } from '@/constants/app';
 import type { CreatorProfile } from '@/lib/db/schema';
 import { Artist, convertDrizzleCreatorProfileToArtist } from '@/types/db';
 import { PendingClaimHandler } from './PendingClaimHandler';
@@ -48,6 +49,13 @@ const navigation = [
     icon: ChartPieIcon,
     current: false,
     id: 'analytics',
+  },
+  {
+    name: 'Audience',
+    href: '#',
+    icon: UsersIcon,
+    current: false,
+    id: 'audience',
   },
   {
     name: 'Settings',
@@ -109,9 +117,9 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
   if (initialData.needsOnboarding) {
     return (
-      <div className='min-h-screen bg-white dark:bg-black transition-colors'>
+      <div className='min-h-screen bg-base transition-colors'>
         {/* Subtle grid background pattern */}
-        <div className='absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]' />
+        <div className='absolute inset-0 grid-bg dark:grid-bg-dark' />
 
         {/* Gradient orbs - more subtle like Linear */}
         <div className='absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-full blur-3xl' />
@@ -127,16 +135,16 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             <div className='w-full max-w-md'>
               {/* Header */}
               <div className='text-center mb-6'>
-                <h1 className='text-3xl font-semibold text-gray-900 dark:text-white mb-1 transition-colors'>
+                <h1 className='text-3xl font-semibold text-primary-token mb-1 transition-colors'>
                   Welcome to {APP_NAME}
                 </h1>
-                <p className='text-gray-600 dark:text-white/70 transition-colors'>
+                <p className='text-secondary-token transition-colors'>
                   Claim your handle to launch your artist profile
                 </p>
               </div>
 
               {/* Form Card */}
-              <div className='bg-white/80 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 rounded-xl p-6 shadow-xl transition-colors'>
+              <div className='bg-surface-token backdrop-blur-sm border border-subtle-token rounded-xl p-6 shadow-xl transition-colors'>
                 <OnboardingForm />
               </div>
             </div>
@@ -155,7 +163,13 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
       <PendingClaimRunner />
       <PendingClaimHandler />
 
-      <div className='min-h-screen bg-white dark:bg-black transition-colors'>
+      <div className='min-h-screen bg-base transition-colors relative'>
+        {' '}
+        {/* Subtle background pattern */}
+        <div className='absolute inset-0 opacity-50 grid-bg dark:grid-bg-dark pointer-events-none' />
+        {/* Gradient orbs for visual depth */}
+        <div className='absolute top-0 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/5 to-blue-500/5 rounded-full blur-3xl pointer-events-none' />
+        <div className='absolute bottom-1/4 left-1/3 w-96 h-96 bg-gradient-to-r from-blue-500/5 to-cyan-500/5 rounded-full blur-3xl pointer-events-none' />
         {/* Mobile sidebar */}
         <Dialog
           open={sidebarOpen}
@@ -164,7 +178,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
         >
           <DialogBackdrop
             transition
-            className='fixed inset-0 bg-gray-900/80 transition-opacity duration-300 ease-linear data-[closed]:opacity-0'
+            className='fixed inset-0 bg-black/70 transition-opacity duration-300 ease-linear data-[closed]:opacity-0'
           />
           <div className='fixed inset-0 flex'>
             <DialogPanel
@@ -186,14 +200,14 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   </button>
                 </div>
               </TransitionChild>
-              <div className='flex grow flex-col gap-y-5 overflow-y-auto bg-white dark:bg-neutral-900 px-6 pb-4'>
+              <div className='flex grow flex-col gap-y-5 overflow-y-auto bg-surface-token backdrop-blur-sm px-6 pb-4 border-r border-subtle-token'>
                 <div className='flex h-16 shrink-0 items-center'>
                   <button
                     onClick={() => {
                       setCurrentNavItem('overview');
                       setSidebarOpen(false);
                     }}
-                    className='focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md'
+                    className='focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 rounded-md'
                   >
                     <Logo size='md' />
                   </button>
@@ -208,16 +222,19 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                               onClick={() => handleNavigation(item.id)}
                               className={classNames(
                                 currentNavItem === item.id
-                                  ? 'bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white'
-                                  : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-neutral-800',
+                                  ? 'bg-surface-hover-token text-primary-token ring-1 ring-accent'
+                                  : 'text-secondary-token hover:text-primary-token hover:bg-surface-hover-token',
                                 'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left'
                               )}
+                              aria-current={
+                                currentNavItem === item.id ? 'page' : undefined
+                              }
                             >
                               <item.icon
                                 className={classNames(
                                   currentNavItem === item.id
-                                    ? 'text-gray-900 dark:text-white'
-                                    : 'text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white',
+                                    ? 'text-primary-token'
+                                    : 'text-secondary-token group-hover:text-primary-token',
                                   'h-6 w-6 shrink-0'
                                 )}
                                 aria-hidden='true'
@@ -231,7 +248,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                     {/* Profile selector in mobile sidebar */}
                     {creatorProfiles.length > 1 && (
                       <li>
-                        <div className='text-xs font-semibold leading-6 text-gray-400 dark:text-gray-500'>
+                        <div className='text-xs font-semibold leading-6 text-secondary-token'>
                           Profiles
                         </div>
                         <ul role='list' className='-mx-2 mt-2 space-y-1'>
@@ -243,8 +260,8 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                                 }
                                 className={classNames(
                                   selectedProfileId === profile.id
-                                    ? 'bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white'
-                                    : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-neutral-800',
+                                    ? 'bg-surface-hover-token text-primary-token ring-1 ring-accent'
+                                    : 'text-secondary-token hover:text-primary-token hover:bg-surface-hover-token',
                                   'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left'
                                 )}
                               >
@@ -262,8 +279,8 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                                     quality={75}
                                   />
                                 ) : (
-                                  <div className='h-6 w-6 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center'>
-                                    <span className='text-xs font-medium text-gray-600 dark:text-gray-300'>
+                                  <div className='h-6 w-6 rounded-full bg-surface-hover-token flex items-center justify-center'>
+                                    <span className='text-xs font-medium text-secondary-token'>
                                       {(
                                         profile.displayName ||
                                         profile.username ||
@@ -284,12 +301,18 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                       </li>
                     )}
                   </ul>
+                  {/* Theme toggle and UserButton in mobile sidebar */}
+                  <div className='mt-auto pt-4 border-t border-subtle-token space-y-3'>
+                    <div className='flex justify-center'>
+                      <EnhancedThemeToggle />
+                    </div>
+                    <UserButton artist={artist} showUserInfo={true} />
+                  </div>
                 </nav>
               </div>
             </DialogPanel>
           </div>
         </Dialog>
-
         {/* Static sidebar for desktop */}
         <div
           className={classNames(
@@ -297,32 +320,63 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             sidebarCollapsed ? 'lg:w-16' : 'lg:w-72'
           )}
         >
-          <div className='flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-6 pb-4'>
-            <div className='flex h-16 shrink-0 items-center'>
-              {!sidebarCollapsed && (
+          <div
+            className={classNames(
+              'flex grow flex-col gap-y-5 overflow-y-auto border-r border-subtle-token bg-surface-token backdrop-blur-sm',
+              sidebarCollapsed ? 'px-2' : 'px-6',
+              'pb-4'
+            )}
+          >
+            {sidebarCollapsed ? (
+              <div className='grid grid-cols-3 h-16 items-center relative'>
+                {/* Left spacer to balance grid */}
+                <div />
+                {/* Centered logo button */}
+                <div className='justify-self-center'>
+                  <button
+                    onClick={() => setCurrentNavItem('overview')}
+                    className='w-10 h-10 rounded-lg flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 hover:bg-surface-hover-token transition-colors'
+                    title='Go to Dashboard Overview'
+                  >
+                    <Image
+                      src='/android-chrome-512x512.png'
+                      alt='Jovie Logo'
+                      width={32}
+                      height={32}
+                      className='w-8 h-8 object-contain'
+                    />
+                  </button>
+                </div>
+                {/* Collapse button floated right */}
+                <div className='justify-self-end pr-2'>
+                  <button
+                    onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                    className='p-1.5 text-secondary-token hover:text-primary-token hover:bg-surface-hover-token rounded-md transition-colors'
+                    title='Expand sidebar'
+                  >
+                    <ChevronRightIcon className='h-4 w-4' />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className='flex h-16 shrink-0 items-center justify-between'>
+                <div className='flex items-center'>
+                  <button
+                    onClick={() => setCurrentNavItem('overview')}
+                    className='focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 rounded-md'
+                  >
+                    <Logo size='md' />
+                  </button>
+                </div>
                 <button
-                  onClick={() => setCurrentNavItem('overview')}
-                  className='focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-md'
+                  onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                  className='p-1.5 text-secondary-token hover:text-primary-token hover:bg-surface-hover-token rounded-md transition-colors'
+                  title='Collapse sidebar'
                 >
-                  <Logo size='md' />
+                  <ChevronLeftIcon className='h-4 w-4' />
                 </button>
-              )}
-              {sidebarCollapsed && (
-                <button
-                  onClick={() => setCurrentNavItem('overview')}
-                  className='w-8 h-8 rounded-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors'
-                  title='Go to Dashboard Overview'
-                >
-                  <Image
-                    src='/favicon.svg'
-                    alt='Jovie App Icon'
-                    width={24}
-                    height={24}
-                    className='w-6 h-6'
-                  />
-                </button>
-              )}
-            </div>
+              </div>
+            )}
             <nav className='flex flex-1 flex-col'>
               <ul role='list' className='flex flex-1 flex-col gap-y-7'>
                 <li>
@@ -333,18 +387,21 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                           onClick={() => handleNavigation(item.id)}
                           className={classNames(
                             currentNavItem === item.id
-                              ? 'bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white'
-                              : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-neutral-800',
+                              ? 'bg-surface-hover-token text-primary-token ring-1 ring-accent'
+                              : 'text-secondary-token hover:text-primary-token hover:bg-surface-hover-token',
                             'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left',
                             sidebarCollapsed ? 'justify-center' : ''
                           )}
                           title={sidebarCollapsed ? item.name : undefined}
+                          aria-current={
+                            currentNavItem === item.id ? 'page' : undefined
+                          }
                         >
                           <item.icon
                             className={classNames(
                               currentNavItem === item.id
-                                ? 'text-gray-900 dark:text-white'
-                                : 'text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white',
+                                ? 'text-primary-token'
+                                : 'text-secondary-token group-hover:text-primary-token',
                               'h-6 w-6 shrink-0'
                             )}
                             aria-hidden='true'
@@ -358,7 +415,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 {/* Profile selector in desktop sidebar - hidden when collapsed */}
                 {!sidebarCollapsed && creatorProfiles.length > 1 && (
                   <li>
-                    <div className='text-xs font-semibold leading-6 text-gray-400 dark:text-gray-500'>
+                    <div className='text-xs font-semibold leading-6 text-secondary-token'>
                       Profiles
                     </div>
                     <ul role='list' className='-mx-2 mt-2 space-y-1'>
@@ -368,8 +425,8 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                             onClick={() => handleProfileSelection(profile.id)}
                             className={classNames(
                               selectedProfileId === profile.id
-                                ? 'bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white'
-                                : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-neutral-800',
+                                ? 'bg-surface-hover-token text-primary-token ring-1 ring-accent'
+                                : 'text-secondary-token hover:text-primary-token hover:bg-surface-hover-token',
                               'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left'
                             )}
                           >
@@ -385,8 +442,8 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                                 quality={75}
                               />
                             ) : (
-                              <div className='h-6 w-6 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center'>
-                                <span className='text-xs font-medium text-gray-600 dark:text-gray-300'>
+                              <div className='h-6 w-6 rounded-full bg-surface-hover-token flex items-center justify-center'>
+                                <span className='text-xs font-medium text-secondary-token'>
                                   {(
                                     profile.displayName ||
                                     profile.username ||
@@ -406,10 +463,10 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                       <li>
                         <button
                           onClick={() => router.push('/onboarding')}
-                          className='text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-neutral-800 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left border border-dashed border-gray-300 dark:border-gray-600'
+                          className='text-secondary-token hover:text-primary-token hover:bg-surface-hover-token group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left border border-dashed border-subtle-token'
                         >
                           <svg
-                            className='h-6 w-6 shrink-0 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white'
+                            className='h-6 w-6 shrink-0 text-secondary-token group-hover:text-primary-token'
                             fill='none'
                             stroke='currentColor'
                             viewBox='0 0 24 24'
@@ -427,16 +484,18 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                     </ul>
                   </li>
                 )}
-                {/* Pro Upgrade */}
+                {/* UserButton in sidebar with user info */}
                 <li className='mt-auto'>
+                  {/* Pro Upgrade - moved above horizontal line */}
                   {!sidebarCollapsed && (
                     <div className='mb-4'>
                       <button
                         onClick={() => router.push('/pricing')}
-                        className='w-full flex items-center gap-3 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 p-3 text-sm font-medium text-white hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-sm'
+                        className='inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white shadow-lg hover:shadow-xl hover:shadow-accent/25 hover:brightness-110 transition-all duration-300 w-full gap-2 focus-visible:outline-none focus-visible:ring-2 ring-accent transform hover:-translate-y-0.5'
+                        style={{ backgroundColor: 'var(--color-accent)' }}
                       >
                         <svg
-                          className='h-5 w-5 flex-shrink-0'
+                          className='h-4 w-4 flex-shrink-0'
                           fill='none'
                           stroke='currentColor'
                           viewBox='0 0 24 24'
@@ -448,111 +507,53 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                             d='M13 10V3L4 14h7v7l9-11h-7z'
                           />
                         </svg>
-                        <div className='text-left'>
-                          <div className='font-semibold'>Upgrade to Pro</div>
-                          <div className='text-xs text-white/80'>
-                            Unlock premium features
-                          </div>
-                        </div>
+                        Upgrade to Pro
                       </button>
                     </div>
                   )}
-                </li>
-                {/* Theme Toggle */}
-                <li>
-                  <div
-                    className={classNames(
-                      'flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full',
-                      sidebarCollapsed ? 'justify-center' : ''
-                    )}
-                  >
-                    {!sidebarCollapsed && (
-                      <>
-                        <svg
-                          className='h-6 w-6 shrink-0 text-gray-400'
-                          fill='none'
-                          stroke='currentColor'
-                          viewBox='0 0 24 24'
-                        >
-                          <path
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            strokeWidth={2}
-                            d='M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z'
-                          />
-                        </svg>
-                        <span className='text-gray-700 dark:text-gray-300'>
-                          Theme
-                        </span>
-                      </>
-                    )}
-                    <div className={sidebarCollapsed ? '' : 'ml-auto'}>
-                      <EnhancedThemeToggle showSystemOption={false} />
+
+                  {/* Theme toggle, horizontal divider, and user info */}
+                  <div className='pt-4 border-t border-subtle-token space-y-3'>
+                    <div className='flex justify-center'>
+                      <EnhancedThemeToggle />
+                    </div>
+                    <div
+                      className={classNames(
+                        'flex',
+                        sidebarCollapsed ? 'justify-center' : ''
+                      )}
+                    >
+                      {!sidebarCollapsed && artist ? (
+                        <UserButton artist={artist} showUserInfo={true} />
+                      ) : (
+                        <UserButton artist={artist} />
+                      )}
                     </div>
                   </div>
-                </li>
-                {/* Collapse button */}
-                <li>
-                  <button
-                    onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                    className={classNames(
-                      'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-neutral-800',
-                      'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full text-left',
-                      sidebarCollapsed ? 'justify-center' : ''
-                    )}
-                    title={sidebarCollapsed ? 'Expand menu' : 'Collapse menu'}
-                  >
-                    {sidebarCollapsed ? (
-                      <ChevronRightIcon className='h-6 w-6 shrink-0 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white' />
-                    ) : (
-                      <>
-                        <ChevronLeftIcon className='h-6 w-6 shrink-0 text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white' />
-                        <span>Collapse menu</span>
-                      </>
-                    )}
-                  </button>
                 </li>
               </ul>
             </nav>
           </div>
         </div>
-
         <div
           className={classNames(
             'transition-all duration-300 ease-in-out',
             sidebarCollapsed ? 'lg:pl-16' : 'lg:pl-72'
           )}
         >
-          <div className='sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8'>
+          {/* Mobile header bar - minimal */}
+          <div className='sticky top-0 z-40 lg:hidden flex h-12 shrink-0 items-center gap-x-4 bg-surface-token backdrop-blur-md px-4 border-b border-subtle-token'>
             <button
               type='button'
-              className='-m-2.5 p-2.5 text-gray-700 dark:text-gray-300 lg:hidden'
+              className='-m-2.5 p-2.5 text-secondary-token'
               onClick={() => setSidebarOpen(true)}
             >
               <span className='sr-only'>Open sidebar</span>
-              <Bars3Icon className='h-6 w-6' aria-hidden='true' />
+              <Bars3Icon
+                className='h-5 w-5 text-secondary-token'
+                aria-hidden='true'
+              />
             </button>
-
-            {/* Separator */}
-            <div
-              className='h-6 w-px bg-gray-200 dark:bg-neutral-800 lg:hidden'
-              aria-hidden='true'
-            />
-
-            <div className='flex flex-1 gap-x-4 self-stretch lg:gap-x-6'>
-              <div className='relative flex flex-1 items-center'>
-                {currentNavItem !== 'settings' && (
-                  <h1 className='text-xl font-semibold leading-6 text-gray-900 dark:text-white'>
-                    {navigation.find(item => item.id === currentNavItem)
-                      ?.name || 'Dashboard'}
-                  </h1>
-                )}
-              </div>
-              <div className='flex items-center gap-x-4 lg:gap-x-6'>
-                {/* User Menu */}
-                <UserButton artist={artist} />
-              </div>
-            </div>
           </div>
 
           <main className={currentNavItem === 'settings' ? '' : 'py-10'}>
@@ -563,44 +564,176 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
             >
               {/* Main content area */}
               {currentNavItem === 'overview' && artist && (
-                <DashboardSplitView
-                  artist={artist}
-                  onArtistUpdate={handleArtistUpdated}
-                />
+                <>
+                  <div className='mb-8'>
+                    <h1 className='text-2xl font-bold text-primary-token'>
+                      Welcome back, {artist.name || artist.handle}!
+                    </h1>
+                    <p className='text-secondary-token mt-1'>
+                      Here&apos;s what&apos;s happening with your profile
+                    </p>
+                  </div>
+
+                  {/* Quick Actions CTA Cards */}
+                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 relative z-10'>
+                    <button
+                      onClick={() => handleNavigation('links')}
+                      className='bg-surface-token backdrop-blur-sm rounded-xl border border-subtle-token p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-hover-token transition-all duration-300 group transform hover:-translate-y-0.5'
+                    >
+                      <div className='flex items-center justify-between mb-3'>
+                        <LinkIcon className='h-8 w-8 text-accent-token' />
+                        <ChevronRightIcon className='h-5 w-5 text-secondary-token group-hover:text-accent-token transition-colors' />
+                      </div>
+                      <h3 className='text-lg font-medium text-primary-token mb-2'>
+                        Manage Links
+                      </h3>
+                      <p className='text-sm text-secondary-token'>
+                        Add your social media and streaming platform links
+                      </p>
+                    </button>
+
+                    <button
+                      onClick={() => handleNavigation('analytics')}
+                      className='bg-surface-token/80 backdrop-blur-sm rounded-xl border border-subtle-token/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-hover-token/80 transition-all duration-300 group transform hover:-translate-y-0.5'
+                    >
+                      <div className='flex items-center justify-between mb-3'>
+                        <ChartPieIcon className='h-8 w-8 text-accent-token' />
+                        <ChevronRightIcon className='h-5 w-5 text-secondary-token group-hover:text-accent-token transition-colors' />
+                      </div>
+                      <h3 className='text-lg font-medium text-primary-token mb-2'>
+                        View Analytics
+                      </h3>
+                      <p className='text-sm text-secondary-token'>
+                        Track your profile performance and engagement
+                      </p>
+                    </button>
+
+                    <button
+                      onClick={() => handleNavigation('audience')}
+                      className='bg-surface-token/80 backdrop-blur-sm rounded-xl border border-subtle-token/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-hover-token/80 transition-all duration-300 group transform hover:-translate-y-0.5'
+                    >
+                      <div className='flex items-center justify-between mb-3'>
+                        <UsersIcon className='h-8 w-8 text-accent-token' />
+                        <ChevronRightIcon className='h-5 w-5 text-secondary-token group-hover:text-accent-token transition-colors' />
+                      </div>
+                      <h3 className='text-lg font-medium text-primary-token mb-2'>
+                        Manage Audience
+                      </h3>
+                      <p className='text-sm text-secondary-token'>
+                        Understand and engage with your fanbase
+                      </p>
+                    </button>
+
+                    <button
+                      onClick={() => handleNavigation('settings')}
+                      className='bg-surface-token/80 backdrop-blur-sm rounded-xl border border-subtle-token/50 p-6 text-left hover:shadow-xl hover:shadow-accent/10 hover:ring-1 ring-accent hover:border-accent/30 hover:bg-surface-hover-token/80 transition-all duration-300 group transform hover:-translate-y-0.5'
+                    >
+                      <div className='flex items-center justify-between mb-3'>
+                        <Cog6ToothIcon className='h-8 w-8 text-accent-token' />
+                        <ChevronRightIcon className='h-5 w-5 text-secondary-token group-hover:text-accent-token transition-colors' />
+                      </div>
+                      <h3 className='text-lg font-medium text-primary-token mb-2'>
+                        Profile Settings
+                      </h3>
+                      <p className='text-sm text-secondary-token'>
+                        Customize your profile and account preferences
+                      </p>
+                    </button>
+                  </div>
+
+                  {/* Quick Stats */}
+                  <div className='mt-8'>
+                    <h3 className='text-lg font-medium text-primary-token mb-4'>
+                      Quick Stats
+                    </h3>
+                    <AnalyticsCards
+                      profileUrl={`${APP_URL}/${artist.handle}`}
+                    />
+                  </div>
+
+                  {/* Recent Activity Card */}
+                  <div className='mt-8 bg-surface-token backdrop-blur-sm rounded-xl border border-subtle-token p-6 relative z-10'>
+                    <h3 className='text-lg font-medium text-primary-token mb-4'>
+                      Recent Activity
+                    </h3>
+                    <div className='space-y-3'>
+                      <div className='flex items-center gap-3 p-3 rounded-lg bg-surface-hover-token'>
+                        <div className='w-2 h-2 bg-green-500 rounded-full'></div>
+                        <div className='flex-1'>
+                          <p className='text-sm font-medium text-primary-token'>
+                            Profile updated
+                          </p>
+                          <p className='text-xs text-secondary-token'>
+                            2 hours ago
+                          </p>
+                        </div>
+                      </div>
+                      <div className='flex items-center gap-3 p-3 rounded-lg bg-surface-hover-token/30'>
+                        <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
+                        <div className='flex-1'>
+                          <p className='text-sm font-medium text-primary-token'>
+                            New link added
+                          </p>
+                          <p className='text-xs text-secondary-token'>
+                            1 day ago
+                          </p>
+                        </div>
+                      </div>
+                      <div className='flex items-center gap-3 p-3 rounded-lg bg-surface-hover-token/30'>
+                        <div className='w-2 h-2 bg-purple-500 rounded-full'></div>
+                        <div className='flex-1'>
+                          <p className='text-sm font-medium text-primary-token'>
+                            Analytics milestone reached
+                          </p>
+                          <p className='text-xs text-secondary-token'>
+                            3 days ago
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
               )}
 
               {currentNavItem === 'links' && (
-                <div className='text-center py-12'>
-                  <LinkIcon className='mx-auto h-12 w-12 text-gray-400' />
-                  <h3 className='mt-2 text-sm font-semibold text-gray-900 dark:text-white'>
-                    Links Management
-                  </h3>
-                  <p className='mt-1 text-sm text-gray-500 dark:text-gray-400'>
-                    Manage your social and streaming platform links.
-                  </p>
-                </div>
+                <>
+                  <div className='mb-8'>
+                    <h1 className='text-2xl font-bold text-primary-token'>
+                      Links
+                    </h1>
+                    <p className='text-secondary-token mt-1'>
+                      Manage your social and streaming platform links
+                    </p>
+                  </div>
+
+                  {/* Use the full DashboardSplitView for universal inputs and live preview */}
+                  <DashboardSplitView
+                    artist={artist}
+                    onArtistUpdate={handleArtistUpdated}
+                  />
+                </>
               )}
 
               {currentNavItem === 'analytics' && (
-                <div className='space-y-6'>
+                <div className='space-y-6 relative z-10'>
                   <div>
-                    <h2 className='text-xl font-semibold text-gray-900 dark:text-white mb-2'>
+                    <h2 className='text-xl font-semibold text-primary-token mb-2'>
                       Analytics
                     </h2>
-                    <p className='text-sm text-gray-600 dark:text-gray-400 mb-6'>
+                    <p className='text-sm text-secondary-token mb-6'>
                       Track your profile performance and link engagement
                     </p>
                   </div>
 
                   {/* Analytics Cards */}
-                  <AnalyticsCards />
+                  <AnalyticsCards profileUrl={`${APP_URL}/${artist.handle}`} />
 
                   {/* Additional analytics info */}
-                  <div className='mt-8 bg-gray-50 dark:bg-neutral-800/50 rounded-lg p-6'>
-                    <h3 className='text-sm font-medium text-gray-900 dark:text-white mb-2'>
+                  <div className='mt-8 bg-surface-token backdrop-blur-sm rounded-lg p-6 border border-subtle-token hover:shadow-lg hover:border-accent/10 transition-all duration-300 relative z-10'>
+                    <h3 className='text-sm font-medium text-primary-token mb-2'>
                       Coming Soon
                     </h3>
-                    <p className='text-sm text-gray-500 dark:text-gray-400'>
+                    <p className='text-sm text-secondary-token'>
                       Detailed analytics with charts, traffic sources, and
                       demographic insights will be available soon.
                     </p>
@@ -608,11 +741,218 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                 </div>
               )}
 
+              {currentNavItem === 'audience' && (
+                <div className='space-y-6 relative z-10'>
+                  <div>
+                    <h2 className='text-xl font-semibold text-primary-token mb-2'>
+                      Audience
+                    </h2>
+                    <p className='text-sm text-secondary-token mb-6'>
+                      Understand your fanbase demographics and engagement
+                      patterns
+                    </p>
+                  </div>
+
+                  {/* Audience Overview Cards */}
+                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 relative z-10'>
+                    <div className='bg-surface-token backdrop-blur-sm rounded-lg border border-subtle-token p-4 hover:shadow-lg hover:border-accent/20 transition-all duration-300'>
+                      <div className='flex items-center justify-between'>
+                        <div>
+                          <p className='text-sm font-medium text-secondary-token'>
+                            Total Followers
+                          </p>
+                          <p className='text-2xl font-bold text-primary-token'>
+                            1,247
+                          </p>
+                        </div>
+                        <UsersIcon className='h-8 w-8 text-accent-token' />
+                      </div>
+                      <p className='text-xs text-green-600 dark:text-green-400 mt-2'>
+                        +12% from last month
+                      </p>
+                    </div>
+
+                    <div className='bg-surface-token/80 backdrop-blur-sm rounded-lg border border-subtle-token/50 p-4 hover:shadow-lg hover:border-accent/20 transition-all duration-300'>
+                      <div className='flex items-center justify-between'>
+                        <div>
+                          <p className='text-sm font-medium text-secondary-token'>
+                            Engagement Rate
+                          </p>
+                          <p className='text-2xl font-bold text-primary-token'>
+                            4.2%
+                          </p>
+                        </div>
+                        <div className='h-8 w-8 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center'>
+                          <span className='text-lg'>📊</span>
+                        </div>
+                      </div>
+                      <p className='text-xs text-green-600 dark:text-green-400 mt-2'>
+                        +0.3% from last month
+                      </p>
+                    </div>
+
+                    <div className='bg-surface-token/80 backdrop-blur-sm rounded-lg border border-subtle-token/50 p-4 hover:shadow-lg hover:border-accent/20 transition-all duration-300'>
+                      <div className='flex items-center justify-between'>
+                        <div>
+                          <p className='text-sm font-medium text-secondary-token'>
+                            Monthly Listeners
+                          </p>
+                          <p className='text-2xl font-bold text-primary-token'>
+                            8,934
+                          </p>
+                        </div>
+                        <div className='h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center'>
+                          <span className='text-lg'>🎵</span>
+                        </div>
+                      </div>
+                      <p className='text-xs text-blue-600 dark:text-blue-400 mt-2'>
+                        +5.7% from last month
+                      </p>
+                    </div>
+
+                    <div className='bg-surface-token/80 backdrop-blur-sm rounded-lg border border-subtle-token/50 p-4 hover:shadow-lg hover:border-accent/20 transition-all duration-300'>
+                      <div className='flex items-center justify-between'>
+                        <div>
+                          <p className='text-sm font-medium text-secondary-token'>
+                            Top Location
+                          </p>
+                          <p className='text-2xl font-bold text-primary-token'>
+                            🇺🇸 US
+                          </p>
+                        </div>
+                        <div className='h-8 w-8 rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center'>
+                          <span className='text-lg'>🌍</span>
+                        </div>
+                      </div>
+                      <p className='text-xs text-secondary-token mt-2'>
+                        45% of total audience
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Demographics Section */}
+                  <div className='bg-surface-token backdrop-blur-sm rounded-lg border border-subtle-token p-6 hover:shadow-lg hover:border-accent/10 transition-all duration-300 relative z-10'>
+                    <h3 className='text-lg font-medium text-primary-token mb-4'>
+                      Demographics
+                    </h3>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                      <div>
+                        <h4 className='text-sm font-medium text-primary-token mb-3'>
+                          Age Groups
+                        </h4>
+                        <div className='space-y-2'>
+                          <div className='flex justify-between items-center'>
+                            <span className='text-sm text-secondary-token'>
+                              18-24
+                            </span>
+                            <div className='flex items-center gap-2'>
+                              <div className='w-16 h-2 bg-surface-hover-token rounded-full'>
+                                <div className='w-3/4 h-full bg-blue-500 rounded-full'></div>
+                              </div>
+                              <span className='text-sm font-medium text-primary-token'>
+                                35%
+                              </span>
+                            </div>
+                          </div>
+                          <div className='flex justify-between items-center'>
+                            <span className='text-sm text-secondary-token'>
+                              25-34
+                            </span>
+                            <div className='flex items-center gap-2'>
+                              <div className='w-16 h-2 bg-surface-hover-token rounded-full'>
+                                <div className='w-1/2 h-full bg-green-500 rounded-full'></div>
+                              </div>
+                              <span className='text-sm font-medium text-primary-token'>
+                                28%
+                              </span>
+                            </div>
+                          </div>
+                          <div className='flex justify-between items-center'>
+                            <span className='text-sm text-secondary-token'>
+                              35-44
+                            </span>
+                            <div className='flex items-center gap-2'>
+                              <div className='w-16 h-2 bg-surface-hover-token rounded-full'>
+                                <div className='w-1/4 h-full bg-purple-500 rounded-full'></div>
+                              </div>
+                              <span className='text-sm font-medium text-primary-token'>
+                                22%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className='text-sm font-medium text-primary-token mb-3'>
+                          Top Countries
+                        </h4>
+                        <div className='space-y-2'>
+                          <div className='flex justify-between items-center'>
+                            <span className='text-sm text-secondary-token'>
+                              🇺🇸 United States
+                            </span>
+                            <span className='text-sm font-medium text-primary-token'>
+                              45%
+                            </span>
+                          </div>
+                          <div className='flex justify-between items-center'>
+                            <span className='text-sm text-secondary-token'>
+                              🇬🇧 United Kingdom
+                            </span>
+                            <span className='text-sm font-medium text-primary-token'>
+                              18%
+                            </span>
+                          </div>
+                          <div className='flex justify-between items-center'>
+                            <span className='text-sm text-secondary-token'>
+                              🇨🇦 Canada
+                            </span>
+                            <span className='text-sm font-medium text-primary-token'>
+                              12%
+                            </span>
+                          </div>
+                          <div className='flex justify-between items-center'>
+                            <span className='text-sm text-secondary-token'>
+                              🇦🇺 Australia
+                            </span>
+                            <span className='text-sm font-medium text-primary-token'>
+                              8%
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Audience Insights */}
+                  <div className='bg-surface-token/80 backdrop-blur-sm rounded-lg p-6 border border-subtle-token/50 hover:shadow-lg hover:border-accent/10 transition-all duration-300 relative z-10'>
+                    <h3 className='text-sm font-medium text-primary-token mb-2'>
+                      Coming Soon
+                    </h3>
+                    <p className='text-sm text-secondary-token'>
+                      Advanced audience insights including listening habits,
+                      discovery sources, and fan engagement patterns will be
+                      available soon.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {currentNavItem === 'settings' && (
-                <SettingsPolished
-                  artist={artist}
-                  onArtistUpdate={handleArtistUpdated}
-                />
+                <>
+                  <div className='mb-8 px-4 sm:px-6 lg:px-8'>
+                    <h1 className='text-2xl font-bold text-primary-token'>
+                      Settings
+                    </h1>
+                    <p className='text-secondary-token mt-1'>
+                      Manage your account preferences and settings
+                    </p>
+                  </div>
+                  <SettingsPolished
+                    artist={artist}
+                    onArtistUpdate={handleArtistUpdated}
+                  />
+                </>
               )}
             </div>
           </main>

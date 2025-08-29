@@ -33,6 +33,9 @@ export const linkTypeEnum = pgEnum('link_type', [
   'other',
 ]);
 
+// Theme enum for user settings
+export const themeModeEnum = pgEnum('theme_mode', ['system', 'light', 'dark']);
+
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   clerkId: text('clerk_id').unique().notNull(),
@@ -42,6 +45,15 @@ export const users = pgTable('users', {
   stripeSubscriptionId: text('stripe_subscription_id').unique(),
   billingUpdatedAt: timestamp('billing_updated_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// Separate user-level settings (distinct from creator profile)
+export const userSettings = pgTable('user_settings', {
+  userId: uuid('user_id')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  themeMode: themeModeEnum('theme_mode').notNull().default('system'),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
@@ -95,4 +107,5 @@ export const schemas = {
   users,
   creatorProfiles,
   socialLinks,
+  userSettings,
 };
