@@ -11,7 +11,7 @@ vi.mock('@/lib/actions/update-venmo-handle', () => ({
 describe('Venmo Handle Update Integration', () => {
   beforeEach(() => {
     vi.resetAllMocks();
-    (updateVenmoHandle as any).mockResolvedValue({ venmoHandle: 'newuser' });
+    (updateVenmoHandle as any).mockResolvedValue({ venmoHandle: 'newuser' } as any);
   });
 
   it('updates Venmo handle and shows success message', async () => {
@@ -102,4 +102,3 @@ describe('Venmo Handle Update Integration', () => {
     expect(updateVenmoHandle).not.toHaveBeenCalled();
   });
 });
-

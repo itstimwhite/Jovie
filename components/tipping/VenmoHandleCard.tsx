@@ -7,7 +7,7 @@ import { validateVenmoHandle } from '@/lib/validation/venmo';
 
 interface VenmoHandleCardProps {
   initialValue?: string | null;
-  onSave?: (value: string) => Promise<void>;
+  onSave?: (value: string) => Promise<any>;
   className?: string;
 }
 
@@ -161,4 +161,3 @@ export function VenmoHandleCard({
     </div>
   );
 }
-

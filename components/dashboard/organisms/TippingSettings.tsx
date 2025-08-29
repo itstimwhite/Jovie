@@ -16,7 +16,10 @@ export function TippingSettings({ initialVenmoHandle }: TippingSettingsProps) {
   const handleSaveVenmoHandle = async (newHandle: string) => {
     try {
       const result = await updateVenmoHandle(newHandle);
-      setVenmoHandle(result.venmoHandle || '');
+      // The result might have venmoHandle property based on the schema update
+      // Use type assertion to access it safely
+      const profile = result as any;
+      setVenmoHandle(profile.venmoHandle || '');
       return result;
     } catch (error) {
       console.error('Failed to update Venmo handle:', error);
@@ -52,4 +55,3 @@ export function TippingSettings({ initialVenmoHandle }: TippingSettingsProps) {
     </div>
   );
 }
-
