@@ -1,5 +1,16 @@
 import { expect, test } from './setup';
 
+// Extend Window interface to include our test properties
+declare global {
+  interface Window {
+    __TEST_PROFILE_WITH_VENMO__?: any;
+    __TEST_TIP_CLICK_CAPTURED__?: () => void;
+    posthog?: {
+      capture: (eventName: string, properties?: Record<string, any>) => void;
+    };
+  }
+}
+
 test.describe('Tipping MVP', () => {
   // Test in both light and dark modes
   ['light', 'dark'].forEach(colorMode => {
@@ -66,9 +77,12 @@ test.describe('Tipping MVP', () => {
         await page.addInitScript(() => {
           const originalPostHogCapture = window.posthog?.capture;
           if (window.posthog) {
-            window.posthog.capture = function (eventName, properties) {
+            window.posthog.capture = function (
+              eventName: string,
+              properties?: Record<string, any>
+            ) {
               if (eventName === 'tip_click') {
-                window.__TEST_TIP_CLICK_CAPTURED__();
+                window.__TEST_TIP_CLICK_CAPTURED__?.();
               }
               return originalPostHogCapture?.call(
                 window.posthog,
