@@ -3,8 +3,27 @@ import { expect, test } from './setup';
 // Extend Window interface to include our test properties
 declare global {
   interface Window {
-    __TEST_PROFILE_WITH_VENMO__?: any;
-    __TEST_TIP_CLICK_CAPTURED__?: () => void;
+    __TEST_PROFILE_WITH_VENMO__?: {
+      id: string;
+      userId: string;
+      username: string;
+      displayName: string;
+      bio: string;
+      avatarUrl: string;
+      isPublic: boolean;
+      isVerified: boolean;
+      isClaimed: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+      socialLinks: Array<{
+        id: string;
+        platform: string;
+        url: string;
+        clicks: number;
+        createdAt: Date;
+      }>;
+    };
+    __TEST_TIP_CLICK_CAPTURED__?: boolean;
     posthog?: {
       capture: (eventName: string, properties?: Record<string, any>) => void;
     };
@@ -67,14 +86,10 @@ test.describe('Tipping MVP', () => {
         const tipButton = page.getByRole('link', { name: 'Tip' });
         await expect(tipButton).toBeVisible();
 
-        // Set up event tracking listener
-        let tipClickCaptured = false;
-        await page.exposeFunction('__TEST_TIP_CLICK_CAPTURED__', () => {
-          tipClickCaptured = true;
-        });
-
-        // Intercept PostHog event tracking
+        // Set up event tracking
         await page.addInitScript(() => {
+          (window as any).__TEST_TIP_CLICK_CAPTURED__ = false;
+          
           const originalPostHogCapture = window.posthog?.capture;
           if (window.posthog) {
             window.posthog.capture = function (
@@ -82,7 +97,7 @@ test.describe('Tipping MVP', () => {
               properties?: Record<string, any>
             ) {
               if (eventName === 'tip_click') {
-                window.__TEST_TIP_CLICK_CAPTURED__?.();
+                (window as any).__TEST_TIP_CLICK_CAPTURED__ = true;
               }
               return originalPostHogCapture?.call(
                 window.posthog,
