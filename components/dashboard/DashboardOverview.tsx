@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { DashboardSplitView } from '@/components/dashboard/organisms/DashboardSplitView';
 import { AnalyticsCards } from '@/components/dashboard/molecules/AnalyticsCards';
 import { Artist, convertDrizzleCreatorProfileToArtist } from '@/types/db';
-import type { CreatorProfile } from '@/lib/db/schema';
+// import type { CreatorProfile } from '@/lib/db/schema'; // Unused import - commented out
 import type { DashboardData } from '@/app/dashboard/actions';
 
 interface DashboardOverviewProps {

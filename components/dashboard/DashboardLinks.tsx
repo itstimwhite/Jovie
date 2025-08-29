@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Artist, convertDrizzleCreatorProfileToArtist } from '@/types/db';
-import type { CreatorProfile } from '@/lib/db/schema';
+// import type { CreatorProfile } from '@/lib/db/schema'; // Unused import - commented out
 import type { DashboardData } from '@/app/dashboard/actions';
 
 interface DashboardLinksProps {
