@@ -5,8 +5,10 @@ import { Artist } from '@/types/db';
 
 // Mock the getBaseUrl function for Storybook
 import * as platformDetection from '@/lib/utils/platform-detection';
-// @ts-expect-error - Storybook mock
-platformDetection.getBaseUrl = () => 'https://jov.ie';
+
+// Use proper mock approach to avoid import/namespace linting error
+const mockPlatformDetection = platformDetection as any;
+mockPlatformDetection.getBaseUrl = () => 'https://jov.ie';
 
 const meta: Meta<typeof TipLinkCard> = {
   title: 'Tipping/TipLinkCard',
