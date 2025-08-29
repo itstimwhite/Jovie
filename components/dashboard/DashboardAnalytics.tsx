@@ -19,19 +19,19 @@ export function DashboardAnalytics({ initialData }: DashboardAnalyticsProps) {
   const [creatorProfiles] = useState<CreatorProfile[]>(
     initialData.creatorProfiles
   );
-  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
-    initialData.selectedProfile?.id || null
-  );
+  // const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
+  //   initialData.selectedProfile?.id || null
+  // );
 
-  const handleArtistUpdated = (updatedArtist: Artist) => {
-    setArtist(updatedArtist);
-  };
+  // const handleArtistUpdated = (updatedArtist: Artist) => {
+  //   setArtist(updatedArtist);
+  // };
 
   // Handle profile selection when user has multiple creator profiles
-  const handleProfileSelection = (profileId: string) => {
-    const selectedProfile = creatorProfiles.find(p => p.id === profileId);
-    if (selectedProfile) {
-      setSelectedProfileId(profileId);
+  // const handleProfileSelection = (profileId: string) => {
+  //   const selectedProfile = creatorProfiles.find(p => p.id === profileId);
+  //   if (selectedProfile) {
+  //     setSelectedProfileId(profileId);
       const artistData = convertDrizzleCreatorProfileToArtist(selectedProfile);
       setArtist(artistData);
     }
