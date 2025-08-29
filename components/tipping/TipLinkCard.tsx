@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { getBaseUrl } from '@/lib/utils/platform-detection';
@@ -25,8 +24,7 @@ export function TipLinkCard({ artist }: TipLinkCardProps) {
   const baseUrl = getBaseUrl();
   const handle = artist.handle || '';
 
-  // Create both URL formats
-  const profileUrl = `${baseUrl}/${handle}`;
+  // Create tip URL format
   const tipUrl = `${baseUrl}/${handle}/tip`;
 
   const handleCopy = async () => {

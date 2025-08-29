@@ -5,7 +5,7 @@ import { Artist } from '@/types/db';
 
 // Mock the getBaseUrl function for Storybook
 import * as platformDetection from '@/lib/utils/platform-detection';
-// @ts-ignore - Storybook mock
+// @ts-expect-error - Storybook mock
 platformDetection.getBaseUrl = () => 'https://jov.ie';
 
 const meta: Meta<typeof TipLinkCard> = {
