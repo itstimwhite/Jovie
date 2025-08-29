@@ -13,6 +13,8 @@ import { useTheme } from 'next-themes';
 import { useCallback, useState } from 'react';
 import { APP_URL } from '@/constants/app';
 import { cn } from '@/lib/utils';
+import { FormField } from '@/components/ui/FormField';
+import { InputField } from '@/components/ui/InputField';
 import type { Artist } from '@/types/db';
 
 interface SettingsPolishedProps {
@@ -280,23 +282,16 @@ export function SettingsPolished({
             </div>
 
             {/* Display Name */}
-            <div>
-              <label
-                htmlFor='displayName'
-                className='block text-sm font-medium text-primary mb-2'
-              >
-                Display Name
-              </label>
-              <input
-                type='text'
-                name='displayName'
-                id='displayName'
-                value={formData.displayName}
-                onChange={e => handleInputChange('displayName', e.target.value)}
-                className='block w-full px-3 py-2 border border-subtle rounded-lg bg-surface-1 text-primary placeholder:text-secondary focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:border-transparent sm:text-sm shadow-sm transition-colors'
-                placeholder='The name your fans will see'
-              />
-            </div>
+            <InputField
+              label="Display Name"
+              id="displayName"
+              name="displayName"
+              value={formData.displayName}
+              onChange={e => handleInputChange('displayName', e.target.value)}
+              placeholder="The name your fans will see"
+              helpText="This is the name that will be displayed on your profile"
+              helpTextPosition="after"
+            />
 
             {/* Bio */}
             <div>
@@ -315,19 +310,17 @@ export function SettingsPolished({
                 className='block w-full px-3 py-2 border border-subtle rounded-lg bg-surface-1 text-primary placeholder:text-secondary focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:border-transparent sm:text-sm shadow-sm resize-none transition-colors'
                 placeholder='Tell your fans about yourself...'
               />
-              <p className='mt-2 text-sm text-secondary'>
+              <p className='mt-2 text-xs text-secondary'>
                 A few sentences about your music and what makes you unique.
               </p>
             </div>
 
             {/* Creator Type */}
-            <div>
-              <label
-                htmlFor='creatorType'
-                className='block text-sm font-medium text-primary mb-2'
-              >
-                Creator Type
-              </label>
+            <FormField
+              label="Creator Type"
+              helpText="This helps us tailor your experience"
+              helpTextPosition="after"
+            >
               <select
                 id='creatorType'
                 name='creatorType'
@@ -340,7 +333,7 @@ export function SettingsPolished({
                 <option value='podcaster'>Podcaster</option>
                 <option value='creator'>Content Creator</option>
               </select>
-            </div>
+            </FormField>
           </div>
         </div>
 

@@ -2,13 +2,60 @@ import React, { cloneElement, isValidElement, useId } from 'react';
 import { cn } from '@/lib/utils';
 
 interface FormFieldProps {
+  /**
+   * Label text for the form field
+   */
   label?: string;
+  
+  /**
+   * Error message to display
+   */
   error?: string;
+  
+  /**
+   * Whether the field is required
+   */
   required?: boolean;
+  
+  /**
+   * Additional CSS classes for the form field container
+   */
   className?: string;
+  
+  /**
+   * The input element to render inside the form field
+   */
   children: React.ReactNode;
+  
+  /**
+   * Optional ID for the input element (will be generated if not provided)
+   */
   id?: string;
+  
+  /**
+   * Helper text to display below the label
+   */
   helpText?: string;
+  
+  /**
+   * Whether to display the helper text before the input element
+   */
+  helpTextPosition?: 'before' | 'after';
+  
+  /**
+   * Additional CSS classes for the label
+   */
+  labelClassName?: string;
+  
+  /**
+   * Additional CSS classes for the helper text
+   */
+  helpTextClassName?: string;
+  
+  /**
+   * Additional CSS classes for the error message
+   */
+  errorClassName?: string;
 }
 
 export function FormField({
@@ -19,6 +66,10 @@ export function FormField({
   children,
   id: providedId,
   helpText,
+  helpTextPosition = 'before',
+  labelClassName,
+  helpTextClassName,
+  errorClassName,
 }: FormFieldProps) {
   // Generate unique IDs for accessibility connections
   const uniqueId = useId();
@@ -47,12 +98,28 @@ export function FormField({
     return child;
   });
 
+  // Helper text component
+  const HelperText = helpText ? (
+    <p 
+      id={helpTextId} 
+      className={cn(
+        'text-xs text-secondary',
+        helpTextClassName
+      )}
+    >
+      {helpText}
+    </p>
+  ) : null;
+
   return (
     <div className={cn('space-y-2', className)}>
       {label && (
         <label
           htmlFor={id}
-          className='text-sm font-medium text-gray-700 dark:text-gray-300'
+          className={cn(
+            'block text-sm font-medium text-primary',
+            labelClassName
+          )}
         >
           {label}
           {required && (
@@ -64,18 +131,21 @@ export function FormField({
         </label>
       )}
 
-      {helpText && (
-        <p id={helpTextId} className='text-xs text-gray-500 dark:text-gray-400'>
-          {helpText}
-        </p>
-      )}
+      {/* Helper text can be positioned before or after the input */}
+      {helpText && helpTextPosition === 'before' && HelperText}
 
       {childrenWithProps}
+
+      {/* Helper text can be positioned before or after the input */}
+      {helpText && helpTextPosition === 'after' && HelperText}
 
       {error && (
         <p
           id={errorId}
-          className='text-sm text-red-600 dark:text-red-400'
+          className={cn(
+            'text-sm text-red-600 dark:text-red-400',
+            errorClassName
+          )}
           role='alert'
           aria-live='polite'
         >

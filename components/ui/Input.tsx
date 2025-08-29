@@ -79,7 +79,7 @@ export const Input = forwardRef(function Input(
 
   // Determine validation state
   const isInvalid =
-    validationState === 'invalid' || error || ariaInvalid === 'true';
+    validationState === 'invalid' || error || ariaInvalid === 'true' || props['aria-invalid'] === 'true';
   const isValid = validationState === 'valid';
   const isPending = validationState === 'pending' || loading;
 
@@ -87,6 +87,7 @@ export const Input = forwardRef(function Input(
   const getDescribedByIds = () => {
     const ids = [];
     if (ariaDescribedBy) ids.push(ariaDescribedBy);
+    if (props['aria-describedby']) ids.push(props['aria-describedby']);
     if (helpText) ids.push(helpTextId);
     if (error) ids.push(errorId);
     return ids.length > 0 ? ids.join(' ') : undefined;
@@ -197,13 +198,17 @@ export const Input = forwardRef(function Input(
   );
 
   // If we have label, error, or helpText, wrap in a container
+  // This is for backward compatibility - new code should use FormField instead
   if (label || error || helpText) {
+    console.warn(
+      'Using Input with label, error, or helpText is deprecated. Use FormField instead.'
+    );
     return (
       <div className='space-y-2'>
         {label && (
           <label
             htmlFor={id}
-            className='text-sm font-medium text-gray-700 dark:text-gray-300'
+            className='block text-sm font-medium text-primary'
           >
             {label}
             {props.required && (
@@ -218,7 +223,7 @@ export const Input = forwardRef(function Input(
         {helpText && (
           <p
             id={helpTextId}
-            className='text-xs text-gray-500 dark:text-gray-400'
+            className='text-xs text-secondary'
           >
             {helpText}
           </p>

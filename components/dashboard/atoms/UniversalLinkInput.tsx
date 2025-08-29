@@ -3,7 +3,7 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { SocialIcon } from '@/components/atoms/SocialIcon';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { InputField } from '@/components/ui/InputField';
 import {
   type DetectedLink,
   detectPlatform,
@@ -110,10 +110,7 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
     <div className='space-y-3'>
       {/* URL Input */}
       <div className='relative'>
-        <label htmlFor='link-url-input' className='sr-only'>
-          Enter link URL
-        </label>
-        <Input
+        <InputField
           ref={urlInputRef}
           id='link-url-input'
           type='url'
@@ -128,6 +125,8 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
           autoComplete='off'
           className='pr-24'
           aria-describedby={detectedLink ? 'link-detection-status' : undefined}
+          label="Link URL"
+          labelClassName="sr-only"
         />
 
         {/* Platform icon in input */}
@@ -218,10 +217,7 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
               </div>
 
               {/* Title input */}
-              <label htmlFor='link-title-input' className='sr-only'>
-                Link title
-              </label>
-              <Input
+              <InputField
                 id='link-title-input'
                 type='text'
                 placeholder='Link title'
@@ -236,6 +232,9 @@ export const UniversalLinkInput: React.FC<UniversalLinkInputProps> = ({
                 className='text-sm mb-2'
                 aria-required='true'
                 aria-invalid={!displayTitle.trim() ? 'true' : 'false'}
+                label="Link title"
+                labelClassName="sr-only"
+                required
               />
 
               {/* URL preview */}

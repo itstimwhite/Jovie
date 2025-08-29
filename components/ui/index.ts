@@ -14,6 +14,7 @@ export { FormField } from './FormField';
 export { FormStatus } from './FormStatus';
 export { InfoBox } from './InfoBox';
 export { Input } from './Input';
+export { InputField } from './InputField';
 export { LoadingSkeleton } from './LoadingSkeleton';
 export { Logo } from './Logo';
 export { OptimizedImage } from './OptimizedImage';
