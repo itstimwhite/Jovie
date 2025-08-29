@@ -9,7 +9,6 @@ vi.mock('@/components/providers/FeatureFlagsProvider', () => ({
       waitlistEnabled: false,
       artistSearchEnabled: true,
       debugBannerEnabled: false,
-      tipPromoEnabled: true,
     },
     isLoading: false,
     error: null,

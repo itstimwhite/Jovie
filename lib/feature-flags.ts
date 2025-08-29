@@ -2,7 +2,6 @@
 export interface FeatureFlags {
   artistSearchEnabled: boolean;
   debugBannerEnabled: boolean;
-  tipPromoEnabled: boolean;
   pricingUseClerk: boolean;
   universalNotificationsEnabled: boolean;
   // Gate new anonymous click logging via SECURITY DEFINER RPC
@@ -19,7 +18,6 @@ export interface FeatureFlags {
 export const POSTHOG_FLAGS = {
   ARTIST_SEARCH_ENABLED: 'feature_artist_search_enabled',
   DEBUG_BANNER_ENABLED: 'feature_debug_banner_enabled',
-  TIP_PROMO_ENABLED: 'feature_tip_promo_enabled',
   PRICING_USE_CLERK: 'feature_pricing_use_clerk',
   UNIVERSAL_NOTIFICATIONS_ENABLED: 'feature_universal_notifications_enabled',
   FEATURE_CLICK_ANALYTICS_RPC: 'feature_click_analytics_rpc',
@@ -33,7 +31,6 @@ const defaultFeatureFlags: FeatureFlags = {
   artistSearchEnabled: true,
   // Debug banner is removed site-wide; keep flag for compatibility but default to false
   debugBannerEnabled: false,
-  tipPromoEnabled: true,
   pricingUseClerk: false,
   // Universal notifications only enabled in development for now
   universalNotificationsEnabled: process.env.NODE_ENV === 'development',
@@ -71,7 +68,6 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
       if (
         typeof data?.artistSearchEnabled !== 'undefined' ||
         typeof data?.debugBannerEnabled !== 'undefined' ||
-        typeof data?.tipPromoEnabled !== 'undefined' ||
         typeof data?.universalNotificationsEnabled !== 'undefined' ||
         typeof data?.progressiveOnboardingEnabled !== 'undefined' ||
         hasRpcFlag
@@ -82,9 +78,6 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
           ),
           debugBannerEnabled: Boolean(
             data.debugBannerEnabled ?? defaultFeatureFlags.debugBannerEnabled
-          ),
-          tipPromoEnabled: Boolean(
-            data.tipPromoEnabled ?? defaultFeatureFlags.tipPromoEnabled
           ),
           pricingUseClerk: Boolean(
             data.pricingUseClerk ?? defaultFeatureFlags.pricingUseClerk
@@ -136,10 +129,6 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
             data2.flags?.debugBannerEnabled?.default ??
               defaultFeatureFlags.debugBannerEnabled
           ),
-          tipPromoEnabled: Boolean(
-            data2.flags?.tipPromoEnabled?.default ??
-              defaultFeatureFlags.tipPromoEnabled
-          ),
           pricingUseClerk: Boolean(
             data2.flags?.pricingUseClerk?.default ??
               defaultFeatureFlags.pricingUseClerk
@@ -189,7 +178,6 @@ async function getPostHogServerFlags(
     const [
       artistSearchEnabled,
       debugBannerEnabled,
-      tipPromoEnabled,
       pricingUseClerk,
       universalNotificationsEnabled,
       featureClickAnalyticsRpc,
@@ -199,7 +187,6 @@ async function getPostHogServerFlags(
     ] = await Promise.all([
       client.isFeatureEnabled(POSTHOG_FLAGS.ARTIST_SEARCH_ENABLED, distinctId),
       client.isFeatureEnabled(POSTHOG_FLAGS.DEBUG_BANNER_ENABLED, distinctId),
-      client.isFeatureEnabled(POSTHOG_FLAGS.TIP_PROMO_ENABLED, distinctId),
       client.isFeatureEnabled(POSTHOG_FLAGS.PRICING_USE_CLERK, distinctId),
       client.isFeatureEnabled(
         POSTHOG_FLAGS.UNIVERSAL_NOTIFICATIONS_ENABLED,
@@ -228,7 +215,6 @@ async function getPostHogServerFlags(
     return {
       ...(typeof artistSearchEnabled === 'boolean' && { artistSearchEnabled }),
       ...(typeof debugBannerEnabled === 'boolean' && { debugBannerEnabled }),
-      ...(typeof tipPromoEnabled === 'boolean' && { tipPromoEnabled }),
       ...(typeof pricingUseClerk === 'boolean' && { pricingUseClerk }),
       ...(typeof universalNotificationsEnabled === 'boolean' && {
         universalNotificationsEnabled,
@@ -279,7 +265,6 @@ export async function getServerFeatureFlags(
           localFlags = {
             artistSearchEnabled: Boolean(data.artistSearchEnabled),
             debugBannerEnabled: Boolean(data.debugBannerEnabled),
-            tipPromoEnabled: Boolean(data.tipPromoEnabled),
             pricingUseClerk: Boolean(data.pricingUseClerk),
             universalNotificationsEnabled: Boolean(
               data.universalNotificationsEnabled
@@ -313,10 +298,6 @@ export async function getServerFeatureFlags(
         postHogFlags.debugBannerEnabled ??
         localFlags.debugBannerEnabled ??
         defaultFeatureFlags.debugBannerEnabled,
-      tipPromoEnabled:
-        postHogFlags.tipPromoEnabled ??
-        localFlags.tipPromoEnabled ??
-        defaultFeatureFlags.tipPromoEnabled,
       pricingUseClerk:
         postHogFlags.pricingUseClerk ??
         localFlags.pricingUseClerk ??

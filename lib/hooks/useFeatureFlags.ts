@@ -7,7 +7,6 @@ export function useFeatureFlags(): FeatureFlags {
   const [flags, setFlags] = useState<FeatureFlags>({
     artistSearchEnabled: true,
     debugBannerEnabled: false,
-    tipPromoEnabled: true,
     pricingUseClerk: false,
     universalNotificationsEnabled: false,
     featureClickAnalyticsRpc: false,

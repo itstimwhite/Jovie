@@ -32,11 +32,6 @@ The discovery endpoint (`/.well-known/vercel/flags`) provides Vercel with the cu
       "type": "boolean",
       "default": true,
       "description": "Show debug banner in the UI"
-    },
-    "tipPromoEnabled": {
-      "type": "boolean",
-      "default": true,
-      "description": "Enable tip promotion features"
     }
   },
   "metadata": {
@@ -102,8 +97,8 @@ if (flags.debugBannerEnabled) {
 import { getFeatureFlags } from '@/lib/feature-flags';
 
 const flags = await getFeatureFlags();
-if (flags.tipPromoEnabled) {
-  // Show tip promotion
+if (flags.artistSearchEnabled) {
+  // Enable artist search functionality
 }
 ```
 

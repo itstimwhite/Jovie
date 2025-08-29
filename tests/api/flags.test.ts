@@ -71,7 +71,6 @@ describe('Vercel Flags Discovery Endpoint', () => {
       'waitlistEnabled',
       'artistSearchEnabled',
       'debugBannerEnabled',
-      'tipPromoEnabled',
     ];
 
     expectedFlags.forEach(flagName => {

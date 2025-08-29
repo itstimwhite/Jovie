@@ -13,7 +13,6 @@ const FeatureFlagsContext = createContext<FeatureFlagsContextType>({
   flags: {
     artistSearchEnabled: true,
     debugBannerEnabled: false, // UI banner removed; keep flag for compatibility
-    tipPromoEnabled: true,
     pricingUseClerk: false,
     universalNotificationsEnabled: false,
     featureClickAnalyticsRpc: false,
@@ -40,7 +39,6 @@ export function FeatureFlagsProvider({
     initialFlags || {
       artistSearchEnabled: true,
       debugBannerEnabled: false, // UI banner removed; keep flag for compatibility
-      tipPromoEnabled: true,
       pricingUseClerk: false,
       universalNotificationsEnabled: false,
       featureClickAnalyticsRpc: false,

@@ -25,7 +25,6 @@ The Statsig provider is integrated in `app/my-statsig.tsx` and wraps the entire 
 | `waitlist_enabled`     | Gate   | Controls waitlist functionality  | `false`             |
 | `debug_banner_enabled` | Gate   | Controls debug banner visibility | `development`       |
 | `artist_search_config` | Config | Artist search configuration      | `{ enabled: true }` |
-| `tip_promo_config`     | Config | Tip promotion configuration      | `{ enabled: true }` |
 
 ### Usage in Components
 
@@ -68,12 +67,6 @@ In the Statsig dashboard, create the following gates:
 
 - **Type**: JSON Config
 - **Description**: Artist search configuration
-- **Default**: `{ "enabled": true }`
-
-#### `tip_promo_config`
-
-- **Type**: JSON Config
-- **Description**: Tip promotion configuration
 - **Default**: `{ "enabled": true }`
 
 ## Advanced Usage

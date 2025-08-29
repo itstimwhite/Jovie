@@ -9,7 +9,6 @@ export async function GET() {
   const flags = {
     artistSearchEnabled: true,
     debugBannerEnabled: false,
-    tipPromoEnabled: true,
     pricingUseClerk: false,
     universalNotificationsEnabled: process.env.NODE_ENV === 'development',
     // Gate for anonymous click logging via SECURITY DEFINER RPC
