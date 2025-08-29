@@ -34,15 +34,16 @@ export function TipQrCard({
   // Generate QR code on mount or when tipUrl changes
   useEffect(() => {
     if (tipUrl) {
-      const svg = generateQRCodeSvg(tipUrl, {
+      generateQRCodeSvg(tipUrl, {
         size,
-        padding: 4,
         color: '#000000',
         background: '#ffffff',
-        ecl: 'M',
+      }).then(svg => {
+        setSvgString(svg);
+        setSvgDataUrl(svgToDataUrl(svg));
+      }).catch(error => {
+        console.error('Failed to generate QR code:', error);
       });
-      setSvgString(svg);
-      setSvgDataUrl(svgToDataUrl(svg));
     }
   }, [tipUrl, size]);
 

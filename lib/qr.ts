@@ -2,43 +2,51 @@
  * QR code utility functions for client-side generation and download
  */
 
-import QRCode from 'qrcode-svg';
-
 /**
- * Generate an SVG QR code string
+ * Generate a QR code image URL using external API
  * @param url The URL to encode in the QR code
  * @param options Options for the QR code
- * @returns SVG string
+ * @returns Image URL for the QR code
  */
-export function generateQRCodeSvg(
+export function generateQRCodeUrl(
   url: string,
   options: {
     size?: number;
-    padding?: number;
     color?: string;
     background?: string;
-    ecl?: 'L' | 'M' | 'Q' | 'H';
   } = {}
 ): string {
   const {
     size = 256,
-    padding = 4,
-    color = '#000000',
-    background = '#ffffff',
-    ecl = 'M',
+    color = '000000',
+    background = 'ffffff',
   } = options;
 
-  const qrcode = new QRCode({
-    content: url,
-    width: size,
-    height: size,
-    padding: padding,
-    color: color,
-    background: background,
-    ecl: ecl,
-  });
+  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}&color=${color.replace('#', '')}&bgcolor=${background.replace('#', '')}`;
+}
 
-  return qrcode.svg();
+/**
+ * Generate an SVG QR code by fetching from API and converting to SVG
+ * @param url The URL to encode in the QR code
+ * @param options Options for the QR code
+ * @returns Promise that resolves to SVG string
+ */
+export async function generateQRCodeSvg(
+  url: string,
+  options: {
+    size?: number;
+    color?: string;
+    background?: string;
+  } = {}
+): Promise<string> {
+  const qrUrl = generateQRCodeUrl(url, options);
+  
+  // Create SVG wrapper around the QR code image
+  const { size = 256 } = options;
+  
+  return `<svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <image href="${qrUrl}" width="${size}" height="${size}"/>
+  </svg>`;
 }
 
 /**
