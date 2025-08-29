@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { SettingsPolished } from '@/components/dashboard/organisms/SettingsPolished';
 import { Artist, convertDrizzleCreatorProfileToArtist } from '@/types/db';
-import type { CreatorProfile } from '@/lib/db/schema';
 import type { DashboardData } from '@/app/dashboard/actions';
 
 interface DashboardSettingsProps {
@@ -36,7 +35,7 @@ export function DashboardSettings({ initialData }: DashboardSettingsProps) {
       {/* Settings content */}
       <SettingsPolished
         artist={artist}
-        onArtistUpdate={handleArtistUpdated}
+        onArtistUpdate={() => {}}
       />
     </div>
   );

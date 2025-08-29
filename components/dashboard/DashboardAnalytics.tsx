@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { AnalyticsCards } from '@/components/dashboard/molecules/AnalyticsCards';
 import { Artist, convertDrizzleCreatorProfileToArtist } from '@/types/db';
-import type { CreatorProfile } from '@/lib/db/schema';
 import type { DashboardData } from '@/app/dashboard/actions';
 
 interface DashboardAnalyticsProps {
