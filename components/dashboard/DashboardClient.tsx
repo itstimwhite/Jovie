@@ -36,8 +36,16 @@ import { useFeatureFlags } from '@/lib/hooks/useFeatureFlags';
 import { cn } from '@/lib/utils';
 import { Artist, convertDrizzleCreatorProfileToArtist } from '@/types/db';
 import { PendingClaimHandler } from './PendingClaimHandler';
+import { type FeatureFlags } from '@/lib/feature-flags';
 
-const navigation = [
+interface NavigationItem {
+  name: string;
+  id: string;
+  icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
+  featureFlag?: keyof FeatureFlags;
+}
+
+const navigation: NavigationItem[] = [
   {
     name: 'Overview',
     id: 'overview',
@@ -102,7 +110,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
   const filteredNavigation = navigation.filter(item => {
     // If the item has a featureFlag property, check if the flag is enabled
     if (item.featureFlag) {
-      return featureFlags[item.featureFlag as keyof typeof featureFlags];
+      return featureFlags[item.featureFlag];
     }
     // If no featureFlag property, always show the item
     return true;
