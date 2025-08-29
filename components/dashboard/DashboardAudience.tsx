@@ -18,19 +18,19 @@ export function DashboardAudience({ initialData }: DashboardAudienceProps) {
   const [creatorProfiles] = useState<CreatorProfile[]>(
     initialData.creatorProfiles
   );
-  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
+  const [_selectedProfileId, _setSelectedProfileId] = useState<string | null>(
     initialData.selectedProfile?.id || null
   );
 
-  const handleArtistUpdated = (updatedArtist: Artist) => {
-    setArtist(updatedArtist);
+  const _handleArtistUpdated = (_updatedArtist: Artist) => {
+    // TODO: Implement artist update functionality
   };
 
   // Handle profile selection when user has multiple creator profiles
-  const handleProfileSelection = (profileId: string) => {
+  const _handleProfileSelection = (profileId: string) => {
     const selectedProfile = creatorProfiles.find(p => p.id === profileId);
     if (selectedProfile) {
-      setSelectedProfileId(profileId);
+      _setSelectedProfileId(profileId);
       const artistData = convertDrizzleCreatorProfileToArtist(selectedProfile);
       setArtist(artistData);
     }

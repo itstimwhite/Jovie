@@ -41,7 +41,7 @@ import { type FeatureFlags } from '@/lib/feature-flags';
 interface NavigationItem {
   name: string;
   id: string;
-  icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
+  icon: React.ComponentType<{ className?: string; 'aria-hidden'?: React.AriaAttributes['aria-hidden'] }>;
   featureFlag?: keyof FeatureFlags;
 }
 
