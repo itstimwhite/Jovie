@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { FormField } from '@/components/ui/FormField';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -137,21 +138,15 @@ export function SocialsForm({ artist }: SocialsFormProps) {
       </div>
 
       {socialLinks.length === 0 ? (
-        <div className='text-center py-8'>
-          <p className='text-gray-500 dark:text-gray-400'>
-            No social media links added yet.
-          </p>
-          <Button
-            type='button'
-            variant='secondary'
-            onClick={() =>
-              setSocialLinks([{ id: '', platform: 'instagram', url: '' }])
-            }
-            className='mt-2'
-          >
-            Add Your First Link
-          </Button>
-        </div>
+        <EmptyState
+          type='social'
+          title='📱 No social links yet'
+          description='Connect your Instagram, TikTok, Twitter, and other social platforms to build your fan community.'
+          actionLabel='Add First Social Link'
+          onAction={() =>
+            setSocialLinks([{ id: '', platform: 'instagram', url: '' }])
+          }
+        />
       ) : (
         <div className='space-y-4'>
           {socialLinks.map((link, index) => (

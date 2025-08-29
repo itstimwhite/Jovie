@@ -139,17 +139,34 @@
   border-color: rgb(var(--menu-separator));
 }
 
-/* Surface utilities */
+/* Enhanced surface utilities */
+@utility bg-surface-0 {
+  background-color: var(--color-bg-surface-0);
+}
+
+@utility bg-surface-1 {
+  background-color: var(--color-bg-surface-1);
+}
+
+@utility bg-surface-2 {
+  background-color: var(--color-bg-surface-2);
+}
+
+@utility bg-surface-3 {
+  background-color: var(--color-bg-surface-3);
+}
+
+/* Legacy surface utilities (map to new system) */
 @utility surface {
-  background-color: var(--color-bg-surface);
+  background-color: var(--color-bg-surface-1);
 }
 
 @utility surface-hover {
-  background-color: var(--color-bg-surface-hover);
+  background-color: var(--color-bg-surface-2);
 }
 
 @utility surface-pressed {
-  background-color: var(--color-bg-surface-hover);
+  background-color: var(--color-bg-surface-3);
 }
 
 /* Text utilities */
@@ -206,27 +223,43 @@
 }
 
 @layer base {
-  /* Linear-style dashboard tokens (light) */
+  /* Enhanced Linear-style dashboard tokens (light) */
   :root {
-    --color-bg-base: #ffffff;
-    --color-bg-surface: #f6f7f8; /* surface */
-    --color-bg-surface-hover: #eef0f2; /* hover */
+    --color-bg-base: #ffffff; /* app background */
+    --color-bg-surface-0: #fafbfc; /* elevated backgrounds */
+    --color-bg-surface-1: #f6f7f8; /* cards/panels */
+    --color-bg-surface-2: #eef0f2; /* interactive/hover */
+    --color-bg-surface-3: #e5e7eb; /* pressed/active */
     --color-border-subtle: #e5e7eb;
+    --color-border-default: #d1d5db;
     --color-text-primary-token: #0c0c0c;
     --color-text-secondary-token: #6b7280;
+    --color-text-tertiary-token: #9ca3af;
     --color-accent: #7c3aed; /* accent */
+
+    /* Loading/skeleton colors */
+    --color-skeleton-base: #f3f4f6;
+    --color-skeleton-shimmer: #ffffff;
   }
 
   /* Dark mode overrides — ensure this block comes AFTER light tokens */
   :root.dark {
-    /* Linear-style dashboard tokens (dark) */
-    --color-bg-base: #0c0c0c; /* app background */
-    --color-bg-surface: #151515; /* sidebars/cards */
-    --color-bg-surface-hover: #1c1c1c; /* hover */
-    --color-border-subtle: #2a2a2a; /* borders */
-    --color-text-primary-token: #ededed;
-    --color-text-secondary-token: #9a9a9a;
+    /* Enhanced Linear-style dashboard tokens (dark) */
+    --color-bg-base: #0a0a0a; /* deepest app background */
+    --color-bg-surface-0: #111111; /* elevated backgrounds (sidebars) */
+    --color-bg-surface-1: #171717; /* cards/panels */
+    --color-bg-surface-2: #1f1f1f; /* interactive/hover */
+    --color-bg-surface-3: #262626; /* pressed/active */
+    --color-border-subtle: #262626; /* subtle borders */
+    --color-border-default: #404040; /* default borders */
+    --color-text-primary-token: #f5f5f5;
+    --color-text-secondary-token: #a3a3a3;
+    --color-text-tertiary-token: #737373;
     --color-accent: #7c3aed; /* accent */
+
+    /* Loading/skeleton colors for dark mode */
+    --color-skeleton-base: #1a1a1a;
+    --color-skeleton-shimmer: #2a2a2a;
   }
 
   body {
@@ -276,8 +309,13 @@
   background-color: var(--color-bg-base);
 }
 
+/* Enhanced border utilities */
 @utility border-subtle {
   border-color: var(--color-border-subtle);
+}
+
+@utility border-default {
+  border-color: var(--color-border-default);
 }
 
 @utility text-accent-token {
@@ -286,4 +324,31 @@
 
 @utility ring-accent {
   --tw-ring-color: var(--color-accent);
+}
+
+/* Skeleton loading utilities */
+@utility skeleton {
+  background-color: var(--color-skeleton-base);
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-skeleton-shimmer),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Text color utilities */
+@utility text-tertiary {
+  color: var(--color-text-tertiary-token);
 }
