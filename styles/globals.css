@@ -179,7 +179,7 @@
 }
 
 @utility text-tertiary {
-  color: var(--color-text-secondary-token);
+  color: var(--color-text-tertiary-token);
 }
 
 @utility text-destructive {
@@ -348,7 +348,20 @@
   }
 }
 
-/* Text color utilities */
-@utility text-tertiary {
-  color: var(--color-text-tertiary-token);
+/* Preview update animation */
+@utility animate-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Micro-animations */
+@utility card-hover {
+  @apply transform transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg hover:shadow-gray-200/25 dark:hover:shadow-gray-900/25;
+}
+
+@utility input-focus-glow {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:shadow-lg transition-all duration-200;
+}
+
+@utility btn-press {
+  @apply transform transition-transform duration-100 ease-out active:scale-95;
 }

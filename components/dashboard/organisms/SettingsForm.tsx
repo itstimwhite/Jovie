@@ -58,7 +58,7 @@ export function SettingsForm({ artist, onUpdate }: SettingsFormProps) {
       </div>
 
       {/* Marketing Preferences Section */}
-      <div className='bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+      <div className='bg-surface-1 border border-subtle rounded-lg p-6'>
         <h3 className='text-base font-medium text-gray-900 dark:text-white mb-4'>
           Marketing & Promotion
         </h3>
@@ -106,7 +106,7 @@ export function SettingsForm({ artist, onUpdate }: SettingsFormProps) {
       </div>
 
       {/* Future Settings Sections */}
-      <div className='bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-6'>
+      <div className='bg-surface-2 border border-subtle rounded-lg p-6'>
         <h3 className='text-base font-medium text-gray-900 dark:text-white mb-2'>
           Additional Settings
         </h3>

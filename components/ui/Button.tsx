@@ -44,7 +44,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ghost:
         'bg-transparent text-black hover:bg-gray-50 focus-visible:ring-gray-400 dark:text-white dark:hover:bg-gray-900',
       outline:
-        'border border-gray-300 bg-transparent text-black hover:bg-gray-50 focus-visible:ring-gray-400 dark:border-gray-600 dark:text-white dark:hover:bg-gray-900',
+        'border border-subtle bg-transparent text-primary hover:bg-surface-1 focus-visible:ring-gray-400',
       plain:
         'bg-transparent text-black hover:bg-gray-50 focus-visible:ring-gray-400 dark:text-white dark:hover:bg-gray-900',
     };

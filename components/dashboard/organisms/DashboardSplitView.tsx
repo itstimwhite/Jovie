@@ -18,8 +18,7 @@ import type {
   SocialLink,
   SocialPlatform,
 } from '@/types/db';
-import { DSPLinkManager } from '../molecules/DSPLinkManager';
-import { SocialLinkManager } from '../molecules/SocialLinkManager';
+import { UnifiedLinkManager } from '../molecules/UnifiedLinkManager';
 
 interface LinkItem extends DetectedLink {
   id: string;
@@ -152,12 +151,9 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
     fetchLinks();
   }, [session, artist.id]);
 
-  // Convert current links to LinkItem format (split by category)
-  const { initialSocialLinks, initialDSPLinks } = useMemo(() => {
-    return {
-      initialSocialLinks: socialLinks,
-      initialDSPLinks: dspLinks,
-    };
+  // Convert current links to unified LinkItem format
+  const initialAllLinks = useMemo(() => {
+    return [...socialLinks, ...dspLinks].sort((a, b) => a.order - b.order);
   }, [socialLinks, dspLinks]);
 
   // Convert social LinkItems to LegacySocialLink format for preview
@@ -297,16 +293,19 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
     [socialLinks, dspLinks, saveLinks]
   );
 
-  // Handle social link changes
-  const handleSocialLinksChange = (newLinks: LinkItem[]) => {
-    setSocialLinks(newLinks);
-    debouncedSave(newLinks, dspLinks);
-  };
+  // Handle unified link changes with automatic categorization
+  const handleAllLinksChange = (newLinks: LinkItem[]) => {
+    // Separate links by category
+    const newSocialLinks = newLinks.filter(
+      link => link.platform.category === 'social'
+    );
+    const newDSPLinks = newLinks.filter(
+      link => link.platform.category === 'dsp'
+    );
 
-  // Handle DSP link changes
-  const handleDSPLinksChange = (newLinks: LinkItem[]) => {
-    setDSPLinks(newLinks);
-    debouncedSave(socialLinks, newLinks);
+    setSocialLinks(newSocialLinks);
+    setDSPLinks(newDSPLinks);
+    debouncedSave(newSocialLinks, newDSPLinks);
   };
 
   // Handle copy to clipboard
@@ -378,21 +377,10 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
               </p>
             </div>
 
-            {/* Social Links Manager */}
-            <SocialLinkManager
-              initialLinks={initialSocialLinks}
-              onLinksChange={handleSocialLinksChange}
-              onLinkAdded={handleLinkAdded}
-              disabled={disabled || saveStatus.saving}
-            />
-
-            {/* Separator */}
-            <div className='border-t border-gray-200 dark:border-gray-700' />
-
-            {/* DSP Links Manager */}
-            <DSPLinkManager
-              initialLinks={initialDSPLinks}
-              onLinksChange={handleDSPLinksChange}
+            {/* Unified Link Manager with Magic Auto-Detection */}
+            <UnifiedLinkManager
+              initialLinks={initialAllLinks}
+              onLinksChange={handleAllLinksChange}
               onLinkAdded={handleLinkAdded}
               disabled={disabled || saveStatus.saving}
             />
@@ -403,11 +391,11 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
       {/* Preview Panel - Fixed aside on XL screens */}
       <aside
         className={`
-          fixed inset-y-0 right-0 w-96 overflow-y-auto border-l border-gray-200 dark:border-white/10 px-4 py-6 sm:px-6 lg:px-8
+          fixed inset-y-0 right-0 w-96 border-l border-subtle px-4 py-6 sm:px-6 lg:px-8
           ${viewMode === 'preview' ? 'block xl:block' : 'hidden xl:block'}
         `}
       >
-        <div className='space-y-6'>
+        <div className='h-full flex flex-col space-y-6'>
           {/* Header */}
           <div className='flex items-center gap-3'>
             <h2 className='text-xl font-semibold text-gray-900 dark:text-gray-100'>
@@ -419,44 +407,75 @@ export const DashboardSplitView: React.FC<DashboardSplitViewProps> = ({
             </div>
           </div>
 
-          {/* Preview Container */}
-          <div className='relative'>
-            {/* Mobile Frame - iPhone-like dimensions */}
-            <div className='max-w-[375px] mx-auto bg-gray-900 dark:bg-gray-800 rounded-[2.5rem] p-2 shadow-2xl'>
-              <div className='bg-white dark:bg-gray-900 rounded-[2.3rem] overflow-hidden'>
+          {/* Preview Container - Flexible height */}
+          <div className='relative flex-1 min-h-0 flex flex-col'>
+            {/* Mobile Frame - Responsive to container height */}
+            <div
+              className='flex-1 max-w-[280px] mx-auto bg-gray-900 dark:bg-gray-800 rounded-[2rem] p-1.5 shadow-2xl ring-1 ring-black/10 dark:ring-white/10 transform transition-transform hover:scale-[1.02] duration-300 flex flex-col'
+              style={{ maxHeight: '80vh' }}
+            >
+              {/* Top notch */}
+              <div className='absolute top-1.5 left-1/2 transform -translate-x-1/2 w-24 h-4 bg-gray-900 dark:bg-gray-800 rounded-b-xl z-10'></div>
+
+              <div className='bg-white dark:bg-gray-900 rounded-[1.8rem] overflow-hidden relative flex-1 flex flex-col'>
                 {/* Status Bar Mockup */}
-                <div className='bg-gray-100 dark:bg-gray-800 h-7 flex items-center justify-between px-6'>
-                  <span className='text-[10px] font-medium text-gray-900 dark:text-gray-100'>
+                <div className='bg-gray-100 dark:bg-gray-800 h-6 flex items-center justify-between px-4 relative z-20 flex-shrink-0'>
+                  <span className='text-[9px] font-medium text-gray-900 dark:text-gray-100'>
                     9:41
                   </span>
                   <div className='flex items-center gap-1'>
-                    <div className='w-4 h-3 border border-gray-900 dark:border-gray-100 rounded-sm'>
+                    {/* Signal bars */}
+                    <div className='flex items-end gap-0.5'>
+                      <div className='w-0.5 h-1 bg-gray-900 dark:bg-gray-100 rounded'></div>
+                      <div className='w-0.5 h-1.5 bg-gray-900 dark:bg-gray-100 rounded'></div>
+                      <div className='w-0.5 h-2 bg-gray-900 dark:bg-gray-100 rounded'></div>
+                    </div>
+                    {/* Battery */}
+                    <div className='w-4 h-2.5 border border-gray-900 dark:border-gray-100 rounded-sm relative'>
                       <div className='w-full h-full bg-gray-900 dark:bg-gray-100 rounded-sm scale-x-75 origin-left'></div>
+                      <div className='absolute -right-0.5 top-0.5 w-0.5 h-1 bg-gray-900 dark:bg-gray-100 rounded-r-sm'></div>
                     </div>
                   </div>
                 </div>
 
-                {/* Profile Preview - Fixed height to fit phone */}
-                <div className='h-[650px] overflow-y-auto bg-white dark:bg-gray-900'>
-                  <StaticArtistPage
-                    mode='default'
-                    artist={previewArtist}
-                    socialLinks={previewSocialLinks}
-                    subtitle=''
-                    showTipButton={false}
-                    showBackButton={false}
+                {/* Profile Preview - Responsive with scaling */}
+                <div
+                  className='flex-1 bg-white dark:bg-gray-900 relative overflow-hidden'
+                  style={{ minHeight: '300px' }}
+                >
+                  <div className='absolute inset-0 flex items-center justify-center'>
+                    <div
+                      className='w-full h-full animate-in fade-in duration-300 flex flex-col justify-start'
+                      style={{
+                        transform: 'scale(0.8)',
+                        transformOrigin: 'top center',
+                      }}
+                    >
+                      <StaticArtistPage
+                        mode='default'
+                        artist={previewArtist}
+                        socialLinks={previewSocialLinks}
+                        subtitle=''
+                        showTipButton={false}
+                        showBackButton={false}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Subtle shimmer overlay when updating */}
+                  <div
+                    ref={updateIndicatorRef}
+                    className='absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-300 pointer-events-none data-[show=true]:opacity-100 data-[show=true]:animate-shimmer'
                   />
                 </div>
               </div>
             </div>
 
             {/* Update Indicator */}
-            <div
-              ref={updateIndicatorRef}
-              className='absolute top-4 right-4 opacity-0 transition-opacity duration-300 data-[show=true]:opacity-100'
-            >
-              <div className='bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium'>
-                Updated
+            <div className='absolute top-4 right-4 opacity-0 transition-all duration-500 data-[show=true]:opacity-100 data-[show=true]:translate-y-0 translate-y-2'>
+              <div className='bg-green-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-lg flex items-center gap-1.5'>
+                <div className='w-2 h-2 bg-white rounded-full animate-pulse'></div>
+                Link Updated
               </div>
             </div>
           </div>

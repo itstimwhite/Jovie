@@ -337,13 +337,10 @@ export function MinimalistOnboardingForm() {
         return (
           <div className='space-y-8'>
             <div className='space-y-4'>
-              <h2
-                className='text-2xl font-medium text-primary-token'
-                tabIndex={-1}
-              >
+              <h2 className='text-2xl font-medium text-primary' tabIndex={-1}>
                 Welcome
               </h2>
-              <p className='text-secondary-token'>
+              <p className='text-secondary'>
                 Let&apos;s set up your profile in a few simple steps.
               </p>
             </div>
@@ -365,13 +362,10 @@ export function MinimalistOnboardingForm() {
         return (
           <div className='space-y-8'>
             <div className='space-y-4'>
-              <h2
-                className='text-2xl font-medium text-primary-token'
-                tabIndex={-1}
-              >
+              <h2 className='text-2xl font-medium text-primary' tabIndex={-1}>
                 Find Your Artist
               </h2>
-              <p className='text-secondary-token'>
+              <p className='text-secondary'>
                 Search for your artist profile on Spotify.
               </p>
             </div>
@@ -381,29 +375,26 @@ export function MinimalistOnboardingForm() {
                 <input
                   type='text'
                   placeholder='Search by artist name'
-                  className='w-full px-4 py-3 border border-subtle-token rounded-xl bg-transparent text-primary-token focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent'
+                  className='w-full px-4 py-3 border border-subtle rounded-xl bg-transparent text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent'
                   onChange={e => searchArtists(e.target.value)}
                 />
                 {isSearching && (
                   <div className='absolute right-3 top-1/2 -translate-y-1/2'>
-                    <LoadingSpinner
-                      size='sm'
-                      className='text-secondary-token'
-                    />
+                    <LoadingSpinner size='sm' className='text-secondary' />
                   </div>
                 )}
               </div>
 
               {searchError && (
-                <div className='bg-surface-token border border-subtle-token rounded-xl p-4'>
-                  <p className='text-sm text-secondary-token'>{searchError}</p>
+                <div className='bg-surface-1 border border-subtle rounded-xl p-4'>
+                  <p className='text-sm text-secondary'>{searchError}</p>
                 </div>
               )}
               <div className='pt-4 space-y-3'>
                 <Button
                   onClick={handleSkipArtist}
                   variant='plain'
-                  className='w-full border border-subtle-token text-secondary-token rounded-xl py-3 px-6 hover:bg-surface-hover-token'
+                  className='w-full border border-subtle text-secondary rounded-xl py-3 px-6 hover:bg-surface-2'
                 >
                   Skip This Step
                 </Button>
@@ -414,7 +405,7 @@ export function MinimalistOnboardingForm() {
                   className={`w-full rounded-xl py-3 px-6 ${
                     canProceedToNextStep
                       ? 'bg-black text-white dark:bg-white dark:text-black'
-                      : 'bg-surface-hover-token text-secondary-token cursor-not-allowed'
+                      : 'bg-surface-hover-token text-secondary cursor-not-allowed'
                   }`}
                 >
                   Continue
@@ -422,7 +413,7 @@ export function MinimalistOnboardingForm() {
                 <Button
                   onClick={goToPreviousStep}
                   variant='plain'
-                  className='w-full text-secondary-token py-2'
+                  className='w-full text-secondary py-2'
                 >
                   Back
                 </Button>
@@ -435,13 +426,10 @@ export function MinimalistOnboardingForm() {
         return (
           <div className='space-y-8'>
             <div className='space-y-4'>
-              <h2
-                className='text-2xl font-medium text-primary-token'
-                tabIndex={-1}
-              >
+              <h2 className='text-2xl font-medium text-primary' tabIndex={-1}>
                 Choose Your Handle
               </h2>
-              <p className='text-secondary-token'>
+              <p className='text-secondary'>
                 Select a unique identifier for your profile URL.
               </p>
             </div>
@@ -450,7 +438,7 @@ export function MinimalistOnboardingForm() {
               <div className='space-y-2'>
                 <label
                   htmlFor='handle-input'
-                  className='block text-sm font-medium text-secondary-token'
+                  className='block text-sm font-medium text-secondary'
                 >
                   Handle
                 </label>
@@ -461,24 +449,21 @@ export function MinimalistOnboardingForm() {
                     value={handle}
                     onChange={e => setHandle(e.target.value)}
                     placeholder='your-handle'
-                    className='w-full px-4 py-3 border border-subtle-token rounded-xl bg-transparent text-primary-token focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent font-mono'
+                    className='w-full px-4 py-3 border border-subtle rounded-xl bg-transparent text-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent font-mono'
                     autoCapitalize='none'
                     autoCorrect='off'
                     autoComplete='off'
                   />
                   {handleValidation?.checking && (
                     <div className='absolute right-3 top-1/2 -translate-y-1/2'>
-                      <LoadingSpinner
-                        size='sm'
-                        className='text-secondary-token'
-                      />
+                      <LoadingSpinner size='sm' className='text-secondary' />
                     </div>
                   )}
                   {handleValidation?.available &&
                     !handleValidation?.checking && (
                       <div className='absolute right-3 top-1/2 -translate-y-1/2'>
                         <svg
-                          className='w-5 h-5 text-secondary-token'
+                          className='w-5 h-5 text-secondary'
                           fill='none'
                           stroke='currentColor'
                           viewBox='0 0 24 24'
@@ -494,14 +479,14 @@ export function MinimalistOnboardingForm() {
                       </div>
                     )}
                 </div>
-                <p className='text-xs text-secondary-token'>
+                <p className='text-xs text-secondary'>
                   Your profile will be live at {displayDomain}/
                   <span className='font-medium'>{handle || 'your-handle'}</span>
                 </p>
 
                 {handleValidation?.error && (
-                  <div className='mt-2 bg-surface-token border border-subtle-token rounded-lg p-3'>
-                    <p className='text-sm text-secondary-token'>
+                  <div className='mt-2 bg-surface-1 border border-subtle rounded-lg p-3'>
+                    <p className='text-sm text-secondary'>
                       {handleValidation.error}
                     </p>
                   </div>
@@ -509,7 +494,7 @@ export function MinimalistOnboardingForm() {
 
                 {handleValidation?.suggestions?.length > 0 && (
                   <div className='mt-3 space-y-1'>
-                    <p className='text-xs text-secondary-token'>Suggestions:</p>
+                    <p className='text-xs text-secondary'>Suggestions:</p>
                     <div className='flex flex-wrap gap-2'>
                       {handleValidation.suggestions
                         .slice(0, 3)
@@ -518,7 +503,7 @@ export function MinimalistOnboardingForm() {
                             key={suggestion}
                             type='button'
                             onClick={() => setHandle(suggestion)}
-                            className='text-xs px-3 py-1.5 bg-surface-token hover:bg-surface-hover-token rounded-lg transition-colors'
+                            className='text-xs px-3 py-1.5 bg-surface-1 hover:bg-surface-2 rounded-lg transition-colors'
                           >
                             {suggestion}
                           </button>
@@ -536,7 +521,7 @@ export function MinimalistOnboardingForm() {
                   className={`w-full rounded-xl py-3 px-6 ${
                     canProceedToNextStep
                       ? 'bg-black text-white dark:bg-white dark:text-black'
-                      : 'bg-surface-hover-token text-secondary-token cursor-not-allowed'
+                      : 'bg-surface-hover-token text-secondary cursor-not-allowed'
                   }`}
                 >
                   Continue
@@ -544,7 +529,7 @@ export function MinimalistOnboardingForm() {
                 <Button
                   onClick={goToPreviousStep}
                   variant='plain'
-                  className='w-full text-secondary-token py-2'
+                  className='w-full text-secondary py-2'
                 >
                   Back
                 </Button>
@@ -557,23 +542,20 @@ export function MinimalistOnboardingForm() {
         return (
           <div className='space-y-8'>
             <div className='space-y-4'>
-              <h2
-                className='text-2xl font-medium text-primary-token'
-                tabIndex={-1}
-              >
+              <h2 className='text-2xl font-medium text-primary' tabIndex={-1}>
                 Confirm Your Profile
               </h2>
-              <p className='text-secondary-token'>
+              <p className='text-secondary'>
                 Review your details before creating your account.
               </p>
             </div>
 
             <div className='space-y-6'>
               {/* Profile preview card */}
-              <div className='border border-subtle-token rounded-xl p-6 space-y-6'>
+              <div className='border border-subtle rounded-xl p-6 space-y-6'>
                 <div className='flex items-center space-x-4'>
                   {selectedArtist?.imageUrl ? (
-                    <div className='w-16 h-16 rounded-full overflow-hidden bg-surface-token'>
+                    <div className='w-16 h-16 rounded-full overflow-hidden bg-surface-1'>
                       <Image
                         src={selectedArtist.imageUrl}
                         alt={selectedArtist.artistName}
@@ -584,7 +566,7 @@ export function MinimalistOnboardingForm() {
                     </div>
                   ) : (
                     <div className='w-16 h-16 rounded-full bg-surface-hover-token flex items-center justify-center'>
-                      <span className='text-secondary-token font-medium text-xl'>
+                      <span className='text-secondary font-medium text-xl'>
                         {(selectedArtist?.artistName || handle)
                           .charAt(0)
                           .toUpperCase()}
@@ -592,35 +574,31 @@ export function MinimalistOnboardingForm() {
                     </div>
                   )}
                   <div>
-                    <h4 className='font-medium text-primary-token text-lg'>
+                    <h4 className='font-medium text-primary text-lg'>
                       {selectedArtist?.artistName || handle}
                     </h4>
-                    <p className='text-secondary-token'>
+                    <p className='text-secondary'>
                       {displayDomain}/{handle}
                     </p>
                   </div>
                 </div>
 
                 {/* Profile details */}
-                <div className='border-t border-subtle-token pt-4 space-y-3'>
+                <div className='border-t border-subtle pt-4 space-y-3'>
                   <div className='flex justify-between text-sm'>
-                    <span className='text-secondary-token'>Handle:</span>
-                    <span className='font-mono text-primary-token'>
-                      @{handle}
-                    </span>
+                    <span className='text-secondary'>Handle:</span>
+                    <span className='font-mono text-primary'>@{handle}</span>
                   </div>
                   <div className='flex justify-between text-sm'>
-                    <span className='text-secondary-token'>Profile URL:</span>
-                    <span className='font-mono text-primary-token'>
+                    <span className='text-secondary'>Profile URL:</span>
+                    <span className='font-mono text-primary'>
                       {displayDomain}/{handle}
                     </span>
                   </div>
                   {selectedArtist && (
                     <div className='flex justify-between text-sm'>
-                      <span className='text-secondary-token'>
-                        Spotify Artist:
-                      </span>
-                      <span className='text-primary-token'>Connected</span>
+                      <span className='text-secondary'>Spotify Artist:</span>
+                      <span className='text-primary'>Connected</span>
                     </div>
                   )}
                 </div>
@@ -628,11 +606,9 @@ export function MinimalistOnboardingForm() {
 
               {/* Error display */}
               {state.error && (
-                <div className='bg-surface-token border border-subtle-token rounded-xl p-4'>
+                <div className='bg-surface-1 border border-subtle rounded-xl p-4'>
                   <div className='flex items-center justify-between'>
-                    <p className='text-sm text-secondary-token'>
-                      {state.error}
-                    </p>
+                    <p className='text-sm text-secondary'>{state.error}</p>
                     <Button
                       onClick={retryOperation}
                       variant='plain'
@@ -656,7 +632,7 @@ export function MinimalistOnboardingForm() {
                   className={`w-full rounded-xl py-3 px-6 ${
                     canProceedToNextStep && !state.isSubmitting
                       ? 'bg-black text-white dark:bg-white dark:text-black'
-                      : 'bg-surface-hover-token text-secondary-token cursor-not-allowed'
+                      : 'bg-surface-hover-token text-secondary cursor-not-allowed'
                   }`}
                 >
                   {!state.isSubmitting ? (
@@ -673,7 +649,7 @@ export function MinimalistOnboardingForm() {
                   type='button'
                   onClick={goToPreviousStep}
                   variant='plain'
-                  className='w-full border border-subtle-token text-secondary-token rounded-xl py-3 px-6 hover:bg-surface-hover-token'
+                  className='w-full border border-subtle text-secondary rounded-xl py-3 px-6 hover:bg-surface-2'
                   disabled={state.isSubmitting}
                 >
                   Back

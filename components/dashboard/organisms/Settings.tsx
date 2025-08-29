@@ -276,8 +276,8 @@ export function Settings({ artist, onArtistUpdate }: SettingsProps) {
   return (
     <div className='flex h-full'>
       {/* Settings Sidebar */}
-      <div className='w-80 bg-white dark:bg-neutral-900 border-r border-gray-200 dark:border-neutral-700 flex flex-col'>
-        <div className='p-6 border-b border-gray-200 dark:border-neutral-700'>
+      <div className='w-80 bg-surface-0 border-r border-subtle flex flex-col'>
+        <div className='p-6 border-b border-subtle'>
           <h2 className='text-lg font-semibold text-gray-900 dark:text-white'>
             Settings
           </h2>
