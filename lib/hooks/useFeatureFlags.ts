@@ -12,6 +12,7 @@ export function useFeatureFlags(): FeatureFlags {
     universalNotificationsEnabled: false,
     featureClickAnalyticsRpc: false,
     progressiveOnboardingEnabled: true,
+    tipping_mvp: false,
   });
 
   useEffect(() => {

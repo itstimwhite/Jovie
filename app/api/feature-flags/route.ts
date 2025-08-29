@@ -22,6 +22,8 @@ export async function GET() {
     minimalistOnboardingEnabled: true,
     // New Apple-style full-screen onboarding with improved UX (JOV-134)
     appleStyleOnboardingEnabled: true,
+    // Tipping MVP feature with Venmo-only support (JOV-140)
+    tipping_mvp: false,
   } as const;
 
   return new NextResponse(JSON.stringify(flags), {

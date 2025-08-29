@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-import { DashboardTipping } from '@/components/dashboard/DashboardTipping';
-import { getDashboardData } from '../actions';
+import { TippingClient } from '@/components/tipping/TippingClient';
+import { getServerFeatureFlags } from '@/lib/feature-flags';
 
 export default async function TippingPage() {
   const { userId } = await auth();
@@ -11,37 +11,23 @@ export default async function TippingPage() {
     redirect('/sign-in?redirect_url=/dashboard/tipping');
   }
 
-  try {
-    // Fetch dashboard data server-side
-    const dashboardData = await getDashboardData();
+  // Check if tipping feature is enabled
+  const featureFlags = await getServerFeatureFlags(userId);
+  if (!featureFlags.tipping_mvp) {
+    // Redirect to dashboard if feature is disabled
+    redirect('/dashboard');
+  }
 
-    // Handle redirects for users who need onboarding
-    if (dashboardData.needsOnboarding) {
-      redirect('/onboarding');
-    }
-
-    // Pass server-fetched data to client component
-    return <DashboardTipping initialData={dashboardData} />;
-  } catch (error) {
-    // Check if this is a Next.js redirect error (which is expected)
-    if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
-      // Re-throw redirect errors so they work properly
-      throw error;
-    }
-
-    console.error('Error loading tipping data:', error);
-
-    // On actual error, show a simple error message
-    return (
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-          Something went wrong
-        </h1>
-        <p className="text-gray-600 dark:text-white/70 mb-4">
-          Failed to load tipping data. Please refresh the page.
+  return (
+    <div className="px-4 sm:px-6 lg:px-8">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-primary-token">Tipping</h1>
+        <p className="text-secondary-token mt-1">
+          Set up and manage your tipping options
         </p>
       </div>
-    );
-  }
+      <TippingClient />
+    </div>
+  );
 }
 

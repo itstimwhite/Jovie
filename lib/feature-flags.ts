@@ -13,6 +13,8 @@ export interface FeatureFlags {
   minimalistOnboardingEnabled?: boolean;
   // New Apple-style full-screen onboarding with improved UX (JOV-134)
   appleStyleOnboardingEnabled?: boolean;
+  // Tipping MVP feature with Venmo-only support (JOV-140)
+  tipping_mvp: boolean;
 }
 
 // PostHog feature flag names (match what's defined in PostHog dashboard)
@@ -26,6 +28,7 @@ export const POSTHOG_FLAGS = {
   PROGRESSIVE_ONBOARDING_ENABLED: 'feature_progressive_onboarding_enabled',
   MINIMALIST_ONBOARDING_ENABLED: 'feature_minimalist_onboarding_enabled',
   APPLE_STYLE_ONBOARDING_ENABLED: 'feature_apple_style_onboarding_enabled',
+  TIPPING_MVP: 'feature_tipping_mvp',
 } as const;
 
 // Default feature flags (fallback)
@@ -44,6 +47,8 @@ const defaultFeatureFlags: FeatureFlags = {
   minimalistOnboardingEnabled: true,
   // New Apple-style full-screen onboarding with improved UX (JOV-134)
   appleStyleOnboardingEnabled: true,
+  // Tipping MVP feature with Venmo-only support (JOV-140)
+  tipping_mvp: false,
 };
 
 // Get feature flags (v4-compatible: attempts fetch from discovery endpoint)
@@ -196,6 +201,7 @@ async function getPostHogServerFlags(
       progressiveOnboardingEnabled,
       minimalistOnboardingEnabled,
       appleStyleOnboardingEnabled,
+      tipping_mvp,
     ] = await Promise.all([
       client.isFeatureEnabled(POSTHOG_FLAGS.ARTIST_SEARCH_ENABLED, distinctId),
       client.isFeatureEnabled(POSTHOG_FLAGS.DEBUG_BANNER_ENABLED, distinctId),
@@ -221,6 +227,10 @@ async function getPostHogServerFlags(
         POSTHOG_FLAGS.APPLE_STYLE_ONBOARDING_ENABLED,
         distinctId
       ),
+      client.isFeatureEnabled(
+        POSTHOG_FLAGS.TIPPING_MVP,
+        distinctId
+      ),
     ]);
 
     await client.shutdown();
@@ -244,6 +254,9 @@ async function getPostHogServerFlags(
       }),
       ...(typeof appleStyleOnboardingEnabled === 'boolean' && {
         appleStyleOnboardingEnabled,
+      }),
+      ...(typeof tipping_mvp === 'boolean' && {
+        tipping_mvp,
       }),
     };
   } catch (error) {
@@ -341,6 +354,10 @@ export async function getServerFeatureFlags(
         postHogFlags.appleStyleOnboardingEnabled ??
         localFlags.appleStyleOnboardingEnabled ??
         defaultFeatureFlags.appleStyleOnboardingEnabled,
+      tipping_mvp:
+        postHogFlags.tipping_mvp ??
+        localFlags.tipping_mvp ??
+        defaultFeatureFlags.tipping_mvp,
     };
   } catch (error) {
     console.warn('[Feature Flags] Server flags failed:', error);

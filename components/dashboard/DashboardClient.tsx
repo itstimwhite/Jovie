@@ -8,6 +8,7 @@ import {
 } from '@headlessui/react';
 import {
   Bars3Icon,
+  BanknotesIcon,
   ChartPieIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -31,6 +32,7 @@ import { Logo } from '@/components/ui/Logo';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { APP_NAME, APP_URL } from '@/constants/app';
 import type { CreatorProfile } from '@/lib/db/schema';
+import { useFeatureFlags } from '@/lib/hooks/useFeatureFlags';
 import { cn } from '@/lib/utils';
 import { Artist, convertDrizzleCreatorProfileToArtist } from '@/types/db';
 import { PendingClaimHandler } from './PendingClaimHandler';
@@ -57,6 +59,12 @@ const navigation = [
     icon: UsersIcon,
   },
   {
+    name: 'Tipping',
+    id: 'tipping',
+    icon: BanknotesIcon,
+    featureFlag: 'tipping_mvp',
+  },
+  {
     name: 'Settings',
     id: 'settings',
     icon: Cog6ToothIcon,
@@ -74,6 +82,7 @@ interface DashboardClientProps {
 
 export function DashboardClient({ initialData }: DashboardClientProps) {
   const router = useRouter();
+  const { flags } = useFeatureFlags();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [currentNavItem, setCurrentNavItem] = useState('overview');
@@ -88,6 +97,16 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
     initialData.selectedProfile?.id || null
   );
+  
+  // Filter navigation items based on feature flags
+  const filteredNavigation = navigation.filter(item => {
+    // If the item has a featureFlag property, check if the flag is enabled
+    if (item.featureFlag) {
+      return flags[item.featureFlag as keyof typeof flags];
+    }
+    // If no featureFlag property, always show the item
+    return true;
+  });
 
   const handleArtistUpdated = (updatedArtist: Artist) => {
     setArtist(updatedArtist);
@@ -105,6 +124,13 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
 
   const handleNavigation = (navId: string) => {
     setCurrentNavItem(navId);
+    
+    // Handle navigation to tipping page
+    if (navId === 'tipping') {
+      router.push('/dashboard/tipping');
+      setSidebarOpen(false);
+      return;
+    }
   };
 
   if (initialData.needsOnboarding) {
@@ -222,7 +248,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
                   <ul role='list' className='flex flex-1 flex-col gap-y-7'>
                     <li>
                       <ul role='list' className='-mx-2 space-y-1'>
-                        {navigation.map(item => (
+                        {filteredNavigation.map(item => (
                           <li key={item.name}>
                             <button
                               onClick={() => handleNavigation(item.id)}
@@ -388,7 +414,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
               <ul role='list' className='flex flex-1 flex-col gap-y-7'>
                 <li>
                   <ul role='list' className='-mx-2 space-y-1'>
-                    {navigation.map(item => (
+                    {filteredNavigation.map(item => (
                       <li key={item.name}>
                         <button
                           onClick={() => handleNavigation(item.id)}
