@@ -83,6 +83,18 @@ export default clerkMiddleware(async (auth, req) => {
     if (userId) {
       if (req.nextUrl.pathname === '/') {
         res = NextResponse.redirect(new URL('/dashboard', req.url));
+      } else if (req.nextUrl.pathname === '/dashboard') {
+        // Redirect /dashboard to /dashboard/overview with analytics tracking
+        const redirectUrl = new URL('/dashboard/overview', req.url);
+        res = NextResponse.redirect(redirectUrl);
+        
+        // Add cookie to trigger analytics event in client
+        // Using a cookie because headers aren't accessible in client components
+        res.cookies.set('x-route-redirect', 'dashboard-to-overview', {
+          maxAge: 30, // Short-lived cookie (30 seconds)
+          path: '/',
+          httpOnly: false, // Needs to be accessible from client JS
+        });
       } else {
         res = NextResponse.next();
       }
