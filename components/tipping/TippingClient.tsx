@@ -44,8 +44,8 @@ export function TippingClient() {
       >
         <div className='mt-4 space-y-4'>
           <p className='text-sm text-secondary-token'>
-            We're working on adding more payment options for your fans to support you.
-            Stay tuned for updates!
+            We&apos;re working on adding more payment options for your fans to
+            support you. Stay tuned for updates!
           </p>
           <div className='grid grid-cols-3 gap-4'>
             <div className='p-3 border border-subtle rounded-md bg-surface-0 flex items-center justify-center opacity-50'>
