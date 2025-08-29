@@ -82,7 +82,7 @@ interface DashboardClientProps {
 
 export function DashboardClient({ initialData }: DashboardClientProps) {
   const router = useRouter();
-  const { flags } = useFeatureFlags();
+  const { flags: featureFlags } = useFeatureFlags();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [currentNavItem, setCurrentNavItem] = useState('overview');
@@ -102,7 +102,7 @@ export function DashboardClient({ initialData }: DashboardClientProps) {
   const filteredNavigation = navigation.filter(item => {
     // If the item has a featureFlag property, check if the flag is enabled
     if (item.featureFlag) {
-      return flags[item.featureFlag as keyof typeof flags];
+      return featureFlags[item.featureFlag as keyof typeof featureFlags];
     }
     // If no featureFlag property, always show the item
     return true;
