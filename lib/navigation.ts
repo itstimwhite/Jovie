@@ -8,8 +8,24 @@ import {
   SETTINGS_SUBSECTIONS,
   NavigationItem,
   SettingsSection,
-  SettingsSubsection
+  SettingsSubsection,
+  getNavItemUrl,
+  getSettingsSectionUrl,
+  getSettingsSubsectionUrl
 } from './navigation.const';
+
+// Re-export all constants and types from navigation.const.ts
+export {
+  NAVIGATION_ITEMS,
+  SETTINGS_SECTIONS,
+  SETTINGS_SUBSECTIONS,
+  NavigationItem,
+  SettingsSection,
+  SettingsSubsection,
+  getNavItemUrl,
+  getSettingsSectionUrl,
+  getSettingsSubsectionUrl
+};
 
 // URL parsing hooks
 export function useCurrentNavItem(): NavigationItem {
@@ -107,5 +123,4 @@ export function useCurrentSettingsSubsection(): SettingsSubsection | null {
   return null;
 }
 
-// Re-export URL generation utilities from navigation.const.ts
-export { getNavItemUrl, getSettingsSectionUrl, getSettingsSubsectionUrl } from './navigation.const';
+// URL generation utilities are already re-exported at the top of the file

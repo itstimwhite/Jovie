@@ -151,7 +151,7 @@ export function SettingsPolished({
       
       // Check if the hash corresponds to a subsection
       // SETTINGS_SUBSECTIONS is an array of subsection IDs, not an object
-      const subsection = SETTINGS_SUBSECTIONS.find(sub => sub === hash);
+      const subsection = SETTINGS_SUBSECTIONS.find((sub: string) => sub === hash);
       if (subsection) {
         // Extract the parent section from the subsection ID (format: "section-name")
         const sectionPart = subsection.split('-')[0];
