@@ -126,7 +126,7 @@ export function EnhancedThemeToggle({
         type='button'
         disabled={isUpdating}
         onClick={() => handleThemeChange(isDark ? 'light' : 'dark')}
-        className={`inline-flex h-8 w-8 items-center justify-center rounded-full border border-subtle-token bg-surface-hover-token/80 backdrop-blur-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 disabled:cursor-not-allowed ${
+        className={`inline-flex h-7 w-7 items-center justify-center rounded-full border border-subtle-token bg-surface-hover-token/80 backdrop-blur-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50 disabled:cursor-not-allowed ${
           isUpdating ? 'animate-pulse' : ''
         }`}
         title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}

@@ -151,7 +151,7 @@ export function UserButton({ artist, showUserInfo = false }: UserButtonProps) {
       <button
         ref={refs.setReference}
         {...getReferenceProps()}
-        className={`flex items-center gap-3 transition-colors focus-ring-themed ${showUserInfo ? 'w-full rounded-md p-2 text-left interactive-hover' : 'justify-center w-8 h-8 rounded-full surface-hover hover:surface-pressed'}`}
+        className={`flex items-center gap-3 transition-colors focus-ring-themed ${showUserInfo ? 'rounded-md p-2 text-left interactive-hover' : 'justify-center w-8 h-8 rounded-full surface-hover hover:surface-pressed'}`}
       >
         {userImageUrl ? (
           <Image

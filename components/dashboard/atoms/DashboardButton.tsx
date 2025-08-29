@@ -28,11 +28,11 @@ export function DashboardButton({
     return (
       <button
         className={cn(
-          // Apple-style pill button with subtle design
-          'inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-medium',
-          'bg-surface-3 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600',
-          'text-primary border border-subtle',
-          'shadow-sm hover:shadow-md',
+          // More subtle pill button with reduced visual weight
+          'inline-flex items-center justify-center rounded-full px-4 py-2 text-xs font-medium',
+          'bg-surface-2 hover:bg-surface-3 dark:bg-gray-700/80 dark:hover:bg-gray-700',
+          'text-secondary hover:text-primary border border-subtle',
+          'shadow-sm',
           'transition-all duration-200 ease-out',
           'gap-2 focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-1',
           'disabled:opacity-50 disabled:cursor-not-allowed',

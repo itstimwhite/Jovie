@@ -192,16 +192,16 @@ export function DashboardSidebar({
 
           {/* Footer */}
           <li className='mt-auto'>
-            {/* Pro Upgrade */}
+            {/* Pro Upgrade - reduced visual weight */}
             {!collapsed && (
-              <div className='mb-4'>
+              <div className='mb-3'>
                 <DashboardButton
                   variant='pro-upgrade'
                   onClick={() => router.push('/pricing')}
-                  className='w-full'
+                  className='w-full text-sm'
                 >
                   <svg
-                    className='h-4 w-4 flex-shrink-0'
+                    className='h-3.5 w-3.5 flex-shrink-0'
                     fill='none'
                     stroke='currentColor'
                     viewBox='0 0 24 24'
@@ -218,16 +218,21 @@ export function DashboardSidebar({
               </div>
             )}
 
-            {/* Theme toggle and user info */}
-            <div className='pt-4 border-t border-subtle space-y-3'>
-              <div className='flex justify-center'>
-                <EnhancedThemeToggle />
-              </div>
-              <div className={cn('flex', collapsed ? 'justify-center' : '')}>
+            {/* User info with integrated theme toggle */}
+            <div className='pt-3 border-t border-subtle'>
+              <div className={cn('flex items-center', collapsed ? 'justify-center' : 'justify-between')}>
                 {!collapsed && artist ? (
-                  <UserButton artist={artist} showUserInfo={true} />
+                  <div className='flex-1 flex items-center'>
+                    <UserButton artist={artist} showUserInfo={true} />
+                    <div className='ml-2'>
+                      <EnhancedThemeToggle variant='compact' />
+                    </div>
+                  </div>
                 ) : (
-                  <UserButton artist={artist} />
+                  <div className='flex items-center space-x-2'>
+                    <UserButton artist={artist} />
+                    {collapsed && <EnhancedThemeToggle variant='compact' />}
+                  </div>
                 )}
               </div>
             </div>
