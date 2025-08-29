@@ -5,11 +5,18 @@ import { track } from '@/lib/analytics';
 
 export function RedirectTracker() {
   useEffect(() => {
-    // Check for redirect header
-    const redirectType = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('x-route-redirect='))
-      ?.split('=')[1];
+    // Parse cookies safely
+    const getCookie = (name: string): string | undefined => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) {
+        return parts.pop()?.split(';').shift();
+      }
+      return undefined;
+    };
+    
+    // Get redirect type from cookie
+    const redirectType = getCookie('x-route-redirect');
 
     if (redirectType) {
       // Track the redirect event
@@ -21,12 +28,11 @@ export function RedirectTracker() {
         });
       }
 
-      // Clear the cookie after tracking
-      document.cookie = 'x-route-redirect=; max-age=0; path=/;';
+      // Clear the cookie after tracking (set expiration in the past)
+      document.cookie = 'x-route-redirect=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     }
   }, []);
 
   // This component doesn't render anything
   return null;
 }
-
