@@ -55,7 +55,6 @@ export function MyComponent() {
 - `waitlistEnabled` - Controls waitlist functionality
 - `debugBannerEnabled` - Controls debug banner visibility
 - `artistSearchEnabled` - Controls artist search functionality
-- `tipPromoEnabled` - Controls tip promotion features
 
 ### 2. Clerk-Supabase Integration
 

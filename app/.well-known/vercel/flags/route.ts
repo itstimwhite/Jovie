@@ -28,11 +28,6 @@ export async function GET() {
         description:
           'Deprecated: legacy UI debug banner (replaced by console logger)',
       },
-      tipPromoEnabled: {
-        type: 'boolean',
-        default: true,
-        description: 'Enable tip promotion features',
-      },
       feature_claim_handle: {
         type: 'boolean',
         default: false,
