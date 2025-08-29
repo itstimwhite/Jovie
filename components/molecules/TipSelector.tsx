@@ -33,15 +33,15 @@ export function TipSelector({
   }, [selectedAmount]);
 
   return (
-    <div className={`space-y-4 ${className}`} data-test='tip-selector' role='group' aria-labelledby='tip-selector-heading'>
-      <div id='tip-selector-heading' className='sr-only'>
+    <div className={`space-y-4 ${className}`} data-test='tip-selector'>
+      <h3 id='tip-selector-heading' className='sr-only'>
         Select tip amount
-      </div>
+      </h3>
       
       {/* Visually hidden live region for screen readers */}
       <div className='sr-only' aria-live='polite' ref={statusRef}></div>
       
-      <div className='grid grid-cols-3 gap-3' role='radiogroup' aria-label='Tip amount options'>
+      <div className='grid grid-cols-3 gap-3' role='group' aria-label='Tip amount options'>
         {amounts.map((amount, idx) => (
           <AmountSelector
             key={amount}
