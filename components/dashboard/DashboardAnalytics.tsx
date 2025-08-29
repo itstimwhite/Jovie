@@ -10,7 +10,7 @@ interface DashboardAnalyticsProps {
 }
 
 export function DashboardAnalytics({ initialData }: DashboardAnalyticsProps) {
-  const [artist, setArtist] = useState<Artist | null>(
+  const [artist] = useState<Artist | null>(
     initialData.selectedProfile
       ? convertDrizzleCreatorProfileToArtist(initialData.selectedProfile)
       : null

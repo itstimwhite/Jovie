@@ -107,7 +107,6 @@ export function SettingsPolished({
   onArtistUpdate,
 }: SettingsPolishedProps) {
   const urlSection = useCurrentSettingsSection();
-  const urlSubsection = useCurrentSettingsSubsection();
   const [currentSection, setCurrentSection] = useState<SettingsSection>(urlSection || 'profile');
   const [isLoading, setIsLoading] = useState(false);
   const { theme, setTheme } = useTheme();

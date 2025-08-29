@@ -9,7 +9,7 @@ interface DashboardLinksProps {
 }
 
 export function DashboardLinks({ initialData }: DashboardLinksProps) {
-  const [artist, setArtist] = useState<Artist | null>(
+  const [artist] = useState<Artist | null>(
     initialData.selectedProfile
       ? convertDrizzleCreatorProfileToArtist(initialData.selectedProfile)
       : null

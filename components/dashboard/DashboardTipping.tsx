@@ -9,7 +9,7 @@ interface DashboardTippingProps {
 }
 
 export function DashboardTipping({ initialData }: DashboardTippingProps) {
-  const [artist, setArtist] = useState<Artist | null>(
+  const [artist] = useState<Artist | null>(
     initialData.selectedProfile
       ? convertDrizzleCreatorProfileToArtist(initialData.selectedProfile)
       : null
