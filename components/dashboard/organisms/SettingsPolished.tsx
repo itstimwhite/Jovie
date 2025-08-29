@@ -14,6 +14,7 @@ import { useCallback, useState } from 'react';
 import { APP_URL } from '@/constants/app';
 import { cn } from '@/lib/utils';
 import type { Artist } from '@/types/db';
+import { DashboardCard } from '../atoms/DashboardCard';
 
 interface SettingsPolishedProps {
   artist: Artist;
@@ -214,7 +215,7 @@ export function SettingsPolished({
 
       <form onSubmit={handleSubmit} className='space-y-8'>
         {/* Profile Photo Card */}
-        <div className='bg-surface-1 rounded-xl border border-subtle p-6 shadow-sm'>
+        <DashboardCard variant='settings'>
           <div className='flex items-center justify-between mb-4'>
             <h3 className='text-lg font-medium text-primary'>Profile Photo</h3>
             <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-surface-2 text-secondary border border-subtle'>
@@ -242,10 +243,10 @@ export function SettingsPolished({
               </p>
             </div>
           </div>
-        </div>
+        </DashboardCard>
 
         {/* Basic Info Card */}
-        <div className='bg-surface-1 rounded-xl border border-subtle p-6 shadow-sm'>
+        <DashboardCard variant='settings'>
           <h3 className='text-lg font-medium text-primary mb-6'>
             Basic Information
           </h3>
@@ -342,7 +343,7 @@ export function SettingsPolished({
               </select>
             </div>
           </div>
-        </div>
+        </DashboardCard>
 
         {/* Save Button */}
         <div className='flex justify-end pt-4 border-t border-subtle'>
@@ -372,7 +373,7 @@ export function SettingsPolished({
       </div>
 
       {/* Theme Selection Card */}
-      <div className='bg-surface-1 rounded-xl border border-subtle p-6 space-y-4'>
+      <DashboardCard variant='settings' className='space-y-4'>
         <h3 className='text-lg font-medium text-primary mb-6'>
           Interface Theme
         </h3>
@@ -481,7 +482,7 @@ export function SettingsPolished({
           Choose how the interface appears. System automatically matches your
           device settings.
         </p>
-      </div>
+      </DashboardCard>
     </div>
   );
 
