@@ -63,7 +63,7 @@ export function ErrorSummary({
               {onFocusField ? (
                 <button
                   type='button'
-                  className='underline focus:outline-none focus:ring-2 focus:ring-red-500 rounded'
+                  className='underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded'
                   onClick={() => onFocusField(fieldName)}
                 >
                   {errorMessage}

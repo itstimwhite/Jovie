@@ -262,7 +262,7 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                       }
                       className={clsx(
                         // Remove native border and focus styles
-                        'w-full border-0 bg-transparent outline-none ring-0 focus:ring-0',
+                        'w-full border-0 bg-transparent outline-none ring-0 focus-visible:ring-0',
                         // Typography and spacing
                         'px-4 py-3.5 text-sm/6 text-white placeholder-white/70',
                         // Height matching (44px minimum for mobile)
@@ -365,7 +365,7 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                   className={clsx(
                     'absolute z-50 mt-2 max-h-60 w-full overflow-auto',
                     'rounded-xl bg-white/95 backdrop-blur-xl shadow-xl ring-1 ring-white/20',
-                    'focus:outline-none'
+                    'focus-visible:outline-none'
                   )}
                   static={open}
                 >
@@ -406,7 +406,7 @@ export const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
                         className={({ active }) =>
                           clsx(
                             'relative cursor-pointer select-none px-4 py-3 transition-colors',
-                            'focus:outline-none',
+                            'focus-visible:outline-none',
                             active
                               ? 'bg-indigo-600 text-white'
                               : 'text-gray-900 hover:bg-gray-50'
