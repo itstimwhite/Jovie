@@ -30,7 +30,8 @@ export function VenmoHandleCard({
   }, [initialValue]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setVenmoHandle(e.target.value);
+    const value = e.target.value.startsWith('@') ? e.target.value.slice(1) : e.target.value;
+    setVenmoHandle(value);
     setError(undefined);
     setSaveSuccess(false);
   };
@@ -110,7 +111,7 @@ export function VenmoHandleCard({
                   </span>
                   <input
                     type="text"
-                    value={venmoHandle.startsWith('@') ? venmoHandle.substring(1) : venmoHandle}
+                    value={venmoHandle}
                     onChange={handleInputChange}
                     className="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-0 py-1.5 text-primary bg-surface-1 ring-1 ring-inset ring-subtle placeholder:text-secondary focus:ring-2 focus:ring-inset focus:ring-accent sm:text-sm sm:leading-6"
                     placeholder="yourvenmohandle"

@@ -5,6 +5,11 @@ import { VenmoHandleCard } from '@/components/tipping/VenmoHandleCard';
 import { updateVenmoHandle } from '@/lib/actions/update-venmo-handle';
 import { useToast } from '@/components/ui/ToastContainer';
 
+interface UpdateVenmoHandleResult {
+  venmoHandle?: string | null;
+  [key: string]: any;
+}
+
 interface TippingSettingsProps {
   initialVenmoHandle?: string | null;
 }
@@ -16,9 +21,8 @@ export function TippingSettings({ initialVenmoHandle }: TippingSettingsProps) {
   const handleSaveVenmoHandle = async (newHandle: string) => {
     try {
       const result = await updateVenmoHandle(newHandle);
-      // The result might have venmoHandle property based on the schema update
-      // Use type assertion to access it safely
-      const profile = result as any;
+      // The result should have venmoHandle property based on the schema update
+      const profile = result as UpdateVenmoHandleResult;
       setVenmoHandle(profile.venmoHandle || '');
       return result;
     } catch (error) {
