@@ -19,15 +19,20 @@ export function DashboardAnalytics({ initialData }: DashboardAnalyticsProps) {
   const [creatorProfiles] = useState<CreatorProfile[]>(
     initialData.creatorProfiles
   );
+  // These handlers are defined for potential future use
+  // Currently, profile selection is handled at the server level
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
     initialData.selectedProfile?.id || null
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleArtistUpdated = (updatedArtist: Artist) => {
     setArtist(updatedArtist);
   };
 
   // Handle profile selection when user has multiple creator profiles
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleProfileSelection = (profileId: string) => {
     const selectedProfile = creatorProfiles.find(p => p.id === profileId);
     if (selectedProfile) {

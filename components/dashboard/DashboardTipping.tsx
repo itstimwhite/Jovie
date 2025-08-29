@@ -18,15 +18,19 @@ export function DashboardTipping({ initialData }: DashboardTippingProps) {
   const [creatorProfiles] = useState<CreatorProfile[]>(
     initialData.creatorProfiles
   );
+  // These handlers are defined for potential future use
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
     initialData.selectedProfile?.id || null
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleArtistUpdated = (updatedArtist: Artist) => {
     setArtist(updatedArtist);
   };
 
   // Handle profile selection when user has multiple creator profiles
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleProfileSelection = (profileId: string) => {
     const selectedProfile = creatorProfiles.find(p => p.id === profileId);
     if (selectedProfile) {
@@ -81,7 +85,7 @@ export function DashboardTipping({ initialData }: DashboardTippingProps) {
           </h3>
           <div className="space-y-4">
             <p className="text-secondary-token">
-              Tipping functionality is coming soon. You'll be able to customize your tipping experience and manage payment methods here.
+              Tipping functionality is coming soon. You&apos;ll be able to customize your tipping experience and manage payment methods here.
             </p>
           </div>
         </div>
@@ -93,7 +97,7 @@ export function DashboardTipping({ initialData }: DashboardTippingProps) {
           </h3>
           <div className="space-y-4">
             <p className="text-secondary-token">
-              No tips received yet. When you receive tips, they'll appear here.
+              No tips received yet. When you receive tips, they&apos;ll appear here.
             </p>
           </div>
         </div>

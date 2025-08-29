@@ -62,7 +62,6 @@ export const CustomStyling: Story = {
 // Interactive example with working retry
 export const Interactive: Story = {
   render: () => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [isRetrying, setIsRetrying] = useState(false);
 
     const handleRetry = () => {

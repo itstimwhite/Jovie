@@ -18,15 +18,19 @@ export function DashboardLinks({ initialData }: DashboardLinksProps) {
   const [creatorProfiles] = useState<CreatorProfile[]>(
     initialData.creatorProfiles
   );
+  // These handlers are defined for potential future use
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
     initialData.selectedProfile?.id || null
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleArtistUpdated = (updatedArtist: Artist) => {
     setArtist(updatedArtist);
   };
 
   // Handle profile selection when user has multiple creator profiles
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleProfileSelection = (profileId: string) => {
     const selectedProfile = creatorProfiles.find(p => p.id === profileId);
     if (selectedProfile) {
@@ -60,7 +64,7 @@ export function DashboardLinks({ initialData }: DashboardLinksProps) {
           <div className="space-y-4">
             {/* This is a placeholder for the links management UI */}
             <p className="text-secondary-token">
-              This is where you'll manage your social and streaming links. The actual links management UI will be implemented in a future update.
+              This is where you&apos;ll manage your social and streaming links. The actual links management UI will be implemented in a future update.
             </p>
           </div>
         </div>
