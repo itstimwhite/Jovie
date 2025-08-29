@@ -4,6 +4,8 @@ import {
   MusicalNoteIcon,
   ShareIcon,
 } from '@heroicons/react/24/outline';
+import { cn } from '@/lib/utils';
+import { cardTokens } from '../tokens/card-tokens';
 
 interface AnalyticsCardProps {
   title: string;
@@ -37,7 +39,17 @@ export function AnalyticsCard({
 }: AnalyticsCardProps) {
   return (
     <div className={order}>
-      <div className='bg-surface-1 border border-subtle rounded-xl p-6 hover:shadow-lg hover:shadow-accent/5 hover:border-accent/20 transition-all duration-300 group'>
+      <div
+        className={cn(
+          cardTokens.base,
+          cardTokens.padding.default,
+          cardTokens.shadow.default,
+          cardTokens.shadow.hover,
+          cardTokens.border.default,
+          cardTokens.border.hover,
+          'group'
+        )}
+      >
         <div className='flex items-center justify-between mb-3'>
           <div className='flex-1'>
             <p className='text-sm font-medium text-secondary mb-2'>{title}</p>
