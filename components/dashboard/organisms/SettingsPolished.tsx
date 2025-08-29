@@ -287,7 +287,7 @@ export function SettingsPolished({
               id="displayName"
               name="displayName"
               value={formData.displayName}
-              onChange={e => handleInputChange('displayName', e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('displayName', e.target.value)}
               placeholder="The name your fans will see"
               helpText="This is the name that will be displayed on your profile"
               helpTextPosition="after"

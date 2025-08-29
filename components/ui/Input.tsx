@@ -34,7 +34,7 @@ interface LegacyInputProps
 }
 
 // New interface for Catalyst UI Kit
-type InputProps = {
+export type InputProps = {
   className?: string;
   type?:
     | 'email'
@@ -79,7 +79,8 @@ export const Input = forwardRef(function Input(
 
   // Determine validation state
   const isInvalid =
-    validationState === 'invalid' || error || ariaInvalid === 'true' || props['aria-invalid'] === 'true';
+    validationState === 'invalid' || error || ariaInvalid === 'true' || 
+    (props as any)['aria-invalid'] === 'true';
   const isValid = validationState === 'valid';
   const isPending = validationState === 'pending' || loading;
 
@@ -87,7 +88,7 @@ export const Input = forwardRef(function Input(
   const getDescribedByIds = () => {
     const ids = [];
     if (ariaDescribedBy) ids.push(ariaDescribedBy);
-    if (props['aria-describedby']) ids.push(props['aria-describedby']);
+    if ((props as any)['aria-describedby']) ids.push((props as any)['aria-describedby']);
     if (helpText) ids.push(helpTextId);
     if (error) ids.push(errorId);
     return ids.length > 0 ? ids.join(' ') : undefined;
