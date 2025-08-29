@@ -18,23 +18,23 @@ export function DashboardLinks({ initialData }: DashboardLinksProps) {
   const [creatorProfiles] = useState<CreatorProfile[]>(
     initialData.creatorProfiles
   );
-  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
-    initialData.selectedProfile?.id || null
-  );
-
-  const handleArtistUpdated = (updatedArtist: Artist) => {
-    setArtist(updatedArtist);
-  };
-
-  // Handle profile selection when user has multiple creator profiles
-  const handleProfileSelection = (profileId: string) => {
-    const selectedProfile = creatorProfiles.find(p => p.id === profileId);
-    if (selectedProfile) {
-      setSelectedProfileId(profileId);
-      const artistData = convertDrizzleCreatorProfileToArtist(selectedProfile);
-      setArtist(artistData);
-    }
-  };
+  // Note: Profile selection functionality will be implemented when multi-profile support is added
+  // const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
+  //   initialData.selectedProfile?.id || null
+  // );
+  // 
+  // const handleArtistUpdated = (updatedArtist: Artist) => {
+  //   setArtist(updatedArtist);
+  // };
+  // 
+  // const handleProfileSelection = (profileId: string) => {
+  //   const selectedProfile = creatorProfiles.find(p => p.id === profileId);
+  //   if (selectedProfile) {
+  //     setSelectedProfileId(profileId);
+  //     const artistData = convertDrizzleCreatorProfileToArtist(selectedProfile);
+  //     setArtist(artistData);
+  //   }
+  // };
 
   if (!artist) {
     return null; // This shouldn't happen given the server-side logic
@@ -60,7 +60,7 @@ export function DashboardLinks({ initialData }: DashboardLinksProps) {
           <div className="space-y-4">
             {/* This is a placeholder for the links management UI */}
             <p className="text-secondary-token">
-              This is where you'll manage your social and streaming links. The actual links management UI will be implemented in a future update.
+              This is where you&apos;ll manage your social and streaming links. The actual links management UI will be implemented in a future update.
             </p>
           </div>
         </div>

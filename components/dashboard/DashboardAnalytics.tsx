@@ -19,23 +19,23 @@ export function DashboardAnalytics({ initialData }: DashboardAnalyticsProps) {
   const [creatorProfiles] = useState<CreatorProfile[]>(
     initialData.creatorProfiles
   );
-  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
-    initialData.selectedProfile?.id || null
-  );
-
-  const handleArtistUpdated = (updatedArtist: Artist) => {
-    setArtist(updatedArtist);
-  };
-
-  // Handle profile selection when user has multiple creator profiles
-  const handleProfileSelection = (profileId: string) => {
-    const selectedProfile = creatorProfiles.find(p => p.id === profileId);
-    if (selectedProfile) {
-      setSelectedProfileId(profileId);
-      const artistData = convertDrizzleCreatorProfileToArtist(selectedProfile);
-      setArtist(artistData);
-    }
-  };
+  // Note: Profile selection functionality will be implemented when multi-profile support is added
+  // const [selectedProfileId, setSelectedProfileId] = useState<string | null>(
+  //   initialData.selectedProfile?.id || null
+  // );
+  // 
+  // const handleArtistUpdated = (updatedArtist: Artist) => {
+  //   setArtist(updatedArtist);
+  // };
+  // 
+  // const handleProfileSelection = (profileId: string) => {
+  //   const selectedProfile = creatorProfiles.find(p => p.id === profileId);
+  //   if (selectedProfile) {
+  //     setSelectedProfileId(profileId);
+  //     const artistData = convertDrizzleCreatorProfileToArtist(selectedProfile);
+  //     setArtist(artistData);
+  //   }
+  // };
 
   if (!artist) {
     return null; // This shouldn't happen given the server-side logic
