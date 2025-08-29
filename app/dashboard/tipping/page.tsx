@@ -19,10 +19,10 @@ export default async function TippingPage() {
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-primary-token">Tipping</h1>
-        <p className="text-secondary-token mt-1">
+    <div className='px-4 sm:px-6 lg:px-8'>
+      <div className='mb-8'>
+        <h1 className='text-2xl font-bold text-primary-token'>Tipping</h1>
+        <p className='text-secondary-token mt-1'>
           Set up and manage your tipping options
         </p>
       </div>
@@ -30,4 +30,3 @@ export default async function TippingPage() {
     </div>
   );
 }
-

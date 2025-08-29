@@ -112,6 +112,9 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
                   ])
               : defaultFeatureFlags.featureClickAnalyticsRpc
           ),
+          tipping_mvp: Boolean(
+            data.tipping_mvp ?? defaultFeatureFlags.tipping_mvp
+          ),
         };
       }
     }
@@ -161,6 +164,10 @@ export async function getFeatureFlags(): Promise<FeatureFlags> {
           progressiveOnboardingEnabled: Boolean(
             data2.flags?.progressiveOnboardingEnabled?.default ??
               defaultFeatureFlags.progressiveOnboardingEnabled
+          ),
+          tipping_mvp: Boolean(
+            data2.flags?.tipping_mvp?.default ??
+              defaultFeatureFlags.tipping_mvp
           ),
         };
       }
@@ -309,6 +316,7 @@ export async function getServerFeatureFlags(
             featureClickAnalyticsRpc: Boolean(
               data.featureClickAnalyticsRpc || data.feature_click_analytics_rpc
             ),
+            tipping_mvp: Boolean(data.tipping_mvp),
           };
         }
       } catch {
