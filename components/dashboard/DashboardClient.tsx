@@ -82,7 +82,7 @@ interface DashboardClientProps {
 
 export function DashboardClient({ initialData }: DashboardClientProps) {
   const router = useRouter();
-  const { flags: featureFlags } = useFeatureFlags();
+  const featureFlags = useFeatureFlags();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [currentNavItem, setCurrentNavItem] = useState('overview');
