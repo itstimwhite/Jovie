@@ -101,10 +101,9 @@ describe('DashboardSplitView', () => {
       </ToastProvider>
     );
 
-    // The component should render with the converted links
-    // We can check if the SocialLinkManager and DSPLinkManager are rendered
-    expect(screen.getByText('Social Links')).toBeInTheDocument();
-    expect(screen.getByText('Music Streaming Links')).toBeInTheDocument();
+    // The component should render with the converted links using UnifiedLinkManager
+    expect(screen.getByText('✨ Add Any Link')).toBeInTheDocument();
+    expect(screen.getByText('Manage Your Links')).toBeInTheDocument();
   });
 
   it('correctly uses creator_profile_id in database queries', async () => {
@@ -122,8 +121,7 @@ describe('DashboardSplitView', () => {
     // If the component successfully loads and renders, it means the database
     // query with creator_profile_id was successful (mocked to return data)
     expect(screen.getByText('Manage Your Links')).toBeInTheDocument();
-    expect(screen.getByText('Social Links')).toBeInTheDocument();
-    expect(screen.getByText('Music Streaming Links')).toBeInTheDocument();
+    expect(screen.getByText('✨ Add Any Link')).toBeInTheDocument();
   });
 
   it('handles database schema correctly for save operations', () => {
@@ -150,9 +148,8 @@ describe('DashboardSplitView', () => {
     // Wait for component to initialize
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    // The component should categorize instagram as social and spotify as DSP
-    // This is verified by checking that both managers are present
-    expect(screen.getByText('Social Links')).toBeInTheDocument();
-    expect(screen.getByText('Music Streaming Links')).toBeInTheDocument();
+    // The component should use UnifiedLinkManager which handles all platform types
+    expect(screen.getByText('✨ Add Any Link')).toBeInTheDocument();
+    expect(screen.getByText('Manage Your Links')).toBeInTheDocument();
   });
 });
