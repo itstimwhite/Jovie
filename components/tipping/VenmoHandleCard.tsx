@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { CurrencyDollarIcon } from '@heroicons/react/24/outline';
-import { CheckIcon, XMarkIcon } from '@heroicons/react/20/solid';
+import { CheckIcon } from '@heroicons/react/20/solid';
 import { validateVenmoHandle } from '@/lib/validation/venmo';
 
 interface VenmoHandleCardProps {
   initialValue?: string | null;
-  onSave?: (value: string) => Promise<any>;
+  onSave?: (value: string) => Promise<unknown>;
   className?: string;
 }
 

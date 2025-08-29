@@ -7,7 +7,7 @@ import { useToast } from '@/components/ui/ToastContainer';
 
 interface UpdateVenmoHandleResult {
   venmoHandle?: string | null;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface TippingSettingsProps {
