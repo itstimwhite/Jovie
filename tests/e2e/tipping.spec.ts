@@ -25,7 +25,7 @@ declare global {
     };
     __TEST_TIP_CLICK_CAPTURED__?: boolean;
     posthog?: {
-      capture: (eventName: string, properties?: Record<string, any>) => void;
+      capture: (eventName: string, properties?: Record<string, unknown>) => void;
     };
   }
 }
@@ -88,16 +88,16 @@ test.describe('Tipping MVP', () => {
 
         // Set up event tracking
         await page.addInitScript(() => {
-          (window as any).__TEST_TIP_CLICK_CAPTURED__ = false;
+          window.__TEST_TIP_CLICK_CAPTURED__ = false;
           
           const originalPostHogCapture = window.posthog?.capture;
           if (window.posthog) {
             window.posthog.capture = function (
               eventName: string,
-              properties?: Record<string, any>
+              properties?: Record<string, unknown>
             ) {
               if (eventName === 'tip_click') {
-                (window as any).__TEST_TIP_CLICK_CAPTURED__ = true;
+                window.__TEST_TIP_CLICK_CAPTURED__ = true;
               }
               return originalPostHogCapture?.call(
                 window.posthog,
