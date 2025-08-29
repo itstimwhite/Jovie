@@ -9,12 +9,12 @@ jest.mock('@/lib/analytics', () => ({
 
 describe('TipMetricsCard', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    (useFeatureFlag as jest.MockedFunction<typeof useFeatureFlag>).mockClear();
   });
 
   it('renders nothing when feature flag is disabled', () => {
     // Mock the feature flag to be disabled
-    (useFeatureFlag as jest.Mock).mockReturnValue(false);
+    (useFeatureFlag as jest.MockedFunction<typeof useFeatureFlag>).mockReturnValue(false);
     
     const { container } = render(<TipMetricsCard artistHandle="artist123" />);
     
@@ -24,7 +24,7 @@ describe('TipMetricsCard', () => {
 
   it('renders the card with loading state when feature flag is enabled', () => {
     // Mock the feature flag to be enabled
-    (useFeatureFlag as jest.Mock).mockReturnValue(true);
+    (useFeatureFlag as jest.MockedFunction<typeof useFeatureFlag>).mockReturnValue(true);
     
     render(<TipMetricsCard artistHandle="artist123" />);
     
