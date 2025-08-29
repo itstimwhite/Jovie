@@ -1,9 +1,15 @@
 import React, { forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 import { FormField } from './FormField';
-import { Input, type InputProps } from './Input';
+import { Input } from './Input';
 
-export interface InputFieldProps extends Omit<InputProps, 'label' | 'error' | 'helpText'> {
+// Define our own InputProps to avoid dependency on the internal InputProps type
+type InputFieldBaseProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> & {
+  loading?: boolean;
+  inputClassName?: string;
+};
+
+export interface InputFieldProps extends InputFieldBaseProps {
   /**
    * Label text for the input field
    */
@@ -94,4 +100,3 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
     );
   }
 );
-
