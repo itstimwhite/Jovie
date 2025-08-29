@@ -157,4 +157,3 @@ The following enhancements are planned for future versions:
 3. Custom tip amounts
 4. Recurring tips/subscriptions
 5. Multiple payment method support
-
