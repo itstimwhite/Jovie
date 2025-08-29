@@ -15,6 +15,7 @@ export function ClaimHandleForm() {
   const { isSignedIn } = useAuth();
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const shakeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Extract domain from APP_URL for display
   const displayDomain = APP_URL.replace(/^https?:\/\//, '');
@@ -101,6 +102,15 @@ export function ClaimHandleForm() {
     };
   }, [handle, handleError]);
 
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (shakeTimeoutRef.current) {
+        clearTimeout(shakeTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const onSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -110,7 +120,13 @@ export function ClaimHandleForm() {
       if (handleError || checkingAvail || available !== true) {
         // Micro shake for quick feedback
         setIsShaking(true);
-        setTimeout(() => setIsShaking(false), 180);
+        if (shakeTimeoutRef.current) {
+          clearTimeout(shakeTimeoutRef.current);
+        }
+        shakeTimeoutRef.current = setTimeout(() => {
+          setIsShaking(false);
+          shakeTimeoutRef.current = null;
+        }, 180);
 
         // Focus the input for accessibility
         if (inputRef.current) {
