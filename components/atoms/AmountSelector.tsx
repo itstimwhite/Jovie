@@ -18,6 +18,7 @@ export function AmountSelector({
       type='button'
       onClick={onClick}
       aria-pressed={isSelected}
+      aria-label={`Select $${amount} tip amount`}
       className={cn(
         'w-full aspect-square rounded-xl border text-lg font-semibold transition-colors flex items-center justify-center cursor-pointer',
         'bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100',
