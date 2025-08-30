@@ -10,7 +10,6 @@ import { EnhancedThemeToggle } from '@/components/dashboard/molecules/EnhancedTh
 import { PendingClaimHandler } from '@/components/dashboard/PendingClaimHandler';
 import { UserButton } from '@/components/molecules/UserButton';
 import { Logo } from '@/components/ui/Logo';
-import appIconPng from '@/public/Jovie-logo.png';
 
 import type { DashboardData } from './actions';
 
@@ -118,7 +117,7 @@ export default function DashboardLayoutClient({
                 >
                   {sidebarCollapsed ? (
                     <Image
-                      src={appIconPng}
+                      src='/Jovie-logo.png'
                       alt='App icon'
                       width={24}
                       height={24}
