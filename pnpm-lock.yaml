@@ -137,8 +137,8 @@ devDependencies:
     specifier: ^0.0.12
     version: 0.0.12
   '@clerk/testing':
-    specifier: ^1.11.2
-    version: 1.12.0(@playwright/test@1.55.0)(react-dom@18.3.1)(react@18.3.1)
+    specifier: ^1.12.1
+    version: 1.12.1(@playwright/test@1.55.0)(react-dom@18.3.1)(react@18.3.1)
   '@commitlint/cli':
     specifier: ^19.8.1
     version: 19.8.1(@types/node@24.3.0)(typescript@5.9.2)
@@ -800,20 +800,6 @@ packages:
       - '@chromatic-com/playwright'
     dev: true
 
-  /@clerk/backend@2.10.0(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-2076XHVUXAo0scEiM9T6us3yjrinVmg7VJ98XmOr7BAghfaNb6JoqGFVc3NA+3DXYFPbEyxZbw7e4M9/sgtfxw==}
-    engines: {node: '>=18.17.0'}
-    dependencies:
-      '@clerk/shared': 3.23.0(react-dom@18.3.1)(react@18.3.1)
-      '@clerk/types': 4.83.0
-      cookie: 1.0.2
-      standardwebhooks: 1.0.0
-      tslib: 2.8.1
-    transitivePeerDependencies:
-      - react
-      - react-dom
-    dev: true
-
   /@clerk/backend@2.10.1(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-6UV9OblBhApQolpTBYg9jRHT5LGEwbAkC10nQoycWs6+3r2LiBE5DAGFp3R0NX0VzqJt4Es3d3e691V/waNAPw==}
     engines: {node: '>=18.17.0'}
@@ -826,7 +812,6 @@ packages:
     transitivePeerDependencies:
       - react
       - react-dom
-    dev: false
 
   /@clerk/clerk-js@5.89.0(@types/react@18.3.24)(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-F+FWhCUvxRYr2SrOwlzIVU9gykjGTrRTj70MryL9pZ1WKq4YYRpud7HOCgkylPRVLyxAbkPtixF05GdgYgj1zQ==}
@@ -965,8 +950,8 @@ packages:
       std-env: 3.9.0
       swr: 2.3.4(react@18.3.1)
 
-  /@clerk/testing@1.12.0(@playwright/test@1.55.0)(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-aUQmG8b45dG2Fnn6bXpD5POQUtqhKiM4EEu4IesTF7UFOegS2plZqq24agfx/0pSe8YibpAVVzCNnM/T5Gn0sg==}
+  /@clerk/testing@1.12.1(@playwright/test@1.55.0)(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-/SKg9EBVFxco6dQZnjAVqlWlHxxOmIC5kwIHv2JN/KSUZqnl1rHJNWgwbV+qA2VvQlwGZJZW77QudbGFgsUlCw==}
     engines: {node: '>=18.17.0'}
     peerDependencies:
       '@playwright/test': ^1
@@ -977,9 +962,9 @@ packages:
       cypress:
         optional: true
     dependencies:
-      '@clerk/backend': 2.10.0(react-dom@18.3.1)(react@18.3.1)
-      '@clerk/shared': 3.22.1(react-dom@18.3.1)(react@18.3.1)
-      '@clerk/types': 4.82.0
+      '@clerk/backend': 2.10.1(react-dom@18.3.1)(react@18.3.1)
+      '@clerk/shared': 3.23.0(react-dom@18.3.1)(react@18.3.1)
+      '@clerk/types': 4.83.0
       '@playwright/test': 1.55.0
       dotenv: 17.2.1
     transitivePeerDependencies:
