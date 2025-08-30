@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 
 export interface TooltipProps {
-  content: ReactNode;
+  content: string;
   placement?: 'top' | 'bottom' | 'left' | 'right';
   children: ReactNode;
 }
@@ -11,6 +11,9 @@ export interface TooltipProps {
 // Minimal, accessible fallback tooltip using the native title attribute.
 // Replace with a richer implementation if/when needed.
 export function Tooltip({ content, children }: TooltipProps) {
-  const title = typeof content === 'string' ? content : undefined;
-  return <span title={title}>{children}</span>;
+  return (
+    <span title={content} aria-label={content}>
+      {children}
+    </span>
+  );
 }
