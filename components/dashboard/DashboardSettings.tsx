@@ -23,21 +23,15 @@ export function DashboardSettings({ initialData }: DashboardSettingsProps) {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-primary-token">
-          Settings
-        </h1>
-        <p className="text-secondary-token mt-1">
+      <div className='mb-8'>
+        <h1 className='text-2xl font-bold text-primary-token'>Settings</h1>
+        <p className='text-secondary-token mt-1'>
           Manage your account preferences and settings
         </p>
       </div>
 
       {/* Settings content */}
-      <SettingsPolished
-        artist={artist}
-        onArtistUpdate={() => {}}
-      />
+      <SettingsPolished artist={artist} onArtistUpdate={() => {}} />
     </div>
   );
 }
-

@@ -22,25 +22,25 @@ export function DashboardLinks({ initialData }: DashboardLinksProps) {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-primary-token">
-          Manage Links
-        </h1>
-        <p className="text-secondary-token mt-1">
+      <div className='mb-8'>
+        <h1 className='text-2xl font-bold text-primary-token'>Manage Links</h1>
+        <p className='text-secondary-token mt-1'>
           Add and manage your social and streaming links
         </p>
       </div>
 
       {/* Links content */}
-      <div className="space-y-6">
-        <div className="bg-surface-1 backdrop-blur-sm rounded-lg border border-subtle p-6 hover:shadow-lg hover:border-accent/10 transition-all duration-300 relative z-10">
-          <h3 className="text-lg font-medium text-primary-token mb-4">
+      <div className='space-y-6'>
+        <div className='bg-surface-1 backdrop-blur-sm rounded-lg border border-subtle p-6 hover:shadow-lg hover:border-accent/10 transition-all duration-300 relative z-10'>
+          <h3 className='text-lg font-medium text-primary-token mb-4'>
             Your Links
           </h3>
-          <div className="space-y-4">
+          <div className='space-y-4'>
             {/* This is a placeholder for the links management UI */}
-            <p className="text-secondary-token">
-              This is where you&apos;ll manage your social and streaming links. The actual links management UI will be implemented in a future update.
+            <p className='text-secondary-token'>
+              This is where you&apos;ll manage your social and streaming links.
+              The actual links management UI will be implemented in a future
+              update.
             </p>
           </div>
         </div>
@@ -48,4 +48,3 @@ export function DashboardLinks({ initialData }: DashboardLinksProps) {
     </div>
   );
 }
-
