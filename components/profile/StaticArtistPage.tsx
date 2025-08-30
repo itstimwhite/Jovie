@@ -51,7 +51,11 @@ function renderContent(
       const AMOUNTS = [3, 5, 7];
 
       return (
-        <div className='space-y-4'>
+        <div className='space-y-4' role='main' aria-labelledby='tipping-title'>
+          <h1 id='tipping-title' className='sr-only'>
+            Tip {artist.name}
+          </h1>
+          
           {venmoLink ? (
             <VenmoTipSelector
               venmoLink={venmoLink}
@@ -61,7 +65,7 @@ function renderContent(
           ) : (
             <div className='text-center'>
               <div className='bg-white/60 dark:bg-white/5 backdrop-blur-lg border border-gray-200/30 dark:border-white/10 rounded-2xl p-8 shadow-xl shadow-black/5'>
-                <p className='text-gray-600 dark:text-gray-400'>
+                <p className='text-gray-600 dark:text-gray-400' role='alert'>
                   Venmo tipping is not available for this artist yet.
                 </p>
               </div>
