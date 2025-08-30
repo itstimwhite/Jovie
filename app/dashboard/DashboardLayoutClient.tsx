@@ -3,14 +3,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState, useTransition } from 'react';
+import { Tooltip } from '@/components/atoms/Tooltip';
 import { PendingClaimRunner } from '@/components/bridge/PendingClaimRunner';
-import { PendingClaimHandler } from '@/components/dashboard/PendingClaimHandler';
 import { DashboardNav } from '@/components/dashboard/DashboardNav';
 import { EnhancedThemeToggle } from '@/components/dashboard/molecules/EnhancedThemeToggle';
+import { PendingClaimHandler } from '@/components/dashboard/PendingClaimHandler';
 import { UserButton } from '@/components/molecules/UserButton';
 import { Logo } from '@/components/ui/Logo';
 import appIconPng from '@/public/Jovie-logo.png';
-import { Tooltip } from '@/components/atoms/Tooltip';
 
 import type { DashboardData } from './actions';
 
@@ -20,9 +20,15 @@ interface DashboardLayoutClientProps {
   children: React.ReactNode;
 }
 
-export default function DashboardLayoutClient({ dashboardData, persistSidebarCollapsed, children }: DashboardLayoutClientProps) {
+export default function DashboardLayoutClient({
+  dashboardData,
+  persistSidebarCollapsed,
+  children,
+}: DashboardLayoutClientProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(dashboardData.sidebarCollapsed ?? false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    dashboardData.sidebarCollapsed ?? false
+  );
   const [, startTransition] = useTransition();
 
   // Initialize collapsed state from localStorage (client-only)
@@ -39,7 +45,7 @@ export default function DashboardLayoutClient({ dashboardData, persistSidebarCol
 
   // Toggle handler that also persists to localStorage and DB
   const handleToggleSidebarCollapsed = () => {
-    setSidebarCollapsed((prev) => {
+    setSidebarCollapsed(prev => {
       const next = !prev;
       try {
         localStorage.setItem('dashboard.sidebarCollapsed', next ? '1' : '0');
@@ -125,8 +131,10 @@ export default function DashboardLayoutClient({ dashboardData, persistSidebarCol
                 </Link>
               </div>
 
-              <nav className={`flex flex-1 flex-col ${sidebarCollapsed ? 'px-2' : 'px-3'}`}>
-                <DashboardNav collapsed={sidebarCollapsed} />
+              <nav
+                className={`flex flex-1 flex-col ${sidebarCollapsed ? 'px-2' : 'px-3'}`}
+              >
+                <DashboardNav />
               </nav>
 
               {/* Theme toggle block (above divider) */}
@@ -137,10 +145,15 @@ export default function DashboardLayoutClient({ dashboardData, persistSidebarCol
               {/* Divider and user controls block (below divider) */}
               <div className='flex-shrink-0 border-t border-subtle p-2'>
                 {/* User button (expanded only) */}
-                <div className={`${sidebarCollapsed ? 'hidden' : 'block px-2'}`}>
+                <div
+                  className={`${sidebarCollapsed ? 'hidden' : 'block px-2'}`}
+                >
                   <div className='flex items-center gap-2'>
                     {/* Icon-only theme toggle with tooltip */}
-                    <Tooltip content={<span>Toggle theme</span>} placement='top'>
+                    <Tooltip
+                      content={<span>Toggle theme</span>}
+                      placement='top'
+                    >
                       <span>
                         <EnhancedThemeToggle variant='compact' />
                       </span>
@@ -153,7 +166,10 @@ export default function DashboardLayoutClient({ dashboardData, persistSidebarCol
                 {sidebarCollapsed && (
                   <div className='flex flex-col items-center justify-center gap-2'>
                     {/* Icon-only theme toggle with tooltip (stacked above avatar) */}
-                    <Tooltip content={<span>Toggle theme</span>} placement='top'>
+                    <Tooltip
+                      content={<span>Toggle theme</span>}
+                      placement='top'
+                    >
                       <span aria-label='Toggle theme'>
                         <EnhancedThemeToggle variant='compact' />
                       </span>
@@ -175,7 +191,9 @@ export default function DashboardLayoutClient({ dashboardData, persistSidebarCol
                            bg-surface-0/90 backdrop-blur-md hover:bg-surface-1
                            text-secondary-token hover:text-primary-token transition-colors duration-200
                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1'
-                aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                aria-label={
+                  sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'
+                }
               >
                 <svg
                   className={`w-5 h-5 transition-transform duration-200 ${sidebarCollapsed ? 'rotate-180' : ''}`}
@@ -183,7 +201,12 @@ export default function DashboardLayoutClient({ dashboardData, persistSidebarCol
                   viewBox='0 0 24 24'
                   stroke='currentColor'
                 >
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M15 19l-7-7 7-7' />
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M15 19l-7-7 7-7'
+                  />
                 </svg>
               </button>
             </div>
@@ -197,7 +220,9 @@ export default function DashboardLayoutClient({ dashboardData, persistSidebarCol
           {/* Main content */}
           <div className='flex flex-1 flex-col overflow-hidden'>
             <main className='flex-1 overflow-y-auto'>
-              <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8'>{children}</div>
+              <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8'>
+                {children}
+              </div>
             </main>
           </div>
         </div>

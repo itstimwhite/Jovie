@@ -5,7 +5,12 @@ import { asc, eq } from 'drizzle-orm';
 import { unstable_noStore as noStore } from 'next/cache';
 import { withDbSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
-import { type CreatorProfile, creatorProfiles, users, userSettings } from '@/lib/db/schema';
+import {
+  type CreatorProfile,
+  creatorProfiles,
+  userSettings,
+  users,
+} from '@/lib/db/schema';
 
 export interface DashboardData {
   user: { id: string } | null;
@@ -70,17 +75,18 @@ export async function getDashboardData(): Promise<DashboardData> {
       }
 
       // Load user settings for UI preferences; tolerate missing column/table during migrations
-      let settings: Awaited<ReturnType<typeof db.select>> extends infer _T ? (typeof userSettings) | undefined : any;
+      let settings: { sidebarCollapsed: boolean } | undefined;
       try {
         const result = await db
           .select()
           .from(userSettings)
           .where(eq(userSettings.userId, userData.id))
           .limit(1);
-        // @ts-expect-error drizzle infers tuple array
         settings = result?.[0];
-      } catch (e) {
-        console.warn('user_settings not available yet, defaulting sidebarCollapsed=false');
+      } catch {
+        console.warn(
+          'user_settings not available yet, defaulting sidebarCollapsed=false'
+        );
         settings = undefined;
       }
 
@@ -127,7 +133,11 @@ export async function setSidebarCollapsed(collapsed: boolean): Promise<void> {
     // Upsert into user_settings
     await db
       .insert(userSettings)
-      .values({ userId: user.id, sidebarCollapsed: collapsed, updatedAt: new Date() })
+      .values({
+        userId: user.id,
+        sidebarCollapsed: collapsed,
+        updatedAt: new Date(),
+      })
       .onConflictDoUpdate({
         target: userSettings.userId,
         set: { sidebarCollapsed: collapsed, updatedAt: new Date() },

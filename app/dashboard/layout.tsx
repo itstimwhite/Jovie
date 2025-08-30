@@ -1,4 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getDashboardData, setSidebarCollapsed } from './actions';
 import DashboardLayoutClient from './DashboardLayoutClient';
@@ -51,12 +52,12 @@ export default async function DashboardLayout({
           <p className='text-gray-600 dark:text-white/70 mb-4'>
             Failed to load dashboard data. Please refresh the page.
           </p>
-          <a
+          <Link
             href='/dashboard'
             className='inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700'
           >
             Refresh Page
-          </a>
+          </Link>
         </div>
       </div>
     );
