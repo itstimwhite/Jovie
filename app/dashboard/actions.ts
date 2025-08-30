@@ -5,13 +5,19 @@ import { asc, eq } from 'drizzle-orm';
 import { unstable_noStore as noStore } from 'next/cache';
 import { withDbSession } from '@/lib/auth/session';
 import { db } from '@/lib/db';
-import { type CreatorProfile, creatorProfiles, users } from '@/lib/db/schema';
+import {
+  type CreatorProfile,
+  creatorProfiles,
+  userSettings,
+  users,
+} from '@/lib/db/schema';
 
 export interface DashboardData {
   user: { id: string } | null;
   creatorProfiles: CreatorProfile[];
   selectedProfile: CreatorProfile | null;
   needsOnboarding: boolean;
+  sidebarCollapsed: boolean;
 }
 
 export async function getDashboardData(): Promise<DashboardData> {
@@ -26,6 +32,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       creatorProfiles: [],
       selectedProfile: null,
       needsOnboarding: true,
+      sidebarCollapsed: false,
     };
   }
 
@@ -45,6 +52,7 @@ export async function getDashboardData(): Promise<DashboardData> {
           creatorProfiles: [],
           selectedProfile: null,
           needsOnboarding: true,
+          sidebarCollapsed: false,
         };
       }
 
@@ -62,7 +70,24 @@ export async function getDashboardData(): Promise<DashboardData> {
           creatorProfiles: [],
           selectedProfile: null,
           needsOnboarding: true,
+          sidebarCollapsed: false,
         };
+      }
+
+      // Load user settings for UI preferences; tolerate missing column/table during migrations
+      let settings: { sidebarCollapsed: boolean } | undefined;
+      try {
+        const result = await db
+          .select()
+          .from(userSettings)
+          .where(eq(userSettings.userId, userData.id))
+          .limit(1);
+        settings = result?.[0];
+      } catch {
+        console.warn(
+          'user_settings not available yet, defaulting sidebarCollapsed=false'
+        );
+        settings = undefined;
       }
 
       // Return data with first profile selected by default
@@ -71,6 +96,7 @@ export async function getDashboardData(): Promise<DashboardData> {
         creatorProfiles: creatorData,
         selectedProfile: creatorData[0],
         needsOnboarding: false,
+        sidebarCollapsed: settings?.sidebarCollapsed ?? false,
       };
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -80,8 +106,42 @@ export async function getDashboardData(): Promise<DashboardData> {
         creatorProfiles: [],
         selectedProfile: null,
         needsOnboarding: true,
+        sidebarCollapsed: false,
       };
     }
+  });
+}
+
+export async function setSidebarCollapsed(collapsed: boolean): Promise<void> {
+  'use server';
+  noStore();
+  const { userId } = await auth();
+  if (!userId) {
+    throw new Error('Unauthorized');
+  }
+
+  await withDbSession(async clerkUserId => {
+    // Get DB user id
+    const [user] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.clerkId, clerkUserId))
+      .limit(1);
+
+    if (!user?.id) throw new Error('User not found');
+
+    // Upsert into user_settings
+    await db
+      .insert(userSettings)
+      .values({
+        userId: user.id,
+        sidebarCollapsed: collapsed,
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: userSettings.userId,
+        set: { sidebarCollapsed: collapsed, updatedAt: new Date() },
+      });
   });
 }
 

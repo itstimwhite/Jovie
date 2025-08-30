@@ -75,6 +75,7 @@ export const userSettings = pgTable('user_settings', {
     .primaryKey()
     .references(() => users.id, { onDelete: 'cascade' }),
   themeMode: themeModeEnum('theme_mode').notNull().default('system'),
+  sidebarCollapsed: boolean('sidebar_collapsed').notNull().default(false),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
