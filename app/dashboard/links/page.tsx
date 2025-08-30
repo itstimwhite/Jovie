@@ -33,15 +33,14 @@ export default async function LinksPage() {
 
     // On actual error, show a simple error message
     return (
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+      <div className='text-center'>
+        <h1 className='text-2xl font-semibold text-gray-900 dark:text-white mb-4'>
           Something went wrong
         </h1>
-        <p className="text-gray-600 dark:text-white/70 mb-4">
+        <p className='text-gray-600 dark:text-white/70 mb-4'>
           Failed to load links data. Please refresh the page.
         </p>
       </div>
     );
   }
 }
-

@@ -55,13 +55,14 @@ export function DashboardNav() {
   const pathname = usePathname();
 
   return (
-    <ul role="list" className="flex flex-1 flex-col gap-y-7">
+    <ul role='list' className='flex flex-1 flex-col gap-y-7'>
       <li>
-        <ul role="list" className="-mx-2 space-y-1">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href || 
-                            (pathname === '/dashboard' && item.id === 'overview');
-            
+        <ul role='list' className='-mx-2 space-y-1'>
+          {navigation.map(item => {
+            const isActive =
+              pathname === item.href ||
+              (pathname === '/dashboard' && item.id === 'overview');
+
             return (
               <li key={item.name}>
                 <Link
@@ -80,7 +81,7 @@ export function DashboardNav() {
                         : 'text-secondary-token group-hover:text-primary-token',
                       'h-6 w-6 shrink-0'
                     )}
-                    aria-hidden="true"
+                    aria-hidden='true'
                   />
                   {item.name}
                 </Link>
@@ -92,4 +93,3 @@ export function DashboardNav() {
     </ul>
   );
 }
-
