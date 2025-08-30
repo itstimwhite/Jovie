@@ -32,14 +32,34 @@ export default function DashboardLayoutClient({
 
   // Initialize collapsed state from localStorage (client-only)
   useEffect(() => {
+    const serverValue = dashboardData.sidebarCollapsed ?? false;
     try {
       const stored = localStorage.getItem('dashboard.sidebarCollapsed');
-      if (stored !== null) {
-        setSidebarCollapsed(stored === '1');
+      if (stored === null) {
+        // Seed localStorage from server
+        localStorage.setItem(
+          'dashboard.sidebarCollapsed',
+          serverValue ? '1' : '0'
+        );
+        setSidebarCollapsed(serverValue);
+      } else {
+        const storedBool = stored === '1';
+        if (storedBool !== serverValue) {
+          // Prefer server as source of truth on load to avoid UI mismatch
+          localStorage.setItem(
+            'dashboard.sidebarCollapsed',
+            serverValue ? '1' : '0'
+          );
+          setSidebarCollapsed(serverValue);
+        } else {
+          setSidebarCollapsed(storedBool);
+        }
       }
     } catch {
       // ignore storage errors (Safari private mode, etc.)
     }
+    // We intentionally only run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Toggle handler that also persists to localStorage and DB
@@ -111,9 +131,9 @@ export default function DashboardLayoutClient({
               <div className='flex h-16 shrink-0 items-center px-4'>
                 <Link
                   href='/dashboard/overview'
-                  className={`focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 rounded-md ${
-                    sidebarCollapsed ? '' : ''
-                  }`}
+                  className={
+                    'focus-visible:outline-none focus-visible:ring-2 ring-accent focus-visible:ring-offset-2 rounded-md'
+                  }
                 >
                   {sidebarCollapsed ? (
                     <Image
@@ -149,10 +169,7 @@ export default function DashboardLayoutClient({
                 >
                   <div className='flex items-center gap-2'>
                     {/* Icon-only theme toggle with tooltip */}
-                    <Tooltip
-                      content={<span>Toggle theme</span>}
-                      placement='top'
-                    >
+                    <Tooltip content={'Toggle theme'} placement='top'>
                       <span>
                         <EnhancedThemeToggle variant='compact' />
                       </span>
@@ -165,10 +182,7 @@ export default function DashboardLayoutClient({
                 {sidebarCollapsed && (
                   <div className='flex flex-col items-center justify-center gap-2'>
                     {/* Icon-only theme toggle with tooltip (stacked above avatar) */}
-                    <Tooltip
-                      content={<span>Toggle theme</span>}
-                      placement='top'
-                    >
+                    <Tooltip content={'Toggle theme'} placement='top'>
                       <span aria-label='Toggle theme'>
                         <EnhancedThemeToggle variant='compact' />
                       </span>
