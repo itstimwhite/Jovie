@@ -128,6 +128,112 @@ jobs:
       - name: Lint (enforce zero warnings)
         run: pnpm run lint --max-warnings=0
 
+  ci-drizzle-check:
+    name: Drizzle Check
+    needs: [ci-typecheck, ci-lint]
+    if: ${{ github.event_name == 'push' || github.event_name == 'merge_group' || (github.event_name == 'pull_request' && (github.event.pull_request.base.ref == 'preview' || contains(github.event.pull_request.labels.*.name, 'full-ci'))) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      NEON_URL: ${{ secrets.NEON_DATABASE_URL }}
+      DB_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # Path guard: Check if changes affect DB/schema files (only for pushes and non-preview PRs)
+      - name: Check for relevant changes
+        id: check_changes
+        run: |
+          # Force run if full-ci label is present
+          if [[ "${{ contains(github.event.pull_request.labels.*.name, 'full-ci') }}" == "true" ]]; then
+            echo "Forcing Drizzle check due to 'full-ci' label"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # For PRs to preview, always run Drizzle check (skip path guards)
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.base.ref }}" == "preview" ]]; then
+            echo "Running Drizzle check for PR to preview branch"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # For merge queue events, always run
+          if [[ "${{ github.event_name }}" == "merge_group" ]]; then
+            echo "Running Drizzle check for merge queue"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # For push events to production/preview, always run
+          if [[ "${{ github.event_name }}" == "push" && ("${{ github.ref }}" == "refs/heads/production" || "${{ github.ref }}" == "refs/heads/preview") ]]; then
+            echo "Running Drizzle check for push to production/preview branch"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Determine changed files depending on event type
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            # For PRs, compare against the base ref from origin
+            git fetch origin "${{ github.base_ref }}"
+            CHANGED_FILES=$(git diff --name-only "origin/${{ github.base_ref }}" HEAD)
+          else
+            # For push/merge_group, compare with previous commit
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          fi
+
+          # Check if DB/schema related paths were modified
+          echo "Checking for changes in DB/schema paths..."
+          if echo "$CHANGED_FILES" | grep -q -E '^(drizzle/|lib/db/|lib/db/schema|drizzle\.config\.ts|drizzle/config\.ts|drizzle\.kit\.(m?js|ts)|package(-lock)?\.json|pnpm-lock\.yaml)'; then
+            echo "DB/schema paths changed, running Drizzle check"
+            echo "run_full_ci=true" >> $GITHUB_OUTPUT
+          else
+            echo "No DB/schema paths changed, skipping Drizzle check"
+            echo "run_full_ci=false" >> $GITHUB_OUTPUT
+            echo "Changed files:"
+            echo "$CHANGED_FILES"
+          fi
+
+      # Skip remaining steps if no relevant changes
+      - name: Skip notification
+        if: steps.check_changes.outputs.run_full_ci != 'true'
+        run: |
+          echo "Skipping Drizzle check as no DB/schema paths were changed."
+          echo "To force a full CI run, add the 'full-ci' label to the PR."
+          exit 0
+
+      # Continue with CI steps only if relevant changes detected or full-ci label present
+      - uses: pnpm/action-setup@v4
+        if: steps.check_changes.outputs.run_full_ci == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.check_changes.outputs.run_full_ci == 'true'
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: '**/pnpm-lock.yaml'
+
+      - name: Configure DATABASE_URL env
+        if: steps.check_changes.outputs.run_full_ci == 'true'
+        run: |
+          if [[ -n "$NEON_URL" ]]; then
+            echo "DATABASE_URL=$NEON_URL" >> $GITHUB_ENV
+          elif [[ -n "$DB_URL" ]]; then
+            echo "DATABASE_URL=$DB_URL" >> $GITHUB_ENV
+          else
+            echo "No DATABASE_URL secret configured." >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        if: steps.check_changes.outputs.run_full_ci == 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Drizzle Check
+        if: steps.check_changes.outputs.run_full_ci == 'true'
+        run: pnpm run drizzle:check
+
   ci-build:
     name: Build
     needs: [ci-typecheck, ci-lint]
