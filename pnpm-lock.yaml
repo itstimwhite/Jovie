@@ -111,8 +111,8 @@ dependencies:
     specifier: ^15.12.0
     version: 15.12.0
   stripe:
-    specifier: ^18.4.0
-    version: 18.4.0(@types/node@24.3.0)
+    specifier: ^18.5.0
+    version: 18.5.0(@types/node@24.3.0)
   tailwind-merge:
     specifier: ^3.3.1
     version: 3.3.1
@@ -9464,8 +9464,8 @@ packages:
       js-tokens: 9.0.1
     dev: true
 
-  /stripe@18.4.0(@types/node@24.3.0):
-    resolution: {integrity: sha512-LKFeDnDYo4U/YzNgx2Lc9PT9XgKN0JNF1iQwZxgkS4lOw5NunWCnzyH5RhTlD3clIZnf54h7nyMWkS8VXPmtTQ==}
+  /stripe@18.5.0(@types/node@24.3.0):
+    resolution: {integrity: sha512-Hp+wFiEQtCB0LlNgcFh5uVyKznpDjzyUZ+CNVEf+I3fhlYvh7rZruIg+jOwzJRCpy0ZTPMjlzm7J2/M2N6d+DA==}
     engines: {node: '>=12.*'}
     peerDependencies:
       '@types/node': '>=12.x.x'
